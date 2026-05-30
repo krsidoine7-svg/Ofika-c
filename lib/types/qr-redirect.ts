@@ -7,7 +7,7 @@ export interface QRRedirect {
   user_id: string
   short_code: string
   nfc_link: string
-  redirect_type: 'nfc_card' | 'profile' | 'custom'
+  redirect_type: 'nfc_card' | 'profile' | 'custom' | 'static'
   title?: string
   description?: string
   campaign_id?: string
@@ -34,7 +34,7 @@ export interface QRScan {
 
 export interface CreateQRRedirectInput {
   nfc_link: string
-  redirect_type?: 'nfc_card' | 'profile' | 'custom'
+  redirect_type?: 'nfc_card' | 'profile' | 'custom' | 'static'
   title?: string
   description?: string
   campaign_id?: string

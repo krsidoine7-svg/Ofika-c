@@ -48,7 +48,7 @@ export async function checkStatsResetStatus(userId: string): Promise<{
       .from('users')
       .select('stats_last_reset_at')
       .eq('id', userId)
-      .single()
+      .maybeSingle()
 
     if (userError) {
       console.error('Error fetching user reset data:', userError)

@@ -15,6 +15,7 @@ export default function AuthCallbackPage() {
       try {
         const params = new URLSearchParams(window.location.search)
         const code = params.get('code')
+        const next = params.get('next') || '/dashboard'
 
         if (code) {
           console.log('🔄 Échange du code d\'authentification...')
@@ -32,7 +33,7 @@ export default function AuthCallbackPage() {
 
         if (session) {
           toast.success('Connexion réussie!')
-          router.push('/dashboard')
+          router.push(next)
         } else {
           console.warn('Aucune session trouvée après callback')
           router.push('/auth/login')

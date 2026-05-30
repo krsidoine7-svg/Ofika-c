@@ -27,13 +27,21 @@ import {
   getUserQRRedirects,
   updateQRRedirect,
   deleteQRRedirect,
-  getQRCodeURL,
   getRedirectURL
 } from '@/lib/services/qr-redirect-client'
 import type { QRRedirect } from '@/lib/types/qr-redirect'
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/core/ui/dialog'
 import { Textarea } from '@/components/core/ui/textarea'
 import Link from 'next/link'
+import { QRCodeSVG } from 'qrcode.react'
+import { downloadSVGAsFile } from '@/lib/utils/download-qr'
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/core/ui/dropdown-menu'
+import { ChevronDown } from 'lucide-react'
 
 export default function QRCodesPage() {
   const [qrCodes, setQRCodes] = useState<QRRedirect[]>([])
@@ -107,35 +115,11 @@ export default function QRCodesPage() {
     toast.success(`${label} copié`)
   }
 
-  const downloadQRCode = async (shortCode: string, title: string) => {
+  const downloadQRCode = async (shortCode: string, title: string, id: string, format: 'png' | 'svg') => {
     try {
-      const qrUrl = getQRCodeURL(shortCode, 500)
-
-      // Utiliser notre API proxy pour télécharger l'image
-      const proxyUrl = `/api/qr-code/download?url=${encodeURIComponent(qrUrl)}`
-      const response = await fetch(proxyUrl)
-
-      if (!response.ok) {
-        throw new Error('Erreur lors du téléchargement')
-      }
-
-      const blob = await response.blob()
-
-      // Créer un URL local pour le blob
-      const url = window.URL.createObjectURL(blob)
-
-      // Créer un lien de téléchargement
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `qr-${title || shortCode}.png`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-
-      // Libérer la mémoire
-      window.URL.revokeObjectURL(url)
-
-      toast.success('QR code téléchargé')
+      const svgId = `qr-${id}`
+      await downloadSVGAsFile(svgId, `qr-${title || shortCode}`, format)
+      toast.success(`QR code téléchargé en ${format.toUpperCase()}`)
     } catch (error) {
       console.error('Erreur lors du téléchargement:', error)
       toast.error('Erreur lors du téléchargement')
@@ -166,13 +150,20 @@ export default function QRCodesPage() {
               Gérez vos QR codes et changez leur destination sans les réimprimer
             </p>
           </div>
-          <Link href="/dashboard/qr-codes/new" className="w-full sm:w-auto">
-            <Button className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600">
-              <Plus className="w-4 h-4 mr-2" />
-              <span className="hidden sm:inline">Nouveau QR Code</span>
-              <span className="sm:hidden">Créer un QR Code</span>
-            </Button>
-          </Link>
+          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
+            <Link href="/dashboard/qr-codes/new?type=dynamic" className="w-full sm:w-auto">
+              <Button className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600">
+                <Plus className="w-4 h-4 mr-2" />
+                QR Dynamique
+              </Button>
+            </Link>
+            <Link href="/dashboard/qr-codes/new?type=static" className="w-full sm:w-auto">
+              <Button variant="outline" className="w-full sm:w-auto border-gray-300 text-gray-700 hover:bg-gray-50">
+                <Plus className="w-4 h-4 mr-2" />
+                QR Statique
+              </Button>
+            </Link>
+          </div>
         </div>
       </div>
 
@@ -230,12 +221,20 @@ export default function QRCodesPage() {
               <p className="text-gray-600 mb-6">
                 Créez votre premier QR code dynamique
               </p>
-              <Link href="/dashboard/qr-codes/new">
-                <Button className="bg-orange-500 hover:bg-orange-600">
-                  <Plus className="w-4 h-4 mr-2" />
-                  Créer un QR Code
-                </Button>
-              </Link>
+              <div className="flex flex-col sm:flex-row justify-center gap-3">
+                <Link href="/dashboard/qr-codes/new?type=dynamic">
+                  <Button className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Créer un QR Dynamique
+                  </Button>
+                </Link>
+                <Link href="/dashboard/qr-codes/new?type=static">
+                  <Button variant="outline" className="w-full sm:w-auto border-gray-300 text-gray-700 hover:bg-gray-50">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Créer un QR Statique
+                  </Button>
+                </Link>
+              </div>
             </div>
           </CardContent>
         </Card>
@@ -287,11 +286,13 @@ export default function QRCodesPage() {
                   // Mode affichage
                   <div className="flex flex-col md:flex-row items-start gap-4 md:gap-6">
                     {/* QR Code Preview */}
-                    <div className="flex-shrink-0 mx-auto md:mx-0">
-                      <img
-                        src={getQRCodeURL(qr.short_code, 150)}
-                        alt="QR Code"
-                        className="w-40 h-40 md:w-32 md:h-32 rounded-lg border-2 border-gray-200 shadow-md"
+                    <div className="flex-shrink-0 mx-auto md:mx-0 bg-white p-2 rounded-lg border-2 border-gray-200 shadow-md">
+                      <QRCodeSVG
+                        id={`qr-${qr.id}`}
+                        value={qr.redirect_type === 'static' ? qr.nfc_link : getRedirectURL(qr.short_code)}
+                        size={128}
+                        level={"H"}
+                        includeMargin={false}
                       />
                     </div>
 
@@ -302,15 +303,33 @@ export default function QRCodesPage() {
                           <h3 className="text-lg font-semibold text-gray-900">
                             {qr.title || 'Sans titre'}
                           </h3>
-                          <div className="flex items-center gap-2">
-                            <Badge
-                              variant={qr.redirect_type === 'nfc_card' ? 'secondary' : (qr.is_active ? 'default' : 'secondary')}
-                              className={qr.redirect_type === 'nfc_card' ? 'bg-blue-100 text-blue-700 border-blue-200' : ''}
-                            >
-                              {qr.redirect_type === 'nfc_card' ? 'Carte NFC (Protégé)' : (qr.is_active ? 'Actif' : 'Inactif')}
-                            </Badge>
-                            {qr.redirect_type !== 'nfc_card' && (
-                              <Badge variant="outline">{qr.redirect_type}</Badge>
+                          <div className="flex flex-wrap items-center gap-2">
+                            {/* Badge principal : Statique vs Dynamique */}
+                            {qr.redirect_type === 'static' ? (
+                              <Badge className="bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200">
+                                STATIQUE
+                              </Badge>
+                            ) : (
+                              <Badge className="bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200">
+                                DYNAMIQUE
+                              </Badge>
+                            )}
+
+                            {/* Badge secondaire : Source (Carte NFC ou autre) */}
+                            {qr.redirect_type === 'nfc_card' && (
+                              <Badge className="bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-200">
+                                🔒 Lié à une Carte NFC
+                              </Badge>
+                            )}
+
+                            {/* Badge statut actif/inactif (uniquement pour les dynamiques) */}
+                            {qr.redirect_type !== 'static' && (
+                              <Badge
+                                variant={qr.is_active ? 'default' : 'secondary'}
+                                className={qr.is_active ? 'bg-green-100 text-green-700 border-green-200 hover:bg-green-200' : ''}
+                              >
+                                {qr.is_active ? 'Actif' : 'Inactif'}
+                              </Badge>
                             )}
                           </div>
                         </div>
@@ -365,50 +384,63 @@ export default function QRCodesPage() {
                           <Edit className="w-4 h-4 mr-2" />
                           Modifier
                         </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleToggleActive(qr)}
-                          disabled={qr.redirect_type === 'nfc_card'}
-                          title={qr.redirect_type === 'nfc_card' ? "Les QR codes liés aux cartes NFC ne peuvent pas être désactivés" : ""}
-                        >
-                          {qr.is_active ? (
-                            <>
-                              <EyeOff className="w-4 h-4 mr-2" />
-                              Désactiver
-                            </>
-                          ) : (
-                            <>
-                              <Eye className="w-4 h-4 mr-2" />
-                              Activer
-                            </>
-                          )}
-                        </Button>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => downloadQRCode(qr.short_code, qr.title || '')}
-                        >
-                          <QrCode className="w-4 h-4 mr-2" />
-                          Télécharger
-                        </Button>
+                        {/* Les QR codes statiques ne peuvent pas être activés/désactivés */}
+                        {qr.redirect_type !== 'static' && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => handleToggleActive(qr)}
+                            disabled={qr.redirect_type === 'nfc_card'}
+                            title={qr.redirect_type === 'nfc_card' ? "Les QR codes liés aux cartes NFC ne peuvent pas être désactivés" : ""}
+                          >
+                            {qr.is_active ? (
+                              <>
+                                <EyeOff className="w-4 h-4 mr-2" />
+                                Désactiver
+                              </>
+                            ) : (
+                              <>
+                                <Eye className="w-4 h-4 mr-2" />
+                                Activer
+                              </>
+                            )}
+                          </Button>
+                        )}
+                        <DropdownMenu>
+                          <DropdownMenuTrigger asChild>
+                            <Button size="sm" variant="outline">
+                              <QrCode className="w-4 h-4 mr-2" />
+                              Télécharger
+                              <ChevronDown className="w-3 h-3 ml-1" />
+                            </Button>
+                          </DropdownMenuTrigger>
+                          <DropdownMenuContent>
+                            <DropdownMenuItem onClick={() => downloadQRCode(qr.short_code, qr.title || '', qr.id, 'png')}>
+                              Format PNG (Image)
+                            </DropdownMenuItem>
+                            <DropdownMenuItem onClick={() => downloadQRCode(qr.short_code, qr.title || '', qr.id, 'svg')}>
+                              Format SVG (Vectoriel)
+                            </DropdownMenuItem>
+                          </DropdownMenuContent>
+                        </DropdownMenu>
                         <Link href={`/dashboard/qr-codes/${qr.id}/stats`}>
                           <Button size="sm" variant="outline">
                             <BarChart3 className="w-4 h-4 mr-2" />
                             Statistiques
                           </Button>
                         </Link>
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          className={qr.redirect_type === 'nfc_card' ? 'opacity-50 cursor-not-allowed' : 'text-red-600 hover:text-red-700'}
-                          onClick={() => qr.redirect_type !== 'nfc_card' && handleDelete(qr.id)}
-                          disabled={qr.redirect_type === 'nfc_card'}
-                          title={qr.redirect_type === 'nfc_card' ? "Les QR codes liés aux cartes NFC ne peuvent pas être supprimés" : ""}
-                        >
-                          <Trash2 className="w-4 h-4 mr-2" />
-                          Supprimer
-                        </Button>
+                        {/* Suppression possible sauf pour les cartes NFC */}
+                        {qr.redirect_type !== 'nfc_card' && (
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                            onClick={() => handleDelete(qr.id)}
+                          >
+                            <Trash2 className="w-4 h-4 mr-2" />
+                            Supprimer
+                          </Button>
+                        )}
                       </div>
                     </div>
                   </div>

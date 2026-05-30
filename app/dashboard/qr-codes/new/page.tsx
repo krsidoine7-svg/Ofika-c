@@ -4,8 +4,8 @@
 // PAGE DE CRÉATION D'UN NOUVEAU QR CODE DYNAMIQUE
 // =====================================================
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useState, useEffect } from 'react'
+import { useRouter, useSearchParams } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/core/ui/card'
 import { Button } from '@/components/core/ui/button'
 import { Input } from '@/components/core/ui/input'
@@ -14,19 +14,24 @@ import { Textarea } from '@/components/core/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/core/ui/select'
 import { ArrowLeft, QrCode, Loader2, ExternalLink, Phone, MessageCircle, Mail, MapPin, User, Globe } from 'lucide-react'
 import { toast } from 'sonner'
-import { createQRRedirect, getQRCodeURL, getRedirectURL } from '@/lib/services/qr-redirect-client'
+import { createQRRedirect, getRedirectURL } from '@/lib/services/qr-redirect-client'
 import { sanitizeVCardField, validateEmail, validatePhoneNumber } from '@/lib/utils/qr-validation'
 import Link from 'next/link'
+import { QRCodeSVG } from 'qrcode.react'
+import { downloadSVGAsFile } from '@/lib/utils/download-qr'
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/core/ui/dropdown-menu'
+import { ChevronDown } from 'lucide-react'
 
 type QRCodeType = 'website' | 'phone' | 'whatsapp' | 'email' | 'location' | 'vcard'
 
 export default function NewQRCodePage() {
   const router = useRouter()
+  const searchParams = useSearchParams()
   const [loading, setLoading] = useState(false)
   const [qrType, setQrType] = useState<QRCodeType>('website')
   const [formData, setFormData] = useState({
     nfc_link: '',
-    redirect_type: 'custom' as 'nfc_card' | 'profile' | 'custom',
+    redirect_type: 'custom' as 'nfc_card' | 'profile' | 'custom' | 'static',
     title: '',
     description: '',
     // Champs spécifiques par type
@@ -53,6 +58,16 @@ export default function NewQRCodePage() {
     redirectUrl: string
     nfcLink: string
   } | null>(null)
+
+  // Initialiser le type de QR code en fonction du paramètre dans l'URL
+  useEffect(() => {
+    const typeParam = searchParams.get('type')
+    if (typeParam === 'static') {
+      setFormData(prev => ({ ...prev, redirect_type: 'static' }))
+    } else if (typeParam === 'dynamic') {
+      setFormData(prev => ({ ...prev, redirect_type: 'custom' }))
+    }
+  }, [searchParams])
 
   // Générer l'URL cible selon le type de QR code
   const generateTargetUrl = (): string => {
@@ -167,7 +182,7 @@ export default function NewQRCodePage() {
 
       if (result.success && result.data) {
         const shortCode = result.data.short_code
-        const qrCodeUrl = getQRCodeURL(shortCode, 500)
+        const qrCodeUrl = '' // Plus besoin de l'URL externe
         const redirectUrl = getRedirectURL(shortCode)
 
         setCreatedQR({
@@ -189,35 +204,12 @@ export default function NewQRCodePage() {
     }
   }
 
-  const handleDownload = async () => {
+  const handleDownload = async (format: 'png' | 'svg') => {
     if (!createdQR) return
 
     try {
-      // Utiliser notre API proxy pour télécharger l'image
-      const proxyUrl = `/api/qr-code/download?url=${encodeURIComponent(createdQR.qrCodeUrl)}`
-      const response = await fetch(proxyUrl)
-      
-      if (!response.ok) {
-        throw new Error('Erreur lors du téléchargement')
-      }
-      
-      const blob = await response.blob()
-      
-      // Créer un URL local pour le blob
-      const url = window.URL.createObjectURL(blob)
-      
-      // Créer un lien de téléchargement
-      const link = document.createElement('a')
-      link.href = url
-      link.download = `qr-${formData.title || createdQR.shortCode}.png`
-      document.body.appendChild(link)
-      link.click()
-      document.body.removeChild(link)
-      
-      // Libérer la mémoire
-      window.URL.revokeObjectURL(url)
-      
-      toast.success('QR code téléchargé')
+      await downloadSVGAsFile('qr-preview-new', `qr-${formData.title || createdQR.shortCode}`, format)
+      toast.success(`QR code téléchargé en ${format.toUpperCase()}`)
     } catch (error) {
       console.error('Erreur lors du téléchargement:', error)
       toast.error('Erreur lors du téléchargement')
@@ -235,7 +227,7 @@ export default function NewQRCodePage() {
     setQrType('website')
     setFormData({
       nfc_link: '',
-      redirect_type: 'custom',
+      redirect_type: searchParams.get('type') === 'static' ? 'static' as const : 'custom' as const,
       title: '',
       description: '',
       phone: '',
@@ -283,10 +275,12 @@ export default function NewQRCodePage() {
             {/* QR Code Preview */}
             <div className="flex justify-center">
               <div className="bg-white p-6 rounded-lg border-2 border-gray-200 shadow-lg">
-                <img
-                  src={createdQR.qrCodeUrl}
-                  alt="QR Code"
-                  className="w-64 h-64"
+                <QRCodeSVG
+                  id="qr-preview-new"
+                  value={formData.redirect_type === 'static' ? createdQR.nfcLink : createdQR.redirectUrl}
+                  size={256}
+                  level={qrType === 'vcard' ? "M" : "H"}
+                  includeMargin={true}
                 />
               </div>
             </div>
@@ -323,13 +317,23 @@ export default function NewQRCodePage() {
             {/* Actions */}
             <div className="space-y-3">
               <div className="flex flex-col sm:flex-row gap-3">
-                <Button
-                  onClick={handleDownload}
-                  className="flex-1 bg-orange-500 hover:bg-orange-600"
-                >
-                  <QrCode className="w-4 h-4 mr-2" />
-                  Télécharger le QR Code
-                </Button>
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button className="flex-1 bg-orange-500 hover:bg-orange-600">
+                      <QrCode className="w-4 h-4 mr-2" />
+                      Télécharger
+                      <ChevronDown className="w-4 h-4 ml-2" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem onClick={() => handleDownload('png')}>
+                      Format PNG (Image)
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => handleDownload('svg')}>
+                      Format SVG (Vectoriel)
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
                 <Button
                   onClick={handleCreateAnother}
                   variant="outline"
@@ -401,16 +405,20 @@ export default function NewQRCodePage() {
 
       <Card>
         <CardHeader>
-          <CardTitle className="text-2xl">Créer un QR Code Dynamique</CardTitle>
+          <CardTitle className="text-2xl">
+            {formData.redirect_type === 'static' ? 'Créer un QR Code Statique' : 'Créer un QR Code Dynamique'}
+          </CardTitle>
           <CardDescription>
-            Créez un QR code dont vous pourrez modifier la destination sans avoir à le réimprimer
+            {formData.redirect_type === 'static' 
+              ? 'Créez un QR code direct et encodé de façon permanente'
+              : 'Créez un QR code dont vous pourrez modifier la destination sans avoir à le réimprimer'}
           </CardDescription>
         </CardHeader>
         <CardContent>
           <form onSubmit={handleSubmit} className="space-y-6">
             {/* Sélecteur de type de QR Code */}
             <div className="space-y-3">
-              <Label>Type de QR Code <span className="text-red-500">*</span></Label>
+              <Label className="text-base">Type de QR Code <span className="text-red-500">*</span></Label>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
                 <button
                   type="button"
@@ -759,22 +767,8 @@ export default function NewQRCodePage() {
               </p>
             </div>
 
-            {/* Info */}
-            <div className="bg-orange-50 border border-orange-200 rounded-lg p-4">
-              <h4 className="font-semibold text-orange-900 mb-2 flex items-center gap-2">
-                <QrCode className="w-4 h-4" />
-                QR Code Dynamique
-              </h4>
-              <ul className="text-sm text-orange-800 space-y-1">
-                <li>✅ Modifiez la destination sans réimprimer</li>
-                <li>✅ Suivez les statistiques de scan</li>
-                <li>✅ Activez/désactivez quand vous voulez</li>
-                <li>✅ Gratuit et illimité</li>
-              </ul>
-            </div>
-
             {/* Boutons */}
-            <div className="flex gap-3">
+            <div className="flex gap-3 pt-6 border-t border-gray-100">
               <Button
                 type="submit"
                 className="flex-1 bg-orange-500 hover:bg-orange-600"
