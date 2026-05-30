@@ -1,0 +1,36 @@
+{
+    "name": "Ofika - Carte Connectée",
+    "short_name": "Ofika",
+    "description": "Digitalisez votre présence professionnelle en Afrique.",
+    "start_url": "/",
+    "display": "standalone",
+    "orientation": "portrait",
+    "background_color": "#FFFFFF",
+    "theme_color": "#FF6600",
+    "icons": [
+        {
+            "src": "/assets/logos/logo-orange.svg",
+            "sizes": "192x192",
+            "type": "image/svg+xml",
+            "purpose": "any"
+        },
+        {
+            "src": "/assets/logos/logo-orange.svg",
+            "sizes": "512x512",
+            "type": "image/svg+xml",
+            "purpose": "any"
+        },
+        {
+            "src": "/assets/logos/logo-square.svg",
+            "sizes": "192x192",
+            "type": "image/svg+xml",
+            "purpose": "maskable"
+        },
+        {
+            "src": "/assets/logos/logo-square.svg",
+            "sizes": "512x512",
+            "type": "image/svg+xml",
+            "purpose": "maskable"
+        }
+    ]
+}

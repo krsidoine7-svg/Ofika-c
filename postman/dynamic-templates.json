@@ -1,0 +1,186 @@
+{
+  "info": {
+    "name": "Ofika - Dynamic Templates API",
+    "description": "Collection Postman pour tester les APIs de templates dynamiques",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Templates",
+      "item": [
+        {
+          "name": "GET All Templates",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/templates",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "templates"]
+            },
+            "description": "Récupère tous les templates actifs"
+          },
+          "response": []
+        },
+        {
+          "name": "HEAD Templates (Health Check)",
+          "request": {
+            "method": "HEAD",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/templates",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "templates"]
+            },
+            "description": "Vérifie la disponibilité de l'API"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "Profiles",
+      "item": [
+        {
+          "name": "POST Create Profile (Design Classique)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}",
+                "description": "Token d'authentification Supabase"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"baseFields\": {\n    \"name\": \"Jean Dupont\",\n    \"bio\": \"Entrepreneur passionné par la tech\",\n    \"email\": \"jean@exemple.com\",\n    \"phone\": \"+33 6 12 34 56 78\",\n    \"custom_url\": \"jean-dupont\",\n    \"image_url\": \"https://exemple.com/photo.jpg\",\n    \"is_public\": true,\n    \"whatsapp\": \"+33 6 12 34 56 78\",\n    \"instagram\": \"@jeandupont\",\n    \"twitter\": \"@jeandupont\"\n  },\n  \"templateId\": \"{{design1_template_id}}\",\n  \"templateFields\": {\n    \"company\": \"Tech Corp\",\n    \"position\": \"CEO\",\n    \"linkedin\": \"https://linkedin.com/in/jeandupont\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/profiles",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "profiles"]
+            },
+            "description": "Crée un profil avec le template Design Classique"
+          },
+          "response": []
+        },
+        {
+          "name": "POST Create Profile (Influencer)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"baseFields\": {\n    \"name\": \"Marie Influenceuse\",\n    \"bio\": \"Lifestyle & Mode 🌟\",\n    \"email\": \"contact@marie.com\",\n    \"custom_url\": \"marie-lifestyle\",\n    \"is_public\": true,\n    \"instagram\": \"@marie_lifestyle\",\n    \"tiktok\": \"@marielifestyle\",\n    \"youtube\": \"https://youtube.com/@marielifestyle\"\n  },\n  \"templateId\": \"{{influencer_template_id}}\",\n  \"templateFields\": {\n    \"instagram_followers\": 15000,\n    \"tiktok_followers\": 25000,\n    \"youtube_subscribers\": 8000,\n    \"content_category\": \"Lifestyle\",\n    \"collaboration_email\": \"collab@marie.com\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/profiles",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "profiles"]
+            },
+            "description": "Crée un profil influenceur avec métriques sociales"
+          },
+          "response": []
+        },
+        {
+          "name": "POST Create Profile (E-commerce)",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"baseFields\": {\n    \"name\": \"Boutique Fashion\",\n    \"bio\": \"Vêtements tendance pour tous\",\n    \"email\": \"contact@boutique-fashion.com\",\n    \"custom_url\": \"boutique-fashion\",\n    \"is_public\": true,\n    \"instagram\": \"@boutique_fashion\",\n    \"website\": \"https://boutique-fashion.com\"\n  },\n  \"templateId\": \"{{ecommerce_template_id}}\",\n  \"templateFields\": {\n    \"store_url\": \"https://boutique-fashion.com/shop\",\n    \"product_categories\": \"Vêtements femmes, Accessoires, Chaussures\",\n    \"payment_methods\": \"Carte bancaire, PayPal, Mobile Money\",\n    \"shipping_countries\": \"France, Belgique, Suisse, Afrique de l'Ouest\",\n    \"whatsapp_order\": \"+33 6 12 34 56 78\"\n  }\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/profiles",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "profiles"]
+            },
+            "description": "Crée un profil e-commerce"
+          },
+          "response": []
+        },
+        {
+          "name": "POST Create Profile - Validation Error",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              },
+              {
+                "key": "Authorization",
+                "value": "Bearer {{authToken}}"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"baseFields\": {\n    \"name\": \"A\",\n    \"custom_url\": \"ab\",\n    \"email\": \"invalid-email\"\n  },\n  \"templateId\": \"{{design1_template_id}}\",\n  \"templateFields\": {}\n}"
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/profiles",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "profiles"]
+            },
+            "description": "Test des erreurs de validation (nom trop court, URL trop courte, email invalide)"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "baseUrl",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "authToken",
+      "value": "YOUR_SUPABASE_TOKEN_HERE",
+      "type": "string"
+    },
+    {
+      "key": "design1_template_id",
+      "value": "GET_FROM_DB",
+      "type": "string",
+      "description": "ID du template Design Classique - Récupérer avec GET /api/templates"
+    },
+    {
+      "key": "influencer_template_id",
+      "value": "GET_FROM_DB",
+      "type": "string",
+      "description": "ID du template Influencer - Récupérer avec GET /api/templates"
+    },
+    {
+      "key": "ecommerce_template_id",
+      "value": "GET_FROM_DB",
+      "type": "string",
+      "description": "ID du template E-commerce - Récupérer avec GET /api/templates"
+    }
+  ]
+}
