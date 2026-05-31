@@ -6,13 +6,13 @@
 import { createClient } from '@/lib/supabase/server'
 
 interface DebugPageProps {
-  params: {
+  params: Promise<{
     shortCode: string
-  }
+  }>
 }
 
 export default async function QRDebugPage({ params }: DebugPageProps) {
-  const { shortCode } = params
+  const { shortCode } = await params
   const supabase = await createClient()
 
   const { data: qrRedirect, error } = await supabase

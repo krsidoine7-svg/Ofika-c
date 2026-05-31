@@ -4,6 +4,7 @@
 
 import { NextRequest, NextResponse } from 'next/server'
 import { logger } from '@/lib/logger'
+import { getRequestClientIp } from '@/lib/utils/request-ip'
 
 export const dynamic = 'force-dynamic'
 
@@ -46,7 +47,7 @@ export async function POST(request: NextRequest) {
 
     if (!isAuthorized) {
       logger.security('Tentative d\'accès non autorisé au webhook Make.com', { 
-        ip: request.ip,
+        ip: getRequestClientIp(request),
         userAgent: request.headers.get('user-agent'),
         hasApiKey: !!apiKey
       })

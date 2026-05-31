@@ -133,10 +133,10 @@ function generateCompleteVCard(profile: any, baseUrl: string): string {
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { profileId: string } }
+  { params }: { params: Promise<{ profileId: string }> }
 ) {
   try {
-    const profileIdOrUsername = params.profileId
+    const { profileId: profileIdOrUsername } = await params
     if (!profileIdOrUsername) return NextResponse.json({ error: 'ID ou Username manquant' }, { status: 400 })
 
     const supabase = await createClient()

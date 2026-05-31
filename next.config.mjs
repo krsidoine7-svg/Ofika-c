@@ -8,8 +8,8 @@ const nextConfig = {
     ignoreDuringBuilds: false,
   },
   // Use flat ESLint config
+  serverExternalPackages: [],
   experimental: {
-    serverComponentsExternalPackages: [],
     optimizePackageImports: [],
   },
 
@@ -69,9 +69,6 @@ const nextConfig = {
   // Compression et optimisation
   compress: true,
 
-  // Optimisations de build
-  swcMinify: true,
-
   // =====================================================
   // CONFIGURATION WEBPACK SIMPLIFIÉE
   // =====================================================
@@ -112,13 +109,6 @@ const nextConfig = {
   // Configuration des rewrites pour l'API (si nécessaire)
   rewrites: async () => {
     return []
-  },
-
-  // Désactiver le pré-rendu statique pour toutes les routes API
-  experimental: {
-    serverComponentsExternalPackages: [],
-    // Désactiver l'optimisation des paquets pour éviter les conflits avec les routes API
-    optimizePackageImports: [],
   },
 
   // Forcer le rendu dynamique pour les routes qui utilisent des cookies/headers

@@ -2,8 +2,9 @@ import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
 
-export async function PATCH(request: Request, { params }: { params: { id: string } }) {
+export async function PATCH(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params
     const supabase = await createClient()
     
     // Check admin authentication
@@ -47,7 +48,7 @@ export async function PATCH(request: Request, { params }: { params: { id: string
     const { data, error } = await adminClient
       .from('qr_redirects')
       .update(updates)
-      .eq('id', params.id)
+      .eq('id', id)
       .select()
 
     if (error) {
@@ -62,8 +63,9 @@ export async function PATCH(request: Request, { params }: { params: { id: string
   }
 }
 
-export async function DELETE(request: Request, { params }: { params: { id: string } }) {
+export async function DELETE(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params
     const supabase = await createClient()
     
     // Check admin authentication
@@ -91,7 +93,7 @@ export async function DELETE(request: Request, { params }: { params: { id: strin
     const { error } = await adminClient
       .from('qr_redirects')
       .delete()
-      .eq('id', params.id)
+      .eq('id', id)
 
     if (error) {
       console.error('Database delete error:', error)

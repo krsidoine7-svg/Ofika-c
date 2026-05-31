@@ -98,9 +98,10 @@ function calculateStats(reviews: any[]) {
  */
 export async function GET(
   request: NextRequest,
-  { params }: { params: { linkId: string } }
+  { params }: { params: Promise<{ linkId: string }> }
 ) {
   try {
+    const { linkId } = await params
     const supabase = await createClient()
     
     // ========================================
@@ -121,7 +122,7 @@ export async function GET(
     const { data: link, error: linkError } = await supabase
       .from('review_links')
       .select('id, title, user_id')
-      .eq('id', params.linkId)
+      .eq('id', linkId)
       .single()
     
     if (linkError || !link) {
@@ -152,7 +153,7 @@ export async function GET(
     let query = supabase
       .from('reviews')
       .select('*')
-      .eq('link_id', params.linkId)
+      .eq('link_id', linkId)
       .order('created_at', { ascending: false })
     
     if (rating && !isNaN(parseInt(rating))) {

@@ -1,7 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { ProfileWithLinks, Link } from '@/lib/types/database'
 import { Button } from "@/components/core/ui/button"
@@ -12,13 +12,9 @@ import { ArrowLeft, Plus, Edit, Trash2, ExternalLink } from "lucide-react"
 import { toast } from "sonner"
 import { ProtectedRoute } from "@/components/core/auth/ProtectedRoute"
 
-interface LinksPageProps {
-  params: {
-    id: string
-  }
-}
-
-export default function LinksPage({ params }: LinksPageProps) {
+export default function LinksPage() {
+  const params = useParams()
+  const profileId = params.id as string
   const [profile, setProfile] = useState<ProfileWithLinks | null>(null)
   const [links, setLinks] = useState<Link[]>([])
   const [loading, setLoading] = useState(true)
@@ -29,7 +25,7 @@ export default function LinksPage({ params }: LinksPageProps) {
 
   useEffect(() => {
     loadProfileAndLinks()
-  }, [params.id])
+  }, [profileId])
 
   const loadProfileAndLinks = async () => {
     try {
@@ -47,7 +43,7 @@ export default function LinksPage({ params }: LinksPageProps) {
           *,
           links (*)
         `)
-        .eq('id', params.id)
+        .eq('id', profileId)
         .eq('user_id', user.id)
         .eq('is_active', true)
         .single()
@@ -80,7 +76,7 @@ export default function LinksPage({ params }: LinksPageProps) {
       const { error } = await supabase
         .from('links')
         .insert({
-          profile_id: params.id,
+          profile_id: profileId,
           title: newLink.title,
           url: newLink.url,
           position: links.length + 1

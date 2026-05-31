@@ -6,11 +6,11 @@ export const dynamic = 'force-dynamic'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { nfcLink: string } }
+  { params }: { params: Promise<{ nfcLink: string }> }
 ) {
   try {
     const supabase = await createClient()
-    const { nfcLink } = params
+    const { nfcLink } = await params
 
     // Récupérer la carte NFC par son lien en cherchant dans le JSON structuré
     const { data: searchCard, error: searchError } = await supabase

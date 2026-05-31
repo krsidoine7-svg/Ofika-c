@@ -15,7 +15,7 @@ interface NFCCardResponse {
 // GET - Récupérer une carte NFC spécifique
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse<NFCCardResponse>> {
   try {
     const supabase = await createClient()
@@ -25,7 +25,7 @@ export async function GET(
       return NextResponse.json({ success: false, error: 'Non authentifié' }, { status: 401 })
     }
 
-    const cardId = params.id
+    const { id: cardId } = await params
     if (!cardId) {
       return NextResponse.json({ success: false, error: 'ID de carte requis' }, { status: 400 })
     }
@@ -77,7 +77,7 @@ export async function GET(
 // PUT - Mettre à jour une carte NFC
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse<NFCCardResponse>> {
   try {
     const supabase = await createClient()
@@ -87,7 +87,7 @@ export async function PUT(
       return NextResponse.json({ success: false, error: 'Non authentifié' }, { status: 401 })
     }
 
-    const cardId = params.id
+    const { id: cardId } = await params
     const body = await request.json() as UpdateNFCCardData
 
     if (!cardId) {
@@ -231,7 +231,7 @@ export async function PUT(
 // DELETE - Supprimer une carte NFC
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ): Promise<NextResponse<NFCCardResponse>> {
   try {
     const supabase = await createClient()
@@ -240,10 +240,11 @@ export async function DELETE(
       return NextResponse.json({ success: false, error: 'Non authentifié' }, { status: 401 })
     }
 
+    const { id: cardId } = await params
     const { error } = await supabase
       .from('digital_nfc_cards')
       .update({ status: 'draft', updated_at: new Date().toISOString() })
-      .eq('id', params.id)
+      .eq('id', cardId)
       .eq('user_id', user.id)
 
     if (error) {

@@ -1,4 +1,5 @@
 import { NextRequest } from 'next/server'
+import { getRequestClientIp } from '@/lib/utils/request-ip'
 
 /**
  * Service de rate limiting pour protéger contre les attaques DDoS
@@ -116,7 +117,7 @@ class RateLimiter {
     if (realIP) return realIP
     if (forwarded) return forwarded.split(',')[0].trim()
     
-    return request.ip || 'unknown'
+    return getRequestClientIp(request)
   }
 }
 

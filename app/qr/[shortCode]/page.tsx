@@ -8,13 +8,13 @@ import { headers } from 'next/headers'
 import { getClientIp, validateTargetUrl } from '@/lib/utils/qr-validation'
 
 interface QRRedirectPageProps {
-  params: {
+  params: Promise<{
     shortCode: string
-  }
+  }>
 }
 
 export default async function QRRedirectPage({ params }: QRRedirectPageProps) {
-  const { shortCode } = params
+  const { shortCode } = await params
   const supabase = await createClient()
 
   try {
@@ -265,7 +265,7 @@ export default async function QRRedirectPage({ params }: QRRedirectPageProps) {
 
 // Metadata pour SEO
 export async function generateMetadata({ params }: QRRedirectPageProps) {
-  const { shortCode } = params
+  const { shortCode } = await params
   const supabase = await createClient()
 
   const { data: qrRedirect } = await supabase

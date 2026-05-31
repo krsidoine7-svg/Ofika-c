@@ -10,10 +10,10 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
 
 export async function PATCH(
     request: Request,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const id = params.id
+        const { id } = await params
         if (!id) {
             return NextResponse.json({ error: 'ID manquant' }, { status: 400 })
         }

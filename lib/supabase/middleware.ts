@@ -1,6 +1,7 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse } from 'next/server'
 import type { NextRequest } from 'next/server'
+import { getRequestClientIp } from '@/lib/utils/request-ip'
 import { rateLimit } from '@/lib/rate-limit'
 
 // Fonction de log sécurisée
@@ -16,7 +17,7 @@ function logSecurityEvent(event: string, details: any) {
 export async function middleware(req: NextRequest) {
   // Rate limiting pour les pages d'authentification
   if (req.nextUrl.pathname.startsWith('/auth/')) {
-    const ip = req.ip || req.headers.get('x-forwarded-for') || 'unknown'
+    const ip = getRequestClientIp(req)
     const isAllowed = rateLimit(ip, 10, 60000) // 10 tentatives par minute
     
     if (!isAllowed) {

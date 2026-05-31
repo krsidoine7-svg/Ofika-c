@@ -21,8 +21,9 @@ export function withAuth<T = any>(
 ) {
   return async (
     request: NextRequest,
-    context?: { params: T }
+    context: { params: Promise<T> }
   ): Promise<NextResponse> => {
+    const resolvedParams = await context.params
     const supabase = await createClient()
     
     const { data: { user }, error: authError } = await supabase.auth.getUser()
@@ -76,11 +77,11 @@ export function withAuth<T = any>(
         if (isAdmin) {
             // 2. Créer un clone de l'utilisateur avec l'ID usurpé pour le reste de la requête
             const impersonatedUser = { ...user, id: impersonatedId }
-            return handler(request, impersonatedUser, context?.params as T)
+            return handler(request, impersonatedUser, resolvedParams)
         }
     }
     
-    return handler(request, user, context?.params as T)
+    return handler(request, user, resolvedParams)
   }
 }
 

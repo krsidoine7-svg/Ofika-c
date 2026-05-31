@@ -11,15 +11,16 @@ import Link from 'next/link'
 export default async function PublicReviewPage({
     params,
 }: {
-    params: { slug: string }
+    params: Promise<{ slug: string }>
 }) {
+    const { slug } = await params
     const supabase = await createClient()
 
     // Récupérer le lien de collecte
     const { data: link, error } = await supabase
         .from('review_links')
         .select('*')
-        .eq('slug', params.slug)
+        .eq('slug', slug)
         .single()
 
     // Lien non trouvé
@@ -113,14 +114,15 @@ export default async function PublicReviewPage({
 export async function generateMetadata({
     params,
 }: {
-    params: { slug: string }
+    params: Promise<{ slug: string }>
 }) {
+    const { slug } = await params
     const supabase = await createClient()
 
     const { data: link } = await supabase
         .from('review_links')
         .select('title')
-        .eq('slug', params.slug)
+        .eq('slug', slug)
         .single()
 
     return {

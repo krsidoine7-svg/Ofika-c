@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { getRequestClientIp } from '@/lib/utils/request-ip'
 
 export const dynamic = 'force-dynamic'
 
@@ -157,7 +158,7 @@ export async function POST(request: NextRequest): Promise<NextResponse<LinkClick
               timestamp,
               user_agent: request.headers.get('user-agent') || 'unknown',
               referer: request.headers.get('referer') || 'direct',
-              ip_address: request.ip || request.headers.get('x-forwarded-for') || 'unknown'
+              ip_address: getRequestClientIp(request)
             }
           })
         

@@ -6,9 +6,10 @@ export const dynamic = 'force-dynamic'
 
 export async function PATCH(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
+    const { id } = await params
     const supabase = await createClient()
     
     // Vérifier l'authentification
@@ -31,7 +32,7 @@ export async function PATCH(
     const { data: card, error: cardError } = await supabase
       .from('digital_nfc_cards')
       .select('id, user_id, preview_data')
-      .eq('id', params.id)
+      .eq('id', id)
       .eq('user_id', user.id)
       .single()
 
@@ -48,7 +49,7 @@ export async function PATCH(
         design_choice: design_choice,
         updated_at: new Date().toISOString()
       })
-      .eq('id', params.id)
+      .eq('id', id)
       .select('id, design_choice, preview_data')
       .single()
 

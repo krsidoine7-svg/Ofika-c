@@ -6,7 +6,7 @@
 // =====================================================
 
 import { useState, useEffect } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useParams } from 'next/navigation'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/core/ui/card'
 import { Button } from '@/components/core/ui/button'
 import { Badge } from '@/components/core/ui/badge'
@@ -36,25 +36,21 @@ import {
   CountriesChart
 } from '@/components/qr/analytics/AnalyticsCharts'
 
-interface PageProps {
-  params: {
-    id: string
-  }
-}
-
-export default function QRAnalyticsPage({ params }: PageProps) {
+export default function QRAnalyticsPage() {
   const router = useRouter()
+  const params = useParams()
+  const qrId = params.id as string
   const [analytics, setAnalytics] = useState<QRAnalytics | null>(null)
   const [loading, setLoading] = useState(true)
   const [qrTitle, setQRTitle] = useState('QR Code')
 
   useEffect(() => {
     loadAnalytics()
-  }, [params.id])
+  }, [qrId])
 
   const loadAnalytics = async () => {
     setLoading(true)
-    const result = await getQRAnalytics(params.id)
+    const result = await getQRAnalytics(qrId)
 
     if (result.success && result.data) {
       setAnalytics(result.data)
@@ -70,7 +66,7 @@ export default function QRAnalyticsPage({ params }: PageProps) {
       toast.loading('Préparation de l\'export...')
 
       // Récupérer les scans bruts
-      const result = await getQRScans(params.id)
+      const result = await getQRScans(qrId)
 
       if (!result.success || !result.data) {
         toast.dismiss()
@@ -84,7 +80,7 @@ export default function QRAnalyticsPage({ params }: PageProps) {
       const url = URL.createObjectURL(blob)
       const a = document.createElement('a')
       a.href = url
-      a.download = `qr-analytics-${params.id}-${new Date().toISOString().split('T')[0]}.csv`
+      a.download = `qr-analytics-${qrId}-${new Date().toISOString().split('T')[0]}.csv`
       document.body.appendChild(a)
       a.click()
       document.body.removeChild(a)

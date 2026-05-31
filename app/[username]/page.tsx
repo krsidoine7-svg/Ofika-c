@@ -3,14 +3,14 @@ import { getPublicProfile } from '@/lib/services/public-profile'
 import ProfileClient from './ProfileClient'
 
 type Props = {
-  params: { username: string }
-  searchParams: { [key: string]: string | string[] | undefined }
+  params: Promise<{ username: string }>
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>
 }
 
 export async function generateMetadata(
   { params }: Props
 ): Promise<Metadata> {
-  const username = params.username
+  const { username } = await params
   const profile = await getPublicProfile(username)
 
   const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://ofika.ci'
@@ -50,7 +50,8 @@ export async function generateMetadata(
 }
 
 export default async function Page({ params }: Props) {
-  const profile = await getPublicProfile(params.username)
+  const { username } = await params
+  const profile = await getPublicProfile(username)
 
   return <ProfileClient initialProfile={profile} />
 }

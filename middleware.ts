@@ -97,7 +97,6 @@ function detectSuspiciousActivity(request: NextRequest): boolean {
  */
 function getClientIP(request: NextRequest): string {
   const sources = [
-    request.ip,
     request.headers.get('x-forwarded-for')?.split(',')[0]?.trim(),
     request.headers.get('x-real-ip'),
     request.headers.get('cf-connecting-ip'),

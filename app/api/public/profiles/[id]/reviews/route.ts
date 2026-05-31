@@ -5,11 +5,11 @@ export const dynamic = 'force-dynamic'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const supabase = await createClient()
-    const profileId = params.id
+    const { id: profileId } = await params
 
     // 1. Get Profile to check display_reviews and get user_id
     const { data: profile, error: profileError } = await supabase
