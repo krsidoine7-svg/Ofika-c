@@ -4,7 +4,7 @@
 
 import { createClient } from '@/lib/supabase/client'
 
-const supabase = createClient()
+const getSupabase = () => createClient()
 
 export interface CardOrderStatus {
   hasPhysicalOrder: boolean
@@ -18,7 +18,7 @@ export interface CardOrderStatus {
 // Vérifier si une carte NFC a une commande physique associée
 export async function getCardOrderStatus(cardId: string): Promise<CardOrderStatus> {
   try {
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { user } } = await getSupabase().auth.getUser()
     
     if (!user) {
       return {
@@ -29,7 +29,7 @@ export async function getCardOrderStatus(cardId: string): Promise<CardOrderStatu
     }
 
     // Vérifier s'il y a une commande physique pour cette carte NFC
-    const { data: order, error } = await supabase
+    const { data: order, error } = await getSupabase()
       .from('orders')
       .select(`
         id,
@@ -85,14 +85,14 @@ export async function getCardOrderStatus(cardId: string): Promise<CardOrderStatu
 // Vérifier le statut de commande pour plusieurs cartes
 export async function getMultipleCardsOrderStatus(cardIds: string[]): Promise<Record<string, CardOrderStatus>> {
   try {
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { user } } = await getSupabase().auth.getUser()
     
     if (!user) {
       return {}
     }
 
     // Récupérer toutes les commandes pour ces cartes
-    const { data: orders, error } = await supabase
+    const { data: orders, error } = await getSupabase()
       .from('orders')
       .select(`
         id,

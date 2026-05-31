@@ -7,7 +7,7 @@
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 
-const supabase = createClient()
+const getSupabase = () => createClient()
 
 // =====================================================
 // 🔍 VÉRIFICATION AUTOMATIQUE DES DONNÉES
@@ -33,7 +33,7 @@ export async function verifySupabaseData(
 
     // Si pas d'userId fourni, récupérer l'utilisateur connecté
     if (!userId) {
-      const { data: { user } } = await supabase.auth.getUser()
+      const { data: { user } } = await getSupabase().auth.getUser()
       if (!user) {
         return {
           success: false,
@@ -45,7 +45,7 @@ export async function verifySupabaseData(
     }
 
     // Récupérer les données de l'utilisateur
-    const { data, error, count } = await supabase
+    const { data, error, count } = await getSupabase()
       .from(table)
       .select('*', { count: 'exact' })
       .eq('user_id', userId)
@@ -105,7 +105,7 @@ export async function syncLocalStorageToSupabase(): Promise<{
     const syncedTables: string[] = []
 
     // Vérifier l'authentification
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { user } } = await getSupabase().auth.getUser()
     if (!user) {
       console.warn('⚠️ Pas d\'utilisateur connecté - synchronisation annulée')
       return {
@@ -123,7 +123,7 @@ export async function syncLocalStorageToSupabase(): Promise<{
         console.log('📤 Synchronisation profil public:', profileData.name)
 
         // Vérifier si le profil n'existe pas déjà
-        const { data: existingProfile } = await supabase
+        const { data: existingProfile } = await getSupabase()
           .from('profiles')
           .select('id')
           .eq('user_id', user.id)
@@ -131,7 +131,7 @@ export async function syncLocalStorageToSupabase(): Promise<{
           .single()
 
         if (!existingProfile) {
-          const { error } = await supabase
+          const { error } = await getSupabase()
             .from('profiles')
             .insert({
               user_id: user.id,
@@ -220,7 +220,7 @@ export async function testSupabaseConnection(): Promise<{
     console.log('🧪 Test de connexion Supabase...')
 
     // Test 1 : Vérifier l'authentification
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
+    const { data: { user }, error: authError } = await getSupabase().auth.getUser()
 
     if (authError) {
       console.error('❌ Erreur d\'authentification:', authError.message)
@@ -241,7 +241,7 @@ export async function testSupabaseConnection(): Promise<{
     console.log('✅ Utilisateur connecté:', user.email)
 
     // Test 2 : Vérifier l'accès à la base de données
-    const { error: dbError } = await supabase
+    const { error: dbError } = await getSupabase()
       .from('profiles')
       .select('count')
       .limit(1)

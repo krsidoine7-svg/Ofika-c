@@ -1,7 +1,8 @@
 import { createBrowserClient } from '@supabase/ssr'
-import { getSupabaseAnonKey, getSupabaseUrl } from './env'
+import { assertSupabaseEnv, getSupabaseAnonKey, getSupabaseUrl } from './env'
 
 export const createClient = () => {
+  assertSupabaseEnv('@supabase/ssr browser client')
   return createBrowserClient(
     getSupabaseUrl(),
     getSupabaseAnonKey(),

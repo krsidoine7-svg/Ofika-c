@@ -5,7 +5,7 @@
 
 import { createClient } from '@/lib/supabase/client'
 
-const supabase = createClient()
+const getSupabase = () => createClient()
 
 // Constantes
 const RESET_INTERVAL_DAYS = 40
@@ -35,7 +35,7 @@ export async function checkStatsResetStatus(userId: string): Promise<{
 }> {
   try {
     // Appeler la fonction Supabase pour vérifier
-    const { data, error } = await supabase
+    const { data, error } = await getSupabase()
       .rpc('should_reset_user_stats', { user_uuid: userId })
 
     if (error) {
@@ -44,7 +44,7 @@ export async function checkStatsResetStatus(userId: string): Promise<{
     }
 
     // Récupérer les détails du dernier reset
-    const { data: userData, error: userError } = await supabase
+    const { data: userData, error: userError } = await getSupabase()
       .from('users')
       .select('stats_last_reset_at')
       .eq('id', userId)
@@ -95,7 +95,7 @@ export async function resetUserStats(userId: string): Promise<StatsResetResult> 
     console.log(`🔄 Réinitialisation des stats pour l'utilisateur ${userId}...`)
 
     // Appeler la fonction Supabase pour réinitialiser
-    const { data, error } = await supabase
+    const { data, error } = await getSupabase()
       .rpc('reset_user_stats', { user_uuid: userId })
 
     if (error) {

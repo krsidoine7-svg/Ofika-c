@@ -4,7 +4,7 @@
 
 import { createClient } from '@/lib/supabase/client'
 
-const supabase = createClient()
+const getSupabase = () => createClient()
 
 export interface UploadResult {
   success: boolean
@@ -49,7 +49,7 @@ export async function uploadNFCAsset(
     const fileName = `${userId}/${type}s/${timestamp}.${fileExt}`
 
     // Upload vers Supabase Storage
-    const { data, error } = await supabase.storage
+    const { data, error } = await getSupabase().storage
       .from('nfc-assets')
       .upload(fileName, file, {
         cacheControl: '3600',
@@ -65,7 +65,7 @@ export async function uploadNFCAsset(
     }
 
     // Récupérer l'URL publique
-    const { data: { publicUrl } } = supabase.storage
+    const { data: { publicUrl } } = getSupabase().storage
       .from('nfc-assets')
       .getPublicUrl(fileName)
 
@@ -90,7 +90,7 @@ export async function uploadNFCAsset(
  */
 export async function deleteNFCAsset(filePath: string): Promise<{ success: boolean; error?: string }> {
   try {
-    const { error } = await supabase.storage
+    const { error } = await getSupabase().storage
       .from('nfc-assets')
       .remove([filePath])
 

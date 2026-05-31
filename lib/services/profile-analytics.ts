@@ -4,7 +4,7 @@
 
 import { createClient } from '@/lib/supabase/client'
 
-const supabase = createClient()
+const getSupabase = () => createClient()
 
 export interface ProfileViewEvent {
   profile_id: string
@@ -132,7 +132,7 @@ export async function trackContactAction(
   try {
     const eventType = actionType === 'vcard_download' ? 'contact_added' : 'share_clicked'
     
-    const { error } = await supabase
+    const { error } = await getSupabase()
       .from('analytics_events')
       .insert({
         profile_id: profileId,
@@ -232,7 +232,7 @@ export async function getProfileAnalytics(profileId: string): Promise<{
   error?: string
 }> {
   try {
-    const { data: events, error } = await supabase
+    const { data: events, error } = await getSupabase()
       .from('analytics_events')
       .select('event_type, device_type, created_at, event_data')
       .eq('profile_id', profileId)

@@ -49,7 +49,9 @@ export class WebhookService {
 }
 
 export class BusinessRulesService {
-  private static supabase = createClient()
+  private static getSupabase() {
+    return createClient()
+  }
 
   /**
    * Vérifie si un utilisateur peut créer un nouveau profil
@@ -62,7 +64,7 @@ export class BusinessRulesService {
     error?: string
   }> {
     try {
-      const { data: profiles, error } = await this.supabase
+      const { data: profiles, error } = await this.getSupabase()
         .from('profiles')
         .select('id')
         .eq('user_id', userId)
@@ -106,7 +108,7 @@ export class BusinessRulesService {
     error?: string
   }> {
     try {
-      const { data: links, error } = await this.supabase
+      const { data: links, error } = await this.getSupabase()
         .from('links')
         .select('id')
         .eq('profile_id', profileId)
@@ -150,7 +152,7 @@ export class BusinessRulesService {
     error?: string
   }> {
     try {
-      const { data: cards, error } = await this.supabase
+      const { data: cards, error } = await this.getSupabase()
         .from('cards')
         .select('id')
         .eq('user_id', userId)
@@ -193,7 +195,7 @@ export class BusinessRulesService {
     error?: string
   }> {
     try {
-      let query = this.supabase
+      let query = this.getSupabase()
         .from('profiles')
         .select('id')
         .eq('custom_url', customUrl)
@@ -234,7 +236,7 @@ export class BusinessRulesService {
     error?: string
   }> {
     try {
-      let query = this.supabase
+      let query = this.getSupabase()
         .from('profiles')
         .select('id')
         .eq('username', username)

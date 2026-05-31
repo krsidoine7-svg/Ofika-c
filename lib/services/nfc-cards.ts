@@ -7,12 +7,12 @@ import { NFCCard, CreateNFCCardData, UpdateNFCCardData, NFCCardResponse, NFCCard
 import { WebhookService } from './business-rules'
 import { generateQRCode } from './qr-code'
 
-const supabase = createClient()
+const getSupabase = () => createClient()
 
 // Récupérer toutes les cartes NFC d'un utilisateur
 export async function getNFCCards(userId?: string): Promise<NFCCardsResponse> {
   try {
-    const { data: { user: authUser } } = await supabase.auth.getUser()
+    const { data: { user: authUser } } = await getSupabase().auth.getUser()
     
     // Détection de l'impersonation pour l'admin
     let impersonatedId = null
@@ -27,7 +27,7 @@ export async function getNFCCards(userId?: string): Promise<NFCCardsResponse> {
       return { success: false, error: 'Utilisateur non authentifié' }
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await getSupabase()
       .from('digital_nfc_cards')
       .select('*')
       .eq('user_id', targetUserId)
@@ -48,13 +48,13 @@ export async function getNFCCards(userId?: string): Promise<NFCCardsResponse> {
 // Récupérer une carte NFC spécifique
 export async function getNFCCard(cardId: string): Promise<NFCCardResponse> {
   try {
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { user } } = await getSupabase().auth.getUser()
     
     if (!user) {
       return { success: false, error: 'Utilisateur non authentifié' }
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await getSupabase()
       .from('digital_nfc_cards')
       .select('*')
       .eq('id', cardId)
@@ -76,7 +76,7 @@ export async function getNFCCard(cardId: string): Promise<NFCCardResponse> {
 // Créer une nouvelle carte NFC
 export async function createNFCCard(cardData: CreateNFCCardData): Promise<NFCCardResponse> {
   try {
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { user } } = await getSupabase().auth.getUser()
     
     if (!user) {
       return { success: false, error: 'Utilisateur non authentifié' }
@@ -178,7 +178,7 @@ export async function createNFCCard(cardData: CreateNFCCardData): Promise<NFCCar
       insertData.profile_id = profileId
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await getSupabase()
       .from('digital_nfc_cards')
       .insert(insertData)
       .select()
@@ -196,7 +196,7 @@ export async function createNFCCard(cardData: CreateNFCCardData): Promise<NFCCar
         const qrUrl = qrResult.data.qr_code_url;
         
         // Mettre à jour digital_nfc_cards avec le QR code
-        await supabase
+        await getSupabase()
           .from('digital_nfc_cards')
           .update({
             qr_code_url: qrUrl,
@@ -218,7 +218,7 @@ export async function createNFCCard(cardData: CreateNFCCardData): Promise<NFCCar
       // Récupérer les informations complètes du profil si disponible
       let profileDetails = null
       if (profileId) {
-        const { data: profile } = await supabase
+        const { data: profile } = await getSupabase()
           .from('profiles')
           .select('*')
           .eq('id', profileId)
@@ -338,7 +338,7 @@ async function createProfileForNFCCard(userId: string, cardData: CreateNFCCardDa
       username = `${baseName}${timestamp}`
     }
     
-    const { data, error } = await supabase
+    const { data, error } = await getSupabase()
       .from('profiles')
       .insert({
         user_id: userId,
@@ -386,13 +386,13 @@ async function createProfileForNFCCard(userId: string, cardData: CreateNFCCardDa
 // Mettre à jour une carte NFC
 export async function updateNFCCard(cardId: string, updateData: UpdateNFCCardData): Promise<NFCCardResponse> {
   try {
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { user } } = await getSupabase().auth.getUser()
     
     if (!user) {
       return { success: false, error: 'Utilisateur non authentifié' }
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await getSupabase()
       .from('digital_nfc_cards')
       .update({
         ...updateData,
@@ -411,7 +411,7 @@ export async function updateNFCCard(cardId: string, updateData: UpdateNFCCardDat
     // 2. Synchroniser le lien avec la redirection QR associée si nécessaire
     if (updateData.nfc_link && data.qr_redirect_id) {
         console.log('🔄 Synchronisation du lien avec la redirection QR:', data.qr_redirect_id)
-        await supabase
+        await getSupabase()
             .from('qr_redirects')
             .update({ 
                 nfc_link: updateData.nfc_link,
@@ -430,13 +430,13 @@ export async function updateNFCCard(cardId: string, updateData: UpdateNFCCardDat
 // Supprimer une carte NFC (soft delete)
 export async function deleteNFCCard(cardId: string): Promise<{ success: boolean; error?: string }> {
   try {
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { user } } = await getSupabase().auth.getUser()
     
     if (!user) {
       return { success: false, error: 'Utilisateur non authentifié' }
     }
 
-    const { error } = await supabase
+    const { error } = await getSupabase()
       .from('digital_nfc_cards')
       .update({ 
         status: 'inactive',
@@ -452,7 +452,7 @@ export async function deleteNFCCard(cardId: string): Promise<{ success: boolean;
 
     // 2. Désactiver aussi la redirection QR associée si elle existe
     // On récupère d'abord la carte pour avoir le qr_redirect_id
-    const { data: card } = await supabase
+    const { data: card } = await getSupabase()
         .from('digital_nfc_cards')
         .select('qr_redirect_id')
         .eq('id', cardId)
@@ -460,7 +460,7 @@ export async function deleteNFCCard(cardId: string): Promise<{ success: boolean;
     
     if (card?.qr_redirect_id) {
         console.log('🚫 Désactivation de la redirection QR associée:', card.qr_redirect_id)
-        await supabase
+        await getSupabase()
             .from('qr_redirects')
             .update({ 
                 is_active: false,
@@ -479,13 +479,13 @@ export async function deleteNFCCard(cardId: string): Promise<{ success: boolean;
 // Obtenir les statistiques des cartes NFC
 export async function getNFCCardStats(): Promise<{ success: boolean; data?: any; error?: string }> {
   try {
-    const { data: { user } } = await supabase.auth.getUser()
+    const { data: { user } } = await getSupabase().auth.getUser()
     
     if (!user) {
       return { success: false, error: 'Utilisateur non authentifié' }
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await getSupabase()
       .from('digital_nfc_cards')
       .select('status')
       .eq('user_id', user.id)

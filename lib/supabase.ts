@@ -1,29 +1,29 @@
 import { createClient, type SupabaseClient } from '@supabase/supabase-js'
+import { assertSupabaseEnv, getSupabaseAnonKey, getSupabaseUrl } from './supabase/env'
 
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
-const supabasePublishableKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY
+let supabaseSingleton: SupabaseClient | null = null
 
-if (!supabaseUrl) {
-  throw new Error(
-    'Missing Supabase URL: NEXT_PUBLIC_SUPABASE_URL environment variable is required'
-  )
+export function getSupabaseClient(): SupabaseClient {
+  if (!supabaseSingleton) {
+    assertSupabaseEnv('lib/supabase')
+    supabaseSingleton = createClient(getSupabaseUrl(), getSupabaseAnonKey())
+  }
+  return supabaseSingleton
 }
 
-if (!supabasePublishableKey) {
-  throw new Error(
-    'Missing Supabase Key: NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY environment variable is required'
-  )
-}
+/** @deprecated Préférez getSupabaseClient() pour éviter l'init au chargement du module */
+export const supabase = new Proxy({} as SupabaseClient, {
+  get(_target, prop, receiver) {
+    return Reflect.get(getSupabaseClient(), prop, receiver)
+  },
+})
 
-export const supabase = createClient(supabaseUrl, supabasePublishableKey)
-
-// Fonction pour vérifier la configuration
 export function checkSupabaseConfig() {
   const config = {
-    url: !!supabaseUrl,
-    publishableKey: !!supabasePublishableKey,
+    url: Boolean(getSupabaseUrl()),
+    publishableKey: Boolean(getSupabaseAnonKey()),
   }
-  
+
   console.log('Supabase Configuration:', config)
   return config
 }

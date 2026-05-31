@@ -5,7 +5,7 @@
 import { createClient } from '@/lib/supabase/client'
 import { ContactAnalytics, ContactAnalyticsResponse, ContactAnalyticsStats, ContactAnalyticsFilters } from '@/lib/types/contact-analytics'
 
-const supabase = createClient()
+const getSupabase = () => createClient()
 
 /**
  * Enregistre une action d'analytics de contact
@@ -17,7 +17,7 @@ export async function trackContactAction(
   deviceType?: ContactAnalytics['device_type']
 ): Promise<ContactAnalyticsResponse> {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await getSupabase()
       .from('contact_analytics')
       .insert({
         profile_id: profileId,
@@ -47,7 +47,7 @@ export async function trackContactAction(
 export async function getContactAnalyticsStats(profileId: string): Promise<{ success: boolean; data?: ContactAnalyticsStats; error?: string }> {
   try {
     // Statistiques générales
-    const { data: generalStats, error: generalError } = await supabase
+    const { data: generalStats, error: generalError } = await getSupabase()
       .from('contact_analytics')
       .select('action_type, device_type, created_at')
       .eq('profile_id', profileId)
@@ -61,7 +61,7 @@ export async function getContactAnalyticsStats(profileId: string): Promise<{ suc
     const thirtyDaysAgo = new Date()
     thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30)
     
-    const { data: recentStats, error: recentError } = await supabase
+    const { data: recentStats, error: recentError } = await getSupabase()
       .from('contact_analytics')
       .select('action_type')
       .eq('profile_id', profileId)
@@ -98,7 +98,7 @@ export async function getContactAnalyticsHistory(
   filters?: ContactAnalyticsFilters
 ): Promise<{ success: boolean; data?: ContactAnalytics[]; error?: string }> {
   try {
-    let query = supabase
+    let query = getSupabase()
       .from('contact_analytics')
       .select('*')
       .eq('profile_id', profileId)

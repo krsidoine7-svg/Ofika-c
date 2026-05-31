@@ -14,7 +14,7 @@ import {
   OnboardingFlowType
 } from '@/lib/types/onboarding'
 
-const supabase = createClient()
+const getSupabase = () => createClient()
 
 // =====================================================
 // PENDING CREATIONS
@@ -28,7 +28,7 @@ export async function savePendingCreation(
 ): Promise<{ success: boolean; data?: PendingCreation; error?: string }> {
   try {
     // Vérifier si existe déjà
-    const { data: existing } = await supabase
+    const { data: existing } = await getSupabase()
       .from('pending_creations')
       .select('id')
       .eq('session_id', sessionId)
@@ -37,7 +37,7 @@ export async function savePendingCreation(
 
     if (existing) {
       // Mettre à jour
-      const { data, error } = await supabase
+      const { data, error } = await getSupabase()
         .from('pending_creations')
         .update({ payload, step_completed: stepCompleted })
         .eq('id', existing.id)
@@ -48,7 +48,7 @@ export async function savePendingCreation(
       return { success: true, data }
     } else {
       // Créer
-      const { data, error } = await supabase
+      const { data, error } = await getSupabase()
         .from('pending_creations')
         .insert({
           session_id: sessionId,
@@ -73,7 +73,7 @@ export async function getPendingCreation(
   type: OnboardingFlowType
 ): Promise<{ success: boolean; data?: PendingCreation; error?: string }> {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await getSupabase()
       .from('pending_creations')
       .select('*')
       .eq('session_id', sessionId)
@@ -92,7 +92,7 @@ export async function deletePendingCreation(
   type: OnboardingFlowType
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const { error } = await supabase
+    const { error } = await getSupabase()
       .from('pending_creations')
       .delete()
       .eq('session_id', sessionId)
@@ -121,7 +121,7 @@ export async function createOnboardingSession(
   }
 ): Promise<{ success: boolean; data?: OnboardingSession; error?: string }> {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await getSupabase()
       .from('onboarding_sessions')
       .insert({
         session_id: sessionId,
@@ -152,7 +152,7 @@ export async function updateOnboardingSession(
   }
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const { error } = await supabase
+    const { error } = await getSupabase()
       .from('onboarding_sessions')
       .update({
         ...updates,
@@ -176,7 +176,7 @@ export async function createNFCCard(
   input: CreateNFCCardInput
 ): Promise<{ success: boolean; data?: NFCCard; error?: string }> {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await getSupabase()
       .from('digital_nfc_cards')
       .insert({
         user_id: userId,
@@ -201,7 +201,7 @@ export async function createNFCCard(
 
 export async function getNFCCards(userId: string): Promise<{ success: boolean; data?: NFCCard[]; error?: string }> {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await getSupabase()
       .from('digital_nfc_cards')
       .select('*')
       .eq('user_id', userId)
@@ -219,7 +219,7 @@ export async function updateNFCCard(
   updates: Partial<NFCCard>
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const { error } = await supabase
+    const { error } = await getSupabase()
       .from('digital_nfc_cards')
       .update(updates)
       .eq('id', cardId)
@@ -243,7 +243,7 @@ export async function createOrder(
     // Calculer le prix
     const pricing = await calculatePrice(input.nfc_card_id, input.shipping_address.country)
 
-    const { data, error } = await supabase
+    const { data, error } = await getSupabase()
       .from('orders')
       .insert({
         user_id: userId,
@@ -274,7 +274,7 @@ export async function createOrder(
 
 export async function getOrder(orderId: string): Promise<{ success: boolean; data?: Order; error?: string }> {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await getSupabase()
       .from('orders')
       .select('*')
       .eq('id', orderId)
@@ -289,7 +289,7 @@ export async function getOrder(orderId: string): Promise<{ success: boolean; dat
 
 export async function getUserOrders(userId: string): Promise<{ success: boolean; data?: Order[]; error?: string }> {
   try {
-    const { data, error } = await supabase
+    const { data, error } = await getSupabase()
       .from('orders')
       .select('*')
       .eq('user_id', userId)
@@ -313,7 +313,7 @@ export async function calculatePrice(
 ): Promise<PricingDetails> {
   try {
     // Récupérer le design de la carte
-    const { data: card } = await supabase
+    const { data: card } = await getSupabase()
       .from('digital_nfc_cards')
       .select('design_choice')
       .eq('id', nfcCardId)
@@ -322,7 +322,7 @@ export async function calculatePrice(
     const designId = card?.design_choice || 'design-classic'
 
     // Appeler la fonction SQL
-    const { data, error } = await supabase.rpc('calculate_nfc_card_price', {
+    const { data, error } = await getSupabase().rpc('calculate_nfc_card_price', {
       design_id: designId,
       quantity,
       country_code: countryCode

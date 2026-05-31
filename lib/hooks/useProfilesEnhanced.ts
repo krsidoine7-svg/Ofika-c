@@ -5,20 +5,20 @@ import { createClient } from '@/lib/supabase/client'
 import { ProfileWithLinks } from '@/lib/types/database'
 import { toast } from "sonner"
 
-const supabase = createClient()
+const getSupabase = () => createClient()
 
 export function useProfiles() {
   return useQuery({
     queryKey: ['profiles'],
     queryFn: async (): Promise<ProfileWithLinks[]> => {
-      const { data: { user } } = await supabase.auth.getUser()
+      const { data: { user } } = await getSupabase().auth.getUser()
       
       if (!user || !user.id) {
         throw new Error('Utilisateur non connecté')
       }
 
       // Vérifier si l'utilisateur existe dans notre table users
-      const { data: existingUser, error: userError } = await supabase
+      const { data: existingUser, error: userError } = await getSupabase()
         .from('users')
         .select('id')
         .eq('id', user.id)
@@ -26,7 +26,7 @@ export function useProfiles() {
 
       // Si l'utilisateur n'existe pas, le créer
       if (userError && userError.code === 'PGRST116') {
-        const { error: insertError } = await supabase
+        const { error: insertError } = await getSupabase()
           .from('users')
           .insert({
             id: user.id,
@@ -44,7 +44,7 @@ export function useProfiles() {
       }
 
       // Maintenant récupérer les profils
-      const { data, error } = await supabase
+      const { data, error } = await getSupabase()
         .from('profiles')
         .select(`
           *,
@@ -84,14 +84,14 @@ export function useCreateProfile() {
       }>
       is_public?: boolean
     }) => {
-      const { data: { user } } = await supabase.auth.getUser()
+      const { data: { user } } = await getSupabase().auth.getUser()
       
       if (!user) {
         throw new Error('Utilisateur non connecté')
       }
 
       // S'assurer que l'utilisateur existe dans notre table users
-      const { data: existingUser, error: userError } = await supabase
+      const { data: existingUser, error: userError } = await getSupabase()
         .from('users')
         .select('id')
         .eq('id', user.id)
@@ -99,7 +99,7 @@ export function useCreateProfile() {
 
       if (userError && userError.code === 'PGRST116') {
         // Créer l'utilisateur s'il n'existe pas
-        const { error: insertError } = await supabase
+        const { error: insertError } = await getSupabase()
           .from('users')
           .insert({
             id: user.id,
@@ -116,7 +116,7 @@ export function useCreateProfile() {
       }
 
       // Créer le profil
-      const { data, error } = await supabase
+      const { data, error } = await getSupabase()
         .from('profiles')
         .insert({
           ...profileData,
@@ -147,7 +147,7 @@ export function useSoftDeleteProfile() {
   
   return useMutation({
     mutationFn: async (profileId: string) => {
-      const { error } = await supabase
+      const { error } = await getSupabase()
         .from('profiles')
         .update({ is_active: false })
         .eq('id', profileId)
@@ -172,7 +172,7 @@ export function useHardDeleteProfile() {
   return useMutation({
     mutationFn: async (profileId: string) => {
       // D'abord supprimer les liens associés
-      const { error: linksError } = await supabase
+      const { error: linksError } = await getSupabase()
         .from('links')
         .delete()
         .eq('profile_id', profileId)
@@ -183,7 +183,7 @@ export function useHardDeleteProfile() {
       }
 
       // Ensuite supprimer le profil
-      const { error } = await supabase
+      const { error } = await getSupabase()
         .from('profiles')
         .delete()
         .eq('id', profileId)
@@ -212,7 +212,7 @@ export function useDeleteProfile() {
     }) => {
       if (deleteType === 'hard') {
         // Suppression définitive
-        const { error: linksError } = await supabase
+        const { error: linksError } = await getSupabase()
           .from('links')
           .delete()
           .eq('profile_id', profileId)
@@ -221,7 +221,7 @@ export function useDeleteProfile() {
           console.warn('Erreur lors de la suppression des liens:', linksError)
         }
 
-        const { error } = await supabase
+        const { error } = await getSupabase()
           .from('profiles')
           .delete()
           .eq('id', profileId)
@@ -229,7 +229,7 @@ export function useDeleteProfile() {
         if (error) throw error
       } else {
         // Soft delete
-        const { error } = await supabase
+        const { error } = await getSupabase()
           .from('profiles')
           .update({ is_active: false })
           .eq('id', profileId)
@@ -260,7 +260,7 @@ export function useRestoreProfile() {
   
   return useMutation({
     mutationFn: async (profileId: string) => {
-      const { error } = await supabase
+      const { error } = await getSupabase()
         .from('profiles')
         .update({ is_active: true })
         .eq('id', profileId)
