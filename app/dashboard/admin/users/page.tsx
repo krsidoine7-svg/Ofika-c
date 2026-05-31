@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/core/ui/card"
-import { Users, Mail, Phone, Calendar, Search, Shield, User, Filter, MoreHorizontal, Loader2, Star, Trash2, Edit, Globe, Smartphone, LayoutGrid, List, Eye, Key, Lock } from "lucide-react"
+import { Users, Mail, Phone, Calendar, Search, Shield, User, Filter, MoreHorizontal, Loader2, Star, Trash2, Edit, Globe, Smartphone, LayoutGrid, List, Eye, Key, Lock, ChevronDown, CheckCircle2 } from "lucide-react"
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Badge } from "@/components/core/ui/badge"
@@ -316,19 +316,57 @@ export default function AdminUsersPage() {
                             <span className="hidden sm:inline">Cartes</span>
                         </Button>
                     </div>
-                    <select
-                        className="h-11 px-4 border border-gray-200 rounded-xl bg-white text-sm font-medium focus:ring-black outline-none w-full sm:w-auto shadow-sm"
-                        value={filter}
-                        onChange={(e) => setFilter(e.target.value)}
-                    >
-                        <option value="all">Tous les rôles</option>
-                        <option value="admin">Administrateurs</option>
-                        <option value="user">Utilisateurs</option>
-                        <option value="free">Abonnement FREE</option>
-                        <option value="pro">Abonnement PRO</option>
-                        <option value="business">Abonnement BUSINESS</option>
-                        <option value="entreprise">Abonnement ENTREPRISE</option>
-                    </select>
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button
+                                variant="outline"
+                                className="h-11 px-4 border-gray-200 rounded-xl bg-white text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-300 w-full sm:w-auto flex items-center gap-2 shadow-sm"
+                            >
+                                <Filter className="w-4 h-4 text-gray-400" />
+                                {filter === 'all' ? 'Tous les rôles' :
+                                    filter === 'admin' ? 'Administrateurs' :
+                                    filter === 'user' ? 'Utilisateurs' :
+                                    `Abonnement ${filter.toUpperCase()}`}
+                                <ChevronDown className="w-4 h-4 text-gray-400 ml-1" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end" className="w-52 rounded-xl shadow-xl border-gray-100 p-1">
+                            <DropdownMenuLabel className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-2 py-1.5">Filtrer par rôle</DropdownMenuLabel>
+                            <DropdownMenuSeparator className="my-1" />
+                            {[
+                                { value: 'all', label: 'Tous les rôles' },
+                                { value: 'admin', label: 'Administrateurs' },
+                                { value: 'user', label: 'Utilisateurs' },
+                            ].map(opt => (
+                                <DropdownMenuItem
+                                    key={opt.value}
+                                    onClick={() => setFilter(opt.value)}
+                                    className={cn(
+                                        "flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer font-medium text-sm",
+                                        filter === opt.value ? "bg-gray-900 text-white" : "text-gray-700 hover:bg-gray-50"
+                                    )}
+                                >
+                                    {opt.label}
+                                    {filter === opt.value && <CheckCircle2 className="w-3.5 h-3.5" />}
+                                </DropdownMenuItem>
+                            ))}
+                            <DropdownMenuSeparator className="my-1" />
+                            <DropdownMenuLabel className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-2 py-1.5">Abonnement</DropdownMenuLabel>
+                            {['free', 'pro', 'business', 'entreprise'].map(tier => (
+                                <DropdownMenuItem
+                                    key={tier}
+                                    onClick={() => setFilter(tier)}
+                                    className={cn(
+                                        "flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer font-medium text-sm capitalize",
+                                        filter === tier ? "bg-gray-900 text-white" : "text-gray-700 hover:bg-gray-50"
+                                    )}
+                                >
+                                    {tier.charAt(0).toUpperCase() + tier.slice(1)}
+                                    {filter === tier && <CheckCircle2 className="w-3.5 h-3.5" />}
+                                </DropdownMenuItem>
+                            ))}
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
             </div>
 
