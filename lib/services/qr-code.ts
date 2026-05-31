@@ -5,8 +5,6 @@
 import { createClient } from '@/lib/supabase/client'
 import { createQRRedirect, getQRCodeURL, getRedirectURL } from './qr-redirect-client'
 
-const supabase = createClient()
-
 export interface QRCodeData {
   url: string
   size?: number
@@ -82,6 +80,7 @@ export async function generateQRCode(nfcLink: string, size: number = 200): Promi
  */
 export async function updateNFCCardQRCode(cardId: string, nfcLink: string): Promise<QRCodeResponse> {
   try {
+    const supabase = createClient()
     const { data: { user } } = await supabase.auth.getUser()
     
     if (!user) {
