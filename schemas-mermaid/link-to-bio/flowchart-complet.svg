@@ -1,0 +1,137 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 745.95 2220.15" width="745.95" height="2220.15" style="--bg:#1a1b26;--fg:#a9b1d6;--line:#3d59a1;--accent:#7aa2f7;--muted:#565f89;background:var(--bg)">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap');
+  text { font-family: 'Inter', system-ui, sans-serif; }
+  svg {
+    /* Derived from --bg and --fg (overridable via --line, --accent, etc.) */
+    --_text:          var(--fg);
+    --_text-sec:      var(--muted, color-mix(in srgb, var(--fg) 60%, var(--bg)));
+    --_text-muted:    var(--muted, color-mix(in srgb, var(--fg) 40%, var(--bg)));
+    --_text-faint:    color-mix(in srgb, var(--fg) 25%, var(--bg));
+    --_line:          var(--line, color-mix(in srgb, var(--fg) 30%, var(--bg)));
+    --_arrow:         var(--accent, color-mix(in srgb, var(--fg) 50%, var(--bg)));
+    --_node-fill:     var(--surface, color-mix(in srgb, var(--fg) 3%, var(--bg)));
+    --_node-stroke:   var(--border, color-mix(in srgb, var(--fg) 20%, var(--bg)));
+    --_group-fill:    var(--bg);
+    --_group-hdr:     color-mix(in srgb, var(--fg) 5%, var(--bg));
+    --_inner-stroke:  color-mix(in srgb, var(--fg) 12%, var(--bg));
+    --_key-badge:     color-mix(in srgb, var(--fg) 10%, var(--bg));
+  }
+</style>
+<defs>
+  <marker id="arrowhead" markerWidth="8" markerHeight="4.8" refX="8" refY="2.4" orient="auto">
+    <polygon points="0 0, 8 2.4, 0 4.8" fill="var(--_arrow)" />
+  </marker>
+  <marker id="arrowhead-start" markerWidth="8" markerHeight="4.8" refX="0" refY="2.4" orient="auto-start-reverse">
+    <polygon points="8 0, 0 2.4, 8 4.8" fill="var(--_arrow)" />
+  </marker>
+</defs>
+<polyline points="237.51750000000004,76 237.51750000000004,116" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="196.05571782504927,230.63821782504925 196.05571782504927,300.6 116.77500000000002,300.6 116.77500000000002,423.1 217.34250000000003,423.1" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="246.29013989836938,263.3273601016307 246.29013989836938,300.6 251.01000000000005,300.6 251.01000000000005,329.1" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="287.28269552407596,222.33480447592407 287.28269552407596,300.6 424.98500000000007,300.6 424.98500000000007,329.1" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="297.0918186501303,212.52568134986979 297.0918186501303,300.6 581.085,300.6 581.085,329.1" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="251.01000000000005,365.1 251.01000000000005,423.1 217.34250000000003,423.1" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="424.98500000000007,365.1 424.98500000000007,423.1 413.7925000000001,423.1" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="581.085,365.1 581.085,423.1 413.7925000000001,423.1" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="315.56750000000005,441.1 315.56750000000005,481.1" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="315.56750000000005,517.1 315.56750000000005,557.1" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="268.77945645023357,666.4119564502336 268.77945645023357,741.7 156.10000000000002,741.7 156.10000000000002,770.2" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="354.0978084124364,674.6696915875638 354.0978084124364,741.7 419.45000000000005,741.7 419.45000000000005,770.2" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="419.45000000000005,806.2 419.45000000000005,846.2" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="419.45000000000005,882.2 419.45000000000005,922.2" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="419.45000000000005,958.2 419.45000000000005,998.2" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="419.45000000000005,1034.2 419.45000000000005,1074.2" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="379.01230885516605,1218.462308855166 379.01230885516605,1287.4 325.31250000000006,1287.4 325.31250000000006,1315.9" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="459.88769114483404,1218.462308855166 459.88769114483404,1287.4 513.5875,1287.4 513.5875,1315.9" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="325.31250000000006,1351.9 325.31250000000006,1409.9 292.62500000000006,1409.9" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="513.5875,1351.9 513.5875,1409.9 546.2750000000001,1409.9" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="419.45000000000005,1427.9 419.45000000000005,1467.9" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="419.45000000000005,1503.9 419.45000000000005,1543.9" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="419.45000000000005,1579.9 419.45000000000005,1619.9" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="360.7940893701291,1724.4940893701291 360.7940893701291,1811.65 138.22500000000002,1811.65 138.22500000000002,1840.15" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="397.9718927735029,1761.671892773503 397.9718927735029,1811.65 380.12500000000006,1811.65 380.12500000000006,1840.15" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="471.65607306496486,1730.9439269350353 471.65607306496486,1811.65 614.875,1811.65 614.875,1840.15" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="138.22500000000002,1876.15 138.22500000000002,1934.15 331.95000000000005,1934.15" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="380.12500000000006,1876.15 380.12500000000006,1934.15 331.95000000000005,1934.15" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="614.875,1876.15 614.875,1934.15 506.95000000000005,1934.15" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="419.45000000000005,1952.15 419.45000000000005,1992.15" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="419.45000000000005,2028.15 419.45000000000005,2068.15" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="419.45000000000005,2104.15 419.45000000000005,2144.15" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<rect x="77.31500000000003" y="333.6" width="78.92" height="27" rx="4" ry="4" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="0.5" />
+<text x="116.77500000000002" y="347.1" text-anchor="middle" dy="0.35em" font-size="11" font-weight="400" fill="var(--_text-muted)">Lien direct</text>
+<rect x="222.99000000000004" y="287.1" width="56.04" height="27" rx="4" ry="4" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="0.5" />
+<text x="251.01000000000005" y="300.6" text-anchor="middle" dy="0.35em" font-size="11" font-weight="400" fill="var(--_text-muted)">QR code</text>
+<rect x="391.24500000000006" y="287.1" width="67.48" height="27" rx="4" ry="4" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="0.5" />
+<text x="424.98500000000007" y="300.6" text-anchor="middle" dy="0.35em" font-size="11" font-weight="400" fill="var(--_text-muted)">Carte NFC</text>
+<rect x="538.765" y="287.1" width="84.64" height="27" rx="4" ry="4" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="0.5" />
+<text x="581.085" y="300.6" text-anchor="middle" dy="0.35em" font-size="11" font-weight="400" fill="var(--_text-muted)">Carte design</text>
+<rect x="139.52000000000004" y="728.2" width="33.16" height="27" rx="4" ry="4" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="0.5" />
+<text x="156.10000000000002" y="741.7" text-anchor="middle" dy="0.35em" font-size="11" font-weight="400" fill="var(--_text-muted)">Non</text>
+<rect x="402.87000000000006" y="728.2" width="33.16" height="27" rx="4" ry="4" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="0.5" />
+<text x="419.45000000000005" y="741.7" text-anchor="middle" dy="0.35em" font-size="11" font-weight="400" fill="var(--_text-muted)">Oui</text>
+<rect x="265.83250000000004" y="1273.9" width="118.96000000000001" height="27" rx="4" ry="4" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="0.5" />
+<text x="325.31250000000006" y="1287.4" text-anchor="middle" dy="0.35em" font-size="11" font-weight="400" fill="var(--_text-muted)">Mobile + Web Share</text>
+<rect x="491.28749999999997" y="1273.9" width="44.6" height="27" rx="4" ry="4" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="0.5" />
+<text x="513.5875" y="1287.4" text-anchor="middle" dy="0.35em" font-size="11" font-weight="400" fill="var(--_text-muted)">Sinon</text>
+<rect x="104.48500000000001" y="1798.15" width="67.48" height="27" rx="4" ry="4" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="0.5" />
+<text x="138.22500000000002" y="1811.65" text-anchor="middle" dy="0.35em" font-size="11" font-weight="400" fill="var(--_text-muted)">Web Share</text>
+<rect x="363.5450000000001" y="1798.15" width="33.16" height="27" rx="4" ry="4" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="0.5" />
+<text x="380.12500000000006" y="1811.65" text-anchor="middle" dy="0.35em" font-size="11" font-weight="400" fill="var(--_text-muted)">iOS</text>
+<rect x="563.975" y="1798.15" width="101.8" height="27" rx="4" ry="4" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="0.5" />
+<text x="614.875" y="1811.65" text-anchor="middle" dy="0.35em" font-size="11" font-weight="400" fill="var(--_text-muted)">Android/Desktop</text>
+<rect x="117.84250000000003" y="40" width="239.35000000000002" height="36" rx="18" ry="18" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<polygon points="237.51750000000004,116 315.56750000000005,194.05 237.51750000000004,272.1 159.46750000000003,194.05" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="217.34250000000003" y="405.1" width="196.45000000000002" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="174.23500000000004" y="329.1" width="153.55" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="351.7850000000001" y="329.1" width="146.4" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="522.1850000000001" y="329.1" width="117.80000000000001" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="178.01750000000004" y="481.1" width="275.1" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<polygon points="315.56750000000005,557.1000000000001 393.61750000000006,635.1500000000001 315.56750000000005,713.2 237.51750000000004,635.1500000000001" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="68.60000000000002" y="770.2" width="175" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="267.6" y="770.2" width="303.70000000000005" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="299.77500000000003" y="846.2" width="239.35000000000002" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="281.90000000000003" y="922.2" width="275.1" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="314.07500000000005" y="998.2" width="210.75000000000003" height="36" rx="18" ry="18" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<polygon points="419.45000000000005,1074.2 511.80000000000007,1166.55 419.45000000000005,1258.8999999999999 327.1,1166.55" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="237.81250000000006" y="1315.9" width="175" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="436.8125" y="1315.9" width="153.55" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="292.62500000000006" y="1391.9" width="253.65" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="314.07500000000005" y="1467.9" width="210.75000000000003" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="199.67500000000004" y="1543.9" width="439.55" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<polygon points="419.45000000000005,1619.9 501.07500000000005,1701.525 419.45000000000005,1783.15 337.82500000000005,1701.525" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="40.000000000000014" y="1840.15" width="196.45000000000002" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="260.45000000000005" y="1840.15" width="239.35000000000002" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="523.8" y="1840.15" width="182.15" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="331.95000000000005" y="1916.15" width="175" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="324.80000000000007" y="1992.15" width="189.3" height="36" rx="18" ry="18" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="249.72500000000002" y="2068.15" width="339.45000000000005" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="299.77500000000003" y="2144.15" width="239.35000000000002" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<text x="237.51750000000004" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">Visiteur reçoit le lien Ofika</text>
+<text x="237.51750000000004" y="194.05" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">Point d&#39;entrée</text>
+<text x="315.56750000000005" y="423.1" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;ofika.ci/{custom_url}&quot;</text>
+<text x="251.01000000000005" y="347.1" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;/qr/{shortCode}&quot;</text>
+<text x="424.98500000000007" y="347.1" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;/nfc/{nfcLink}&quot;</text>
+<text x="581.085" y="347.1" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;/card/{id}&quot;</text>
+<text x="315.56750000000005" y="499.1" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;ProfileClient + getPublicProfile&quot;</text>
+<text x="315.56750000000005" y="635.1500000000001" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">Profil actif ?</text>
+<text x="156.10000000000002" y="788.2" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">Page profil suspendu</text>
+<text x="419.45000000000005" y="788.2" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;LinkInBioDesign* selon design_choice&quot;</text>
+<text x="419.45000000000005" y="864.2" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Affichage bio, liens, photo&quot;</text>
+<text x="419.45000000000005" y="940.2" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Bouton AddToContactsAuto visible&quot;</text>
+<text x="419.45000000000005" y="1016.2" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">Clic Ajouter aux contacts</text>
+<text x="419.45000000000005" y="1166.55" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">Détection appareil</text>
+<text x="325.31250000000006" y="1333.9" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;shareViaWebShare()&quot;</text>
+<text x="513.5875" y="1333.9" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;downloadVCard()&quot;</text>
+<text x="419.45000000000005" y="1409.9" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;GET /api/contacts/{profileId}&quot;</text>
+<text x="419.45000000000005" y="1485.9" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;generateCompleteVCard()&quot;</text>
+<text x="419.45000000000005" y="1561.9" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;FN, N, EMAIL, TEL, PHOTO, ORG, TITLE, URL, social_links&quot;</text>
+<text x="419.45000000000005" y="1701.525" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">Livraison vCard</text>
+<text x="138.22500000000002" y="1858.15" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;navigator.share(.vcf)&quot;</text>
+<text x="380.12500000000006" y="1858.15" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;window.location.href = blob&quot;</text>
+<text x="614.875" y="1858.15" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Téléchargement .vcf&quot;</text>
+<text x="419.45000000000005" y="1934.15" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;App Contacts natif&quot;</text>
+<text x="419.45000000000005" y="2010.15" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">Utilisateur enregistre</text>
+<text x="419.45000000000005" y="2086.15" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Analytics: vcard_download / share_clicked&quot;</text>
+<text x="419.45000000000005" y="2162.15" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">&quot;Toast + option rappels push&quot;</text>
+</svg>

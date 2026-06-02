@@ -1,0 +1,22 @@
+flowchart TD
+    subgraph Decouverte["Découverte"]
+        A1[Scan QR ou clic lien] --> A2[ofika.ci / slug]
+        A2 --> A3[Chargement page profil]
+    end
+
+    subgraph Exploration["Exploration"]
+        A3 --> B1[Lecture bio et liens]
+        B1 --> B2[Clic lien externe optionnel]
+    end
+
+    subgraph Contact["Ajout contact"]
+        B1 --> C1[Clic Ajouter aux contacts]
+        C1 --> C2[API génère vCard]
+        C2 --> C3[App Contacts natif]
+        C3 --> C4[Utilisateur enregistre]
+    end
+
+    subgraph Apres["Après action"]
+        C4 --> D1[Toast confirmation]
+        D1 --> D2[Option rappels push]
+    end

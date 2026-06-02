@@ -13,6 +13,7 @@ Ce document liste de manière exhaustive toutes les compétences (skills) à dis
 | **seo-audit** | `seo-audit/` | Audit de référencement naturel, balises, vitesse et indexation | *audit SEO, technique SEO, pourquoi je ne suis pas indexé* |
 | **copywriting** | `copywriting/` | Rédaction éditoriale, articles de blog, pages de capture | *écris un article, copywriting, texte marketing* |
 | **react-email** | `react-email/` | Conception d'emails transactionnels HTML de haute qualité | *email transactionnel, gabarit email, react email* |
+| **skill-mermaidH** | `skill-mermaidH/` | Cartographie de processus, diagrammes Mermaid (20+ types), parcours utilisateur, onboarding client, visualisation / création / modification / mise à jour / suppression de features. **Stockage livrables :** `schemas-mermaid/` | *diagramme, mermaid, schéma, architecture, flux, parcours utilisateur, onboarding, user journey, cartographie, processus, flowchart, séquence, ERD, C4, visualiser une feature, link-to-bio, workflow, schemas-mermaid, svg* |
 
 ---
 
@@ -53,6 +54,24 @@ Ce document liste de manière exhaustive toutes les compétences (skills) à dis
 
 ## 🎯 4. Logique d'Assignation
 1. **Priorité Métier** : Toujours vérifier si un Skill Métier (`skills Agents/`) couvre la demande.
-2. **Skills Supabase Officiels** : Pour toute tâche touchant à la DB, l'auth ou l'infrastructure Supabase, consulter en priorité `.agents/skills/supabase/` et `.agents/skills/supabase-postgres-best-practices/`.
-3. **Support Outil** : Utiliser les Skills Génériques (`skills-main/`) pour les manipulations de formats (PDF, Excel, Word) ou les phases de design technique.
-4. **Journalisation** : Après chaque utilisation de compétence, mettre à jour la mémoire via `memoire-favor`.
+2. **Cartographie & Visualisation (Ofika)** : Pour toute cartographie de processus, parcours utilisateur, onboarding client, ou visualisation / création / modification / mise à jour / suppression de feature — déléguer à **`skill-mermaidH`** lors de l'étape *Cartographie d'Impact*. Voir [chefsOfika-integration.md](../skill-mermaidH/references/chefsOfika-integration.md).
+3. **Skills Supabase Officiels** : Pour toute tâche touchant à la DB, l'auth ou l'infrastructure Supabase, consulter en priorité `.agents/skills/supabase/` et `.agents/skills/supabase-postgres-best-practices/`.
+4. **Support Outil** : Utiliser les Skills Génériques (`skills-main/`) pour les manipulations de formats (PDF, Excel, Word) ou les phases de design technique.
+5. **Journalisation** : Après chaque utilisation de compétence, mettre à jour la mémoire via `memoire-favor`.
+
+---
+
+## 📐 5. Dépôt des Schémas Mermaid (`schemas-mermaid/`)
+
+> Référence projet : [schemas-mermaid/README.md](../../../schemas-mermaid/README.md)
+
+| Sous-dossier | Contenu | Exemples existants |
+|---|---|---|
+| `link-to-bio/` | Page publique, vCard, parcours visiteur | `parcours-visiteur`, `sequence-vcard`, `flowchart-complet` |
+| `onboarding/` | Parcours client Ofika | `parcours-client` |
+| `architecture/` | C4, ERD, infra Supabase | *(à venir)* |
+| `processus/` | Workflows métier internes | *(à venir)* |
+
+**Convention** : chaque schéma = `.mmd` (source) + `.svg` (export). Régénération : `.\schemas-mermaid\render-all.ps1`.
+
+**ChefsOfika** impose cet emplacement dans tout brief vers `skill-mermaidH` et le vérifie à l'étape *Revue & Garde*.

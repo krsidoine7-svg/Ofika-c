@@ -1,0 +1,39 @@
+sequenceDiagram
+    autonumber
+    participant V as Visiteur
+    participant P as Page /{username}
+    participant T as LinkInBio + AddToContactsAuto
+    participant API as GET /api/contacts/{profileId}
+    participant DB as Supabase
+    participant OS as App Contacts (iOS/Android)
+
+    V->>P: Scan QR / clic lien partagé
+    P->>DB: getPublicProfile(username)
+    DB-->>P: Profil + design_choice + social_links
+    P-->>V: Affichage link-to-bio (showAddToContacts: true)
+    P->>P: trackProfileView + trackQRScan si source=qr
+
+    V->>T: Clic « Ajouter aux contacts »
+    T->>T: Détection appareil (iOS / Android / Desktop)
+
+    alt Mobile + Web Share API supportée
+        T->>API: fetch vCard
+        API->>DB: Lecture profil complet
+        DB-->>API: Données contact
+        API-->>T: text/vcard (FN, TEL, EMAIL, PHOTO, URL…)
+        T->>OS: navigator.share({ files: [.vcf] })
+        OS-->>V: Sheet natif → ouvrir Contacts
+    else Fallback téléchargement
+        T->>API: fetch vCard
+        API-->>T: text/vcard
+        alt iOS
+            T->>OS: window.location.href = blob vCard
+        else Android / Desktop
+            T->>V: Téléchargement {nom}.vcf
+            V->>OS: Ouverture fichier .vcf
+        end
+    end
+
+    V->>OS: Enregistrer le contact
+    T->>T: trackContactAction(vcard_download | share_clicked)
+    T-->>V: Toast « Contact sauvegardé » + option rappels push

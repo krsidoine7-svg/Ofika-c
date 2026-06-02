@@ -140,9 +140,10 @@ const nextConfig = {
   },
 
   // Gestion des pages d'erreur personnalisées
+  // Augmenté pour éviter les ChunkLoadError (timeouts de recompilation sur Windows)
   onDemandEntries: {
-    maxInactiveAge: 25 * 1000, // 25 secondes
-    pagesBufferLength: 2,
+    maxInactiveAge: 15 * 60 * 1000, // 15 minutes
+    pagesBufferLength: 5,
   },
 
   // Headers pour forcer le rendu dynamique des routes API

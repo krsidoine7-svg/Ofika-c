@@ -34,6 +34,9 @@ Guides de migration et mises à jour de version.
 ### 📦 [10-archives/](./10-archives/)
 Anciennes documentations conservées pour référence historique.
 
+### 📐 [schemas-mermaid/](../schemas-mermaid/)
+Schémas Mermaid du projet (sources `.mmd` + exports `.svg`). Parcours utilisateur, onboarding, architecture, processus. Géré par **ChefsOfika** et **skill-mermaidH**.
+
 ---
 
 ## 🚀 Démarrage Rapide

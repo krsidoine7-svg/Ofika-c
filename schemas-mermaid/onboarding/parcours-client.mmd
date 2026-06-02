@@ -1,0 +1,29 @@
+flowchart LR
+    subgraph Inscription
+        A[Création compte Ofika] --> B[Auth Supabase]
+    end
+
+    subgraph Profil
+        B --> C[Création profil / dashboard]
+        C --> D[Choix design link-to-bio]
+        D --> E[Ajout bio, photo, liens sociaux]
+        E --> F[Email, téléphone, entreprise]
+    end
+
+    subgraph Publication
+        F --> G[URL personnalisée custom_url]
+        G --> H[Page publique /{slug}]
+        H --> I[Génération QR code]
+        I --> J[Partage lien / QR / NFC]
+    end
+
+    subgraph Visiteur
+        J --> K[Visiteur ouvre link-to-bio]
+        K --> L[Ajouter aux contacts vCard]
+        L --> M[Contact enregistré sur téléphone]
+    end
+
+    subgraph Suivi
+        M --> N[Analytics vues & contacts]
+        N --> O[Dashboard client Ofika]
+    end

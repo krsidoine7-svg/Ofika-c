@@ -31,6 +31,11 @@ nextjs-base-project/
 ├── 🎨 app/                     # Application Next.js
 ├── 🧩 components/              # Composants React
 ├── 📚 lib/                     # Bibliothèques et utilitaires
+├── 📐 schemas-mermaid/         # Schémas Mermaid (.mmd + .svg)
+│   ├── link-to-bio/            # Page publique, vCard, parcours visiteur
+│   ├── onboarding/             # Parcours client Ofika
+│   ├── architecture/           # C4, ERD, infra
+│   └── processus/              # Workflows métier
 └── 📄 Autres fichiers de configuration
 ```
 
@@ -68,6 +73,7 @@ pnpm dev
 - **Vue d'ensemble** : `docs/01-project-overview/`
 - **Modules** : `docs/02-modules/`
 - **Guides** : `docs/03-guides/`
+- **Schémas Mermaid** : `schemas-mermaid/` (parcours, architecture, processus — `.mmd` + `.svg`)
 
 ### **Résolution de Problèmes**
 - **Corrections rapides** : `docs/04-quick-fixes/`

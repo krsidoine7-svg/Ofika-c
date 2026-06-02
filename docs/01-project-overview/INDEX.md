@@ -15,6 +15,18 @@
 | `11_AFRICAN_MARKET_SPECIFICS.md` | Spécificités marché africain | Adaptation locale |
 | `PROJECT_SUMMARY.md` | Résumé du projet | Vue d'ensemble rapide |
 
+## 📐 schemas-mermaid/ - Schémas Visuels (Mermaid)
+
+| Dossier / Fichier | Description | Usage |
+|-------------------|-------------|-------|
+| `../schemas-mermaid/README.md` | Index principal + aperçus SVG | Point d'entrée |
+| `link-to-bio/` | Page publique, vCard, parcours visiteur | UX link-to-bio |
+| `onboarding/` | Parcours client Ofika | Inscription → partage |
+| `architecture/` | C4, ERD, infra (à venir) | Architecture système |
+| `processus/` | Workflows métier (à venir) | Processus internes |
+
+> Régénération SVG : `.\schemas-mermaid\render-all.ps1` — Orchestration : **ChefsOfika** → **skill-mermaidH**
+
 ## 🔧 02-modules/ - Documentation des Modules
 
 | Fichier | Description | Usage |

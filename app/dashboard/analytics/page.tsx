@@ -1,12 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import Link from 'next/link'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/core/ui/card'
 import { Button } from '@/components/core/ui/button'
 import { Badge } from '@/components/core/ui/badge'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/core/ui/select'
-import { Calendar } from '@/components/core/ui/calendar'
+import { CalendarRange } from '@/components/core/ui/calendar-range'
+import { type DateRange } from 'react-day-picker'
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/core/ui/popover'
 import {
   TrendingUp,
@@ -53,19 +54,19 @@ interface AnalyticsData {
   last30Days: number
   last7Days: number
   recentEvents: any[]
+  daily_data?: any[]
 }
 
 export default function AnalyticsPage() {
   const { profiles, loading: profilesLoading } = useProfiles()
   const [selectedProfile, setSelectedProfile] = useState<string>('all')
-  const [dateRange, setDateRange] = useState<{ from: Date; to: Date }>({
+  const [dateRange, setDateRange] = useState<DateRange>({
     from: subDays(new Date(), 30),
     to: new Date()
   })
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData[]>([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
-  const [chartData, setChartData] = useState<any[]>([])
 
   const loadAnalytics = async () => {
     if (!profiles.length) {
@@ -78,12 +79,20 @@ export default function AnalyticsPage() {
 
     try {
       const data: AnalyticsData[] = []
-      let aggregatedDaily: Record<string, { views: number; scans: number; clicks: number; contacts: number }> = {}
 
       for (const profile of profiles) {
         const result = await getProfileAnalytics(profile.id)
 
         if (result.success && result.data) {
+          const mappedDailyData = result.data.daily_data.map((day, index) => {
+            const d = new Date()
+            d.setDate(d.getDate() - (29 - index))
+            return {
+              ...day,
+              dateObject: startOfDay(d)
+            }
+          })
+
           data.push({
             profileId: profile.id,
             profileName: profile.name,
@@ -98,44 +107,13 @@ export default function AnalyticsPage() {
             oss: result.data.oss,
             last30Days: result.data.last_30_days,
             last7Days: result.data.last_7_days,
-            recentEvents: result.data.recent_events || []
-          })
-
-          result.data.daily_data.forEach(day => {
-            if (!aggregatedDaily[day.date]) {
-              aggregatedDaily[day.date] = { views: 0, scans: 0, clicks: 0, contacts: 0 }
-            }
-            aggregatedDaily[day.date].views += day.views
-            aggregatedDaily[day.date].scans += day.scans
-            aggregatedDaily[day.date].clicks += day.clicks
-            aggregatedDaily[day.date].contacts += day.contacts
+            recentEvents: result.data.recent_events || [],
+            daily_data: mappedDailyData
           })
         }
       }
 
       setAnalyticsData(data)
-
-      const chartValues = Object.entries(aggregatedDaily).map(([date, counts]) => ({
-          date,
-          views: counts.views,
-          scans: counts.scans,
-          clicks: counts.clicks,
-          contacts: counts.contacts
-      }))
-
-      if (chartValues.length === 0) {
-        const emptyChart = Array.from({ length: 30 }).map((_, i) => ({
-          date: format(subDays(new Date(), 29 - i), 'dd/MM'),
-          views: 0,
-          scans: 0,
-          clicks: 0,
-          contacts: 0
-        }))
-        setChartData(emptyChart)
-      } else {
-        setChartData(chartValues)
-      }
-
     } catch (err) {
       console.error('Error loading analytics:', err)
       setError('Erreur lors du chargement des analytics')
@@ -148,12 +126,69 @@ export default function AnalyticsPage() {
     loadAnalytics()
   }, [profiles])
 
-  const filteredData = selectedProfile === 'all'
-    ? analyticsData
-    : analyticsData.filter(data => data.profileId === selectedProfile)
+  // Filtrage et agrégation réactive via useMemo
+  const processedAnalytics = useMemo(() => {
+    const fromDate = dateRange?.from ? startOfDay(dateRange.from) : startOfDay(subDays(new Date(), 30))
+    const toDate = dateRange?.to ? endOfDay(dateRange.to) : endOfDay(new Date())
 
-  const totals = filteredData.reduce((acc, data) => {
-    // Calculer les totaux globaux et fusionner les dictionnaires Record
+    const selectedData = selectedProfile === 'all'
+      ? analyticsData
+      : analyticsData.filter(d => d.profileId === selectedProfile)
+
+    let aggregatedDaily: Record<string, { views: number; scans: number; clicks: number; contacts: number }> = {}
+    
+    const tempDate = new Date(fromDate)
+    while (tempDate <= toDate) {
+      const displayDate = tempDate.toLocaleDateString('fr-FR', { day: '2-digit', month: '2-digit' })
+      aggregatedDaily[displayDate] = { views: 0, scans: 0, clicks: 0, contacts: 0 }
+      tempDate.setDate(tempDate.getDate() + 1)
+    }
+
+    let rangeTotalViews = 0
+    let rangeTotalClicks = 0
+    let rangeTotalScans = 0
+    let rangeTotalContacts = 0
+
+    selectedData.forEach(pData => {
+      if (pData.daily_data) {
+        pData.daily_data.forEach(day => {
+          const dayDate = day.dateObject
+          if (dayDate >= fromDate && dayDate <= toDate) {
+            const displayDate = day.date
+            if (aggregatedDaily[displayDate] !== undefined) {
+              aggregatedDaily[displayDate].views += day.views
+              aggregatedDaily[displayDate].scans += day.scans
+              aggregatedDaily[displayDate].clicks += day.clicks
+              aggregatedDaily[displayDate].contacts += day.contacts
+            }
+            rangeTotalViews += day.views
+            rangeTotalClicks += day.clicks
+            rangeTotalScans += day.scans
+            rangeTotalContacts += day.contacts
+          }
+        })
+      }
+    })
+
+    const chartValues = Object.entries(aggregatedDaily).map(([date, counts]) => ({
+      date,
+      views: counts.views,
+      scans: counts.scans,
+      clicks: counts.clicks,
+      contacts: counts.contacts
+    }))
+
+    let finalChartData = chartValues
+    if (finalChartData.length === 0) {
+      finalChartData = Array.from({ length: 30 }).map((_, i) => ({
+        date: format(subDays(new Date(), 29 - i), 'dd/MM'),
+        views: 0,
+        scans: 0,
+        clicks: 0,
+        contacts: 0
+      }))
+    }
+
     const mergeDict = (target: Record<string, number>, source: Record<string, number>) => {
       Object.entries(source).forEach(([key, val]) => {
         target[key] = (target[key] || 0) + val
@@ -161,29 +196,52 @@ export default function AnalyticsPage() {
       return target
     }
 
-    return {
-      totalViews: acc.totalViews + data.totalViews,
-      totalLinkClicks: acc.totalLinkClicks + data.totalLinkClicks,
-      totalQRScans: acc.totalQRScans + data.totalQRScans,
-      totalContactActions: acc.totalContactActions + data.totalContactActions,
-      mobile: acc.mobile + data.deviceBreakdown.mobile,
-      desktop: acc.desktop + data.deviceBreakdown.desktop,
-      tablet: acc.tablet + data.deviceBreakdown.tablet,
-      countries: mergeDict(acc.countries, data.countries),
-      cities: mergeDict(acc.cities, data.cities),
-      browsers: mergeDict(acc.browsers, data.browsers),
-      oss: mergeDict(acc.oss, data.oss),
-      recentEvents: [...acc.recentEvents, ...data.recentEvents].sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime()).slice(0, 50)
+    const initialTotals = {
+      totalViews: rangeTotalViews,
+      totalLinkClicks: rangeTotalClicks,
+      totalQRScans: rangeTotalScans,
+      totalContactActions: rangeTotalContacts,
+      mobile: 0,
+      desktop: 0,
+      tablet: 0,
+      countries: {} as Record<string, number>,
+      cities: {} as Record<string, number>,
+      browsers: {} as Record<string, number>,
+      oss: {} as Record<string, number>,
+      recentEvents: [] as any[]
     }
-  }, { 
-    totalViews: 0, totalLinkClicks: 0, totalQRScans: 0, totalContactActions: 0, 
-    mobile: 0, desktop: 0, tablet: 0, 
-    countries: {} as Record<string, number>, 
-    cities: {} as Record<string, number>,
-    browsers: {} as Record<string, number>,
-    oss: {} as Record<string, number>,
-    recentEvents: [] as any[]
-  })
+
+    const aggregated = selectedData.reduce((acc, data) => {
+      const filteredEvs = (data.recentEvents || []).filter(ev => {
+        const evDate = new Date(ev.created_at)
+        return evDate >= fromDate && evDate <= toDate
+      })
+
+      return {
+        totalViews: acc.totalViews,
+        totalLinkClicks: acc.totalLinkClicks,
+        totalQRScans: acc.totalQRScans,
+        totalContactActions: acc.totalContactActions,
+        mobile: acc.mobile + data.deviceBreakdown.mobile,
+        desktop: acc.desktop + data.deviceBreakdown.desktop,
+        tablet: acc.tablet + data.deviceBreakdown.tablet,
+        countries: mergeDict(acc.countries, data.countries),
+        cities: mergeDict(acc.cities, data.cities),
+        browsers: mergeDict(acc.browsers, data.browsers),
+        oss: mergeDict(acc.oss, data.oss),
+        recentEvents: [...acc.recentEvents, ...filteredEvs]
+      }
+    }, initialTotals)
+
+    aggregated.recentEvents.sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime())
+
+    return {
+      totals: aggregated,
+      chartData: finalChartData
+    }
+  }, [analyticsData, selectedProfile, dateRange])
+
+  const { totals, chartData } = processedAnalytics
 
   // Helper to sort and slice dictionary for top lists
   const getTopList = (dict: Record<string, number>, limit = 5) => {
@@ -211,40 +269,82 @@ export default function AnalyticsPage() {
         <div className="container mx-auto px-4 py-8">
           {/* Header */}
           <div className="mb-8">
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
-                  <BarChart3 className="w-8 h-8 mr-3 inline text-orange-500" />
-                  Tableau de Bord Analytics
-                </h1>
-                <p className="text-gray-600 mt-1">Données en temps réel de vos interactions physiques et digitales.</p>
-              </div>
-              <Button onClick={loadAnalytics} variant="outline" className="h-11 shadow-sm"><RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} /> Actualiser</Button>
+            <div>
+              <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
+                <BarChart3 className="w-8 h-8 mr-3 inline text-orange-500" />
+                Tableau de Bord Analytics
+              </h1>
+              <p className="text-gray-600 mt-1">Données en temps réel de vos interactions physiques et digitales.</p>
             </div>
           </div>
 
-          {/* Filtres & Stats Rapides */}
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4 mb-8">
-             <Card className="col-span-1 md:col-span-1">
-                <CardHeader className="pb-2"><CardTitle className="text-xs uppercase text-gray-500 tracking-widest">Filtre Profil</CardTitle></CardHeader>
-                <CardContent>
+          {/* Barre de Filtres Intelligente */}
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 p-4 mb-8 bg-white border border-neutral-100 rounded-3xl shadow-sm">
+             <div className="flex flex-col sm:flex-row sm:items-center gap-4 flex-1">
+                <div className="w-full sm:w-64">
+                  <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1.5 tracking-wider">Filtrer par Profil</label>
                   <Select value={selectedProfile} onValueChange={setSelectedProfile}>
-                    <SelectTrigger className="border-none bg-gray-100"><SelectValue placeholder="Tous les profils" /></SelectTrigger>
+                    <SelectTrigger className="border-neutral-200 bg-gray-50/50 rounded-xl h-11"><SelectValue placeholder="Tous les profils" /></SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="all">Global</SelectItem>
+                      <SelectItem value="all">Global (Tous)</SelectItem>
                       {profiles.map(p => <SelectItem key={p.id} value={p.id}>{p.name}</SelectItem>)}
                     </SelectContent>
                   </Select>
-                </CardContent>
-             </Card>
+                </div>
+                
+                {/* Popover avec CalendarRange pour la plage de dates */}
+                <div className="w-full sm:w-auto">
+                  <label className="text-[10px] uppercase font-bold text-gray-400 block mb-1.5 tracking-wider">Période de Date</label>
+                  <Popover>
+                    <PopoverTrigger asChild>
+                      <Button variant="outline" className="h-11 px-4 border-neutral-200 bg-gray-50/50 hover:bg-neutral-50 rounded-xl flex items-center gap-2 text-sm font-semibold justify-start w-full sm:w-[280px]">
+                        <CalendarIcon className="w-4 h-4 text-orange-500 shrink-0" />
+                        <span className="truncate">
+                          {dateRange?.from ? (
+                            dateRange.to ? (
+                              `${format(dateRange.from, 'dd MMM yyyy', { locale: fr })} - ${format(dateRange.to, 'dd MMM yyyy', { locale: fr })}`
+                            ) : (
+                              format(dateRange.from, 'dd MMM yyyy', { locale: fr })
+                            )
+                          ) : (
+                            "Choisir une plage"
+                          )}
+                        </span>
+                      </Button>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-auto p-0 border-none shadow-xl rounded-2xl overflow-hidden" align="start">
+                      <CalendarRange 
+                        selected={dateRange} 
+                        onSelect={(range) => {
+                          if (range) {
+                            setDateRange({
+                              from: range.from || subDays(new Date(), 30),
+                              to: range.to || new Date()
+                            })
+                          }
+                        }} 
+                      />
+                    </PopoverContent>
+                  </Popover>
+                </div>
+             </div>
              
-             {/* Key Metrics Cards */}
+             <div className="flex items-center gap-2 shrink-0 self-end sm:self-auto pt-4 sm:pt-0">
+                <Button onClick={loadAnalytics} variant="outline" className="h-11 border-neutral-200 hover:bg-neutral-50 rounded-xl font-semibold shadow-sm">
+                  <RefreshCw className={`w-4 h-4 mr-2 ${loading ? 'animate-spin' : ''}`} /> 
+                  Actualiser
+                </Button>
+             </div>
+          </div>
+
+          {/* Key Metrics Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
              {[
                { label: 'Visites', value: totals.totalViews, icon: Eye, color: 'text-blue-600', bg: 'bg-blue-50' },
                { label: 'Scans QR', value: totals.totalQRScans, icon: QrCode, color: 'text-orange-600', bg: 'bg-orange-50' },
                { label: 'Clics Liens', value: totals.totalLinkClicks, icon: MousePointer, color: 'text-green-600', bg: 'bg-green-50' }
              ].map((stat, i) => (
-               <Card key={i} className="group hover:shadow-md transition-shadow">
+               <Card key={i} className="group hover:shadow-md transition-shadow rounded-2xl">
                  <CardContent className="p-6 flex items-center justify-between">
                    <div>
                      <p className="text-xs font-bold uppercase text-gray-500 mb-1">{stat.label}</p>
@@ -282,15 +382,15 @@ export default function AnalyticsPage() {
                        </div>
                      ))}
                    </div>
-                   <div className="space-y-3 pt-4">
-                     <p className="text-xs font-bold uppercase text-gray-400 border-b pb-2">Villes</p>
-                     {getTopList(totals.cities).map(([name, count]) => (
-                       <div key={name} className="flex justify-between items-center">
-                         <span className="text-sm text-gray-600">{name}</span>
-                         <span className="text-xs font-bold">{Math.round((count/totals.totalViews)*100)}%</span>
-                       </div>
-                     ))}
-                   </div>
+                    <div className="space-y-3 pt-4">
+                      <p className="text-xs font-bold uppercase text-gray-400 border-b pb-2">Villes</p>
+                      {getTopList(totals.cities).map(([name, count]) => (
+                        <div key={name} className="flex justify-between items-center">
+                          <span className="text-sm text-gray-600">{name}</span>
+                          <span className="text-xs font-bold">{totals.totalViews > 0 ? Math.round((count/totals.totalViews)*100) : 0}%</span>
+                        </div>
+                      ))}
+                    </div>
                  </div>
                </CardContent>
             </Card>
@@ -343,10 +443,10 @@ export default function AnalyticsPage() {
                        <div key={browser} className="space-y-1">
                           <div className="flex justify-between text-xs font-bold group">
                             <span className="text-gray-600 group-hover:text-orange-500 transition-colors">{browser}</span>
-                            <span>{Math.round((count/totals.totalViews)*100)}%</span>
+                            <span>{totals.totalViews > 0 ? Math.round((count/totals.totalViews)*100) : 0}%</span>
                           </div>
                           <div className="w-full h-2 bg-gray-100 rounded-full overflow-hidden">
-                             <div className="h-full bg-orange-500 rounded-full" style={{ width: `${(count/totals.totalViews)*100}%` }}></div>
+                             <div className="h-full bg-orange-500 rounded-full" style={{ width: `${totals.totalViews > 0 ? (count/totals.totalViews)*100 : 0}%` }}></div>
                           </div>
                        </div>
                      ))}
@@ -374,7 +474,7 @@ export default function AnalyticsPage() {
                          </tr>
                       </thead>
                       <tbody className="divide-y divide-gray-100 bg-white">
-                         {totals.recentEvents.map((ev, i) => (
+                         {totals.recentEvents.map((ev: any, i: number) => (
                            <tr key={ev.id || i} className="hover:bg-gray-50 transition-colors">
                               <td className="px-6 py-4">
                                  <Badge variant={ev.event_type === 'profile_viewed' ? 'outline' : 'secondary'} className="capitalize whitespace-nowrap">

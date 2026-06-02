@@ -1,0 +1,43 @@
+flowchart TD
+    Start([Visiteur reçoit le lien Ofika]) --> Entry{Point d'entrée}
+    Entry -->|Lien direct| Slug["ofika.ci/{custom_url}"]
+    Entry -->|QR code| QR["/qr/{shortCode}"]
+    Entry -->|Carte NFC| NFC["/nfc/{nfcLink}"]
+    Entry -->|Carte design| Card["/card/{id}"]
+
+    QR --> Slug
+    NFC --> Slug
+    Card --> Slug
+
+    Slug --> Load["ProfileClient + getPublicProfile"]
+    Load --> Active{Profil actif ?}
+    Active -->|Non| Suspended[Page profil suspendu]
+    Active -->|Oui| Template["LinkInBioDesign* selon design_choice"]
+
+    Template --> Display["Affichage bio, liens, photo"]
+    Display --> Btn["Bouton AddToContactsAuto visible"]
+
+    Btn --> Click([Clic Ajouter aux contacts])
+    Click --> Device{Détection appareil}
+
+    Device -->|Mobile + Web Share| Share["shareViaWebShare()"]
+    Device -->|Sinon| Download["downloadVCard()"]
+
+    Share --> Fetch["GET /api/contacts/{profileId}"]
+    Download --> Fetch
+
+    Fetch --> Gen["generateCompleteVCard()"]
+    Gen --> Fields["FN, N, EMAIL, TEL, PHOTO, ORG, TITLE, URL, social_links"]
+
+    Fields --> Deliver{Livraison vCard}
+    Deliver -->|Web Share| NativeShare["navigator.share(.vcf)"]
+    Deliver -->|iOS| IOSOpen["window.location.href = blob"]
+    Deliver -->|Android/Desktop| FileDL["Téléchargement .vcf"]
+
+    NativeShare --> ContactsApp["App Contacts natif"]
+    IOSOpen --> ContactsApp
+    FileDL --> ContactsApp
+
+    ContactsApp --> Save([Utilisateur enregistre])
+    Save --> Track["Analytics: vcard_download / share_clicked"]
+    Track --> Toast["Toast + option rappels push"]

@@ -1,4 +1,4 @@
-<!-- Dernière mise à jour : Mai 2026 -->
+<!-- Dernière mise à jour : 31 Mai 2026 -->
 
 # Décisions Techniques — Favor Company International
 
@@ -78,6 +78,27 @@
 **Lien :** [bonnes-pratiques/patterns-db.md](../bonnes-pratiques/patterns-db.md)
 
 ---
+
+## [31 Mai 2026] Dépôt central schemas-mermaid/ pour tous les diagrammes Ofika
+
+**Contexte :** Besoin de cartographier processus, features, parcours utilisateur et onboarding de façon versionnée et lisible  
+**Décision :** Dossier racine `schemas-mermaid/` avec sous-dossiers thématiques ; couple `.mmd` + `.svg` obligatoire ; orchestration via ChefsOfika → skill-mermaidH  
+**Raison :** Source unique, export SVG facile à lire, intégration au protocole de délégation existant  
+**Alternative rejetée :** Diagrammes éparpillés dans `docs/` sans convention ni export systématique  
+**Lien :** [stack/mermaid-schemas.md](../stack/mermaid-schemas.md) | [schemas-mermaid/](../../../../../schemas-mermaid/README.md)
+
+---
+
+## [31 Mai 2026] skill-mermaidH intégré à ChefsOfika (25e compétence)
+
+**Contexte :** Nouveau skill Mermaid ajouté par l'utilisateur  
+**Décision :** Délégation automatique à l'étape *Cartographie d'Impact* pour processus, features, UX, onboarding  
+**Raison :** Visualiser avant d'implémenter ; aligner doc et code  
+**Alternative rejetée :** Diagrammes ad hoc sans skill dédié ni brief structuré  
+**Lien :** [ChefsOfika/MANIFESTE_COMPETENCES.md](../../../ChefsOfika/MANIFESTE_COMPETENCES.md)
+
+---
+
 
 *Ajouter chaque nouvelle décision technique importante ici.*  
 *Format : `## [Date] Titre | Contexte | Décision | Raison | Alternative | Lien`*

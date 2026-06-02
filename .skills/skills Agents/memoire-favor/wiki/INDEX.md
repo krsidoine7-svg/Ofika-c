@@ -1,4 +1,4 @@
-<!-- Dernière mise à jour : Mai 2026 -->
+<!-- Dernière mise à jour : 31 Mai 2026 -->
 
 # INDEX.md — Table des Matières du Wiki
 ## Favor Company International — Mémoire Externe
@@ -23,7 +23,7 @@
 | Un bug Next.js | [erreurs/nextjs.md](#erreurs) |
 | Un pattern backend validé | [bonnes-pratiques/patterns-backend.md](#bonnes-pratiques) |
 | Un pattern frontend validé | [bonnes-pratiques/patterns-frontend.md](#bonnes-pratiques) |
-| La doc Supabase du projet | [stack/supabase.md](#stack) |
+| La doc Mermaid / schémas Ofika | [stack/mermaid-schemas.md](#stack) |
 | La doc Paystack du projet | [stack/paystack.md](#stack) |
 | Le résumé d'une session | [sessions/](#sessions) |
 | Le style de travail | [personnes/profil-travail.md](#personnes) |
@@ -99,6 +99,7 @@ Date | Décision | Contexte | Raison | Alternative rejetée | Liens
 | `stack/tailwind-shadcn.md` | Design tokens, composants shadcn/ui | — |
 | `stack/cloudflare-r2.md` | Upload, URLs signées, R2 | — |
 | `stack/resend.md` | Templates emails, envoi transactionnel | — |
+| `stack/mermaid-schemas.md` | skill-mermaidH, schemas-mermaid/, export SVG | 31 Mai 2026 |
 
 ---
 
@@ -108,6 +109,7 @@ Date | Décision | Contexte | Raison | Alternative rejetée | Liens
 |---|---|
 | `sessions/2026-05-10.md` | Session 001 — Setup projet + documentation |
 | `sessions/2026-05-29.md` | Session 002 — Création de ChefsOfika + Sécurité & Stack PROMPTs + npm audit |
+| `sessions/2026-05-31.md` | Session 003 — skill-mermaidH + schemas-mermaid/ + schémas link-to-bio/vCard |
 
 **Relations :** Chaque résumé de session pointe vers le fichier fourtour correspondant.
 

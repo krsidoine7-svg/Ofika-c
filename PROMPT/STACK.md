@@ -42,6 +42,7 @@ Le projet est une application web moderne construite sur la stack suivante :
 * **Dossier `components/`** : Composants React partagés (boutons, formulaires, modales).
 * **Dossier `lib/`** : Initialisation des clients (ex: `supabaseClient.ts`, `drizzle.ts`).
 * **Dossier `utils/`** : Fonctions d'aide pures (formateurs de date, calculs).
+* **Dossier `schemas-mermaid/`** : Schémas Mermaid du projet (`.mmd` source + `.svg` export). Sous-dossiers : `link-to-bio/`, `onboarding/`, `architecture/`, `processus/`. Index : `schemas-mermaid/README.md`. Géré par **ChefsOfika** → skill **skill-mermaidH**.
 
 ### 2. Ajout de nouvelles dépendances
 * **Règle impérative** : Avant d'installer un nouveau package avec `npm install`, vous devez impérativement faire valider la dépendance par l'outil de scannage (`scan_dependencies`) afin de s'assurer qu'elle est sécurisée, compatible, et d'installer la version exacte recommandée.
@@ -52,3 +53,4 @@ Le projet est une application web moderne construite sur la stack suivante :
 * **Pousser les schémas sur Supabase** : `npm run db:push`
 * **Vérifier la connexion DB** : `npm run db:test`
 * **Appliquer les correctifs RLS** : `npm run db:rls`
+* **Régénérer les SVG Mermaid** : `.\schemas-mermaid\render-all.ps1`

@@ -1,0 +1,99 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1301.4 1154" width="1301.4" height="1154" style="--bg:#1a1b26;--fg:#a9b1d6;--line:#3d59a1;--accent:#7aa2f7;--muted:#565f89;background:var(--bg)">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap');
+  text { font-family: 'Inter', system-ui, sans-serif; }
+  svg {
+    /* Derived from --bg and --fg (overridable via --line, --accent, etc.) */
+    --_text:          var(--fg);
+    --_text-sec:      var(--muted, color-mix(in srgb, var(--fg) 60%, var(--bg)));
+    --_text-muted:    var(--muted, color-mix(in srgb, var(--fg) 40%, var(--bg)));
+    --_text-faint:    color-mix(in srgb, var(--fg) 25%, var(--bg));
+    --_line:          var(--line, color-mix(in srgb, var(--fg) 30%, var(--bg)));
+    --_arrow:         var(--accent, color-mix(in srgb, var(--fg) 50%, var(--bg)));
+    --_node-fill:     var(--surface, color-mix(in srgb, var(--fg) 3%, var(--bg)));
+    --_node-stroke:   var(--border, color-mix(in srgb, var(--fg) 20%, var(--bg)));
+    --_group-fill:    var(--bg);
+    --_group-hdr:     color-mix(in srgb, var(--fg) 5%, var(--bg));
+    --_inner-stroke:  color-mix(in srgb, var(--fg) 12%, var(--bg));
+    --_key-badge:     color-mix(in srgb, var(--fg) 10%, var(--bg));
+  }
+</style>
+<defs>
+  <marker id="seq-arrow" markerWidth="8" markerHeight="4.8" refX="8" refY="2.4" orient="auto-start-reverse">
+    <polygon points="0 0, 8 2.4, 0 4.8" fill="var(--_arrow)" />
+  </marker>
+  <marker id="seq-arrow-open" markerWidth="8" markerHeight="4.8" refX="8" refY="2.4" orient="auto-start-reverse">
+    <polyline points="0 0, 8 2.4, 0 4.8" fill="none" stroke="var(--_arrow)" stroke-width="1" />
+  </marker>
+</defs>
+<rect x="30" y="790" width="1241.4" height="164" rx="0" ry="0" fill="none" stroke="var(--_node-stroke)" stroke-width="1" />
+<rect x="30" y="790" width="73.41999999999999" height="18" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
+<text x="36" y="799" dy="0.35em" font-size="11" font-weight="600" fill="var(--_text-sec)">alt [iOS]</text>
+<line x1="30" y1="866" x2="1271.4" y2="866" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" />
+<text x="38" y="880" font-size="11" font-weight="400" fill="var(--_text-muted)">[Android / Desktop]</text>
+<rect x="30" y="418" width="1241.4" height="536" rx="0" ry="0" fill="none" stroke="var(--_node-stroke)" stroke-width="1" />
+<rect x="30" y="418" width="258.43999999999994" height="18" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
+<text x="36" y="427" dy="0.35em" font-size="11" font-weight="600" fill="var(--_text-sec)">alt [Mobile + Web Share API supportée]</text>
+<line x1="30" y1="694" x2="1271.4" y2="694" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" />
+<text x="38" y="708" font-size="11" font-weight="400" fill="var(--_text-muted)">[Fallback téléchargement]</text>
+<line x1="84.6" y1="70" x2="84.6" y2="1124" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" />
+<line x1="242.4" y1="70" x2="242.4" y2="1124" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" />
+<line x1="475.275" y1="70" x2="475.275" y2="1124" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" />
+<line x1="754.625" y1="70" x2="754.625" y2="1124" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" />
+<line x1="958.9" y1="70" x2="958.9" y2="1124" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" />
+<line x1="1152.45" y1="70" x2="1152.45" y2="1124" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" />
+<line x1="84.6" y1="90" x2="242.4" y2="90" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="163.5" y="84" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Scan QR / clic lien partagé</text>
+<line x1="242.4" y1="130" x2="958.9" y2="130" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="600.65" y="124" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">getPublicProfile(username)</text>
+<line x1="958.9" y1="170" x2="242.4" y2="170" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#seq-arrow)" />
+<text x="600.65" y="164" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Profil + design_choice + social_links</text>
+<line x1="242.4" y1="210" x2="84.6" y2="210" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#seq-arrow)" />
+<text x="163.5" y="204" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Affichage link-to-bio (showAddToContacts: true)</text>
+<polyline points="242.4,250 272.4,250 272.4,270 242.4,270" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="278.4" y="260" dy="0.35em" font-size="11" font-weight="400" fill="var(--_text-muted)">trackProfileView + trackQRScan si source=qr</text>
+<line x1="84.6" y1="320" x2="475.275" y2="320" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="279.9375" y="314" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Clic « Ajouter aux contacts »</text>
+<polyline points="475.275,360 505.275,360 505.275,380 475.275,380" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="511.275" y="370" dy="0.35em" font-size="11" font-weight="400" fill="var(--_text-muted)">Détection appareil (iOS / Android / Desktop)</text>
+<line x1="475.275" y1="458" x2="754.625" y2="458" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="614.95" y="452" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">fetch vCard</text>
+<line x1="754.625" y1="498" x2="958.9" y2="498" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="856.7625" y="492" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Lecture profil complet</text>
+<line x1="958.9" y1="538" x2="754.625" y2="538" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#seq-arrow)" />
+<text x="856.7625" y="532" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Données contact</text>
+<line x1="754.625" y1="578" x2="475.275" y2="578" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#seq-arrow)" />
+<text x="614.95" y="572" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">text/vcard (FN, TEL, EMAIL, PHOTO, URL…)</text>
+<line x1="475.275" y1="618" x2="1152.45" y2="618" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="813.8625" y="612" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">navigator.share({ files: [.vcf] })</text>
+<line x1="1152.45" y1="658" x2="84.6" y2="658" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#seq-arrow)" />
+<text x="618.525" y="652" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Sheet natif → ouvrir Contacts</text>
+<line x1="475.275" y1="722" x2="754.625" y2="722" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="614.95" y="716" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">fetch vCard</text>
+<line x1="754.625" y1="762" x2="475.275" y2="762" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#seq-arrow)" />
+<text x="614.95" y="756" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">text/vcard</text>
+<line x1="475.275" y1="830" x2="1152.45" y2="830" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="813.8625" y="824" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">window.location.href = blob vCard</text>
+<line x1="475.275" y1="894" x2="84.6" y2="894" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="279.9375" y="888" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Téléchargement {nom}.vcf</text>
+<line x1="84.6" y1="934" x2="1152.45" y2="934" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="618.525" y="928" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Ouverture fichier .vcf</text>
+<line x1="84.6" y1="974" x2="1152.45" y2="974" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="618.525" y="968" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Enregistrer le contact</text>
+<polyline points="475.275,1014 505.275,1014 505.275,1034 475.275,1034" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="511.275" y="1024" dy="0.35em" font-size="11" font-weight="400" fill="var(--_text-muted)">trackContactAction(vcard_download | share_clicked)</text>
+<line x1="475.275" y1="1084" x2="84.6" y2="1084" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#seq-arrow)" />
+<text x="279.9375" y="1078" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Toast « Contact sauvegardé » + option rappels push</text>
+<rect x="39.99999999999999" y="30" width="89.2" height="40" rx="4" ry="4" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+<text x="84.6" y="50" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">Visiteur</text>
+<rect x="169.2" y="30" width="146.4" height="40" rx="4" ry="4" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+<text x="242.4" y="50" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">Page /{username}</text>
+<rect x="355.59999999999997" y="30" width="239.35000000000002" height="40" rx="4" ry="4" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+<text x="475.275" y="50" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">LinkInBio + AddToContactsAuto</text>
+<rect x="634.95" y="30" width="239.35000000000002" height="40" rx="4" ry="4" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+<text x="754.625" y="50" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">GET /api/contacts/{profileId}</text>
+<rect x="914.3" y="30" width="89.2" height="40" rx="4" ry="4" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+<text x="958.9" y="50" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">Supabase</text>
+<rect x="1043.5" y="30" width="217.9" height="40" rx="4" ry="4" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+<text x="1152.45" y="50" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">App Contacts (iOS/Android)</text>
+</svg>
