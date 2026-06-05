@@ -1,10 +1,10 @@
 'use client'
 
 import { useState, useRef, useCallback, useEffect } from 'react'
-import { Button } from "@/components/core/ui/button"
-import { Input } from "@/components/core/ui/input"
-import { Label } from "@/components/core/ui/label"
-import { Card, CardContent } from "@/components/core/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Card, CardContent } from "@/components/ui/card"
 import { Upload, RotateCcw, QrCode, Building, User, Briefcase, ArrowRight } from "lucide-react"
 import QRCode from 'react-qr-code'
 import Link from 'next/link'

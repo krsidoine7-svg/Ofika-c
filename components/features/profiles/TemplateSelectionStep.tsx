@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/core/ui/card"
-import { Button } from "@/components/core/ui/button"
-import { Badge } from "@/components/core/ui/badge"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { LinkInBioDesign1 } from '@/components/features/profiles/LinkInBioDesign1'
 import { LinkInBioDesign2 } from '@/components/features/profiles/LinkInBioDesign2'
 import { LinkInBioDesign3 } from '@/components/features/profiles/LinkInBioDesign3'
@@ -28,7 +28,7 @@ import {
   LayoutGrid,
   Briefcase
 } from "lucide-react"
-import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/core/ui/select'
+import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from '@/components/ui/select'
 
 interface TemplateSelectionStepProps {
   onNext: (selectedTemplate: string) => void

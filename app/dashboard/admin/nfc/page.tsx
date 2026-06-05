@@ -1,12 +1,12 @@
 'use client'
 
 import React, { useEffect, useState, useMemo } from 'react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/core/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Users, Calendar, Search, Filter, Loader2, CreditCard, Smartphone, Layers, QrCode, Settings, Database, Eye, PlusCircle, Download, Copy, TrendingUp, Clock, Truck, CheckCircle2, Package, ChevronRight, SearchX, Trash2, Power, Edit3, AlertTriangle, Paintbrush, BarChart3 } from "lucide-react"
 import { createClient } from '@/lib/supabase/client'
-import { Badge } from "@/components/core/ui/badge"
-import { Button } from "@/components/core/ui/button"
-import { Input } from "@/components/core/ui/input"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import {
@@ -16,9 +16,9 @@ import {
     DialogTitle,
     DialogFooter,
     DialogDescription
-} from "@/components/core/ui/dialog"
-import { Label } from "@/components/core/ui/label"
-import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/core/ui/tabs"
+} from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
 
 const DESIGN_NAMES: Record<string, string> = {
     design1: 'Classique', design2: 'Design', design3: 'Créatif', design4: 'Nature',

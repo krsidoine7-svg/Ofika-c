@@ -1,10 +1,10 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Button } from '@/components/core/ui/button'
-import { Card, CardContent } from '@/components/core/ui/card'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/core/ui/avatar'
-import { Badge } from '@/components/core/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
 import { 
   Phone, 
   Mail, 

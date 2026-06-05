@@ -1,8 +1,8 @@
 'use client'
 
-import { Card, CardContent } from "@/components/core/ui/card"
-import { Button } from "@/components/core/ui/button"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/core/ui/avatar"
+import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import {
   Phone,
   MapPin,
@@ -18,7 +18,7 @@ import {
 } from "lucide-react"
 import { AddToContactsAuto } from "@/components/AddToContactsAuto"
 import { ProfileWithLinks } from "@/lib/types/database"
-import { SocialIcon } from "@/components/core/ui/social-icons"
+import { SocialIcon } from "@/components/ui/social-icons"
 import { ContactExchangeForm } from "@/components/features/contacts/ContactExchangeForm"
 import { useState } from "react"
 import { toast } from "sonner"

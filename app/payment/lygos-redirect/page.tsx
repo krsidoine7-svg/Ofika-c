@@ -2,9 +2,9 @@
 
 import { useEffect, useState, Suspense } from 'react'
 import { useRouter, useSearchParams } from 'next/navigation'
-import { Card, CardContent } from "@/components/core/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Loader2, CreditCard, AlertCircle } from "lucide-react"
-import { Button } from "@/components/core/ui/button"
+import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 
 function LygosRedirectContent() {

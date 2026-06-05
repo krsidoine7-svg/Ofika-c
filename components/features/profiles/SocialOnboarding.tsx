@@ -19,9 +19,9 @@ import {
     RefreshCcw,
     Loader2
 } from 'lucide-react'
-import { Button } from "@/components/core/ui/button"
-import { Input } from "@/components/core/ui/input"
-import { Card } from "@/components/core/ui/card"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Card } from "@/components/ui/card"
 import { SocialScraperService, SocialProfile, SocialPlatform } from '@/lib/services/social-scraper'
 import { toast } from "sonner"
 

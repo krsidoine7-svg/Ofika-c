@@ -1,11 +1,11 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/core/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { CreditCard, Wallet, Smartphone, Globe, Plus, ToggleLeft as Toggle, Settings, CheckCircle2, XCircle, AlertCircle, Loader2, ArrowRight } from "lucide-react"
 import { createClient } from '@/lib/supabase/client'
-import { Badge } from "@/components/core/ui/badge"
-import { Button } from "@/components/core/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import {
@@ -16,10 +16,10 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from "@/components/core/ui/dialog"
+} from "@/components/ui/dialog"
 import { AlertTriangle } from "lucide-react"
-import { Label } from "@/components/core/ui/label"
-import { Input } from "@/components/core/ui/input"
+import { Label } from "@/components/ui/label"
+import { Input } from "@/components/ui/input"
 
 interface PaymentMethod {
     id: string

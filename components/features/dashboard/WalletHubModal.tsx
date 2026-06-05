@@ -1,8 +1,8 @@
 "use client"
 
 import React, { useState } from "react"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/core/ui/dialog"
-import { Button } from "@/components/core/ui/button"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
 import { Sparkles, Smartphone, ShieldCheck, Download, ExternalLink, QrCode } from "lucide-react"
 import { Profile } from "@/lib/types/database"
 import { toast } from "sonner"

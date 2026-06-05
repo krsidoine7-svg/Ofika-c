@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { ChevronDown, Phone } from 'lucide-react'
-import { Input } from '@/components/core/ui/input'
+import { Input } from '@/components/ui/input'
 
 // Liste des pays avec leurs indicatifs
 export const COUNTRIES = [

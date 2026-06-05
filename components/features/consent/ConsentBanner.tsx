@@ -1,11 +1,11 @@
 'use client'
 
 import { useState } from 'react'
-import { Button } from '@/components/core/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/core/ui/card'
-import { Checkbox } from '@/components/core/ui/checkbox'
-import { Label } from '@/components/core/ui/label'
-import { Alert, AlertDescription } from '@/components/core/ui/alert'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Label } from '@/components/ui/label'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Shield, Mail, Database, Eye, EyeOff, CheckCircle, XCircle } from 'lucide-react'
 import { cn } from '@/lib/utils'
 

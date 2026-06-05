@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/core/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import {
     Activity,
     ShieldAlert,
@@ -21,9 +21,9 @@ import {
     Skull,
     Lock
 } from "lucide-react"
-import { Badge } from "@/components/core/ui/badge"
-import { Button } from "@/components/core/ui/button"
-import { Input } from "@/components/core/ui/input"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { cn } from "@/lib/utils"
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'

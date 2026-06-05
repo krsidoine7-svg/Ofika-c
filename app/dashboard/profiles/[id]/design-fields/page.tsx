@@ -18,11 +18,11 @@ import { useRouter, useParams } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Button } from "@/components/core/ui/button"
-import { Input } from "@/components/core/ui/input"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/core/ui/card"
-import { Badge } from "@/components/core/ui/badge"
-import { Label } from "@/components/core/ui/label"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Label } from "@/components/ui/label"
 import {
   Form,
   FormControl,
@@ -30,14 +30,14 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from "@/components/core/ui/form"
+} from "@/components/ui/form"
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
-} from "@/components/core/ui/select"
+} from "@/components/ui/select"
 import { ArrowLeft, Plus, X, Save, Info, MessageCircle, Facebook, Instagram, Twitter, Youtube, Linkedin, Globe } from 'lucide-react'
 import { ProtectedRoute } from '@/components/core/auth/ProtectedRoute'
 import { createClient } from "@/lib/supabase/client"

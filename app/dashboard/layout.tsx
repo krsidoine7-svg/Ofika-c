@@ -4,9 +4,9 @@ import { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
 import { ProtectedRoute } from "@/components/core/auth/ProtectedRoute"
-import { Logo } from "@/components/core/ui/logo"
-import { Button } from "@/components/core/ui/button"
-import { Badge } from "@/components/core/ui/badge"
+import { Logo } from "@/components/ui/logo"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { LayoutDashboard, Users, QrCode, Settings, Menu, X, BarChart3, CreditCard, Shield, Star, ShieldCheck } from "lucide-react"
 import { LogoutButton } from "@/components/core/auth/LogoutButton"
 import { useAuth } from "@/lib/hooks/useAuth"
@@ -23,8 +23,8 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from "@/components/core/ui/dropdown-menu"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/core/ui/avatar"
+} from "@/components/ui/dropdown-menu"
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
 import { LogOut, User as UserIcon } from "lucide-react"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"

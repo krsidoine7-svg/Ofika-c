@@ -1,14 +1,14 @@
 'use client'
 
-import { Button } from '@/components/core/ui/button'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/core/ui/card'
-import { Badge } from '@/components/core/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import { CreditCard, Globe, ArrowRight, CheckCircle, Zap } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { getRawPrice } from '@/lib/config/pricing'
-import { Logo } from '@/components/core/ui/logo'
+import { Logo } from '@/components/ui/logo'
 
 export default function GetStartedPage() {
   return (

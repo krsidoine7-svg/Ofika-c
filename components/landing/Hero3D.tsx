@@ -1,7 +1,7 @@
 'use client'
 
 import { motion, useScroll, useTransform, useSpring } from 'framer-motion'
-import { Button } from '@/components/core/ui/button'
+import { Button } from '@/components/ui/button'
 import { ArrowRight, TrendingUp, CheckCircle, Play, Zap, Sparkles } from 'lucide-react'
 import Link from 'next/link'
 import { NFCCard3D } from './NFCCard3D'

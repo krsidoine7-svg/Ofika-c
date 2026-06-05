@@ -2,8 +2,8 @@
 
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react'
 import { CardDesign, NFCCardDesignStepProps } from '@/lib/types/nfc-card-onboarding'
-import { Button } from '@/components/core/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/core/ui/card'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Upload, RotateCcw, QrCode, Building, User, Briefcase } from "lucide-react"
 import QRCode from 'react-qr-code'
 import { cn } from '@/lib/utils'

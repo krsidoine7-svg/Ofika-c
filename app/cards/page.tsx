@@ -1,14 +1,14 @@
 "use client"
 
 import { ProtectedRoute } from "@/components/core/auth/ProtectedRoute"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/core/ui/card"
-import { Button } from "@/components/core/ui/button"
-import { Badge } from "@/components/core/ui/badge"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { Plus, CreditCard, QrCode, Settings } from "lucide-react"
 import Link from "next/link"
-import { BetaFeatureModal, useBetaFeature } from "@/components/core/ui/beta-feature-modal"
+import { BetaFeatureModal, useBetaFeature } from "@/components/ui/beta-feature-modal"
 import { useRouter } from "next/navigation"
-import { Logo } from "@/components/core/ui/logo"
+import { Logo } from "@/components/ui/logo"
 
 export default function CardsPage() {
   const router = useRouter()

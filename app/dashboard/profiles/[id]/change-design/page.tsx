@@ -16,9 +16,9 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
-import { Button } from "@/components/core/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/core/ui/card"
-import { Badge } from "@/components/core/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 import { ArrowLeft, CheckCircle, AlertCircle } from "lucide-react"
 import { TemplateSelectionStep } from '@/components/features/profiles/TemplateSelectionStep'
 import { ProtectedRoute } from '@/components/core/auth/ProtectedRoute'

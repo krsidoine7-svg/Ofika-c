@@ -1,9 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/core/ui/card'
-import { Button } from '@/components/core/ui/button'
-import { Badge } from '@/components/core/ui/badge'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
 import { 
   TrendingUp, 
   Eye, 
@@ -15,7 +15,7 @@ import {
 } from 'lucide-react'
 import { ProtectedRoute } from '@/components/core/auth/ProtectedRoute'
 import { useProfiles } from '@/lib/hooks/useProfiles'
-import { BetaFeatureModal, useBetaFeature } from "@/components/core/ui/beta-feature-modal"
+import { BetaFeatureModal, useBetaFeature } from "@/components/ui/beta-feature-modal"
 
 export default function SimpleAnalyticsPage() {
   const { profiles, loading: profilesLoading } = useProfiles()

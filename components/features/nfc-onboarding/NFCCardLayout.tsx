@@ -1,8 +1,8 @@
 'use client'
 
 import { ReactNode } from 'react'
-import { Card, CardContent } from '@/components/core/ui/card'
-import { Button } from '@/components/core/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import { ArrowLeft, ArrowRight } from 'lucide-react'
 import { cn } from '@/lib/utils'
 

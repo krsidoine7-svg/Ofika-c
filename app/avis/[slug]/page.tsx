@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation'
 import { createClient } from '@/lib/supabase/server'
 import { PublicReviewForm } from '@/components/features/reviews'
-import { Logo } from '@/components/core/ui/logo'
+import { Logo } from '@/components/ui/logo'
 import Link from 'next/link'
 
 // ========================================

@@ -7,8 +7,8 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/core/ui/card'
-import { Button } from '@/components/core/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
 import { Folder, ArrowLeft, Plus, QrCode, BarChart3, TrendingUp, Calendar } from 'lucide-react'
 import { toast } from 'sonner'
 import CampaignManager from '@/components/qr/CampaignManager'

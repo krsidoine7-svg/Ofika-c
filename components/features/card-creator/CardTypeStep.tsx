@@ -1,5 +1,5 @@
 import { CreditCard, QrCode } from "lucide-react"
-import { Badge } from "@/components/core/ui/badge"
+import { Badge } from "@/components/ui/badge"
 import { NFC_CARD_BASE_PRICE } from "@/lib/config/pricing"
 
 interface CardTypeStepProps {

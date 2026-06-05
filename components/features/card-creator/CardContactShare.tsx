@@ -1,6 +1,6 @@
 "use client"
 
-import { Button } from "@/components/core/ui/button"
+import { Button } from "@/components/ui/button"
 import { Smartphone, Download, Share2, QrCode, Copy, Check, Mail } from "lucide-react"
 import { ProfileWithLinks } from "@/lib/types/database"
 import { toast } from "sonner"

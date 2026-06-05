@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { Button } from '@/components/core/ui/button'
-import { Input } from '@/components/core/ui/input'
-import { Label } from '@/components/core/ui/label'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { toast } from 'sonner'
 import { Loader2, Mail, User, Lock, Eye, EyeOff } from 'lucide-react'

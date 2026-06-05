@@ -1,7 +1,7 @@
 'use client'
 
 import { motion } from 'framer-motion'
-import { Button } from "@/components/core/ui/button"
+import { Button } from "@/components/ui/button"
 import { ArrowRight, User, CreditCard, Truck, Clock, Shield, Smartphone, CheckCircle, Settings } from "lucide-react"
 
 // Variants d'animation

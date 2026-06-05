@@ -1,12 +1,12 @@
 'use client'
 
 import React from 'react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/core/ui/card"
-import { Badge } from "@/components/core/ui/badge"
-import { Button } from "@/components/core/ui/button"
-import { Input } from "@/components/core/ui/input"
-import { Textarea } from "@/components/core/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/core/ui/select"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { Megaphone, Send, Trash2, History, AlertCircle, CheckCircle2, Info, Loader2, Sparkles } from "lucide-react"
 import { toast } from "sonner"
 import { format } from "date-fns"

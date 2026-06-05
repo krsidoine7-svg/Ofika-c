@@ -1,9 +1,9 @@
 "use client"
 
 import { useState } from 'react'
-import { Button } from '@/components/core/ui/button'
-import { Input } from '@/components/core/ui/input'
-import { Label } from '@/components/core/ui/label'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
 import {
   Dialog,
   DialogContent,
@@ -12,13 +12,13 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/core/ui/dialog'
+} from '@/components/ui/dialog'
 import {
   Alert,
   AlertDescription,
   AlertTitle,
-} from '@/components/core/ui/alert'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/core/ui/card'
+} from '@/components/ui/alert'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { useUser } from '@/lib/hooks/useUser'
 import { Loader2, Trash2, AlertTriangle, Lock } from 'lucide-react'
 

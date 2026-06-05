@@ -1,5 +1,5 @@
 import { QrCode, Award } from "lucide-react"
-import { Badge } from "@/components/core/ui/badge"
+import { Badge } from "@/components/ui/badge"
 import { CardData } from './CardCreator'
 
 interface CardPreviewProps {

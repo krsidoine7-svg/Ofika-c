@@ -1,9 +1,9 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/core/ui/card"
-import { Button } from "@/components/core/ui/button"
-import { Badge } from "@/components/core/ui/badge"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { Plus, Edit, Eye, Trash2, ExternalLink } from "lucide-react"
 import { useAuth } from "@/lib/hooks/useAuth"
 import { createClient } from "@/lib/supabase/client"
@@ -12,7 +12,7 @@ import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { ProfileWithLinks } from '@/lib/types/database'
 import { ProfileForm } from "./ProfileForm"
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/core/ui/dialog"
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog"
 import { LinkManager } from "@/components/features/links/LinkManager"
 import { useProfiles, useDeleteProfile } from '@/lib/hooks/useProfiles'
 

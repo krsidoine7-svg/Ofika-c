@@ -1,13 +1,13 @@
 'use client'
 
 import React, { useEffect, useState, useMemo } from 'react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/core/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Users, Mail, Phone, Calendar, Search, Shield, User, Filter, MoreHorizontal, Loader2, Star, Trash2, Edit, Globe, Smartphone, LayoutGrid, List, Eye, Key, Lock, ChevronDown, CheckCircle2 } from "lucide-react"
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Badge } from "@/components/core/ui/badge"
-import { Button } from "@/components/core/ui/button"
-import { Input } from "@/components/core/ui/input"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import {
@@ -17,7 +17,7 @@ import {
     DialogTitle,
     DialogFooter,
     DialogDescription
-} from "@/components/core/ui/dialog"
+} from "@/components/ui/dialog"
 import { AlertTriangle } from "lucide-react"
 
 import {
@@ -27,7 +27,7 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from "@/components/core/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu"
 
 interface UserRecord {
     id: string
@@ -55,6 +55,7 @@ export default function AdminUsersPage() {
     const [isResetDialogOpen, setIsResetDialogOpen] = useState(false)
     const [resetUser, setResetUser] = useState<UserRecord | null>(null)
     const [newPassword, setNewPassword] = useState('')
+    const [confirmPassword, setConfirmPassword] = useState('')
     const [isResetting, setIsResetting] = useState(false)
 
     // États pour le dialogue de confirmation groupé
@@ -235,6 +236,11 @@ export default function AdminUsersPage() {
     const resetUserPassword = async () => {
         if (!resetUser || !newPassword) return
 
+        if (newPassword !== confirmPassword) {
+            toast.error('Les mots de passe ne correspondent pas')
+            return
+        }
+
         try {
             setIsResetting(true)
             const res = await fetch('/api/admin/users/reset-password', {
@@ -248,6 +254,7 @@ export default function AdminUsersPage() {
                 toast.success(`Mot de passe réinitialisé pour ${resetUser.email}`)
                 setIsResetDialogOpen(false)
                 setNewPassword('')
+                setConfirmPassword('')
                 setResetUser(null)
             } else {
                 toast.error(data.error || 'Erreur lors du reset')
@@ -745,7 +752,13 @@ export default function AdminUsersPage() {
             </Dialog>
 
             {/* Modal de Reset Password */}
-            <Dialog open={isResetDialogOpen} onOpenChange={setIsResetDialogOpen}>
+            <Dialog open={isResetDialogOpen} onOpenChange={(open) => {
+                setIsResetDialogOpen(open)
+                if (!open) {
+                    setNewPassword('')
+                    setConfirmPassword('')
+                }
+            }}>
                 <DialogContent className="sm:max-w-[400px] rounded-3xl border-none shadow-2xl p-0 overflow-hidden">
                     <div className="p-6 text-center">
                         <div className="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center mb-4 shadow-lg bg-gray-100 text-gray-900">
@@ -756,16 +769,29 @@ export default function AdminUsersPage() {
                             Saisissez un nouveau mot de passe pour <span className="text-gray-900 font-black">{resetUser?.email}</span>.
                         </DialogDescription>
 
-                        <div className="space-y-2 text-left">
-                            <label className="text-xs font-black uppercase tracking-widest text-gray-400 ml-1">Nouveau Mot de Passe</label>
-                            <Input
-                                type="password"
-                                value={newPassword}
-                                onChange={(e) => setNewPassword(e.target.value)}
-                                placeholder="Min. 6 caractères"
-                                className="rounded-xl h-12 border-gray-200 focus:ring-black"
-                                autoFocus
-                            />
+                        <div className="space-y-4 text-left">
+                            <div className="space-y-2">
+                                <label className="text-xs font-black uppercase tracking-widest text-gray-400 ml-1">Nouveau Mot de Passe</label>
+                                <Input
+                                    type="password"
+                                    value={newPassword}
+                                    onChange={(e) => setNewPassword(e.target.value)}
+                                    placeholder="Min. 6 caractères"
+                                    className="rounded-xl h-12 border-gray-200 focus:ring-black"
+                                    autoFocus
+                                />
+                            </div>
+                            
+                            <div className="space-y-2">
+                                <label className="text-xs font-black uppercase tracking-widest text-gray-400 ml-1">Confirmer le Mot de Passe</label>
+                                <Input
+                                    type="password"
+                                    value={confirmPassword}
+                                    onChange={(e) => setConfirmPassword(e.target.value)}
+                                    placeholder="Saisissez à nouveau le mot de passe"
+                                    className="rounded-xl h-12 border-gray-200 focus:ring-black"
+                                />
+                            </div>
                         </div>
                     </div>
                     <div className="bg-gray-50 p-4 flex gap-3 justify-center border-t border-gray-100">
@@ -774,6 +800,7 @@ export default function AdminUsersPage() {
                             onClick={() => {
                                 setIsResetDialogOpen(false)
                                 setNewPassword('')
+                                setConfirmPassword('')
                             }}
                             className="rounded-xl font-bold flex-1 h-12"
                         >
@@ -781,7 +808,7 @@ export default function AdminUsersPage() {
                         </Button>
                         <Button
                             onClick={resetUserPassword}
-                            disabled={isResetting || newPassword.length < 6}
+                            disabled={isResetting || newPassword.length < 6 || newPassword !== confirmPassword}
                             className="rounded-xl font-black uppercase tracking-widest flex-1 h-12 shadow-md bg-gray-900 hover:bg-gray-800 text-white"
                         >
                             {isResetting ? (

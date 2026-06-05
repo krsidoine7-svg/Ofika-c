@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Logo } from '@/components/core/ui/logo'
+import { Logo } from '@/components/ui/logo'
 import { ArrowLeft, FileText, Scale, Gavel, AlertCircle, ShoppingCart, RefreshCcw, Truck, Zap, ShieldAlert, Cpu } from 'lucide-react'
 
 export const metadata = {

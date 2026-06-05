@@ -1,10 +1,10 @@
 'use client'
 
 import React from 'react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/core/ui/card"
-import { Badge } from "@/components/core/ui/badge"
-import { Button } from "@/components/core/ui/button"
-import { Input } from "@/components/core/ui/input"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Package, Save, Loader2, CreditCard, Truck, Globe, Sparkles, Plus, Trash2, Edit3, Settings2 } from "lucide-react"
 import { createClient } from '@/lib/supabase/client'
 import { toast } from "sonner"

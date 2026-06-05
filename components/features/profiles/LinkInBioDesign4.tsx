@@ -1,6 +1,6 @@
 'use client'
 
-import { Button } from "@/components/core/ui/button"
+import { Button } from "@/components/ui/button"
 import {
   UserPlus,
   Phone,
@@ -21,7 +21,7 @@ import {
 import { ProfileWithLinks } from "@/lib/types/database"
 import { toast } from "sonner"
 import { AddToContactsAuto } from "@/components/AddToContactsAuto"
-import { SocialIcon } from "@/components/core/ui/social-icons"
+import { SocialIcon } from "@/components/ui/social-icons"
 import { ContactExchangeForm } from "@/components/features/contacts/ContactExchangeForm"
 import { useState } from "react"
 import { PublicReviewsSection } from "@/components/features/reviews/PublicReviewsSection"

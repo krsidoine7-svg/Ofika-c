@@ -1,7 +1,7 @@
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { Video } from 'lucide-react'
-import { Card, CardContent, CardHeader } from '@/components/core/ui/card'
+import { Card, CardContent, CardHeader } from '@/components/ui/card'
 import { RatingStars } from './RatingStars'
 import { cn } from '@/lib/utils'
 

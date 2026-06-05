@@ -10,13 +10,13 @@ import {
     DialogHeader,
     DialogTitle,
     DialogTrigger,
-} from '@/components/core/ui/dialog'
-import { Button } from '@/components/core/ui/button'
-import { Input } from '@/components/core/ui/input'
-import { Label } from '@/components/core/ui/label'
-import { Switch } from '@/components/core/ui/switch'
-import { Alert, AlertDescription } from '@/components/core/ui/alert'
-import { Separator } from '@/components/core/ui/separator'
+} from '@/components/ui/dialog'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Switch } from '@/components/ui/switch'
+import { Alert, AlertDescription } from '@/components/ui/alert'
+import { Separator } from '@/components/ui/separator'
 import { useCreateReviewLink } from '@/lib/hooks/useReviewLinks'
 
 // ========================================

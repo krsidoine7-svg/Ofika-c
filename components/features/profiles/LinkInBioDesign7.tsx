@@ -5,12 +5,12 @@ import { Facebook, Instagram, Twitter, Youtube, Linkedin, Globe, Mail, Phone, Ma
 import { AddToContactsAuto } from '@/components/AddToContactsAuto'
 import { ContactExchangeForm } from "@/components/features/contacts/ContactExchangeForm"
 import { useState } from "react"
-import { Button } from "@/components/core/ui/button"
+import { Button } from "@/components/ui/button"
 import { toast } from "sonner"
 import { PublicReviewsSection } from "@/components/features/reviews/PublicReviewsSection"
 import { useLinkTracker } from "@/lib/hooks/useLinkTracker"
 import { OfikaBlinkingLogo } from "@/components/brand/OfikaBlinkingLogo"
-import { SocialIcon } from "@/components/core/ui/social-icons"
+import { SocialIcon } from "@/components/ui/social-icons"
 
 interface LinkInBioDesign7Props {
   profile: ProfileWithLinks

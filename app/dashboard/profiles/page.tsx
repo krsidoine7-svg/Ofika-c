@@ -4,10 +4,10 @@ import { useRouter } from 'next/navigation'
 import { memo, useState, useMemo } from 'react'
 import { toast } from "sonner"
 import { ProfileWithLinks } from '@/lib/types/database'
-import { Button } from "@/components/core/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/core/ui/card"
-import { Badge } from "@/components/core/ui/badge"
-import { Alert, AlertDescription } from "@/components/core/ui/alert"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { Plus, Edit, Eye, Trash2, ExternalLink, Loader2, Copy, Share2, Smartphone, User, QrCode, ShoppingCart, CreditCard, AlertCircle, CheckCircle, Info, Palette, Settings } from "lucide-react"
 import { ProtectedRoute } from "@/components/core/auth/ProtectedRoute"
 import { useProfiles, useDeleteProfile } from '@/lib/hooks/useProfiles'

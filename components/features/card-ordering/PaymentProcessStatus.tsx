@@ -1,9 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Card, CardContent } from "@/components/core/ui/card"
-import { Button } from "@/components/core/ui/button"
-import { Progress } from "@/components/core/ui/progress"
+import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Progress } from "@/components/ui/progress"
 import {
   Package,
   CreditCard,

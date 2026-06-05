@@ -2,16 +2,16 @@
 
 import { useState } from 'react'
 import { Star, Plus, Loader2 } from 'lucide-react'
-import { Button } from '@/components/core/ui/button'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/core/ui/tabs'
+import { Button } from '@/components/ui/button'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
     StatsCards,
     CreateLinkDialog,
     ReviewsTable,
 } from '@/components/features/reviews'
 import { useReviewLinks, useCopyReviewLink, useDeleteReviewLink } from '@/lib/hooks/useReviewLinks'
-import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/core/ui/card'
-import { Badge } from '@/components/core/ui/badge'
+import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { Copy, ExternalLink, MoreVertical, Settings, X } from 'lucide-react'
@@ -21,7 +21,7 @@ import {
     DropdownMenuItem,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from '@/components/core/ui/dropdown-menu'
+} from '@/components/ui/dropdown-menu'
 
 // ========================================
 // COMPONENT

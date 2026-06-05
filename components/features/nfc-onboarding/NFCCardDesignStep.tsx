@@ -2,9 +2,9 @@
 
 import { useState } from 'react'
 import { NFCCardDesignStepProps, CARD_DESIGNS, COLOR_OPTIONS } from '@/lib/types/nfc-card-onboarding'
-import { Button } from '@/components/core/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/core/ui/card'
-import { Badge } from '@/components/core/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import { Palette, Layout, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
 

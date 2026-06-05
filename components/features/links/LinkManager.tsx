@@ -1,14 +1,14 @@
 "use client"
 
 import { useState, useEffect, useCallback } from 'react'
-import { Card, CardContent } from "@/components/core/ui/card"
-import { Button } from "@/components/core/ui/button"
-import { Badge } from "@/components/core/ui/badge"
+import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { Plus, Edit, Trash2, ExternalLink, GripVertical, AlertTriangle, Eye } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/core/ui/dialog"
-import { Alert, AlertDescription } from "@/components/core/ui/alert"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { LinkForm } from "./LinkForm"
 
 interface Link {

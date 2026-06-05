@@ -11,15 +11,15 @@ if (typeof window !== 'undefined') {
 
 import { useAuth } from '@/lib/hooks/useAuth'
 import { useRouter } from 'next/navigation'
-import { Button } from "@/components/core/ui/button"
-import { Card, CardContent } from "@/components/core/ui/card"
-import { Badge } from "@/components/core/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
 
 import { ArrowRight, Smartphone, CreditCard, Users, Globe, Shield, Zap, Play, CheckCircle, Smartphone as PhoneIcon, Zap as LightningIcon, Wifi, WifiOff, QrCode, Upload, User, Briefcase, Building, Image, RotateCcw, Palette, Mail, Phone, X, Loader2, UserPlus, Menu, Star, TrendingUp, Award, Link as LinkIcon, AlertTriangle, Facebook, Instagram, Linkedin, MessageCircle, Music2, Sparkles, Video } from "lucide-react"
 import Link from "next/link"
 import { HowItWorks } from "@/components/HowItWorks"
 import InteractiveBusinessCard from "@/components/InteractiveBusinessCard"
-import { Logo } from "@/components/core/ui/logo"
+import { Logo } from "@/components/ui/logo"
 
 import { ModernHero } from "@/components/landing/ModernHero"
 import { ScrollStorytelling } from "@/components/landing/ScrollStorytelling"

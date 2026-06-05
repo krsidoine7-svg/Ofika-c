@@ -1,8 +1,8 @@
 'use client'
 
 import { NFCCardStepProps } from '@/lib/types/nfc-card-onboarding'
-import { Button } from '@/components/core/ui/button'
-import { Card, CardContent } from '@/components/core/ui/card'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent } from '@/components/ui/card'
 import { Smartphone, QrCode, Users } from 'lucide-react'
 
 export function NFCCardIntroStep({ onNext }: NFCCardStepProps) {

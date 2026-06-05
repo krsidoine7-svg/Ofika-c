@@ -1,5 +1,5 @@
 import { Palette, Upload, QrCode, CheckCircle } from "lucide-react"
-import { Button } from "@/components/core/ui/button"
+import { Button } from "@/components/ui/button"
 
 interface CustomizationStepProps {
   selectedColor: string

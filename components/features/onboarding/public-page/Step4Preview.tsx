@@ -1,10 +1,10 @@
 'use client'
 
-import { Button } from '@/components/core/ui/button'
-import { Card } from '@/components/core/ui/card'
-import { Avatar, AvatarFallback, AvatarImage } from '@/components/core/ui/avatar'
-import { Badge } from '@/components/core/ui/badge'
-import { Separator } from '@/components/core/ui/separator'
+import { Button } from '@/components/ui/button'
+import { Card } from '@/components/ui/card'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
+import { Badge } from '@/components/ui/badge'
+import { Separator } from '@/components/ui/separator'
 import { ArrowLeft, CheckCircle, ExternalLink, Instagram, Facebook, Twitter, Linkedin, Youtube, Globe, Loader2 } from 'lucide-react'
 
 interface Step4PreviewProps {

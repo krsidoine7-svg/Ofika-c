@@ -5,9 +5,9 @@
 // =====================================================
 
 import { useStatsResetInfo } from '@/lib/hooks/useStatsAutoReset'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/core/ui/card'
-import { Badge } from '@/components/core/ui/badge'
-import { Progress } from '@/components/core/ui/progress'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Progress } from '@/components/ui/progress'
 import { Calendar, RotateCcw, TrendingUp } from 'lucide-react'
 
 export function StatsResetIndicator() {

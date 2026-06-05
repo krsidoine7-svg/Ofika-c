@@ -1,13 +1,13 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/core/ui/card"
-import { Button } from "@/components/core/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
 import { Mail, ArrowLeft, RefreshCw } from "lucide-react"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import Link from "next/link"
-import { Logo } from "@/components/core/ui/logo"
+import { Logo } from "@/components/ui/logo"
 
 export default function VerifyEmailPage() {
   const [isResending, setIsResending] = useState(false)

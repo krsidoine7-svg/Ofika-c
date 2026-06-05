@@ -1,18 +1,18 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { Card, CardContent } from "@/components/core/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Search, Loader2, Link as LinkIcon, ExternalLink, Power, Eye, AlertTriangle, ShieldAlert, BarChart3, Copy, SearchX } from "lucide-react"
-import { Badge } from "@/components/core/ui/badge"
-import { Button } from "@/components/core/ui/button"
-import { Input } from "@/components/core/ui/input"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import {
     Dialog,
     DialogContent,
-} from "@/components/core/ui/dialog"
-import { Tabs, TabsList, TabsTrigger } from "@/components/core/ui/tabs"
+} from "@/components/ui/dialog"
+import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs"
 
 interface Profile {
     id: string

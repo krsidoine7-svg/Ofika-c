@@ -4,7 +4,7 @@ import { useParams, useRouter } from 'next/navigation'
 import { ProfileForm } from '@/components/features/profiles/ProfileForm'
 import { ProtectedRoute } from '@/components/core/auth/ProtectedRoute'
 import { ArrowLeft } from 'lucide-react'
-import { Button } from '@/components/core/ui/button'
+import { Button } from '@/components/ui/button'
 
 export default function EditProfilePage() {
   const params = useParams()

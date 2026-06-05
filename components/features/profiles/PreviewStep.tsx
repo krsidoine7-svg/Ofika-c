@@ -1,8 +1,8 @@
 'use client'
 
-import { Button } from '@/components/core/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/core/ui/card'
-import { Badge } from '@/components/core/ui/badge'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
 import { ArrowLeft, CheckCircle, Globe, Layout, User, Link as LinkIcon } from 'lucide-react'
 import { LinkInBioDesign1 } from '@/components/features/profiles/LinkInBioDesign1'
 import { LinkInBioDesign2 } from '@/components/features/profiles/LinkInBioDesign2'

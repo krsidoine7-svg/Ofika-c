@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState, useMemo } from 'react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/core/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import {
     Package,
     Search,
@@ -19,9 +19,9 @@ import {
     User
 } from "lucide-react"
 import { createClient } from '@/lib/supabase/client'
-import { Badge } from "@/components/core/ui/badge"
-import { Button } from "@/components/core/ui/button"
-import { Input } from "@/components/core/ui/input"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import {
@@ -31,7 +31,7 @@ import {
     DropdownMenuLabel,
     DropdownMenuSeparator,
     DropdownMenuTrigger,
-} from "@/components/core/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu"
 import {
     Dialog,
     DialogContent,
@@ -39,7 +39,7 @@ import {
     DialogTitle,
     DialogFooter,
     DialogDescription
-} from "@/components/core/ui/dialog"
+} from "@/components/ui/dialog"
 import { AlertTriangle } from "lucide-react"
 
 interface Order {

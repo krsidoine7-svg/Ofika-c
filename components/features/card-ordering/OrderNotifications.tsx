@@ -1,8 +1,8 @@
 'use client'
 
 import { useState, useEffect, useCallback } from 'react'
-import { Button } from "@/components/core/ui/button"
-import { Badge } from "@/components/core/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import {
   Bell,
   CheckCircle,
@@ -21,7 +21,7 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
-} from "@/components/core/ui/sheet"
+} from "@/components/ui/sheet"
 
 interface Notification {
   id: string

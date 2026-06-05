@@ -1,6 +1,6 @@
 "use client";
 
-import { SplashCursor } from "@/components/core/ui/splash-cursor";
+import { SplashCursor } from "@/components/ui/splash-cursor";
 
 interface InteractiveBackgroundProps {
   enabled?: boolean;

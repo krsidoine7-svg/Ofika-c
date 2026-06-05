@@ -6,11 +6,11 @@
 // =====================================================
 
 import { useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/core/ui/card'
-import { Label } from '@/components/core/ui/label'
-import { Button } from '@/components/core/ui/button'
-import { Input } from '@/components/core/ui/input'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/core/ui/tabs'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
+import { Label } from '@/components/ui/label'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { Palette, Image, Shapes, Sparkles } from 'lucide-react'
 import { QR_PRESETS } from '@/lib/services/qr-generator'
 import type { QRCustomizationOptions } from '@/lib/services/qr-generator'

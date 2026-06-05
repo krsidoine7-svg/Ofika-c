@@ -1,6 +1,6 @@
 "use client"
 
-import { Button } from "@/components/core/ui/button"
+import { Button } from "@/components/ui/button"
 import { LogOut } from "lucide-react"
 import { useAuth } from "@/lib/hooks/useAuth"
 import { useRouter } from "next/navigation"

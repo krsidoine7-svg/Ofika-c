@@ -1,14 +1,14 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/core/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { createClient } from '@/lib/supabase/client'
 import { format } from 'date-fns'
 import { fr } from 'date-fns/locale'
-import { Badge } from '@/components/core/ui/badge'
-import { Button } from '@/components/core/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import { Download, Loader2, Mail, Phone, Building, User, Search, Trash2, ArrowLeft } from 'lucide-react'
-import { Input } from '@/components/core/ui/input'
+import { Input } from '@/components/ui/input'
 import { toast } from 'sonner'
 import Link from 'next/link'
 

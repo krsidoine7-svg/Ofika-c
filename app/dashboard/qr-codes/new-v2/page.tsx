@@ -7,13 +7,13 @@
 
 import { useState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/core/ui/card'
-import { Button } from '@/components/core/ui/button'
-import { Input } from '@/components/core/ui/input'
-import { Label } from '@/components/core/ui/label'
-import { Textarea } from '@/components/core/ui/textarea'
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/core/ui/select'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/core/ui/tabs'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import { 
   ArrowLeft, QrCode, Loader2, ExternalLink, Phone, MessageCircle, 
   Mail, MapPin, User, Globe, Download, Eye, Sparkles 

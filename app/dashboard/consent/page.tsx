@@ -1,9 +1,9 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/core/ui/card'
-import { Button } from '@/components/core/ui/button'
-import { Alert, AlertDescription } from '@/components/core/ui/alert'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 import { ConsentBanner, ConsentData } from '@/components/features/consent/ConsentBanner'
 import { useConsent } from '@/lib/hooks/useConsent'
 import { useAuth } from '@/lib/hooks/useAuth'

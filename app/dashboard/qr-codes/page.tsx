@@ -5,11 +5,11 @@
 // =====================================================
 
 import { useState, useEffect } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/core/ui/card'
-import { Button } from '@/components/core/ui/button'
-import { Input } from '@/components/core/ui/input'
-import { Label } from '@/components/core/ui/label'
-import { Badge } from '@/components/core/ui/badge'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Badge } from '@/components/ui/badge'
 import {
   QrCode,
   Edit,
@@ -30,8 +30,8 @@ import {
   getRedirectURL
 } from '@/lib/services/qr-redirect-client'
 import type { QRRedirect } from '@/lib/types/qr-redirect'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/core/ui/dialog'
-import { Textarea } from '@/components/core/ui/textarea'
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
+import { Textarea } from '@/components/ui/textarea'
 import Link from 'next/link'
 import { QRCodeSVG } from 'qrcode.react'
 import { downloadSVGAsFile } from '@/lib/utils/download-qr'
@@ -40,7 +40,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
-} from '@/components/core/ui/dropdown-menu'
+} from '@/components/ui/dropdown-menu'
 import { ChevronDown } from 'lucide-react'
 
 export default function QRCodesPage() {

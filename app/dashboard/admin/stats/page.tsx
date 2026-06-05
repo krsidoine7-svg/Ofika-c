@@ -1,11 +1,11 @@
 'use client'
 
 import React from 'react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/core/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { cn } from "@/lib/utils"
 import { BarChart3, TrendingUp, Users, Package, CreditCard, ArrowUpRight, ArrowDownRight, Loader2, QrCode, ShieldAlert, Activity, CheckCircle2, ExternalLink } from "lucide-react"
-import { Badge } from "@/components/core/ui/badge"
-import { Button } from "@/components/core/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 import {
     ResponsiveContainer,
     AreaChart,

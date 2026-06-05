@@ -1,7 +1,7 @@
 'use client'
 
-import { Button } from "@/components/core/ui/button"
-import { Badge } from "@/components/core/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import {
   UserPlus,
   CheckCircle,

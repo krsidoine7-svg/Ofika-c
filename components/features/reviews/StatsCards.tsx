@@ -1,7 +1,7 @@
 'use client'
 
 import { TrendingUp, TrendingDown, Minus } from 'lucide-react'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/core/ui/card'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { cn } from '@/lib/utils'
 import type { ReviewLink } from '@/lib/hooks/useReviewLinks'
 

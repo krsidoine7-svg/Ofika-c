@@ -1,9 +1,9 @@
 "use client"
 
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/core/ui/card"
-import { Button } from "@/components/core/ui/button"
-import { Badge } from "@/components/core/ui/badge"
-import { Alert, AlertDescription } from "@/components/core/ui/alert"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useAuth } from "@/lib/hooks/useAuth"
 import { useProfiles } from "@/lib/hooks/useProfiles"
 import { useCardLogic } from "@/lib/hooks/useNFCCards"
@@ -33,7 +33,7 @@ import {
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useMemo, useState, useEffect } from "react"
-import { BetaFeatureModal, useBetaFeature } from "@/components/core/ui/beta-feature-modal"
+import { BetaFeatureModal, useBetaFeature } from "@/components/ui/beta-feature-modal"
 import { AnalyticsSummary } from "@/components/features/analytics/AnalyticsSummary"
 import { useDashboardAnalytics } from "@/lib/hooks/useDashboardAnalytics"
 import { useStatsAutoReset } from "@/lib/hooks/useStatsAutoReset"
@@ -46,7 +46,7 @@ import { OrderPromptModal } from "@/components/features/card-ordering/OrderPromp
 import { ProfileWithLinks, Profile } from "@/lib/types/database"
 import { ProfileImagesPromptModal } from "@/components/features/dashboard/ProfileImagesPromptModal"
 import { WalletHubModal } from "@/components/features/dashboard/WalletHubModal"
-import { CalendarDemo } from "@/components/core/ui/calendar-demo"
+import { Calendar } from "@/components/ui/calendar"
 import { toast } from "sonner"
 
 interface ProfileRowProps {
@@ -208,6 +208,7 @@ export default function DashboardPage() {
   const [showImagePromptModal, setShowImagePromptModal] = useState(true)
   const [showWalletHubModal, setShowWalletHubModal] = useState(false)
   const [selectedProfileForWallet, setSelectedProfileForWallet] = useState<Profile | null>(null)
+  const [dashboardDate, setDashboardDate] = useState<Date | undefined>(new Date())
 
   // Reset automatique des stats tous les 40 jours
   useStatsAutoReset()
@@ -663,7 +664,12 @@ export default function DashboardPage() {
               </div>
             </div>
             <div className="flex justify-center pt-2">
-              <CalendarDemo />
+              <Calendar
+                mode="single"
+                selected={dashboardDate}
+                onSelect={setDashboardDate}
+                className="rounded-lg border bg-white shadow-sm"
+              />
             </div>
           </Card>
 

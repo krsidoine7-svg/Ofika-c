@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState, useMemo } from 'react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/core/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import {
     History,
     Search,
@@ -16,9 +16,9 @@ import {
     AlertCircle
 } from "lucide-react"
 import { createClient } from '@/lib/supabase/client'
-import { Badge } from "@/components/core/ui/badge"
-import { Button } from "@/components/core/ui/button"
-import { Input } from "@/components/core/ui/input"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import {
@@ -27,7 +27,7 @@ import {
     DialogHeader,
     DialogTitle,
     DialogDescription,
-} from "@/components/core/ui/dialog"
+} from "@/components/ui/dialog"
 import { cn } from "@/lib/utils"
 
 interface AuditLog {

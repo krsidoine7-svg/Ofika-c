@@ -5,15 +5,15 @@ import { AnimatePresence } from 'framer-motion'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
-import { Button } from "@/components/core/ui/button"
-import { Input } from "@/components/core/ui/input"
-import { Textarea } from "@/components/core/ui/textarea"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/core/ui/select"
-import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/core/ui/form"
-import { Checkbox } from "@/components/core/ui/checkbox"
-import { Switch } from "@/components/core/ui/switch"
-import { Badge } from "@/components/core/ui/badge"
-import { Label } from "@/components/core/ui/label"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/components/ui/form"
+import { Checkbox } from "@/components/ui/checkbox"
+import { Switch } from "@/components/ui/switch"
+import { Badge } from "@/components/ui/badge"
+import { Label } from "@/components/ui/label"
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
 import { WebhookService } from '@/lib/services/business-rules'
@@ -23,8 +23,8 @@ import {
   AlertCircle, Info, MapPin, Music, User, Phone, TrendingUp, Settings,
   Sparkles, Cog, Check, Github, Link2, Briefcase, Calendar
 } from "lucide-react"
-import { ImageUploadFixed as ImageUpload } from "@/components/core/ui/image-upload-fixed"
-import { UrlAvailabilityChecker } from "@/components/core/ui/url-availability-checker"
+import { ImageUploadFixed as ImageUpload } from "@/components/ui/image-upload-fixed"
+import { UrlAvailabilityChecker } from "@/components/ui/url-availability-checker"
 
 
 // Import du schéma unifié depuis lib/validations.ts

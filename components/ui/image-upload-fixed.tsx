@@ -1,9 +1,9 @@
 "use client"
 
 import { useState, useRef } from 'react'
-import { Button } from "@/components/core/ui/button"
-import { Input } from "@/components/core/ui/input"
-import { Label } from "@/components/core/ui/label"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { Upload, X, Camera, Image as ImageIcon } from "lucide-react"
 import { toast } from "sonner"
 import { createClient } from "@/lib/supabase/client"

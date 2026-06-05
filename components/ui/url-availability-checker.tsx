@@ -1,10 +1,10 @@
 "use client"
 
 import { useState, useEffect } from 'react'
-import { Input } from "@/components/core/ui/input"
-import { Button } from "@/components/core/ui/button"
-import { Badge } from "@/components/core/ui/badge"
-import { Alert, AlertDescription } from "@/components/core/ui/alert"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { CheckCircle, XCircle, Loader2, RefreshCw } from "lucide-react"
 import { checkCustomUrlAvailability, checkUsernameAvailability } from "@/lib/supabase/check-url-availability"
 

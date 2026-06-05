@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState, useMemo } from 'react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/core/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import {
     Megaphone,
     Plus,
@@ -24,9 +24,9 @@ import {
     Save
 } from "lucide-react"
 import { createClient } from '@/lib/supabase/client'
-import { Button } from "@/components/core/ui/button"
-import { Input } from "@/components/core/ui/input"
-import { Badge } from "@/components/core/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
 import { format } from "date-fns"
 import { fr } from "date-fns/locale"
@@ -38,7 +38,7 @@ import {
     DialogTitle,
     DialogFooter,
     DialogDescription
-} from "@/components/core/ui/dialog"
+} from "@/components/ui/dialog"
 
 interface Announcement {
     id: string

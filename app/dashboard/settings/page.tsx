@@ -7,7 +7,7 @@ import { UserProfileForm } from '@/components/features/users/UserProfileForm'
 import { ChangePasswordForm } from '@/components/features/users/ChangePasswordForm'
 import { DeleteAccountButton } from '@/components/features/users/DeleteAccountButton'
 import { Loader2, Settings, ArrowLeft } from 'lucide-react'
-import { Button } from '@/components/core/ui/button'
+import { Button } from '@/components/ui/button'
 import Link from 'next/link'
 
 export default function SettingsPage() {

@@ -2,12 +2,12 @@
 
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Button } from '@/components/core/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/core/ui/card'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { CheckCircle, ExternalLink, ArrowRight, QrCode, Smartphone, ShoppingCart, Download } from 'lucide-react'
 import { toast } from 'sonner'
-import { BetaFeatureModal, useBetaFeature } from "@/components/core/ui/beta-feature-modal"
-import { Badge } from "@/components/core/ui/badge"
+import { BetaFeatureModal, useBetaFeature } from "@/components/ui/beta-feature-modal"
+import { Badge } from "@/components/ui/badge"
 import confetti from 'canvas-confetti'
 
 interface NFCCardSuccessStepProps {

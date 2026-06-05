@@ -1,9 +1,9 @@
 'use client'
 
 import { useState } from 'react'
-import { Button } from '@/components/core/ui/button'
-import { Badge } from '@/components/core/ui/badge'
-import { Card, CardContent } from '@/components/core/ui/card'
+import { Button } from '@/components/ui/button'
+import { Badge } from '@/components/ui/badge'
+import { Card, CardContent } from '@/components/ui/card'
 import {
   CreditCard,
   Smartphone,

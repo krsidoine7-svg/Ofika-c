@@ -1,11 +1,11 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/core/ui/card';
-import { Badge } from '@/components/core/ui/badge';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { useContactAnalytics } from '@/lib/hooks/useContactAnalytics';
 import { Download, Share2, Smartphone, Monitor, TrendingUp } from 'lucide-react';
-import { BetaFeatureModal, useBetaFeature } from "@/components/core/ui/beta-feature-modal";
+import { BetaFeatureModal, useBetaFeature } from "@/components/ui/beta-feature-modal";
 
 interface ContactAnalyticsProps {
   profileId: string;

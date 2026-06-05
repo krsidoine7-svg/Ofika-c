@@ -1,10 +1,10 @@
 'use client'
 
 import React from 'react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/core/ui/card"
-import { Badge } from "@/components/core/ui/badge"
-import { Button } from "@/components/core/ui/button"
-import { Input } from "@/components/core/ui/input"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Sparkles, Search, Plus, Eye, Layout, Palette, Code, CheckCircle2, MoreVertical, Trash2, Edit3, Image as ImageIcon, Loader2 } from "lucide-react"
 import { motion, AnimatePresence } from 'framer-motion'
 import { toast } from "sonner"

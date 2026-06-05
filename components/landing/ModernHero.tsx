@@ -2,7 +2,7 @@
 
 import { motion } from 'framer-motion'
 import { useRef, useState, useEffect } from 'react'
-import { Button } from '@/components/core/ui/button'
+import { Button } from '@/components/ui/button'
 import { ArrowRight, Sparkles, Zap, Smartphone } from 'lucide-react'
 import Link from 'next/link'
 

@@ -1,10 +1,10 @@
 'use client'
 
 import { useRouter } from 'next/navigation'
-import { Button } from "@/components/core/ui/button"
-import { Card, CardContent } from "@/components/core/ui/card"
-import { Badge } from "@/components/core/ui/badge"
-import { BetaFeatureModal, useBetaFeature } from "@/components/core/ui/beta-feature-modal"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { BetaFeatureModal, useBetaFeature } from "@/components/ui/beta-feature-modal"
 import { 
   Plus, 
   Smartphone, 

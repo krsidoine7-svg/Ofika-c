@@ -1,17 +1,17 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { Card, CardContent } from "@/components/core/ui/card"
-import { Button } from "@/components/core/ui/button"
-import { Badge } from "@/components/core/ui/badge"
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/core/ui/select"
+import { Card, CardContent } from "@/components/ui/card"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
 import { RotateCcw, ExternalLink, Smartphone, QrCode, Edit2 } from "lucide-react"
 import { CardVisual } from '@/components/features/card-creator/CardVisual'
 import { toast } from "sonner"
-import { Input } from "@/components/core/ui/input"
-import { Textarea } from "@/components/core/ui/textarea"
-import { Label } from "@/components/core/ui/label"
-import { ImageUploadFixed } from "@/components/core/ui/image-upload-fixed"
+import { Input } from "@/components/ui/input"
+import { Textarea } from "@/components/ui/textarea"
+import { Label } from "@/components/ui/label"
+import { ImageUploadFixed } from "@/components/ui/image-upload-fixed"
 
 interface PublicPage {
   id: string

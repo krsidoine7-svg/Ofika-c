@@ -3,15 +3,15 @@
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'
 import { Check, X, Clock, Image as ImageIcon, Video } from 'lucide-react'
-import { Card, CardContent, CardFooter, CardHeader } from '@/components/core/ui/card'
-import { Badge } from '@/components/core/ui/badge'
-import { Button } from '@/components/core/ui/button'
+import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
+import { Badge } from '@/components/ui/badge'
+import { Button } from '@/components/ui/button'
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
-} from '@/components/core/ui/dropdown-menu'
+} from '@/components/ui/dropdown-menu'
 import { RatingStars } from './RatingStars'
 import { MoreVertical } from 'lucide-react'
 import { cn } from '@/lib/utils'

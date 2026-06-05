@@ -8,8 +8,8 @@ import {
     DialogTitle,
     DialogDescription,
     DialogFooter,
-} from "@/components/core/ui/dialog"
-import { Button } from "@/components/core/ui/button"
+} from "@/components/ui/dialog"
+import { Button } from "@/components/ui/button"
 import { CreditCard, Sparkles, ArrowRight, ShieldCheck, Wifi, QrCode } from "lucide-react"
 import { useRouter } from "next/navigation"
 

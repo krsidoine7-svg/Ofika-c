@@ -1,7 +1,7 @@
 'use client'
 
 import React, { useEffect, useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/core/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { 
     ShieldCheck, 
     Search, 
@@ -17,9 +17,9 @@ import {
     RefreshCw,
     Check
 } from "lucide-react"
-import { Input } from "@/components/core/ui/input"
-import { Button } from "@/components/core/ui/button"
-import { Badge } from "@/components/core/ui/badge"
+import { Input } from "@/components/ui/input"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
 import { 
     DropdownMenu, 
     DropdownMenuContent, 
@@ -27,7 +27,7 @@ import {
     DropdownMenuLabel, 
     DropdownMenuSeparator, 
     DropdownMenuTrigger 
-} from "@/components/core/ui/dropdown-menu"
+} from "@/components/ui/dropdown-menu"
 import { toast } from "sonner"
 import { formatDistanceToNow } from 'date-fns'
 import { fr } from 'date-fns/locale'

@@ -1,18 +1,18 @@
 'use client'
 
 import { useState } from 'react'
-import { Button } from '@/components/core/ui/button'
-import { Input } from '@/components/core/ui/input'
+import { Button } from '@/components/ui/button'
+import { Input } from '@/components/ui/input'
 import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue
-} from '@/components/core/ui/select'
+} from '@/components/ui/select'
 import { SocialLink, SOCIAL_LINK_OPTIONS, MAX_SOCIAL_LINKS, getSocialLinkOption } from '@/lib/types/social-links'
 import { Plus, Trash2, MessageSquare, Facebook, Instagram, Twitter, Youtube, Video, Linkedin, Github, Globe, ShoppingBag } from 'lucide-react'
-import { Alert, AlertDescription } from '@/components/core/ui/alert'
+import { Alert, AlertDescription } from '@/components/ui/alert'
 
 interface SocialLinksManagerProps {
   value: SocialLink[]

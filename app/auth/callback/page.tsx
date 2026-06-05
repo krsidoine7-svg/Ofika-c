@@ -4,7 +4,7 @@ import { useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
-import { Logo } from '@/components/core/ui/logo'
+import { Logo } from '@/components/ui/logo'
 
 export default function AuthCallbackPage() {
   const router = useRouter()

@@ -1,7 +1,7 @@
 'use client'
 
 import { useEffect, useState } from 'react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/core/ui/card"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { 
     Palette, 
     Layout, 
@@ -24,9 +24,9 @@ import {
     ChevronDown,
     Smartphone
 } from "lucide-react"
-import { Button } from "@/components/core/ui/button"
-import { Badge } from "@/components/core/ui/badge"
-import { Input } from "@/components/core/ui/input"
+import { Button } from "@/components/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Input } from "@/components/ui/input"
 import { toast } from "sonner"
 
 // Design components

@@ -1,10 +1,10 @@
 'use client'
 
 import React from 'react'
-import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/core/ui/card"
-import { Badge } from "@/components/core/ui/badge"
-import { Button } from "@/components/core/ui/button"
-import { Input } from "@/components/core/ui/input"
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
 import { Building, Search, Plus, ExternalLink, Users, MoreVertical, Globe, Mail, MapPin, Loader2, Landmark, X } from "lucide-react"
 import { toast } from "sonner"
 import { motion, AnimatePresence } from 'framer-motion'
@@ -17,8 +17,8 @@ import {
     DialogTitle,
     DialogFooter,
     DialogDescription
-} from "@/components/core/ui/dialog"
-import { Label } from "@/components/core/ui/label"
+} from "@/components/ui/dialog"
+import { Label } from "@/components/ui/label"
 
 export default function AdminCompaniesPage() {
     const [companies, setCompanies] = React.useState<any[]>([])

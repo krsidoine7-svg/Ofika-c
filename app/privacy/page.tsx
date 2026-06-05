@@ -1,5 +1,5 @@
 import Link from 'next/link'
-import { Logo } from '@/components/core/ui/logo'
+import { Logo } from '@/components/ui/logo'
 import { ArrowLeft, Shield, Lock, Eye, Database, UserCheck, Mail, Globe, Cpu, Zap, Signal } from 'lucide-react'
 
 export const metadata = {

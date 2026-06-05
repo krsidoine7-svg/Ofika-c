@@ -2,13 +2,13 @@
 
 import { useState } from 'react'
 import { Download, FileJson, Loader2 } from 'lucide-react'
-import { Button } from '@/components/core/ui/button'
+import { Button } from '@/components/ui/button'
 import {
     DropdownMenu,
     DropdownMenuContent,
     DropdownMenuItem,
     DropdownMenuTrigger,
-} from '@/components/core/ui/dropdown-menu'
+} from '@/components/ui/dropdown-menu'
 import { useExportReviews, type ExportFormat } from '@/lib/hooks/useExportReviews'
 
 // ========================================

@@ -3,8 +3,8 @@
 import * as React from "react"
 import { addDays } from "date-fns"
 import { type DateRange } from "react-day-picker"
-import { Calendar } from "@/components/core/ui/calendar"
-import { Card, CardContent } from "@/components/core/ui/card"
+import { Calendar } from "@/components/ui/calendar"
+import { Card, CardContent } from "@/components/ui/card"
 
 interface CalendarRangeProps {
   selected?: DateRange

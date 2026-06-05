@@ -4,10 +4,10 @@ import { useState, useEffect } from 'react'
 import { useRouter, useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { ProfileWithLinks, Link } from '@/lib/types/database'
-import { Button } from "@/components/core/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/core/ui/card"
-import { Input } from "@/components/core/ui/input"
-import { Label } from "@/components/core/ui/label"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
 import { ArrowLeft, Plus, Edit, Trash2, ExternalLink } from "lucide-react"
 import { toast } from "sonner"
 import { ProtectedRoute } from "@/components/core/auth/ProtectedRoute"

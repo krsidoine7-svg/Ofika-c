@@ -3,8 +3,8 @@
 import React, { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { X, Check, ArrowRight, Smartphone, MessageCircle, UserPlus, MousePointer2, AlertTriangle, Clock, Zap } from 'lucide-react'
-import { Badge } from "@/components/core/ui/badge"
-import { Button } from "@/components/core/ui/button"
+import { Badge } from "@/components/ui/badge"
+import { Button } from "@/components/ui/button"
 
 export const FrictionSection = () => {
     const [activeTab, setActiveTab] = useState<'friction' | 'solution'>('friction')

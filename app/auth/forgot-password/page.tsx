@@ -1,17 +1,17 @@
 "use client"
 
 import { useState } from "react"
-import { Button } from "@/components/core/ui/button"
-import { Input } from "@/components/core/ui/input"
-import { Label } from "@/components/core/ui/label"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/core/ui/card"
-import { Alert, AlertDescription } from "@/components/core/ui/alert"
+import { Button } from "@/components/ui/button"
+import { Input } from "@/components/ui/input"
+import { Label } from "@/components/ui/label"
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Alert, AlertDescription } from "@/components/ui/alert"
 import { createClient } from "@/lib/supabase/client"
 import { useRouter } from "next/navigation"
 import { toast } from "sonner"
 import { ArrowLeft, Mail } from "lucide-react"
 import Link from "next/link"
-import { Logo } from "@/components/core/ui/logo"
+import { Logo } from "@/components/ui/logo"
 
 export default function ForgotPasswordPage() {
   const [email, setEmail] = useState("")

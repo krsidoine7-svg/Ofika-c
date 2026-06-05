@@ -1,8 +1,8 @@
 'use client'
 
 import { NFCCardStepProps } from '@/lib/types/nfc-card-onboarding'
-import { Button } from '@/components/core/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/core/ui/card'
+import { Button } from '@/components/ui/button'
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { ExternalLink, ArrowLeft, CheckCircle } from 'lucide-react'
 
 export function NFCCardPublicPreviewStep({

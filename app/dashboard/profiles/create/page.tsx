@@ -2,10 +2,10 @@
 
 import { useState } from 'react'
 import { useRouter } from 'next/navigation'
-import { Button } from "@/components/core/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/core/ui/card"
-import { Badge } from "@/components/core/ui/badge"
-import { Stepper, Step } from "@/components/core/ui/stepper"
+import { Button } from "@/components/ui/button"
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
+import { Badge } from "@/components/ui/badge"
+import { Stepper, Step } from "@/components/ui/stepper"
 import { ArrowLeft, CheckCircle } from "lucide-react"
 import { TemplateSelectionStep } from '@/components/features/profiles/TemplateSelectionStep'
 import { ProfileForm } from '@/components/features/profiles/ProfileForm'

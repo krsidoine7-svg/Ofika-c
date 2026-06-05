@@ -6,10 +6,11 @@ export const dynamic = 'force-dynamic'
 
 export async function GET(
   request: NextRequest,
-  { params }: { params: Promise<{ profileId: string }> }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const { profileId } = await params
+    const { id } = await params
+    const profileId = id
     const supabase = await createClient()
 
     // 1. Verify user auth
@@ -50,7 +51,7 @@ export async function GET(
     })
 
   } catch (error) {
-    console.error('Unexpected error in GET /api/profiles/[profileId]/wallet/apple:', error)
+    console.error('Unexpected error in GET /api/profiles/[id]/wallet/apple:', error)
     return NextResponse.json(
       { error: 'Erreur interne du serveur' },
       { status: 500 }
