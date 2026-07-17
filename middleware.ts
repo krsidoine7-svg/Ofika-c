@@ -148,46 +148,49 @@ export async function middleware(request: NextRequest) {
     )
   }
 
-  // 3. Initialisation de la réponse et du client Supabase
+  // 3. Initialisation de la réponse
   let response = NextResponse.next({
     request: {
       headers: request.headers,
     },
   })
 
-  const supabase = createServerClient(
-    getSupabaseUrl(),
-    getSupabaseAnonKey(),
-    {
-      cookies: {
-        getAll() {
-          return request.cookies.getAll()
+  // Optimisation de performance : n'appeler l'API Supabase Auth que pour les routes protégées ou gérant l'auth
+  const needsAuthCheck = path.startsWith('/dashboard') || path.startsWith('/auth/login') || path.startsWith('/auth/signup')
+
+  if (needsAuthCheck) {
+    const supabase = createServerClient(
+      getSupabaseUrl(),
+      getSupabaseAnonKey(),
+      {
+        cookies: {
+          getAll() {
+            return request.cookies.getAll()
+          },
+          setAll(cookiesToSet) {
+            cookiesToSet.forEach(({ name, value, options }) => {
+              response.cookies.set({ name, value, ...options })
+            })
+          },
         },
-        setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value, options }) => {
-            response.cookies.set({ name, value, ...options })
-          })
-        },
-      },
+      }
+    )
+
+    // SESSION : Récupération sécurisée du user
+    const { data: { user } } = await supabase.auth.getUser()
+
+    // 4. PROTECTION DES ROUTES (RBAC / Auth Enforcement)
+    if (!user && path.startsWith('/dashboard')) {
+      const redirectUrl = request.nextUrl.clone()
+      redirectUrl.pathname = '/auth/login'
+      redirectUrl.searchParams.set('redirectedFrom', path)
+      return NextResponse.redirect(redirectUrl)
     }
-  )
 
-  // SESSION : Récupération sécurisée du user
-  const { data: { user } } = await supabase.auth.getUser()
-
-  // 4. PROTECTION DES ROUTES (RBAC / Auth Enforcement)
-
-  // Routes Protégées Utilisateur (Dashboard seulement, Onboarding est ouvert)
-  if (!user && path.startsWith('/dashboard')) {
-    const redirectUrl = request.nextUrl.clone()
-    redirectUrl.pathname = '/auth/login'
-    redirectUrl.searchParams.set('redirectedFrom', path)
-    return NextResponse.redirect(redirectUrl)
-  }
-
-  // Redirection si déjà connecté
-  if (user && (path.startsWith('/auth/login') || path.startsWith('/auth/signup'))) {
-    return NextResponse.redirect(new URL('/dashboard', request.url))
+    // Redirection si déjà connecté
+    if (user && (path.startsWith('/auth/login') || path.startsWith('/auth/signup'))) {
+      return NextResponse.redirect(new URL('/dashboard', request.url))
+    }
   }
 
   // 5. HEADERS DE SÉCURITÉ OWASP (CSP, HSTS, etc.)

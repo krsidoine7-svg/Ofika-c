@@ -189,12 +189,14 @@ interface ProfileFormProps {
   requireAuth?: boolean // Si false, permet la soumission sans authentification
   hideImages?: boolean // Si true, masque les champs photo de profil et couverture
   initialData?: any // Données initiales pour pré-remplir le formulaire
+  onChange?: (data: Partial<ProfileFormData>) => void // Pour remonter les modifs en temps réel
 }
 
-export function ProfileForm({ profile_id, isEditing = false, onSuccess, onCancel, requireAuth = true, hideImages = false, initialData }: ProfileFormProps) {
+export function ProfileForm({ profile_id, isEditing = false, onSuccess, onCancel, requireAuth = true, hideImages = false, initialData, onChange }: ProfileFormProps) {
   const [loading, setLoading] = useState(false)
   const [loadingData, setLoadingData] = useState(isEditing)
   const [oldSlug, setOldSlug] = useState<string | null>(null)
+  const [activeTab, setActiveTab] = useState<'profile' | 'contact' | 'links' | 'config'>('profile')
 
   const supabase = createClient()
 
@@ -252,8 +254,84 @@ export function ProfileForm({ profile_id, isEditing = false, onSuccess, onCancel
       fb_show_verified: initialData?.fb_show_verified ?? true
     }
   })
+
+  // Surveillance des modifications du formulaire pour l'aperçu dynamique
+  const formValues = form.watch()
+  const formValuesString = JSON.stringify(formValues)
+  useEffect(() => {
+    if (onChange) {
+      onChange(formValues)
+    }
+  }, [formValuesString, onChange])
+
+  // Génération automatique de l'URL personnalisée à partir du nom
+  const nameValue = form.watch('name')
+  const customUrlValue = form.watch('custom_url')
+  const [isCustomUrlEdited, setIsCustomUrlEdited] = useState(false)
+
+  // Si l'URL personnalisée est vidée, on réactive la génération automatique
+  useEffect(() => {
+    if (!customUrlValue) {
+      setIsCustomUrlEdited(false)
+    }
+  }, [customUrlValue])
+
+  useEffect(() => {
+    if (!isEditing && nameValue && !isCustomUrlEdited) {
+      const slug = nameValue
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '') // Supprime les accents
+        .trim()
+        .replace(/\s+/g, '-') // Remplace les espaces par des tirets
+        .replace(/[^\w\-]+/g, '') // Supprime les caractères non autorisés
+        .replace(/\-\-+/g, '-') // Supprime les doubles tirets
+        .replace(/^-+|-+$/g, '') // Nettoie les tirets en début/fin
+      
+      form.setValue('custom_url', slug, { shouldValidate: true })
+    }
+  }, [nameValue, isCustomUrlEdited, isEditing, form])
+
   const selectedDesign = (form.watch('design_choice') as keyof typeof designFieldsConfig) || 'default'
   const designConfig = designFieldsConfig[selectedDesign] || designFieldsConfig.default
+
+  // Validation sélective par onglet
+  const validateTab = async (tab: 'profile' | 'contact' | 'links' | 'config'): Promise<boolean> => {
+    let fieldsToValidate: any[] = []
+    if (tab === 'profile') {
+      fieldsToValidate = ['name', 'profile_type', 'custom_url', 'bio']
+    } else if (tab === 'contact') {
+      fieldsToValidate = ['email', 'phone', 'location']
+    } else if (tab === 'links') {
+      fieldsToValidate = ['social_links', 'custom_links']
+    }
+    if (fieldsToValidate.length === 0) return true
+    return await form.trigger(fieldsToValidate as any)
+  }
+
+  const handleNextTab = async () => {
+    const isValid = await validateTab(activeTab)
+    if (isValid) {
+      if (activeTab === 'profile') setActiveTab('contact')
+      else if (activeTab === 'contact') setActiveTab('links')
+      else if (activeTab === 'links') setActiveTab('config')
+    } else {
+      toast.error('Veuillez corriger les erreurs avant de continuer')
+    }
+  }
+
+  const handlePrevTab = () => {
+    if (activeTab === 'contact') setActiveTab('profile')
+    else if (activeTab === 'links') setActiveTab('contact')
+    else if (activeTab === 'config') setActiveTab('links')
+  }
+
+  const tabsList = [
+    { id: 'profile' as const, label: '1. Profil' },
+    { id: 'contact' as const, label: '2. Contact' },
+    { id: 'links' as const, label: '3. Liens' },
+    { id: 'config' as const, label: '4. Réglages' },
+  ]
 
   // Charger les données du profil si on est en mode édition
   useEffect(() => {
@@ -515,10 +593,40 @@ export function ProfileForm({ profile_id, isEditing = false, onSuccess, onCancel
         <form onSubmit={form.handleSubmit(onSubmit, (errors) => {
           console.error('❌ Erreurs de validation:', errors)
           toast.error('Veuillez corriger les erreurs dans le formulaire')
-        })} className="space-y-6">
-          <div className="space-y-8">
+        })} className="lg:h-full flex flex-col lg:min-h-0 justify-between">
+          
+          {/* Menu des Onglets */}
+          <div className="flex border-b border-gray-200 mb-6 gap-2 overflow-x-auto pb-1 scrollbar-none sm:grid sm:grid-cols-4 sm:gap-0 sm:text-center">
+            {tabsList.map(tab => {
+              const isActive = activeTab === tab.id
+              return (
+                <button
+                  key={tab.id}
+                  type="button"
+                  onClick={async () => {
+                    const isValid = await validateTab(activeTab)
+                    if (isValid) {
+                      setActiveTab(tab.id)
+                    } else {
+                      toast.error('Veuillez corriger les champs obligatoires avant de changer d\'onglet')
+                    }
+                  }}
+                  className={`pb-2 px-1 text-xs sm:text-sm font-semibold border-b-2 transition-all whitespace-nowrap text-center ${
+                    isActive
+                      ? 'border-orange-500 text-orange-600 font-bold'
+                      : 'border-transparent text-gray-500 hover:text-gray-900'
+                  }`}
+                >
+                  {tab.label}
+                </button>
+              )
+            })}
+          </div>
+
+          <div className="flex-1 lg:overflow-y-auto lg:min-h-0 pr-2 space-y-6 custom-scrollbar py-1">
             {/* Section Identité */}
-            <div className="space-y-4">
+            {activeTab === 'profile' && (
+              <div className="space-y-4">
               <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                 <User className="h-5 w-5 text-gray-900" />
                 Identité
@@ -575,7 +683,10 @@ export function ProfileForm({ profile_id, isEditing = false, onSuccess, onCancel
                           </span>
                           <UrlAvailabilityChecker
                             value={field.value || ''}
-                            onChange={field.onChange}
+                            onChange={(value) => {
+                              field.onChange(value)
+                              setIsCustomUrlEdited(true)
+                            }}
                             type="custom_url"
                             excludeProfileId={profile_id}
                             placeholder="mon-profil"
@@ -641,9 +752,11 @@ export function ProfileForm({ profile_id, isEditing = false, onSuccess, onCancel
                 )}
               />
             </div>
+            )}
 
             {/* Section Coordonnées */}
-            <div className="space-y-4 pt-6 border-t">
+            {activeTab === 'contact' && (
+              <div className="space-y-4 pt-6 border-t">
               <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                 <Phone className="h-5 w-5 text-gray-900" />
                 Coordonnées
@@ -696,9 +809,12 @@ export function ProfileForm({ profile_id, isEditing = false, onSuccess, onCancel
                 )}
               />
             </div>
+            )}
 
             {/* Section Réseaux Sociaux */}
-            <div className="space-y-4 pt-6 border-t font-sans">
+            {activeTab === 'links' && (
+              <>
+                <div className="space-y-4 pt-6 border-t font-sans">
               <div className="flex items-start justify-between">
                 <div>
                   <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
@@ -1083,9 +1199,11 @@ export function ProfileForm({ profile_id, isEditing = false, onSuccess, onCancel
                 )}
               />
             </div>
+              </>
+            )}
 
             {/* Section Images - Photo de profil et photo de couverture */}
-            {!hideImages && (
+            {activeTab === 'profile' && !hideImages && (
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900">Images</h3>
 
@@ -1134,7 +1252,8 @@ export function ProfileForm({ profile_id, isEditing = false, onSuccess, onCancel
             )}
 
             {/* Section Configuration */}
-            <div className="space-y-4 pt-6 border-t">
+            {activeTab === 'config' && (
+              <div className="space-y-4 pt-6 border-t">
               <h3 className="text-xl font-bold text-gray-900 flex items-center gap-2">
                 <Cog className="h-5 w-5 text-orange-500" />
                 Configuration
@@ -1181,27 +1300,51 @@ export function ProfileForm({ profile_id, isEditing = false, onSuccess, onCancel
                   </FormItem>
                 )}
               />
-            </div>
+              </div>
+            )}
 
-            <div className="flex gap-3 pt-4">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={onCancel}
-                className="flex-1"
-              >
-                Annuler
-              </Button>
-              <Button
-                type="submit"
-                disabled={loading}
-                className="flex-1 bg-orange-500 hover:bg-orange-600 text-white"
-              >
-                {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-                {isEditing ? 'Mettre à jour' : 'Continuer'}
-              </Button>
-            </div>
           </div>
+
+          <div className="flex gap-3 pt-4 border-t border-gray-100 flex-shrink-0 bg-white">
+            {activeTab === 'profile' ? (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={onCancel}
+                  className="flex-1"
+                >
+                  Annuler
+                </Button>
+              ) : (
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={handlePrevTab}
+                  className="flex-1"
+                >
+                  Précédent
+                </Button>
+              )}
+
+              {activeTab !== 'config' ? (
+                <Button
+                  type="button"
+                  onClick={handleNextTab}
+                  className="flex-1 bg-orange-500 hover:bg-orange-600 text-white font-bold"
+                >
+                  Suivant
+                </Button>
+              ) : (
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="flex-1 bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white font-bold shadow-md animate-in fade-in duration-300"
+                >
+                  {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  {isEditing ? 'Mettre à jour' : 'Créer ma page'}
+                </Button>
+              )}
+            </div>
         </form>
       </Form >
     </>

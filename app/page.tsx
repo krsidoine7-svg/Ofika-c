@@ -594,28 +594,33 @@ export default function HomePage() {
 
 
       {/* FINAL CTA */}
-      <section className="py-24 bg-gradient-to-br from-gray-950 via-gray-900 to-black text-white text-center relative overflow-hidden">
-        {/* Background glow effects */}
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[80%] h-[80%] bg-ofika-orange/10 rounded-full blur-[120px] pointer-events-none" />
-        
-        <div className="container mx-auto px-4 relative z-10">
-          <h2 className="text-4xl sm:text-6xl font-black mb-8 max-w-4xl mx-auto leading-[1.1] tracking-tighter">
-            Rejoignez la révolution du <br />
-            <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-orange-600">networking ivoirien.</span>
-          </h2>
-          <p className="text-lg sm:text-xl text-gray-400 mb-10 max-w-2xl mx-auto font-medium">
-            Vos concurrents sont déjà en train de digitaliser leur carnet d'adresses. Arrêtez de passer pour un amateur avec des cartons papier.
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-            <Link href="/onboarding/public-page">
-              <Button size="lg" className="bg-ofika-orange hover:bg-orange-600 text-white text-xl font-bold px-12 py-8 rounded-2xl shadow-2xl shadow-orange-900/20 transform hover:-translate-y-1 transition-all">
-                Je veux mon profil gratuit
-              </Button>
-            </Link>
+      <section className="py-12 bg-white overflow-hidden">
+        <div className="container mx-auto px-4 sm:px-6 relative z-10">
+          <div className="relative w-full max-w-[1186px] mx-auto rounded-[20px] bg-[#09090b] border border-white/[0.08] shadow-[0_24px_80px_rgba(0,0,0,0.4)] py-16 px-6 sm:px-12 md:py-24 text-center overflow-hidden">
+            {/* Ambient glow */}
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.15)_0%,transparent_65%)] pointer-events-none" />
+            
+            <div className="relative z-10">
+              <h2 className="text-4xl sm:text-6xl font-black mb-8 max-w-4xl mx-auto leading-[1.1] tracking-tighter text-white">
+                Rejoignez la révolution du <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-rose-500">networking ivoirien.</span>
+              </h2>
+              <p className="text-lg sm:text-xl text-gray-400 mb-10 max-w-2xl mx-auto font-medium">
+                Vos concurrents sont déjà en train de digitaliser leur carnet d'adresses. Arrêtez de passer pour un amateur avec des cartons papier.
+              </p>
+              <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
+                <Link href="/onboarding/public-page">
+                  <Button size="lg" style={{ borderRadius: '20px' }} className="h-[66px] px-10 bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-white rounded-[20px] text-base sm:text-lg font-bold shadow-lg shadow-orange-500/20 transition-all group flex items-center gap-2">
+                    Je veux mon profil gratuit
+                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
+                  </Button>
+                </Link>
+              </div>
+              <p className="mt-8 text-sm text-gray-500 font-bold flex items-center justify-center gap-2">
+                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" /> Sans carte bancaire • 2 minutes chrono
+              </p>
+            </div>
           </div>
-          <p className="mt-8 text-sm text-gray-500 font-bold flex items-center justify-center gap-2">
-            <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" /> Sans carte bancaire • 2 minutes chrono
-          </p>
         </div>
       </section>
 

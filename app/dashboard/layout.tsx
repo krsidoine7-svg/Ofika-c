@@ -14,7 +14,6 @@ import { useProfiles } from "@/lib/hooks/useProfiles"
 import { useUser } from "@/lib/hooks/useUser"
 import { AnnouncementBanner } from '@/components/dashboard/AnnouncementBanner'
 import { UserRealtimeNotifications } from '@/components/features/card-ordering/UserRealtimeNotifications'
-import { OrderNotifications } from '@/components/features/card-ordering/OrderNotifications'
 
 import {
     DropdownMenu,
@@ -218,10 +217,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                 </div>
                             )}
 
-                            <div className="p-4 border-t border-gray-100 flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                    <OrderNotifications />
-                                </div>
+                            <div className="p-4 border-t border-gray-100 flex items-center">
                                 <DropdownMenu>
                                     <DropdownMenuTrigger asChild>
                                         <Button variant="ghost" className="flex items-center gap-3 p-0 h-auto hover:bg-transparent">
@@ -294,7 +290,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                 </div>
 
                                 <div className="flex items-center gap-3">
-                                    <OrderNotifications />
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
                                             <Button variant="ghost" className="relative h-9 w-9 rounded-full overflow-hidden p-0 border border-gray-200">

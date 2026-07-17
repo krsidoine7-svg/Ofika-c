@@ -1,0 +1,11 @@
+Métrique de Rupture,Valeur,Description
+Hôte testé,https://ofika.ci,Serveur web analysé
+Scénario,scenarios/ofika_full_journey.py,Scénario Locust exécuté
+Charge max demandée,50,Utilisateurs max injectés
+RPS Max brut,11.30,Débit maximal brut
+RPS Moyen,6.74,Débit moyen
+Point de rupture (Users),8,Nombre d'utilisateurs à la rupture
+Point de rupture (RPS),Non atteint,RPS à la rupture
+Limite de sécurité (Users),0,Charge max stable
+Limite de sécurité (RPS),0.00,Débit max stable
+p95 Max atteint,4000.0 ms,Latence p95 maximale

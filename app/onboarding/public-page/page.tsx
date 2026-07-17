@@ -1,13 +1,13 @@
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useCallback } from 'react'
 import { useRouter } from 'next/navigation'
 import { useAuth } from '@/lib/hooks/useAuth'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Stepper, Step } from '@/components/ui/stepper'
-import { ArrowLeft, CheckCircle, Globe } from 'lucide-react'
+import { ArrowLeft, CheckCircle, Globe, Eye } from 'lucide-react'
 import { TemplateSelectionStep } from '@/components/features/profiles/TemplateSelectionStep'
 import { ProfileForm } from '@/components/features/profiles/ProfileForm'
 import { SignupStep } from '@/components/features/profiles/SignupStep'
@@ -15,6 +15,17 @@ import { PreviewStep } from '@/components/features/profiles/PreviewStep'
 import { createClient } from '@/lib/supabase/client'
 import { createNFCCard } from '@/lib/services/nfc-cards'
 import { toast } from 'sonner'
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
+import { LinkInBioDesign1 } from '@/components/features/profiles/LinkInBioDesign1'
+import { LinkInBioDesign2 } from '@/components/features/profiles/LinkInBioDesign2'
+import { LinkInBioDesign3 } from '@/components/features/profiles/LinkInBioDesign3'
+import { LinkInBioDesign4 } from '@/components/features/profiles/LinkInBioDesign4'
+import { LinkInBioDesign7 } from '@/components/features/profiles/LinkInBioDesign7'
+import { LinkInBioInfluencer } from '@/components/features/profiles/LinkInBioInfluencer'
+import { LinkInBioEcommerce } from '@/components/features/profiles/LinkInBioEcommerce'
+import { LinkInBioFreelance } from '@/components/features/profiles/LinkInBioFreelance'
+import { motion, AnimatePresence } from 'framer-motion'
+import { ScaledSmartphonePreview } from '@/components/ui/scaled-smartphone-preview'
 
 type CreationStep = 'form' | 'template' | 'signup' | 'success'
 
@@ -32,14 +43,53 @@ const steps: Step[] = [
   {
     id: 'signup',
     title: 'Compte',
-    description: 'Action finale'
-  },
-  {
-    id: 'success',
-    title: 'Fin',
-    description: 'C\'est en ligne !'
+    description: 'En ligne !'
   }
 ]
+
+const createPreviewProfile = (formData: any, designChoice: string) => {
+  return {
+    id: 'preview',
+    user_id: 'preview-user',
+    profile_type: formData?.profile_type || 'professional',
+    name: formData?.name || 'Votre Nom',
+    bio: formData?.bio || 'Votre biographie apparaîtra ici...',
+    image_url: formData?.image_url || null,
+    cover_image_url: formData?.cover_image_url || null,
+    custom_url: formData?.custom_url || formData?.username || 'votre-url',
+    username: formData?.username || formData?.custom_url || 'votre-url',
+    email: formData?.email || null,
+    phone: formData?.phone || null,
+    location: formData?.location || null,
+    whatsapp: formData?.whatsapp || null,
+    facebook: formData?.facebook || null,
+    instagram: formData?.instagram || null,
+    twitter: formData?.twitter || null,
+    youtube: formData?.youtube || null,
+    tiktok: formData?.tiktok || null,
+    website: formData?.website || null,
+    design_choice: designChoice,
+    color_theme: 'default',
+    is_active: true,
+    social_links: formData?.social_links || [],
+    custom_links: formData?.custom_links || [],
+    is_public: formData?.is_public !== false,
+    display_reviews: formData?.display_reviews || false,
+    created_at: new Date().toISOString(),
+    updated_at: new Date().toISOString(),
+    links: (formData?.custom_links || []).map((link: any, index: number) => ({
+      id: `preview-${index}`,
+      profile_id: 'preview',
+      title: link.title,
+      url: link.url,
+      position: index,
+      click_count: 0,
+      is_active: true,
+      created_at: new Date().toISOString(),
+      updated_at: new Date().toISOString()
+    }))
+  }
+}
 
 export default function PublicPageOnboardingPage() {
   const router = useRouter()
@@ -50,8 +100,32 @@ export default function PublicPageOnboardingPage() {
   const [selectedDesign, setSelectedDesign] = useState<string>('design1')
   const supabase = createClient()
 
+  const handleProfileFormChange = useCallback((data: any) => {
+    setCreatedProfile((prev: any) => {
+      const next = { ...prev, ...data }
+      if (JSON.stringify(prev) === JSON.stringify(next)) return prev
+      return next
+    })
+  }, [])
+
+  const renderPreview = (designId: string) => {
+    const profile = createPreviewProfile(createdProfile, designId)
+
+    switch (designId) {
+      case 'design1': return <LinkInBioDesign1 profile={profile as any} showAddToContacts={true} isPreview={true} />
+      case 'design2': return <LinkInBioDesign2 profile={profile as any} showAddToContacts={true} isPreview={true} />
+      case 'design3': return <LinkInBioDesign3 profile={profile as any} showAddToContacts={true} isPreview={true} />
+      case 'design4': return <LinkInBioDesign4 profile={profile as any} showAddToContacts={true} isPreview={true} />
+      case 'influencer': return <LinkInBioInfluencer profile={profile as any} showAddToContacts={true} isPreview={true} />
+      case 'ecommerce': return <LinkInBioEcommerce profile={profile as any} showAddToContacts={true} isPreview={true} />
+      case 'design7': return <LinkInBioDesign7 profile={profile as any} showAddToContacts={true} isPreview={true} />
+      case 'freelance': return <LinkInBioFreelance profile={profile as any} showAddToContacts={true} isPreview={true} />
+      default: return <LinkInBioDesign1 profile={profile as any} showAddToContacts={true} isPreview={true} />
+    }
+  }
+
   const getCurrentStepNumber = () => {
-    const stepMap = { form: 1, template: 2, signup: 3, success: 4 }
+    const stepMap = { form: 1, template: 2, signup: 3, success: 3 }
     return stepMap[currentStep]
   }
 
@@ -245,14 +319,8 @@ export default function PublicPageOnboardingPage() {
     switch (currentStep) {
       case 'form':
         return (
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Globe className="w-5 h-5" />
-                Créer votre page publique
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
+          <Card className="lg:h-full flex flex-col lg:overflow-hidden border-none shadow-none lg:border lg:shadow-sm bg-white">
+            <CardContent className="pt-6 flex-1 lg:min-h-0 flex flex-col lg:overflow-hidden">
               <ProfileForm
                 isEditing={false}
                 requireAuth={false}
@@ -260,6 +328,7 @@ export default function PublicPageOnboardingPage() {
                 initialData={createdProfile}
                 onSuccess={handleFormSuccess}
                 onCancel={() => router.push('/get-started')}
+                onChange={handleProfileFormChange}
               />
             </CardContent>
           </Card>
@@ -267,12 +336,16 @@ export default function PublicPageOnboardingPage() {
 
       case 'signup':
         return (
-          <SignupStep
-            formData={createdProfile}
-            onSuccess={handleFinalPublication}
-            onPrev={() => setCurrentStep('template')}
-            isLoading={loading}
-          />
+          <Card className="lg:h-full flex flex-col lg:overflow-hidden border-none shadow-none lg:border lg:shadow-sm bg-white">
+            <CardContent className="pt-6 flex-1 lg:min-h-0 lg:overflow-y-auto custom-scrollbar">
+              <SignupStep
+                formData={createdProfile}
+                onSuccess={handleFinalPublication}
+                onPrev={() => setCurrentStep('template')}
+                isLoading={loading}
+              />
+            </CardContent>
+          </Card>
         )
 
       case 'template':
@@ -287,7 +360,7 @@ export default function PublicPageOnboardingPage() {
 
       case 'success':
         return (
-          <Card>
+          <Card className="max-w-xl mx-auto">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-green-600">
                 <CheckCircle className="w-6 h-6" />
@@ -355,35 +428,111 @@ export default function PublicPageOnboardingPage() {
     }
   }
 
+  const isSplitScreen = currentStep === 'form' || currentStep === 'signup'
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 py-12">
-      <div className="container mx-auto px-4">
-        <div className="max-w-4xl mx-auto">
+    <div className="min-h-screen lg:h-[100dvh] w-full lg:overflow-hidden bg-gradient-to-br from-blue-50 via-white to-purple-50 flex flex-col">
+      <div className="flex-1 min-h-0 flex flex-col p-4 sm:p-6 lg:p-8 overflow-y-auto lg:overflow-hidden">
+        <div className={`mx-auto w-full flex-1 lg:min-h-0 flex flex-col ${
+          isSplitScreen ? "max-w-6xl" : currentStep === 'template' ? "max-w-5xl" : "max-w-3xl"
+        }`}>
           {/* Header avec bouton retour */}
-          <div className="mb-8">
+          <div className="flex-shrink-0 mb-4">
             <Button
               variant="ghost"
               onClick={() => router.push('/get-started')}
-              className="mb-4"
+              className="mb-2 h-8 px-2 text-xs"
             >
-              <ArrowLeft className="w-4 h-4 mr-2" />
+              <ArrowLeft className="w-3.5 h-3.5 mr-1.5" />
               Retour
             </Button>
-            <h1 className="text-4xl font-bold text-gray-900 mb-2">
+            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 leading-tight">
               Créez votre page publique
             </h1>
-            <p className="text-gray-600">
+            <p className="text-gray-500 text-xs mt-0.5">
               Configurez votre présence en ligne en quelques étapes
             </p>
           </div>
 
           {/* Stepper */}
-          <div className="mb-8">
+          <div className="flex-shrink-0 mb-4 sm:mb-6">
             <Stepper steps={steps} currentStep={getCurrentStepNumber()} />
           </div>
 
           {/* Contenu principal */}
-          {renderStep()}
+          <div className="flex-1 lg:min-h-0 w-full">
+            {isSplitScreen ? (
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch lg:h-full lg:min-h-0">
+                {/* Colonne gauche : Formulaire */}
+                <div className="col-span-12 lg:col-span-7 flex flex-col lg:min-h-0 lg:h-full">
+                  {renderStep()}
+                </div>
+
+                {/* Colonne droite : Smartphone Mockup */}
+                <div className="col-span-12 lg:col-span-5 hidden lg:flex flex-col items-center justify-center min-h-0 h-full">
+                  <div className="flex flex-col items-center justify-center h-full w-full max-h-full">
+                    <h3 className="font-semibold text-center text-xs uppercase tracking-wider text-gray-400 mb-3 flex items-center justify-center gap-2 flex-shrink-0">
+                      <Eye className="w-3.5 h-3.5" />
+                      Aperçu en temps réel
+                    </h3>
+
+                    <ScaledSmartphonePreview>
+                      <AnimatePresence mode="wait">
+                        <motion.div
+                          key={selectedDesign}
+                          initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                          animate={{ opacity: 1, y: 0, scale: 1 }}
+                          exit={{ opacity: 0, y: -10, scale: 0.98 }}
+                          transition={{ duration: 0.3 }}
+                          className="h-full animate-in fade-in zoom-in duration-300"
+                        >
+                          {renderPreview(selectedDesign)}
+                        </motion.div>
+                      </AnimatePresence>
+                    </ScaledSmartphonePreview>
+
+                    {/* Légende */}
+                    <div className="mt-3 flex-shrink-0">
+                      <p className="text-[10px] text-gray-400 italic text-center max-w-[220px]">
+                        Aperçu interactif : modifiez le formulaire pour voir le rendu en direct.
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            ) : (
+              <div className="lg:h-full lg:min-h-0 lg:overflow-y-auto custom-scrollbar">
+                {renderStep()}
+              </div>
+            )}
+          </div>
+
+          {/* Bouton d'aperçu flottant pour mobile */}
+          {isSplitScreen && (
+            <div className="lg:hidden fixed bottom-6 right-6 z-40">
+              <Sheet>
+                <SheetTrigger asChild>
+                  <Button className="rounded-full shadow-lg bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 font-bold gap-2 text-white px-5 py-6">
+                    <Eye className="w-5 h-5" />
+                    Aperçu
+                  </Button>
+                </SheetTrigger>
+                <SheetContent side="bottom" className="h-[90vh] rounded-t-[2rem] p-0 overflow-hidden bg-gray-900 border-gray-800">
+                  <SheetHeader className="p-4 border-b border-gray-800 bg-gray-900 flex-row items-center justify-between text-white">
+                    <SheetTitle className="text-white flex items-center gap-2">
+                      <Eye className="w-5 h-5 text-orange-500" />
+                      Aperçu en direct
+                    </SheetTitle>
+                  </SheetHeader>
+                  <div className="flex items-center justify-center h-[calc(90vh-60px)] bg-gray-950 py-6">
+                    <ScaledSmartphonePreview maxHeightClass="h-[90%] max-h-none" scaleClass="scale-[0.62]">
+                      {renderPreview(selectedDesign)}
+                    </ScaledSmartphonePreview>
+                  </div>
+                </SheetContent>
+              </Sheet>
+            </div>
+          )}
         </div>
       </div>
     </div>

@@ -28,7 +28,8 @@ import {
   Eye,
   Settings,
   Activity,
-  Calendar as CalendarIcon
+  Calendar as CalendarIcon,
+  Bell
 } from "lucide-react"
 import Link from "next/link"
 import { useRouter } from "next/navigation"
@@ -252,6 +253,9 @@ export default function DashboardPage() {
           </p>
         </div>
         <div className="flex items-center gap-3">
+          <Button variant="outline" size="icon" className="rounded-xl border-neutral-200 text-neutral-600 hover:bg-neutral-50 h-11 w-11 shadow-sm transition-all">
+            <Bell className="w-5 h-5" />
+          </Button>
           <Link href="/dashboard/profiles">
             <Button variant="outline" className="rounded-xl border-neutral-200 text-neutral-700 hover:bg-neutral-50 font-semibold h-11 px-5 shadow-sm transition-all">
               Mes Profils

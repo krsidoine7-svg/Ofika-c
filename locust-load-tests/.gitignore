@@ -1,0 +1,11 @@
+# Environnement virtuel Python — NE PAS committer
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+
+# Résultats des tests (optionnel — à adapter selon vos préférences)
+# results/
+
+# Fichiers temporaires
+*.log
