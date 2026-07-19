@@ -137,7 +137,8 @@ export async function createNFCCard(cardData: CreateNFCCardData): Promise<NFCCar
         const prof = profileResult.data
         const slug = prof.custom_url || prof.username
         if (slug) {
-          const appUrl = process.env.NEXT_PUBLIC_APP_URL || (typeof window !== 'undefined' ? window.location.origin : '')
+          const rawAppUrl = process.env.NEXT_PUBLIC_APP_URL || (typeof window !== 'undefined' ? window.location.origin : '')
+          const appUrl = rawAppUrl.replace(/\/$/, '')
           cardData.nfc_link = `${appUrl}/${slug}`
           console.log('🔗 Nouveau lien NFC synchronisé avec le profil:', cardData.nfc_link)
         }

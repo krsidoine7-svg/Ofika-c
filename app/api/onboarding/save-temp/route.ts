@@ -27,9 +27,12 @@ async function handlePOST(request: NextRequest) {
       )
     }
 
-    const { session_id, flow_type, step, data, user_email } = validationResult.data
+    const { session_id, flow_type, step, data } = validationResult.data
 
     const supabase = await createClient()
+
+    // Mapper flow_type ('nfc_card' ou 'public_page') vers type ('nfc' ou 'public_page')
+    const mappedType = flow_type === 'nfc_card' ? 'nfc' : 'public_page'
 
     // Vérifier si une entrée existe déjà
     const { data: existing } = await supabase
@@ -45,11 +48,9 @@ async function handlePOST(request: NextRequest) {
       const { data: updated, error } = await supabase
         .from('pending_creations')
         .update({
-          flow_type,
-          current_step: step,
-          payload: data,
-          user_email,
-          updated_at: new Date().toISOString(),
+          type: mappedType,
+          step_completed: step,
+          payload: data
         })
         .eq('session_id', session_id)
         .select()
@@ -70,10 +71,9 @@ async function handlePOST(request: NextRequest) {
         .from('pending_creations')
         .insert({
           session_id,
-          flow_type,
-          current_step: step,
-          payload: data,
-          user_email,
+          type: mappedType,
+          step_completed: step,
+          payload: data
         })
         .select()
         .single()

@@ -39,34 +39,6 @@ export default function HomePage() {
   const mainContainerRef = useRef<HTMLDivElement>(null)
 
   useGSAP(() => {
-    // Problem Section Animation
-    gsap.from("#problem .container", {
-      scrollTrigger: {
-        trigger: "#problem",
-        start: "top 80%",
-        end: "bottom 20%",
-        toggleActions: "play none none reverse"
-      },
-      opacity: 0,
-      y: 100,
-      duration: 1.5,
-      ease: "power4.out"
-    })
-
-    // Animate friction steps one by one
-    gsap.utils.toArray("#problem .opacity-50").forEach((step: any, i) => {
-      gsap.to(step, {
-        scrollTrigger: {
-          trigger: step,
-          start: "top 90%",
-        },
-        opacity: 1,
-        x: 0,
-        delay: i * 0.2,
-        duration: 0.8
-      })
-    })
-
     // Solution Section - Cards reveal
     gsap.from("#solution .grid > div", {
       scrollTrigger: {

@@ -171,7 +171,11 @@ export function Step1BasicInfo({ data, onChange, onNext }: Step1BasicInfoProps) 
           </Button>
         </div>
         <div className="flex items-center gap-2">
-          <span className="text-gray-500 font-medium">ofika.com/</span>
+          <span className="text-gray-500 font-medium">
+            {(process.env.NEXT_PUBLIC_APP_URL || 'ofika.com')
+              .replace(/^https?:\/\//, '')
+              .replace(/\/$/, '') + '/'}
+          </span>
           <Input
             id="username"
             type="text"

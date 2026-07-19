@@ -59,7 +59,9 @@ export function PreviewStep({ formData, selectedDesign, onNext, onPrev }: Previe
                                 <div className="w-3 h-3 rounded-full bg-green-400" />
                             </div>
                             <div className="flex-1 bg-white rounded text-[10px] py-1 px-3 border text-gray-400 truncate">
-                                ofika.com/{formData.custom_url || formData.username || 'votre-lien'}
+                                {(process.env.NEXT_PUBLIC_APP_URL || 'ofika.com')
+                                  .replace(/^https?:\/\//, '')
+                                  .replace(/\/$/, '') + '/'}{formData.custom_url || formData.username || 'votre-lien'}
                             </div>
                         </div>
                         <div className="h-[500px] overflow-y-auto bg-white">

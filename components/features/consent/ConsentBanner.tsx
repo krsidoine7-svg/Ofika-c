@@ -14,6 +14,7 @@ export interface ConsentData {
   analytics: boolean
   marketing: boolean
   dataProcessing: boolean
+  acceptTerms: boolean
 }
 
 interface ConsentBannerProps {
@@ -35,7 +36,8 @@ export function ConsentBanner({
     essential: true, // Toujours requis
     analytics: false,
     marketing: false,
-    dataProcessing: false,
+    dataProcessing: true, // Toujours vrai pour la création de carte
+    acceptTerms: false,
     ...initialConsent
   })
 
@@ -47,7 +49,7 @@ export function ConsentBanner({
     onConsentChange(newConsent)
   }
 
-  const isConsentValid = required ? consent.essential && consent.dataProcessing : true
+  const isConsentValid = required ? consent.acceptTerms : true
 
   return (
     <Card className={cn("border-2", className, !isConsentValid && "border-red-200 bg-red-50")}>
@@ -62,41 +64,44 @@ export function ConsentBanner({
       </CardHeader>
 
       <CardContent className="space-y-4">
-        {/* Consentement groupé (Essentiel + Carte NFC) */}
-        <div className={`flex items-start space-x-3 p-3 rounded-lg border ${required && !consent.dataProcessing
-          ? 'bg-red-50 border-red-200'
-          : 'bg-blue-50 border-blue-200'
-          }`}>
+
+        {/* Conditions et Politique de Confidentialité */}
+        <div className={cn(
+          "flex items-start space-x-3 p-3 rounded-lg border",
+          required && !consent.acceptTerms
+            ? 'bg-red-50 border-red-200'
+            : 'bg-gray-50 border-gray-200'
+        )}>
           <Checkbox
-            id="mandatoryConsent"
-            checked={consent.dataProcessing}
-            onCheckedChange={(checked) => handleConsentChange('dataProcessing', checked as boolean)}
+            id="acceptTerms"
+            checked={consent.acceptTerms}
+            onCheckedChange={(checked) => handleConsentChange('acceptTerms', checked as boolean)}
             className="mt-1"
           />
           <div className="flex-1">
-            <Label htmlFor="mandatoryConsent" className={`text-sm font-medium cursor-pointer ${required && !consent.dataProcessing
-              ? 'text-red-800'
-              : 'text-blue-800'
-              }`}>
-              <Shield className="inline h-4 w-4 mr-1" />
-              Données essentielles et traitement de votre carte NFC <span className="text-red-500">*</span>
+            <Label htmlFor="acceptTerms" className={cn(
+              "text-sm font-semibold cursor-pointer",
+              required && !consent.acceptTerms ? 'text-red-800' : 'text-gray-800'
+            )}>
+              Conditions générales et Confidentialité <span className="text-red-500">*</span>
             </Label>
-            <div className={`text-xs mt-2 space-y-2 ${required && !consent.dataProcessing
-              ? 'text-red-700'
-              : 'text-blue-700'
-              }`}>
-              <div className="flex items-start gap-2">
-                <CheckCircle className="h-3 w-3 mt-0.5 flex-shrink-0" />
-                <p><strong>Compte :</strong> Email, nom et mot de passe pour l'accès à votre espace.</p>
-              </div>
-              <div className="flex items-start gap-2">
-                <Database className="h-3 w-3 mt-0.5 flex-shrink-0" />
-                <p><strong>Carte NFC :</strong> Stockage des informations visibles sur votre carte (nom, entreprise, contacts).</p>
-              </div>
-              {required && !consent.dataProcessing && (
-                <span className="block mt-1 font-medium">⚠️ Obligatoire pour finaliser votre commande</span>
-              )}
-            </div>
+            <p className="text-xs text-gray-600 mt-1">
+              J'ai lu et j'accepte les{' '}
+              <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-orange-600 hover:text-orange-700 underline font-semibold">
+                Conditions d'Utilisation
+              </a>{' '}
+              et la{' '}
+              <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-orange-600 hover:text-orange-700 underline font-semibold">
+                Politique de Confidentialité
+              </a>{' '}
+              de la plateforme.
+            </p>
+            <p className="text-[11px] text-gray-500 mt-1.5 leading-relaxed">
+              <strong>Garantie de confidentialité :</strong> Vos données ne sont pas vendues à des tiers et sont utilisées uniquement dans le cadre des fonctionnalités de l'application (carte NFC et compte utilisateur).
+            </p>
+            {required && !consent.acceptTerms && (
+              <span className="block mt-1 text-xs font-semibold text-red-700">Vous devez accepter les conditions pour continuer</span>
+            )}
           </div>
         </div>
 
@@ -170,7 +175,7 @@ export function ConsentBanner({
           <Alert variant="destructive">
             <XCircle className="h-4 w-4" />
             <AlertDescription>
-              Vous devez accepter le traitement des données essentielles et de votre carte NFC pour continuer.
+              Vous devez accepter les conditions générales et la politique de confidentialité pour continuer.
             </AlertDescription>
           </Alert>
         )}

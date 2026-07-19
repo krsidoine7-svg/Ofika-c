@@ -300,7 +300,7 @@ export default function ProfilesPage() {
         pages.push({
           id: `profile-${profile.id}`,
           name: profile.name,
-          url: `${baseUrl}/${slug}`,
+          url: `${baseUrl}/${slug}`.replace(/([^:]\/)\/+/g, '$1'),
           type: 'profile'
         })
       }
@@ -326,7 +326,7 @@ export default function ProfilesPage() {
           pages.push({
             id: `nfc-${card.id}`,
             name: card.profile_name || card.full_name || 'Carte NFC',
-            url: `${baseUrl}/${slug}`,
+            url: `${baseUrl}/${slug}`.replace(/([^:]\/)\/+/g, '$1'),
             type: 'nfc_card'
           })
         }

@@ -41,6 +41,7 @@ export interface NFCCardFormData {
   // Consentements
   consentEssential?: boolean
   consentDataProcessing?: boolean
+  consentTerms?: boolean
   
   // Données de la carte créée (pour l'association et l'étape SUCCESS)
   createdCardId?: string
@@ -122,6 +123,7 @@ export type OnboardingAction =
   | { type: 'SET_LOADING'; payload: boolean }
   | { type: 'SET_ERROR'; payload: string | null }
   | { type: 'RESET' }
+  | { type: 'RESTORE_STATE'; payload: any }
 
 // Types pour les props des composants
 export interface NFCCardStepProps {
@@ -244,9 +246,9 @@ export const COLOR_OPTIONS: ColorOption[] = [
 export const ONBOARDING_STEPS = {
   INTRO: 1,
   FORM: 2,
-  SIGNUP: 3,
-  DESIGN: 4,
-  PROFILE_SELECTION: 5,
+  DESIGN: 3,
+  PROFILE_SELECTION: 4,
+  SIGNUP: 5,
   SUCCESS: 6
 } as const
 

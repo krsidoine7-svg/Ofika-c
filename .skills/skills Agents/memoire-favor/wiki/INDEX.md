@@ -1,4 +1,4 @@
-<!-- Dernière mise à jour : 31 Mai 2026 -->
+<!-- Dernière mise à jour : 19 Juillet 2026 -->
 
 # INDEX.md — Table des Matières du Wiki
 ## Favor Company International — Mémoire Externe
@@ -110,6 +110,7 @@ Date | Décision | Contexte | Raison | Alternative rejetée | Liens
 | `sessions/2026-05-10.md` | Session 001 — Setup projet + documentation |
 | `sessions/2026-05-29.md` | Session 002 — Création de ChefsOfika + Sécurité & Stack PROMPTs + npm audit |
 | `sessions/2026-05-31.md` | Session 003 — skill-mermaidH + schemas-mermaid/ + schémas link-to-bio/vCard |
+| `sessions/2026-07-19.md` | Session 004 — Restructuration d'onboarding NFC, corrections DB & RLS, build de production |
 
 **Relations :** Chaque résumé de session pointe vers le fichier fourtour correspondant.
 
@@ -155,4 +156,4 @@ sessions/*.md → fourtour/*.md (journal source)
 
 ---
 
-*Index créé : Mai 2026 | Mis à jour : automatiquement à chaque session*
+*Index créé : Mai 2026 | Mis à jour : 19 Juillet 2026*

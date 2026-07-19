@@ -1,6 +1,6 @@
 'use client'
 
-import { useReducer, useCallback } from 'react'
+import { useReducer, useCallback, useEffect } from 'react'
 import { 
   OnboardingState, 
   OnboardingAction, 
@@ -34,7 +34,8 @@ const initialState: OnboardingState = {
     logoFile: undefined,
     logoUrl: undefined,
     consentEssential: true, // Par défaut à true car requis pour l'onboarding
-    consentDataProcessing: false
+    consentDataProcessing: false,
+    consentTerms: false
   },
   selectedDesign: null,
   selectedColor: null,
@@ -109,6 +110,16 @@ function onboardingReducer(state: OnboardingState, action: OnboardingAction): On
         ...initialState,
         totalSteps: 6 // S'assurer que le total est correct après reset
       }
+
+    case 'RESTORE_STATE':
+      return {
+        ...state,
+        ...action.payload,
+        formData: {
+          ...state.formData,
+          ...(action.payload?.formData || {})
+        }
+      }
     
     default:
       return state
@@ -117,6 +128,34 @@ function onboardingReducer(state: OnboardingState, action: OnboardingAction): On
 
 export function useNFCCardOnboarding() {
   const [state, dispatch] = useReducer(onboardingReducer, initialState)
+
+  // Charger l'état sauvegardé au montage (Client-side uniquement)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('nfc_card_onboarding_state')
+      if (saved) {
+        try {
+          const parsed = JSON.parse(saved)
+          dispatch({ type: 'RESTORE_STATE', payload: parsed })
+        } catch (e) {
+          console.error("Erreur de chargement de l'état onboarding:", e)
+        }
+      }
+    }
+  }, [])
+
+  // Sauvegarder l'état à chaque modification
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const stateToSave = {
+        currentStep: state.currentStep,
+        formData: state.formData,
+        selectedDesign: state.selectedDesign,
+        selectedColor: state.selectedColor
+      }
+      localStorage.setItem('nfc_card_onboarding_state', JSON.stringify(stateToSave))
+    }
+  }, [state.currentStep, state.formData, state.selectedDesign, state.selectedColor])
 
   // Actions
   const setStep = useCallback((step: number) => {
@@ -152,6 +191,9 @@ export function useNFCCardOnboarding() {
   }, [])
 
   const reset = useCallback(() => {
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('nfc_card_onboarding_state')
+    }
     dispatch({ type: 'RESET' })
   }, [])
 
@@ -164,12 +206,9 @@ export function useNFCCardOnboarding() {
       case ONBOARDING_STEPS.FORM:
         return !!(
           state.formData.fullName &&
-          state.formData.company &&
-          state.formData.jobTitle &&
           state.formData.phone &&
           state.formData.email &&
-          state.formData.consentEssential &&
-          state.formData.consentDataProcessing
+          state.formData.consentTerms
         )
       
       case ONBOARDING_STEPS.SIGNUP:

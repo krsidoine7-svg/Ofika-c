@@ -1,0 +1,15 @@
+flowchart TD
+    Start[Arrivée Étape Sélection Profil] --> Choice{Choix de l'utilisateur}
+    
+    Choice -->|Nouveau profil (Défaut)| NewProfileForm[Remplir les champs]
+    NewProfileForm --> InputRow[Nom d'affichage + Lien personnalisé <br/>sur la même ligne]
+    InputRow --> BioInput[Ma Bio]
+    BioInput --> SubmitNew[Clic: Activer ma carte]
+    SubmitNew --> DBInsertProfile[Enregistrement de l'utilisateur dans public.profiles]
+    DBInsertProfile --> DBInsertCardLinked[Enregistrement dans public.digital_nfc_cards <br/>avec profile_id lié]
+    
+    Choice -->|Pas de profil| SubmitNone[Clic: Activer ma carte]
+    SubmitNone --> DBInsertCardUnlinked[Enregistrement dans public.digital_nfc_cards <br/>avec profile_id = null]
+    
+    DBInsertCardLinked --> Success[Étape de Succès]
+    DBInsertCardUnlinked --> Success

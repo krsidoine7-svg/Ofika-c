@@ -158,7 +158,9 @@ export function NFCCardPublicPreviewStep({
                     <p className="text-sm text-gray-600">
                       Votre profil sera accessible via : <br />
                       <code className="bg-gray-100 px-2 py-1 rounded text-xs">
-                        ofika.com/{formData.customUrl || 'votre-nom'}
+                        {(process.env.NEXT_PUBLIC_APP_URL || 'ofika.com')
+                          .replace(/^https?:\/\//, '')
+                          .replace(/\/$/, '') + '/'}{formData.customUrl || 'votre-nom'}
                       </code>
                     </p>
                   </div>

@@ -54,6 +54,7 @@ interface ProfileSelectionStepProps {
   onProfileSelected: (profileId: string) => void
   onCreateNewProfile: (profileData: any) => void
   onFinalize?: (profileId?: string) => void
+  onPrev?: () => void
   isLoading?: boolean
   formData?: NFCCardFormData
 }
@@ -103,12 +104,13 @@ export function ProfileSelectionStep({
   onProfileSelected,
   onCreateNewProfile,
   onFinalize,
+  onPrev,
   isLoading = false,
   formData
 }: ProfileSelectionStepProps) {
-  const [selectedOption, setSelectedOption] = useState<'existing' | 'new' | 'none'>('existing')
+  const [selectedOption, setSelectedOption] = useState<'existing' | 'new' | 'none'>('new')
   const [selectedProfileId, setSelectedProfileId] = useState<string>('')
-  const [showNewProfileForm, setShowNewProfileForm] = useState(false)
+  const [showNewProfileForm, setShowNewProfileForm] = useState(true)
 
   // Données du nouveau profil
   const [newProfileData, setNewProfileData] = useState({
@@ -355,62 +357,33 @@ export function ProfileSelectionStep({
       </div>
 
       {/* Choix initial */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-        {/* Associer profil existant */}
-        <button
-          type="button"
-          onClick={() => handleOptionChange('existing')}
-          disabled={!hasExistingProfiles}
-          className={`p-6 rounded-xl border-2 transition-all text-left h-full ${selectedOption === 'existing'
-            ? 'border-blue-500 bg-blue-50 shadow-lg'
-            : 'border-gray-200 hover:border-blue-300 hover:shadow-md'
-            } ${!hasExistingProfiles ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
-        >
-          <div className="flex flex-col h-full">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mb-3 ${selectedOption === 'existing'
-              ? 'bg-blue-500'
-              : 'bg-gray-200'
-              }`}>
-              {selectedOption === 'existing' ? <CheckCircle className="w-5 h-5 text-white" /> : <Globe className="w-5 h-5 text-gray-400" />}
-            </div>
-            <div className="flex-1">
-              <h3 className="font-bold text-lg leading-tight mb-2">Profil existant</h3>
-              <p className="text-sm text-gray-600">
-                Utiliser une de vos pages déjà créées sur Ofika.
-              </p>
-              {!hasExistingProfiles && (
-                <p className="text-xs text-red-600 mt-2">Aucun profil disponible</p>
-              )}
-            </div>
-          </div>
-        </button>
-
+      <div className="grid grid-cols-2 gap-3 max-w-md mx-auto">
         {/* Créer nouveau profil */}
         <button
           type="button"
           onClick={() => canCreateNewProfile && handleOptionChange('new')}
           disabled={!canCreateNewProfile}
-          className={`p-6 rounded-xl border-2 transition-all text-left h-full ${selectedOption === 'new'
-            ? 'border-blue-500 bg-blue-50 shadow-lg'
-            : 'border-gray-200 hover:border-blue-300 hover:shadow-md'
+          className={`p-3 md:p-4 rounded-lg border-2 transition-all text-left h-full ${selectedOption === 'new'
+            ? 'border-blue-500 bg-blue-50 shadow-md'
+            : 'border-gray-200 hover:border-blue-200'
             } ${!canCreateNewProfile ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'}`}
         >
-          <div className="flex flex-col h-full">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mb-3 ${selectedOption === 'new'
-              ? 'bg-blue-500'
-              : 'bg-gray-200'
-              }`}>
-              {selectedOption === 'new' ? <CheckCircle className="w-5 h-5 text-white" /> : <PlusCircle className="w-5 h-5 text-gray-400" />}
+          <div className="flex flex-col h-full justify-center">
+            <div className="flex items-center gap-2 mb-1">
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${selectedOption === 'new'
+                ? 'bg-blue-500'
+                : 'bg-gray-200'
+                }`}>
+                {selectedOption === 'new' ? <CheckCircle className="w-3.5 h-3.5 text-white" /> : <PlusCircle className="w-3.5 h-3.5 text-gray-400" />}
+              </div>
+              <h3 className="font-bold text-xs md:text-sm leading-tight">Nouveau profil</h3>
             </div>
-            <div className="flex-1">
-              <h3 className="font-bold text-lg leading-tight mb-2">Nouveau profil</h3>
-              <p className="text-sm text-gray-600">
-                Créer une toute nouvelle page maintenant.
-              </p>
-              {!canCreateNewProfile && (
-                <p className="text-xs text-red-600 mt-2">Limite de 3 profils atteinte</p>
-              )}
-            </div>
+            <p className="text-[10px] md:text-xs text-gray-500 leading-normal pl-8">
+              Créer une toute nouvelle page maintenant.
+            </p>
+            {!canCreateNewProfile && (
+              <p className="text-[9px] text-red-600 mt-1 pl-8">Limite de 3 profils atteinte</p>
+            )}
           </div>
         </button>
 
@@ -418,24 +391,24 @@ export function ProfileSelectionStep({
         <button
           type="button"
           onClick={() => handleOptionChange('none')}
-          className={`p-6 rounded-xl border-2 transition-all text-left h-full ${selectedOption === 'none'
-            ? 'border-blue-500 bg-blue-50 shadow-lg'
-            : 'border-gray-200 hover:border-blue-300 hover:shadow-md'
+          className={`p-3 md:p-4 rounded-lg border-2 transition-all text-left h-full ${selectedOption === 'none'
+            ? 'border-blue-500 bg-blue-50 shadow-md'
+            : 'border-gray-200 hover:border-blue-200'
             } cursor-pointer`}
         >
-          <div className="flex flex-col h-full">
-            <div className={`w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 mb-3 ${selectedOption === 'none'
-              ? 'bg-blue-500'
-              : 'bg-gray-200'
-              }`}>
-              {selectedOption === 'none' ? <CheckCircle className="w-5 h-5 text-white" /> : <Lock className="w-5 h-5 text-gray-400" />}
+          <div className="flex flex-col h-full justify-center">
+            <div className="flex items-center gap-2 mb-1">
+              <div className={`w-6 h-6 rounded-full flex items-center justify-center flex-shrink-0 ${selectedOption === 'none'
+                ? 'bg-blue-500'
+                : 'bg-gray-200'
+                }`}>
+                {selectedOption === 'none' ? <CheckCircle className="w-3.5 h-3.5 text-white" /> : <Lock className="w-3.5 h-3.5 text-gray-400" />}
+              </div>
+              <h3 className="font-bold text-xs md:text-sm leading-tight">Pas de profil</h3>
             </div>
-            <div className="flex-1">
-              <h3 className="font-bold text-lg leading-tight mb-2">Pas de profil</h3>
-              <p className="text-sm text-gray-600">
-                Je l'associerai plus tard depuis mon dashboard.
-              </p>
-            </div>
+            <p className="text-[10px] md:text-xs text-gray-500 leading-normal pl-8">
+              Je l'associerai plus tard depuis mon dashboard.
+            </p>
           </div>
         </button>
       </div>
@@ -508,20 +481,69 @@ export function ProfileSelectionStep({
 
             <Card className="border-orange-100 shadow-sm overflow-hidden">
               <CardContent className="p-6 space-y-6">
-                <div className="space-y-2">
-                  <Label htmlFor="profile-name" className="text-sm font-semibold flex items-center gap-2">
-                    <User className="w-4 h-4 text-orange-500" />
-                    Nom d'affichage
-                  </Label>
-                  <Input
-                    id="profile-name"
-                    value={newProfileData.name}
-                    onChange={(e) => setNewProfileData(prev => ({ ...prev, name: e.target.value }))}
-                    placeholder="Ex: Jean Dupont"
-                    className="focus-visible:ring-orange-500"
-                  />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Nom d'affichage */}
+                  <div className="space-y-2">
+                    <Label htmlFor="profile-name" className="text-sm font-semibold flex items-center gap-2">
+                      <User className="w-4 h-4 text-orange-500" />
+                      Nom d'affichage
+                    </Label>
+                    <Input
+                      id="profile-name"
+                      value={newProfileData.name}
+                      onChange={(e) => setNewProfileData(prev => ({ ...prev, name: e.target.value }))}
+                      placeholder="Ex: Jean Dupont"
+                      className="focus-visible:ring-orange-500"
+                    />
+                  </div>
+
+                  {/* Lien personnalisé */}
+                  <div className="space-y-2">
+                    <Label htmlFor="slug" className="text-sm font-semibold flex items-center gap-2">
+                      <Globe className="w-4 h-4 text-orange-500" />
+                      Lien personnalisé Ofika
+                    </Label>
+                    <div className="flex">
+                      <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm select-none">
+                        {(process.env.NEXT_PUBLIC_APP_URL || 'ofika.com')
+                          .replace(/^https?:\/\//, '')
+                          .replace(/\/$/, '') + '/'}
+                      </span>
+                      <div className="relative flex-1">
+                        <Input
+                          id="slug"
+                          value={newProfileData.customUrl || newProfileData.username}
+                          onChange={(e) => {
+                            const val = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
+                            setNewProfileData(prev => ({ ...prev, customUrl: val, username: val }));
+                          }}
+                          className={`rounded-l-none pr-10 focus-visible:ring-orange-500 ${isSlugAvailable === false ? 'border-red-300 bg-red-50' : isSlugAvailable === true ? 'border-green-300 bg-green-50' : ''}`}
+                          placeholder="votre-nom"
+                        />
+                        <div className="absolute right-3 top-2.5">
+                          {isCheckingSlug ? (
+                            <div className="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
+                          ) : isSlugAvailable === true ? (
+                            <div className="w-4 h-4 bg-green-500 rounded-full flex items-center justify-center text-white text-[10px] font-bold">✓</div>
+                          ) : isSlugAvailable === false ? (
+                            <div className="w-4 h-4 bg-red-500 rounded-full flex items-center justify-center text-white text-[10px] font-bold">✗</div>
+                          ) : null}
+                        </div>
+                      </div>
+                    </div>
+                    <p className="text-[10px] mt-1">
+                      {isSlugAvailable === true ? (
+                        <span className="text-green-600 font-medium">✅ Ce lien est disponible !</span>
+                      ) : isSlugAvailable === false ? (
+                        <span className="text-red-500 font-medium">❌ Ce lien est déjà pris.</span>
+                      ) : (
+                        <span className="text-gray-500">Choisissez l'adresse (min. 3 caractères).</span>
+                      )}
+                    </p>
+                  </div>
                 </div>
 
+                {/* Ma bio en dessous */}
                 <div className="space-y-2">
                   <Label htmlFor="bio" className="text-sm font-semibold flex items-center gap-2">
                     <FileText className="w-4 h-4 text-orange-500" />
@@ -535,46 +557,6 @@ export function ProfileSelectionStep({
                     rows={3}
                     className="focus-visible:ring-orange-500 resize-none"
                   />
-                </div>
-
-                <div className="space-y-2">
-                  <Label htmlFor="slug" className="text-sm font-semibold flex items-center gap-2">
-                    <Globe className="w-4 h-4 text-orange-500" />
-                    Lien personnalisé Ofika
-                  </Label>
-                  <div className="relative">
-                    <div className="absolute left-3 top-2.5 text-gray-400 text-sm font-medium">
-                      ofika.com/
-                    </div>
-                    <Input
-                      id="slug"
-                      value={newProfileData.customUrl || newProfileData.username}
-                      onChange={(e) => {
-                        const val = e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '');
-                        setNewProfileData(prev => ({ ...prev, customUrl: val, username: val }));
-                      }}
-                      className={`pl-[75px] pr-10 focus-visible:ring-orange-500 ${isSlugAvailable === false ? 'border-red-300 bg-red-50' : isSlugAvailable === true ? 'border-green-300 bg-green-50' : ''}`}
-                      placeholder="votre-nom"
-                    />
-                    <div className="absolute right-3 top-2.5">
-                      {isCheckingSlug ? (
-                        <div className="w-4 h-4 border-2 border-orange-500 border-t-transparent rounded-full animate-spin" />
-                      ) : isSlugAvailable === true ? (
-                        <CheckCircle className="w-4 h-4 text-green-500" />
-                      ) : isSlugAvailable === false ? (
-                        <X className="w-4 h-4 text-red-500" />
-                      ) : null}
-                    </div>
-                  </div>
-                  <p className="text-[10px] mt-1">
-                    {isSlugAvailable === true ? (
-                      <span className="text-green-600 font-medium">✅ Ce lien est disponible !</span>
-                    ) : isSlugAvailable === false ? (
-                      <span className="text-red-500 font-medium">❌ Ce lien est déjà pris.</span>
-                    ) : (
-                      <span className="text-gray-500">Choisissez l'adresse de votre page (min. 3 caractères).</span>
-                    )}
-                  </p>
                 </div>
               </CardContent>
             </Card>
@@ -798,22 +780,34 @@ export function ProfileSelectionStep({
       )}
 
       {/* Bouton d'action Final */}
-      <div className="sticky bottom-0 bg-white/80 backdrop-blur-md pt-6 pb-2 border-t border-gray-100 z-50">
+      <div className="sticky bottom-0 bg-white/80 backdrop-blur-md pt-4 pb-2 border-t border-gray-100 z-50 flex gap-3">
+        {onPrev && (
+          <Button
+            type="button"
+            variant="outline"
+            onClick={onPrev}
+            disabled={isLoading}
+            className="border-gray-300 text-gray-700 py-6 text-base font-bold rounded-xl px-6 transition-all hover:scale-[1.01] active:scale-[0.99]"
+            size="lg"
+          >
+            Retour
+          </Button>
+        )}
         <Button
           onClick={handleAssociateProfile}
           disabled={isLoading || (selectedOption === 'existing' && !selectedProfileId) || (selectedOption === 'new' && (!newProfileData.name || !newProfileData.bio || isSlugAvailable === false))}
-          className="w-full bg-gradient-to-r from-orange-500 to-pink-600 hover:from-orange-600 hover:to-pink-700 text-white py-8 text-xl font-black rounded-[1.5rem] shadow-xl shadow-orange-500/20 transition-all hover:scale-[1.02] active:scale-[0.98]"
+          className="flex-1 bg-gradient-to-r from-orange-500 to-pink-600 hover:from-orange-600 hover:to-pink-700 text-white py-6 text-base font-bold rounded-xl shadow-lg shadow-orange-500/10 transition-all hover:scale-[1.01] active:scale-[0.99]"
           size="lg"
         >
           {isLoading ? (
-            <div className="flex items-center gap-3">
-              <div className="w-6 h-6 border-4 border-white border-t-transparent rounded-full animate-spin" />
-              <span>CRÉATION EN COURS...</span>
+            <div className="flex items-center gap-2">
+              <div className="w-5 h-5 border-2 border-white border-t-transparent rounded-full animate-spin" />
+              <span>Activation en cours...</span>
             </div>
           ) : (
-            <div className="flex items-center gap-3">
-              <CheckCircle className="w-6 h-6" />
-              <span>TERMINER ET ACTIVER MA CARTE</span>
+            <div className="flex items-center gap-2">
+              <CheckCircle className="w-5 h-5" />
+              <span>Activer ma carte</span>
             </div>
           )}
         </Button>

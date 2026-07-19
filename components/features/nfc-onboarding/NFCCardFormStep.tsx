@@ -18,8 +18,8 @@ import { useConsent } from '@/lib/hooks/useConsent'
 // Schéma de validation
 const nfcCardSchema = z.object({
   fullName: z.string().min(2, 'Nom requis (min 2 caractères)'),
-  company: z.string().min(2, 'Entreprise requise'),
-  jobTitle: z.string().min(2, 'Poste requis'),
+  company: z.string().optional(),
+  jobTitle: z.string().optional(),
   phone: z.string().min(1, 'Téléphone requis').regex(/^[\+]?[0-9\s\-\(\)]+$/, 'Format téléphone invalide'),
   email: z.string().min(1, 'Email requis').email('Format email invalide'),
   social_links: z.array(z.object({
@@ -159,7 +159,8 @@ export function NFCCardFormStep({ formData, onDataChange, onNext, onPrev, onVali
     // Mettre à jour formData pour la validation globale
     onDataChange({
       consentEssential: newConsent.essential,
-      consentDataProcessing: newConsent.dataProcessing
+      consentDataProcessing: newConsent.dataProcessing,
+      consentTerms: newConsent.acceptTerms
     })
 
     // Mettre à jour les consentements en base si nécessaire
@@ -169,21 +170,25 @@ export function NFCCardFormStep({ formData, onDataChange, onNext, onPrev, onVali
   }
 
   const onSubmit = (data: NFCCardFormData) => {
-    const currentIsValid = !!(isValid && formData.consentEssential && formData.consentDataProcessing)
+    const currentIsValid = !!(isValid && formData.consentTerms)
     if (currentIsValid) {
-      onDataChange(data)
+      onDataChange({
+        ...data,
+        consentEssential: true,
+        consentDataProcessing: true
+      })
       onNext()
     } else {
       if (!isValid) {
         toast.error("Veuillez remplir tous les champs obligatoires")
-      } else if (!formData.consentDataProcessing) {
-        toast.error("Vous devez accepter le traitement des données pour créer votre carte NFC")
+      } else if (!formData.consentTerms) {
+        toast.error("Vous devez accepter les conditions générales pour continuer")
       }
     }
   }
 
   // Vérification de la validité du formulaire
-  const isFormValid = !!(isValid && formData.consentEssential && formData.consentDataProcessing)
+  const isFormValid = !!(isValid && formData.consentTerms)
 
   // Effet pour surveiller les changements de consentement
   useEffect(() => {
@@ -191,7 +196,7 @@ export function NFCCardFormStep({ formData, onDataChange, onNext, onPrev, onVali
     if (onValidationChange) {
       onValidationChange(isFormValid)
     }
-  }, [formData.consentEssential, formData.consentDataProcessing, isValid, isFormValid, onValidationChange])
+  }, [formData.consentTerms, isValid, isFormValid, onValidationChange])
 
   return (
     <div className="space-y-8">
@@ -235,7 +240,7 @@ export function NFCCardFormStep({ formData, onDataChange, onNext, onPrev, onVali
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="company" className="text-sm font-semibold">Entreprise *</Label>
+                <Label htmlFor="company" className="text-sm font-semibold">Entreprise</Label>
                 <div className="relative">
                   <Input
                     id="company"
@@ -254,7 +259,7 @@ export function NFCCardFormStep({ formData, onDataChange, onNext, onPrev, onVali
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="jobTitle" className="text-sm font-semibold">Poste/Titre *</Label>
+                <Label htmlFor="jobTitle" className="text-sm font-semibold">Poste/Titre</Label>
                 <div className="relative">
                   <Input
                     id="jobTitle"
@@ -349,13 +354,13 @@ export function NFCCardFormStep({ formData, onDataChange, onNext, onPrev, onVali
                   </div>
                 </div>
               ) : (
-                <div className="w-full max-w-md border-2 border-dashed border-orange-100 rounded-xl p-8 text-center bg-orange-50/30 hover:bg-orange-50/50 transition-colors cursor-pointer group"
+                <div className="w-full max-w-sm border-2 border-dashed border-orange-100 rounded-xl p-4 text-center bg-orange-50/30 hover:bg-orange-50/50 transition-colors cursor-pointer group"
                   onClick={() => document.getElementById('logo-upload')?.click()}>
-                  <div className="w-12 h-12 bg-white rounded-full shadow-sm flex items-center justify-center mx-auto mb-4 group-hover:scale-110 transition-transform">
-                    <Upload className="w-6 h-6 text-orange-500" />
+                  <div className="w-8 h-8 bg-white rounded-full shadow-sm flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
+                    <Upload className="w-4 h-4 text-orange-500" />
                   </div>
-                  <p className="font-semibold text-gray-900 mb-1">Dénicher votre logo</p>
-                  <p className="text-xs text-gray-500 mb-4 px-4">
+                  <p className="font-semibold text-sm text-gray-900 mb-0.5">Dénicher votre logo</p>
+                  <p className="text-[10px] text-gray-500 mb-2 px-2 leading-relaxed">
                     PNG, JPG ou SVG (max 5MB). Pour un rendu optimal, utilisez un fond transparent.
                   </p>
                   <input
@@ -369,7 +374,7 @@ export function NFCCardFormStep({ formData, onDataChange, onNext, onPrev, onVali
                     type="button"
                     variant="outline"
                     size="sm"
-                    className="border-orange-200 text-orange-600 hover:bg-orange-50"
+                    className="h-8 border-orange-200 text-orange-600 hover:bg-orange-50 text-xs px-3"
                   >
                     Choisir un fichier
                   </Button>
@@ -387,7 +392,8 @@ export function NFCCardFormStep({ formData, onDataChange, onNext, onPrev, onVali
               essential: formData.consentEssential ?? true,
               analytics: false,
               marketing: false,
-              dataProcessing: formData.consentDataProcessing ?? false
+              dataProcessing: true,
+              acceptTerms: formData.consentTerms ?? false
             }}
             required={true}
             className="shadow-sm border-orange-100"
@@ -413,10 +419,10 @@ export function NFCCardFormStep({ formData, onDataChange, onNext, onPrev, onVali
                         Complétez les champs marqués d'une * pour vos coordonnées professionnelles.
                       </li>
                     )}
-                    {!formData.consentDataProcessing && (
+                    {!formData.consentTerms && (
                       <li className="flex items-center gap-2">
                         <div className="w-1.5 h-1.5 rounded-full bg-orange-400" />
-                        Cochez l'accord de traitement pour activer votre carte physique.
+                        Acceptez les conditions générales et la politique de confidentialité.
                       </li>
                     )}
                   </ul>

@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1136.825 918.3" width="1136.825" height="918.3" style="--bg:#1a1b26;--fg:#a9b1d6;--line:#3d59a1;--accent:#7aa2f7;--muted:#565f89;background:var(--bg)">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap');
+  text { font-family: 'Inter', system-ui, sans-serif; }
+  svg {
+    /* Derived from --bg and --fg (overridable via --line, --accent, etc.) */
+    --_text:          var(--fg);
+    --_text-sec:      var(--muted, color-mix(in srgb, var(--fg) 60%, var(--bg)));
+    --_text-muted:    var(--muted, color-mix(in srgb, var(--fg) 40%, var(--bg)));
+    --_text-faint:    color-mix(in srgb, var(--fg) 25%, var(--bg));
+    --_line:          var(--line, color-mix(in srgb, var(--fg) 30%, var(--bg)));
+    --_arrow:         var(--accent, color-mix(in srgb, var(--fg) 50%, var(--bg)));
+    --_node-fill:     var(--surface, color-mix(in srgb, var(--fg) 3%, var(--bg)));
+    --_node-stroke:   var(--border, color-mix(in srgb, var(--fg) 20%, var(--bg)));
+    --_group-fill:    var(--bg);
+    --_group-hdr:     color-mix(in srgb, var(--fg) 5%, var(--bg));
+    --_inner-stroke:  color-mix(in srgb, var(--fg) 12%, var(--bg));
+    --_key-badge:     color-mix(in srgb, var(--fg) 10%, var(--bg));
+  }
+</style>
+<defs>
+  <marker id="arrowhead" markerWidth="8" markerHeight="4.8" refX="8" refY="2.4" orient="auto">
+    <polygon points="0 0, 8 2.4, 0 4.8" fill="var(--_arrow)" />
+  </marker>
+  <marker id="arrowhead-start" markerWidth="8" markerHeight="4.8" refX="0" refY="2.4" orient="auto-start-reverse">
+    <polygon points="8 0, 0 2.4, 8 4.8" fill="var(--_arrow)" />
+  </marker>
+</defs>
+<polyline points="563.05,76 563.05,116" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="492.84206434485804,259.0920643448581 492.84206434485804,357.8 302.675,357.8 302.675,386.3" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="302.675,422.3 302.675,462.3" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="302.675,498.3 302.675,538.3" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="302.675,574.3 302.675,614.3" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="302.675,650.3 302.675,690.3" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="302.675,726.3 302.675,766.3" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="633.2579356551419,259.0920643448581 633.2579356551419,357.8 823.425,357.8 823.425,386.3" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="823.425,422.3 823.425,462.3" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="302.675,802.3 302.675,860.3 493.42499999999995,860.3" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<polyline points="823.425,498.3 823.425,860.3 632.675,860.3" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#arrowhead)" />
+<rect x="228.895" y="344.3" width="147.56" height="27" rx="4" ry="4" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="0.5" />
+<text x="302.675" y="357.8" text-anchor="middle" dy="0.35em" font-size="11" font-weight="400" fill="var(--_text-muted)">Nouveau profil (Défaut)</text>
+<rect x="778.245" y="344.3" width="90.36" height="27" rx="4" ry="4" fill="var(--bg)" stroke="var(--_inner-stroke)" stroke-width="0.5" />
+<text x="823.425" y="357.8" text-anchor="middle" dy="0.35em" font-size="11" font-weight="400" fill="var(--_text-muted)">Pas de profil</text>
+<rect x="439.79999999999995" y="40" width="246.50000000000003" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<polygon points="563.05,116 669.6999999999999,222.65 563.05,329.3 456.4,222.65" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="222.325" y="386.3" width="160.70000000000002" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="79.32499999999999" y="462.3" width="446.70000000000005" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="265.225" y="538.3" width="74.9" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="208.025" y="614.3" width="189.3" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="100.775" y="690.3" width="403.8" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="40" y="766.3" width="525.35" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="728.775" y="386.3" width="189.3" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="550.0249999999999" y="462.3" width="546.8000000000001" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<rect x="493.42499999999995" y="842.3" width="139.25" height="36" rx="0" ry="0" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<text x="563.05" y="58" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">Arrivée Étape Sélection Profil</text>
+<text x="563.05" y="222.65" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">Choix de l&#39;utilisateur</text>
+<text x="302.675" y="404.3" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">Remplir les champs</text>
+<text x="302.675" y="480.3" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">Nom d&#39;affichage + Lien personnalisé &lt;br/&gt;sur la même ligne</text>
+<text x="302.675" y="556.3" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">Ma Bio</text>
+<text x="302.675" y="632.3" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">Clic: Activer ma carte</text>
+<text x="302.675" y="708.3" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">Enregistrement de l&#39;utilisateur dans public.profiles</text>
+<text x="302.675" y="784.3" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">Enregistrement dans public.digital_nfc_cards &lt;br/&gt;avec profile_id lié</text>
+<text x="823.425" y="404.3" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">Clic: Activer ma carte</text>
+<text x="823.425" y="480.3" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">Enregistrement dans public.digital_nfc_cards &lt;br/&gt;avec profile_id = null</text>
+<text x="563.05" y="860.3" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">Étape de Succès</text>
+</svg>

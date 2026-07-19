@@ -673,30 +673,35 @@ export function ProfileForm({ profile_id, isEditing = false, onSuccess, onCancel
                 <FormField
                   control={form.control}
                   name="custom_url"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>URL personnalisée</FormLabel>
-                      <FormControl>
-                        <div className="flex">
-                          <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
-                            ofika.com/
-                          </span>
-                          <UrlAvailabilityChecker
-                            value={field.value || ''}
-                            onChange={(value) => {
-                              field.onChange(value)
-                              setIsCustomUrlEdited(true)
-                            }}
-                            type="custom_url"
-                            excludeProfileId={profile_id}
-                            placeholder="mon-profil"
-                            className="flex-1"
-                          />
-                        </div>
-                      </FormControl>
-                      <FormMessage />
-                    </FormItem>
-                  )}
+                  render={({ field }) => {
+                    const appDomain = (process.env.NEXT_PUBLIC_APP_URL || 'ofika.com')
+                      .replace(/^https?:\/\//, '')
+                      .replace(/\/$/, '') + '/';
+                    return (
+                      <FormItem>
+                        <FormLabel>URL personnalisée</FormLabel>
+                        <FormControl>
+                          <div className="flex">
+                            <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm">
+                              {appDomain}
+                            </span>
+                            <UrlAvailabilityChecker
+                              value={field.value || ''}
+                              onChange={(value) => {
+                                field.onChange(value)
+                                setIsCustomUrlEdited(true)
+                              }}
+                              type="custom_url"
+                              excludeProfileId={profile_id}
+                              placeholder="mon-profil"
+                              className="flex-1"
+                            />
+                          </div>
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    );
+                  }}
                 />
               </div>
 

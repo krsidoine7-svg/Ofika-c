@@ -160,15 +160,15 @@ export default function NFCCardOnboardingPage() {
   // Navigation entre les étapes
   const handleNext = async () => {
     if (canGoNext()) {
-      // Si on quitte l'étape FORM et que l'utilisateur n'est pas connecté, on va vers SIGNUP
-      if (currentStep === ONBOARDING_STEPS.FORM && !user) {
-        setStep(ONBOARDING_STEPS.SIGNUP)
+      // Étape 2 (FORM) ➔ aller directement à l'étape 3 (DESIGN)
+      if (currentStep === ONBOARDING_STEPS.FORM) {
+        setStep(ONBOARDING_STEPS.DESIGN)
         return
       }
 
-      // Si on quitte l'étape FORM et que l'utilisateur EST connecté, on saute SIGNUP pour aller à DESIGN
-      if (currentStep === ONBOARDING_STEPS.FORM && user) {
-        setStep(ONBOARDING_STEPS.DESIGN)
+      // Étape 3 (DESIGN) ➔ aller à l'étape 4 (PROFILE_SELECTION)
+      if (currentStep === ONBOARDING_STEPS.DESIGN) {
+        setStep(ONBOARDING_STEPS.PROFILE_SELECTION)
         return
       }
 
@@ -179,9 +179,15 @@ export default function NFCCardOnboardingPage() {
 
   const handlePrev = () => {
     if (canGoPrev()) {
-      // Si on revient de DESIGN et que l'utilisateur est connecté, on saute SIGNUP pour revenir à FORM
-      if (currentStep === ONBOARDING_STEPS.DESIGN && user) {
+      // Étape 3 (DESIGN) ➔ revenir à l'étape 2 (FORM)
+      if (currentStep === ONBOARDING_STEPS.DESIGN) {
         setStep(ONBOARDING_STEPS.FORM)
+        return
+      }
+
+      // Étape 4 (PROFILE_SELECTION) ➔ revenir à l'étape 3 (DESIGN)
+      if (currentStep === ONBOARDING_STEPS.PROFILE_SELECTION) {
+        setStep(ONBOARDING_STEPS.DESIGN)
         return
       }
 
@@ -189,14 +195,25 @@ export default function NFCCardOnboardingPage() {
     }
   }
 
-  // ✅ Sauter l'étape SIGNUP si l'utilisateur se connecte pendant l'onboarding
+  // ✅ Exécuter la création après inscription réussie si on est à l'étape SIGNUP (étape 5)
   useEffect(() => {
-    // On ne déclenche le saut que si on est EXACTEMENT sur l'étape SIGNUP
     if (user && !authLoading && currentStep === ONBOARDING_STEPS.SIGNUP) {
-      console.log('✨ Utilisateur détecté pendant SIGNUP, passage à DESIGN')
-      setStep(ONBOARDING_STEPS.DESIGN)
+      console.log('✨ Utilisateur connecté lors de la phase finale, activation automatique...')
+      
+      const savedData = formData.createdCardData
+      if (savedData) {
+        const option = savedData.selectedOption
+        if (option === 'new' && savedData.newProfileData) {
+          handleCreateNewProfile(savedData.newProfileData)
+        } else if (option === 'none') {
+          handleCreateCard(undefined)
+        }
+      } else {
+        // Fallback si pas de données de création sauvegardées
+        handleCreateCard(undefined)
+      }
     }
-  }, [user?.id, authLoading, currentStep, setStep])
+  }, [user?.id, authLoading, currentStep])
 
   // Gestion des données du formulaire
   const handleDataChange = (data: Partial<typeof formData>) => {
@@ -212,11 +229,24 @@ export default function NFCCardOnboardingPage() {
 
   // Gestion de la création d'un nouveau profil
   const handleCreateNewProfile = async (profileData: any) => {
+    // Si pas connecté, sauvegarder temporairement et rediriger vers l'étape SIGNUP
+    if (!user) {
+      if (!authLoading) {
+        console.log('💾 Profil temporaire : sauvegarde et redirection vers SIGNUP');
+        updateFormData({
+          createdCardData: {
+            selectedOption: 'new',
+            newProfileData: profileData
+          }
+        });
+        setStep(ONBOARDING_STEPS.SIGNUP);
+      }
+      return;
+    }
+
     setLoading(true)
     try {
       console.log("🚀 Création du profil en cours...", profileData)
-
-      if (!user) throw new Error("Vous devez être connecté pour créer un profil");
 
       const newProfile = await createProfile({
         user_id: user.id,
@@ -264,16 +294,18 @@ export default function NFCCardOnboardingPage() {
     }
 
     // Vérifier si l'utilisateur est connecté
-    if (!user && !authLoading) {
-      console.log('💾 Sauvegarde dans localStorage (pas connecté)')
-      localStorage.setItem('pending_nfc_card_creation', JSON.stringify(dataToSave))
-
-      // Rediriger vers signup avec callbackUrl
-      const callbackUrl = `/onboarding/nfc-card?continue=true`
-      console.log('🔀 Redirection vers signup avec callbackUrl:', callbackUrl)
-      router.push(`/auth/signup?callbackUrl=${encodeURIComponent(callbackUrl)}`)
-      toast.info('Créez un compte pour finaliser votre carte NFC')
-      return
+    if (!user) {
+      if (!authLoading) {
+        console.log('💾 Sauvegarde locale et redirection vers étape SIGNUP');
+        updateFormData({
+          createdCardData: {
+            selectedOption: 'none',
+            finalProfileId
+          }
+        });
+        setStep(ONBOARDING_STEPS.SIGNUP);
+      }
+      return;
     }
 
     console.log('✅ Utilisateur connecté - création de la carte')
@@ -444,7 +476,9 @@ export default function NFCCardOnboardingPage() {
         return (
           <NFCCardSignupStep
             formData={formData}
-            onSuccess={() => setStep(ONBOARDING_STEPS.DESIGN)}
+            onSuccess={() => {
+              console.log("Compte créé avec succès, activation de la carte en cours...")
+            }}
             onPrev={handlePrev}
             isLoading={isLoading}
           />
@@ -473,6 +507,7 @@ export default function NFCCardOnboardingPage() {
             onCreateNewProfile={handleCreateNewProfile}
             isLoading={isLoading}
             onFinalize={(pid) => handleCreateCard(pid)}
+            onPrev={handlePrev}
             formData={formData}
           />
         )

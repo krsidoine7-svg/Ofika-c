@@ -98,7 +98,7 @@ export const NFCCardItem = memo(function NFCCardItem({
               <div className="mt-4 space-y-3">
                 <div className="flex items-center text-sm text-gray-600 bg-gray-50 p-2.5 rounded-lg border border-gray-100">
                   <QrCode className="w-4 h-4 mr-3 text-gray-400" />
-                  <span className="truncate flex-1 font-mono text-xs">{card.nfc_link || 'Lien non généré'}</span>
+                  <span className="truncate flex-1 font-mono text-xs">{card.nfc_link ? card.nfc_link.replace(/([^:]\/)\/+/g, '$1') : 'Lien non généré'}</span>
                 </div>
               </div>
             </div>

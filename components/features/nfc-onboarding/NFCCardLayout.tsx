@@ -93,37 +93,44 @@ export function NFCCardLayout({
 
         {/* Navigation */}
         {showNavigation && (
-          <div className="max-w-4xl mx-auto mt-8">
-            <div className="flex flex-col sm:flex-row justify-between items-center gap-4">
-              <div className="order-2 sm:order-1">
-                {onPrev && (
+          <div className="max-w-4xl mx-auto mt-8 px-2">
+            <div className="flex justify-between items-center w-full">
+              {/* Précédent à gauche */}
+              <div className="w-1/3 flex justify-start">
+                {onPrev ? (
                   <Button
                     variant="outline"
                     onClick={onPrev}
                     disabled={isLoading}
-                    className="flex items-center gap-2 w-full sm:w-auto"
+                    className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4"
                   >
                     <ArrowLeft className="h-4 w-4" />
-                    {prevLabel}
+                    <span>{prevLabel}</span>
                   </Button>
+                ) : (
+                  <div className="w-4 h-4" />
                 )}
               </div>
 
-              <div className="order-1 sm:order-2 text-sm text-gray-500">
+              {/* Indicateur d'étape au milieu */}
+              <div className="w-1/3 flex justify-center text-sm text-gray-500 font-semibold">
                 {currentStep} / {totalSteps}
               </div>
 
-              <div className="order-3">
+              {/* Suivant à droite */}
+              <div className="w-1/3 flex justify-end">
                 {onNext ? (
                   <Button
                     onClick={onNext}
                     disabled={isLoading || isNextDisabled}
-                    className="flex items-center gap-2 bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 disabled:bg-gray-400 disabled:cursor-not-allowed disabled:opacity-50 w-full sm:w-auto"
+                    className="flex items-center gap-1 sm:gap-2 bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed disabled:opacity-50 px-3 sm:px-4 text-white"
                   >
-                    {nextLabel}
+                    <span>{nextLabel}</span>
                     <ArrowRight className="h-4 w-4" />
                   </Button>
-                ) : null}
+                ) : (
+                  <div className="w-4 h-4" />
+                )}
               </div>
             </div>
           </div>

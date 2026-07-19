@@ -13,7 +13,8 @@ export default function NFCCardFormPage() {
   const [isFormValid, setIsFormValid] = useState(false)
 
   const handleNext = () => {
-    router.push('/onboarding/nfc-card/design')
+    localStorage.setItem('pending_nfc_card_creation', JSON.stringify({ formData }))
+    router.push('/onboarding/nfc-card?continue=true')
   }
 
   const handlePrev = () => {
@@ -32,12 +33,12 @@ export default function NFCCardFormPage() {
     <NFCCardLayout
       currentStep={2}
       totalSteps={5}
-      onNext={undefined}
+      onNext={handleNext}
       onPrev={handlePrev}
       nextLabel="Continuer"
       prevLabel="Précédent"
       showNavigation={true}
-      isNextDisabled={true}
+      isNextDisabled={!isFormValid}
     >
       <NFCCardFormStep
         onNext={handleNext}

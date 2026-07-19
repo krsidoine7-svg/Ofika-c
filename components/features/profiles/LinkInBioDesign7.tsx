@@ -68,11 +68,11 @@ export function LinkInBioDesign7({ profile, showAddToContacts, isPreview = false
 
       {iconLinks.length > 0 && (
         <div className="flex justify-center gap-4 mb-6">
-          {iconLinks.map((social) => {
+          {iconLinks.map((social, index) => {
             const Icon = socialIcons[social.platform] || Globe
             return (
               <button
-                key={social.platform}
+                key={`${social.platform}-${index}`}
                 onClick={() => trackAndOpen(social.platform, social.url)}
                 className="w-10 h-10 flex items-center justify-center rounded-full bg-white shadow-sm hover:scale-110 transition-all border border-gray-100 cursor-pointer p-0 text-gray-900"
               >

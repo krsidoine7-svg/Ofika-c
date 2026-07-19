@@ -21,7 +21,13 @@ export default function ConsentManagementPage() {
   // Initialiser le consentement local
   useEffect(() => {
     if (consent) {
-      setLocalConsent(consent)
+      setLocalConsent({
+        essential: consent.essential,
+        analytics: consent.analytics,
+        marketing: consent.marketing,
+        dataProcessing: consent.dataProcessing,
+        acceptTerms: true
+      })
     }
   }, [consent])
 
@@ -53,7 +59,13 @@ export default function ConsentManagementPage() {
 
   const handleReset = () => {
     if (consent) {
-      setLocalConsent(consent)
+      setLocalConsent({
+        essential: consent.essential,
+        analytics: consent.analytics,
+        marketing: consent.marketing,
+        dataProcessing: consent.dataProcessing,
+        acceptTerms: true
+      })
       setHasChanges(false)
     }
   }

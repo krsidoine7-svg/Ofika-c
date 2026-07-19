@@ -110,12 +110,14 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    const mappedType = flow_type === 'nfc_card' ? 'nfc' : 'public_page'
+
     // Récupérer les données temporaires
     const { data: pendingData, error: fetchError } = await supabase
       .from('pending_creations')
       .select('*')
       .eq('session_id', session_id)
-      .eq('flow_type', flow_type)
+      .eq('type', mappedType)
       .single()
 
     if (fetchError || !pendingData) {
