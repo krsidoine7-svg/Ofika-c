@@ -476,7 +476,7 @@ export default function PublicPageOnboardingPage() {
                       Aperçu en temps réel
                     </h3>
 
-                    <ScaledSmartphonePreview>
+                    <div className="w-[360px] h-[720px] max-h-[90vh] rounded-[2rem] overflow-y-auto overflow-x-hidden custom-scrollbar bg-white shadow-2xl border border-gray-100 flex flex-col relative min-h-0">
                       <AnimatePresence mode="wait">
                         <motion.div
                           key={selectedDesign}
@@ -484,12 +484,12 @@ export default function PublicPageOnboardingPage() {
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           exit={{ opacity: 0, y: -10, scale: 0.98 }}
                           transition={{ duration: 0.3 }}
-                          className="h-full animate-in fade-in zoom-in duration-300"
+                          className="min-h-full animate-in fade-in zoom-in duration-300"
                         >
                           {renderPreview(selectedDesign)}
                         </motion.div>
                       </AnimatePresence>
-                    </ScaledSmartphonePreview>
+                    </div>
 
                     {/* Légende */}
                     <div className="mt-3 flex-shrink-0">
@@ -524,11 +524,9 @@ export default function PublicPageOnboardingPage() {
                       Aperçu en direct
                     </SheetTitle>
                   </SheetHeader>
-                  <div className="flex items-center justify-center h-[calc(90vh-60px)] bg-gray-950 py-6">
-                    <ScaledSmartphonePreview maxHeightClass="h-[90%] max-h-none" scaleClass="scale-[0.62]">
+                    <div className="w-[360px] h-[90%] max-h-none rounded-[2rem] overflow-y-auto overflow-x-hidden custom-scrollbar bg-white shadow-2xl border border-gray-100 flex flex-col relative min-h-0">
                       {renderPreview(selectedDesign)}
-                    </ScaledSmartphonePreview>
-                  </div>
+                    </div>
                 </SheetContent>
               </Sheet>
             </div>

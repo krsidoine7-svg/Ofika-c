@@ -10,7 +10,8 @@ import {
   Loader2,
   CheckCircle,
   AlertCircle,
-  Info
+  Info,
+  Wallet
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { useCreatePayment, PaymentData, PaymentMethod, PaymentUtils } from '@/lib/hooks/usePayments'
@@ -72,8 +73,8 @@ export function PaymentButton({
   // Icône selon le fournisseur
   const getProviderIcon = () => {
     switch (paymentMethod.provider) {
-      case 'lygos':
-        return <Smartphone className="h-4 w-4" />
+      case 'wave':
+        return <Wallet className="h-4 w-4" />
       default:
         return <CreditCard className="h-4 w-4" />
     }
@@ -238,7 +239,7 @@ export function PaymentMethodSelector({
                     className="w-4 h-4 text-blue-600"
                   />
                   <div className="flex items-center space-x-2">
-                    {method.provider === 'lygos' && <Smartphone className="h-5 w-5 text-orange-500" />}
+                    {method.provider === 'wave' && <Wallet className="h-5 w-5 text-sky-500" />}
                     <div>
                       <h4 className="font-medium">{method.name}</h4>
                       <p className="text-sm text-gray-600">{method.description}</p>

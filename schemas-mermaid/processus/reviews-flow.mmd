@@ -1,0 +1,71 @@
+sequenceDiagram
+    autonumber
+    actor C as Client (Public)
+    actor P as Propriétaire (Dashboard)
+    participant F as Frontend Ofika
+    participant API as API (/api/reviews)
+    participant ST as Supabase Storage
+    participant DB as Supabase DB
+
+    Note over P, DB: 1. Création de lien & QR Code
+    P->>F: Accède au Dashboard Avis
+    F->>API: POST /api/reviews/create-link
+    API->>DB: INSERT INTO review_links
+    DB-->>API: Enregistrement OK
+    API-->>F: Lien créé + URL publique
+    F->>F: Génère le QR Code (statique/dynamique)
+    F-->>P: Affiche le QR Code + Option Téléchargement
+
+    Note over C, DB: 2. Soumission d'Avis (Public)
+    C->>F: Flashe le QR Code / Visite /avis/[slug]
+    F->>API: GET /api/reviews/links/:slug
+    API->>DB: SELECT FROM review_links WHERE slug = :slug
+    DB-->>API: Données du lien (actif, config champs)
+    API-->>F: Rendu du formulaire personnalisé
+
+    alt Avec envoi de média (image/vidéo)
+        C->>F: Sélectionne un fichier média
+        F->>ST: Téléverse le média (reviews-bucket)
+        ST-->>F: URL du média
+    end
+
+    C->>F: Rempli et soumet l'avis
+    F->>API: POST /api/reviews/submit
+    Note over API: Validation Zod + Détection fraude (IP, Email, Fingerprint, Rate Limit)
+    alt Tentative de fraude / Doublon détecté
+        API-->>F: Rejet (409 ou 429)
+        F-->>C: Message d'erreur
+    else Soumission valide
+        API->>DB: INSERT INTO reviews (pending)
+        DB-->>API: Succès
+        API-->>F: Code 201 (Merci !)
+        F-->>C: Écran de succès + Confettis
+    end
+
+    Note over P, DB: 3. Modération & Exploitation (Propriétaire)
+    P->>F: Accède au Dashboard modération
+    F->>API: GET /api/reviews/[linkId]?status=pending
+    API->>DB: SELECT reviews WHERE link_id = :linkId
+    DB-->>API: Liste des avis en attente
+    API-->>F: Affichage des avis
+    
+    alt Approbation de l'avis
+        P->>F: Approuve l'avis
+        F->>API: PATCH /api/reviews/:id/moderate (approved)
+        API->>DB: UPDATE reviews SET status = approved
+        DB-->>API: OK
+        API-->>F: Mis à jour avec succès
+    else Rejet ou Suppression de l'avis
+        P->>F: Rejette ou Supprime l'avis
+        F->>API: PATCH/DELETE /api/reviews/:id/moderate (rejected)
+        API->>DB: UPDATE/DELETE reviews
+        DB-->>API: OK
+        API-->>F: Modifié/Supprimé
+    end
+
+    Note over P, DB: 4. Exportation
+    P->>F: Clique sur Exporter (CSV/JSON)
+    F->>API: GET /api/reviews/export/[linkId]?format=csv
+    API->>DB: SELECT ALL approved reviews
+    DB-->>API: Données des avis
+    API-->>F: Flux text/csv (Téléchargement de fichier)

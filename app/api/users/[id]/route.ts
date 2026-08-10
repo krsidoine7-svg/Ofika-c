@@ -18,38 +18,26 @@ export const GET = withAuth(async (request, authUser, params: { id: string }) =>
 
   // Vérifier si l'utilisateur est un administrateur
   const { data: isAdmin } = await supabase
-    .from('admin_users')
-    .select('id')
+    .from('users')
+    .select('role')
     .eq('id', authUser.id)
     .single()
 
   // Autoriser si c'est soi-même OU si c'est un admin
-  if (authUser.id !== params.id && !isAdmin) {
+  if (authUser.id !== params.id && (!isAdmin || (isAdmin.role !== 'admin' && isAdmin.role !== 'super_admin'))) {
     return apiError.forbidden('Vous ne pouvez consulter que vos propres données')
   }
   
   // 1. Chercher dans la table 'users' d'abord (Utilisateurs normaux)
   let { data: user, error } = await supabase
     .from('users')
-    .select('id, name, email, phone, image, preferred_language, subscription_tier, role, created_at')
+    .select('id, name, email, phone, city, address, image, preferred_language, subscription_tier, role, created_at')
     .eq('id', params.id)
     .single()
 
-  // 2. Si non trouvé dans 'users', chercher dans 'admin_users'
   if (error || !user) {
-    console.log(`[API GET USER] Not found in 'users', searching in 'admin_users'...`)
-    const { data: admin, error: adminError } = await supabase
-      .from('admin_users')
-      .select('id, name, email, phone, image, preferred_language, subscription_tier, role, created_at')
-      .eq('id', params.id)
-      .single()
-    
-    if (adminError) {
-      console.error(`[API GET USER] Error fetching user/admin ${params.id}:`, adminError)
-      return apiError.notFound('Compte utilisateur ou administrateur non trouvé')
-    }
-    
-    user = admin
+    console.error(`[API GET USER] Error fetching user ${params.id}:`, error)
+    return apiError.notFound('Compte utilisateur non trouvé')
   }
 
   // Utiliser l'email de la base de données s'il existe, sinon l'email d'Auth
@@ -75,6 +63,8 @@ export const PUT = withAuth(async (request, authUser, params: { id: string }) =>
   const updateSchema = z.object({
     name: securitySchemas.name.optional(),
     phone: securitySchemas.phone.optional(),
+    city: z.string().max(100).optional(),
+    address: z.string().max(500).optional(),
     image: securitySchemas.url.optional().or(z.literal('')).optional(),
     preferred_language: z.string().min(2).max(5).optional(),
     email: securitySchemas.email.optional()
@@ -103,7 +93,7 @@ export const PUT = withAuth(async (request, authUser, params: { id: string }) =>
     .from('users')
     .update(updateData)
     .eq('id', params.id)
-    .select('id, name, email, phone, image, preferred_language, subscription_tier, updated_at')
+    .select('id, name, email, phone, city, address, image, preferred_language, subscription_tier, updated_at')
     .single()
 
   if (error) {

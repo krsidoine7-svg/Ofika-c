@@ -109,20 +109,14 @@ export function useCreateProfile() {
         }
       }
 
-      // S'assurer que l'utilisateur existe dans l'une des tables de comptes (users ou admin_users)
+      // S'assurer que l'utilisateur existe dans la table users
       const { data: existingUser } = await supabase
         .from('users')
         .select('id')
         .eq('id', user.id)
         .single()
-      
-      const { data: existingAdmin } = await supabase
-        .from('admin_users')
-        .select('id')
-        .eq('id', user.id)
-        .single()
 
-      if (!existingUser && !existingAdmin) {
+      if (!existingUser) {
         // Créer l'utilisateur s'il n'existe dans aucune table
         const { error: insertError } = await supabase
           .from('users')

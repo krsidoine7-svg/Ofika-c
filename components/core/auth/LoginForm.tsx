@@ -61,7 +61,12 @@ export function LoginForm() {
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession()
       if (session) {
-        router.push('/dashboard')
+        let url = '/dashboard'
+        const { data: userData } = await supabase.from('users').select('role').eq('id', session.user.id).single()
+        if (userData && (userData.role === 'admin' || userData.role === 'super_admin')) {
+          url = '/dashboard/admin'
+        }
+        router.push(url)
       }
     }
     checkUser()
@@ -90,8 +95,14 @@ export function LoginForm() {
 
       toast.success("Connexion réussie!")
 
+      let redirectUrl = "/dashboard"
+      const { data: userData } = await supabase.from('users').select('role').eq('id', data.user.id).single()
+      if (userData && (userData.role === 'admin' || userData.role === 'super_admin')) {
+        redirectUrl = "/dashboard/admin"
+      }
+
       // Forcer un refresh de la page pour synchroniser l'état
-      window.location.href = "/dashboard"
+      window.location.href = redirectUrl
     } catch (err: any) {
       setError(err.message || "Une erreur s'est produite lors de la connexion")
       toast.error("Erreur de connexion")

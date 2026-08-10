@@ -20,6 +20,8 @@ export function populateFormWithUserData(
   // Priorité à l'email des données utilisateur, puis à l'email de l'utilisateur auth
   setValue('email', data.email || userEmail || '')
   setValue('phone', data.phone || '')
+  setValue('city', data.city || '')
+  setValue('address', data.address || '')
   setValue('image', data.image || '')
   setValue('preferred_language', (data.preferred_language as SupportedLanguage) || DEFAULTS.language)
   
@@ -27,6 +29,8 @@ export function populateFormWithUserData(
     name: data.name || '',
     email: data.email || userEmail || '',
     phone: data.phone || '',
+    city: data.city || '',
+    address: data.address || '',
     image: data.image || '',
     preferred_language: (data.preferred_language as SupportedLanguage) || DEFAULTS.language
   })
@@ -47,6 +51,8 @@ export function normalizeUserData(data: any): UserProfileData {
     name: data.name || null,
     email: data.email || null,
     phone: data.phone || null,
+    city: data.city || null,
+    address: data.address || null,
     image: data.image || null,
     preferred_language: data.preferred_language || DEFAULTS.language,
     created_at: data.created_at || null,

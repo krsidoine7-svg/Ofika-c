@@ -51,6 +51,7 @@ export async function GET(
       .select('*')
       .eq('id', linkId)
       .eq('user_id', user.id) // Vérification propriétaire
+      .is('deleted_at', null)
       .single()
     
     if (error || !link) {
@@ -118,6 +119,7 @@ export async function PATCH(
       .select('id')
       .eq('id', linkId)
       .eq('user_id', user.id)
+      .is('deleted_at', null)
       .single()
     
     if (checkError || !existingLink) {
@@ -202,6 +204,7 @@ export async function DELETE(
       .select('id, title')
       .eq('id', linkId)
       .eq('user_id', user.id)
+      .is('deleted_at', null)
       .single()
     
     if (checkError || !existingLink) {
@@ -216,26 +219,46 @@ export async function DELETE(
       .from('reviews')
       .select('*', { count: 'exact', head: true })
       .eq('link_id', linkId)
+      .is('deleted_at', null)
     
-    // Supprimer (cascade supprimera les reviews)
-    const { error } = await supabase
+    // Paramètre optionnel pour supprimer aussi les avis associés
+    const searchParams = request.nextUrl.searchParams
+    const deleteReviews = searchParams.get('delete_reviews') === 'true'
+    const nowStr = new Date().toISOString()
+    
+    // Soft delete du lien
+    const { error: linkError } = await supabase
       .from('review_links')
-      .delete()
+      .update({ deleted_at: nowStr })
       .eq('id', linkId)
       .eq('user_id', user.id)
     
-    if (error) {
-      console.error('[links/[id]] DELETE Error:', error)
+    if (linkError) {
+      console.error('[links/[id]] DELETE Link Error:', linkError)
       return NextResponse.json(
         { error: 'Erreur lors de la suppression' },
         { status: 500 }
       )
     }
+
+    // Soft delete des avis associés si demandé
+    if (deleteReviews && count && count > 0) {
+      const { error: reviewsError } = await supabase
+        .from('reviews')
+        .update({ deleted_at: nowStr })
+        .eq('link_id', linkId)
+
+      if (reviewsError) {
+        console.error('[links/[id]] DELETE Reviews Error:', reviewsError)
+        // Note: On ne fail pas tout si le lien a été archivé avec succès, mais on log l'erreur.
+      }
+    }
     
     return NextResponse.json({
       success: true,
       message: `Lien "${existingLink.title}" supprimé`,
-      deleted_reviews_count: count || 0,
+      deleted_reviews_count: deleteReviews ? (count || 0) : 0,
+      reviews_archived: deleteReviews
     })
     
   } catch (error) {

@@ -70,7 +70,7 @@ INSERT INTO orders (
     15.00,
     15.00,
     'USD',
-    'lygos',
+    'Wave',
     '{"name": "Test User", "email": "test@example.com"}',
     '00000000-0000-0000-0000-000000000000'  -- profile_id de test
 );

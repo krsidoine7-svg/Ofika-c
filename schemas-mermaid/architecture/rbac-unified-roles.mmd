@@ -1,0 +1,29 @@
+erDiagram
+    %% Modèle RBAC Unifié - Fusion des utilisateurs
+    auth_users ||--|| public_users : "1:1 lié par ID"
+    public_users ||--o{ orders : "passe"
+    public_users ||--o{ profiles : "gère"
+
+    auth_users {
+        uuid id PK
+        string email
+        jsonb app_metadata "Contient: {role: 'client'|'admin'|'super_admin'}"
+    }
+
+    public_users {
+        uuid id PK "Références auth.users(id)"
+        string name
+        string role "Valeurs: client, admin, super_admin (Synchronisé via Trigger)"
+    }
+
+    orders {
+        uuid id PK
+        uuid user_id FK
+        string status
+    }
+
+    profiles {
+        uuid id PK
+        uuid user_id FK
+        boolean is_public
+    }

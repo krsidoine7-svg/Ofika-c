@@ -2,13 +2,13 @@
 
 ## 📋 Vue d'ensemble
 
-Ce guide vous accompagne dans la configuration complète du module de paiement Ofika avec l'intégration Lygos pour les paiements mobiles africains.
+Ce guide vous accompagne dans la configuration complète du module de paiement Ofika avec l'intégration Wave pour les paiements mobiles africains.
 
 ## ✅ Prérequis
 
 - [x] Projet Next.js configuré
 - [x] Base de données Supabase active
-- [x] Compte Lygos (pour la production)
+- [x] Compte Wave (pour la production)
 - [x] Service d'email (Resend, SendGrid, etc.)
 
 ## 🗄️ Étape 1: Configuration de la Base de Données
@@ -50,10 +50,7 @@ cp env.example.payment .env.local
 # URL de l'application
 NEXT_PUBLIC_APP_URL=https://votre-domaine.com
 
-# Lygos API (Production)
-LYGOS_API_KEY=lygos_live_your_api_key_here
-LYGOS_BASE_URL=https://api.lygos.com
-LYGOS_WEBHOOK_SECRET=your_webhook_secret_here
+# Wave API (Production)
 
 # Email (Resend recommandé)
 EMAIL_PROVIDER=resend
@@ -76,7 +73,7 @@ node scripts/test-payment-flow.js
 1. **Test de Commande :**
    - Allez sur `/dashboard/orders/new`
    - Créez une commande test
-   - Vérifiez la redirection vers Lygos
+   - Vérifiez la redirection vers Wave
 
 2. **Test de Webhook :**
    - Utilisez la page de simulation
@@ -88,27 +85,25 @@ node scripts/test-payment-flow.js
    - Vérifiez les statistiques
    - Testez la page de détail
 
-## 🌐 Étape 4: Configuration Lygos (Production)
+## 🌐 Étape 4: Configuration Wave (Production)
 
-### 4.1 Créer un Compte Lygos
+### 4.1 Créer un Compte Wave
 
-1. Inscrivez-vous sur [Lygos](https://lygos.com)
+1. Inscrivez-vous sur [Wave](https://Wave.com)
 2. Complétez la vérification KYC
 3. Obtenez vos clés API
 
 ### 4.2 Configurer les Webhooks
 
-Dans votre dashboard Lygos :
+Dans votre dashboard Wave :
 
-1. **URL de Webhook :** `https://votre-domaine.com/api/webhooks/lygos`
+1. **URL de Webhook :** `https://votre-domaine.com/api/webhooks/Wave`
 2. **Événements :** `payment.success`, `payment.failed`, `payment.cancelled`
 3. **Secret :** Générez un secret fort
 
 ### 4.3 Tester en Mode Sandbox
 
 ```env
-LYGOS_API_KEY=lygos_test_your_sandbox_key
-LYGOS_BASE_URL=https://sandbox-api.lygos.com
 ```
 
 ## 📧 Étape 5: Configuration Email
@@ -148,7 +143,6 @@ const { sendOrderConfirmationEmail } = require('./lib/services/email-notificatio
 ```env
 NODE_ENV=production
 NEXT_PUBLIC_APP_URL=https://votre-domaine.com
-LYGOS_API_KEY=lygos_live_your_real_key
 EMAIL_API_KEY=your_production_email_key
 ```
 
@@ -156,7 +150,7 @@ EMAIL_API_KEY=your_production_email_key
 
 1. **Webhook Endpoint :**
    ```bash
-   curl https://votre-domaine.com/api/webhooks/lygos
+   curl https://votre-domaine.com/api/webhooks/Wave
    ```
 
 2. **Test de Santé :**
@@ -208,7 +202,7 @@ ORDER BY date DESC;
 ### Problèmes Courants
 
 1. **Webhook ne fonctionne pas :**
-   - Vérifiez l'URL dans Lygos
+   - Vérifiez l'URL dans Wave
    - Vérifiez le secret webhook
    - Consultez les logs : `SELECT * FROM webhook_logs WHERE status = 'failed'`
 
@@ -229,7 +223,7 @@ ORDER BY date DESC;
 tail -f logs/payment.log
 
 # Logs Supabase (dans le dashboard)
-# Logs Lygos (dans leur dashboard)
+# Logs Wave (dans leur dashboard)
 ```
 
 ## 📊 Métriques à Surveiller
@@ -293,7 +287,7 @@ tail -f logs/payment.log
 
 ## 📞 Support
 
-- **Documentation Lygos :** [docs.lygos.com](https://docs.lygos.com)
+- **Documentation Wave :** [docs.Wave.com](https://docs.Wave.com)
 - **Support Technique :** support@votre-domaine.com
 - **Issues GitHub :** Créez une issue pour les bugs
 

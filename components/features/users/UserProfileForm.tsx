@@ -1,6 +1,7 @@
 "use client"
 
 import { useState, useEffect } from 'react'
+import { usePathname } from 'next/navigation'
 import { useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { Button } from '@/components/ui/button'
@@ -31,6 +32,8 @@ export function UserProfileForm() {
   const { user, getUserData, updateUser, loading } = useUser()
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [userData, setUserData] = useState<UserProfileData | null>(null)
+  const pathname = usePathname()
+  const isAdminProfile = pathname?.startsWith('/dashboard/admin')
 
   const {
     register,
@@ -98,10 +101,16 @@ export function UserProfileForm() {
       if (data.email && data.email.trim() !== '') {
         filteredData.email = data.email.trim()
       }
-      if (data.phone && data.phone.trim() !== '') {
+      if (!isAdminProfile && data.phone && data.phone.trim() !== '') {
         filteredData.phone = data.phone.trim()
       }
-      if (data.image && data.image.trim() !== '') {
+      if (!isAdminProfile && data.city && data.city.trim() !== '') {
+        filteredData.city = data.city.trim()
+      }
+      if (!isAdminProfile && data.address && data.address.trim() !== '') {
+        filteredData.address = data.address.trim()
+      }
+      if (!isAdminProfile && data.image && data.image.trim() !== '') {
         filteredData.image = data.image.trim()
       }
       if (data.preferred_language && data.preferred_language !== DEFAULTS.language) {
@@ -144,28 +153,17 @@ export function UserProfileForm() {
 
   if (loading && !userData) {
     return (
-      <Card>
-        <CardContent className="flex items-center justify-center py-12">
-          <Loader2 className="h-8 w-8 animate-spin text-orange-500" />
-        </CardContent>
-      </Card>
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-12 flex justify-center items-center">
+        <Loader2 className="h-8 w-8 animate-spin text-gray-900" />
+      </div>
     )
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <User className="h-5 w-5" />
-          {LABELS.personalInfo.title}
-        </CardTitle>
-        <CardDescription>
-          {LABELS.personalInfo.description}
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6 md:p-8">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
           {/* Photo de profil */}
+          {!isAdminProfile && (
           <div>
             <ImageUploadFixed
               value={imageValue}
@@ -173,6 +171,7 @@ export function UserProfileForm() {
               disabled={isSubmitting}
             />
           </div>
+          )}
 
           {/* Nom */}
           <div className="space-y-2">
@@ -219,6 +218,7 @@ export function UserProfileForm() {
           </div>
 
           {/* Téléphone */}
+          {!isAdminProfile && (
           <div className="space-y-2">
             <Label htmlFor="phone">
               {LABELS.fields.phone}
@@ -233,6 +233,43 @@ export function UserProfileForm() {
               <p className="text-sm text-red-500">{errors.phone.message}</p>
             )}
           </div>
+          )}
+
+          {/* Ville */}
+          {!isAdminProfile && (
+          <div className="space-y-2">
+            <Label htmlFor="city">
+              {LABELS.fields.city}
+            </Label>
+            <Input
+              id="city"
+              {...register('city')}
+              placeholder={PLACEHOLDERS.city}
+              disabled={isSubmitting}
+            />
+            {errors.city && (
+              <p className="text-sm text-red-500">{errors.city.message}</p>
+            )}
+          </div>
+          )}
+
+          {/* Adresse */}
+          {!isAdminProfile && (
+          <div className="space-y-2">
+            <Label htmlFor="address">
+              {LABELS.fields.address}
+            </Label>
+            <Input
+              id="address"
+              {...register('address')}
+              placeholder={PLACEHOLDERS.address}
+              disabled={isSubmitting}
+            />
+            {errors.address && (
+              <p className="text-sm text-red-500">{errors.address.message}</p>
+            )}
+          </div>
+          )}
 
           {/* Langue préférée */}
           <div className="space-y-2">
@@ -279,7 +316,6 @@ export function UserProfileForm() {
           {/* Indicateur de statut du formulaire */}
 
         </form>
-      </CardContent>
-    </Card>
+    </div>
   )
 }

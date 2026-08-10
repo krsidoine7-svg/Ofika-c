@@ -12,7 +12,7 @@ import { Plus, Edit, Eye, Trash2, ExternalLink, Loader2, Copy, Share2, Smartphon
 import { ProtectedRoute } from "@/components/core/auth/ProtectedRoute"
 import { useProfiles, useDeleteProfile } from '@/lib/hooks/useProfiles'
 import { useNFCCards, useCardLogic } from '@/lib/hooks/useNFCCards'
-import { useOrderStats } from '@/lib/hooks/usePayments'
+import { useOrderStats, usePaymentMethods } from '@/lib/hooks/usePayments'
 import { NFCCardItem } from '@/components/features/profiles/NFCCardItem'
 import { NFCCard } from '@/lib/types/nfc-cards'
 import { NFCCardPreview } from '@/components/features/card-creator/NFCCardPreview'
@@ -269,6 +269,7 @@ export default function ProfilesPage() {
   const { deleteProfile, loading: isDeleting } = useDeleteProfile()
   const { cards: nfcCards, loading: nfcLoading, error: nfcError, refreshCards } = useNFCCards()
   const { stats: orderStats, loading: orderStatsLoading } = useOrderStats()
+  const { basePrice } = usePaymentMethods()
   const { status: cardLogicStatus, loading: cardLogicLoading, actions, helpers } = useCardLogic()
   const [previewCardData, setPreviewCardData] = useState<any | null>(null)
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
@@ -567,7 +568,7 @@ export default function ProfilesPage() {
                         <span className="whitespace-nowrap">Livraison 7-14 jours</span>
                         <span className="hidden sm:inline">•</span>
                         <span className="whitespace-nowrap">
-                          À partir de {parseInt(process.env.NEXT_PUBLIC_LYGOS_DEFAULT_AMOUNT || '14600').toLocaleString('fr-FR')} XOF
+                          À partir de {basePrice.toLocaleString('fr-FR')} XOF
                         </span>
                       </div>
                     </div>

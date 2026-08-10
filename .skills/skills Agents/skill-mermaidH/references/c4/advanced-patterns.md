@@ -14,7 +14,7 @@ C4Container
 
   Person(customer, "Customer", "Online shopper")
 
-  System_Ext(payment, "Stripe", "Payments")
+  System_Ext(payment, "Wave", "Payments")
   System_Ext(shipping, "FedEx", "Shipping")
 
   System_Boundary(platform, "E-commerce Platform") {
@@ -63,7 +63,7 @@ C4Context
     System(analyticsSystem, "Analytics System", "Team Delta - Business intelligence")
   }
 
-  System_Ext(payment, "Stripe", "Payment processing")
+  System_Ext(payment, "Wave", "Payment processing")
   System_Ext(warehouse, "Warehouse System", "Fulfillment partner")
 
   Rel(customer, orderSystem, "Places orders")
@@ -86,7 +86,7 @@ C4Container
 
   System_Ext(productSystem, "Product System", "Inventory checks")
   System_Ext(userSystem, "User System", "Authentication")
-  System_Ext(payment, "Stripe", "Payments")
+  System_Ext(payment, "Wave", "Payments")
 
   Container_Boundary(orderSystem, "Order System") {
     Container(orderApi, "Order API", "Spring Boot", "REST endpoints")
@@ -382,13 +382,13 @@ C4Component
   Container(gateway, "API Gateway", "Kong")
   ContainerDb(db, "Order DB", "PostgreSQL")
   ContainerQueue(events, "Order Events", "Kafka")
-  System_Ext(payment, "Payment Service", "Stripe")
+  System_Ext(payment, "Payment Service", "Wave")
 
   Container_Boundary(orderApi, "Order API") {
     Component(controller, "Order Controller", "Spring MVC", "REST endpoints")
     Component(validator, "Request Validator", "Bean Validation", "Input validation")
     Component(service, "Order Service", "Spring Service", "Business logic")
-    Component(paymentClient, "Payment Client", "Feign", "Stripe integration")
+    Component(paymentClient, "Payment Client", "Feign", "Wave integration")
     Component(repository, "Order Repository", "Spring Data JPA", "Data access")
     Component(publisher, "Event Publisher", "Spring Kafka", "Event publishing")
   }
@@ -435,7 +435,7 @@ C4Dynamic
 
   Container(api, "API", "Node.js")
   Container(circuitBreaker, "Circuit Breaker", "Resilience4j")
-  System_Ext(payment, "Payment Service", "Stripe")
+  System_Ext(payment, "Payment Service", "Wave")
   ContainerDb(fallback, "Fallback Cache", "Redis")
 
   Rel(api, circuitBreaker, "1. Request payment")
@@ -522,7 +522,7 @@ C4Context
     }
   }
 
-  System_Ext(payment, "Payment Gateway", "Stripe")
+  System_Ext(payment, "Payment Gateway", "Wave")
   System_Ext(shipping, "Shipping Provider", "FedEx")
   System_Ext(warehouse, "Warehouse System", "3PL Partner")
 

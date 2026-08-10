@@ -58,9 +58,7 @@ export const orders = pgTable("orders", {
   wavePaymentId: text("wave_payment_id"),
   wavePaymentUrl: text("wave_payment_url"),
   
-  // 📦 LYGOS (DEPRECATED) - Temporaire
-  lygosPaymentId: text("lygos_payment_id"),
-  lygosPaymentUrl: text("lygos_payment_url"),
+  // 📦 Wave (DEPRECATED) - Temporaire
   
   // ... timestamps ...
 });
@@ -102,8 +100,6 @@ Le fichier généré ressemblera à :
 ALTER TABLE "orders" 
 ADD COLUMN "wave_payment_id" text,
 ADD COLUMN "wave_payment_url" text,
-ADD COLUMN "lygos_payment_id" text,
-ADD COLUMN "lygos_payment_url" text;
 ```
 
 ---
@@ -144,21 +140,15 @@ code drizzle/migrations/0001_*.sql
 ALTER TABLE "orders" 
 ADD COLUMN IF NOT EXISTS "wave_payment_id" text,
 ADD COLUMN IF NOT EXISTS "wave_payment_url" text,
-ADD COLUMN IF NOT EXISTS "lygos_payment_id" text,
-ADD COLUMN IF NOT EXISTS "lygos_payment_url" text;
 
 -- Ajouter des index pour optimiser les recherches
 CREATE INDEX IF NOT EXISTS "idx_orders_wave_payment_id" 
 ON "orders"("wave_payment_id");
 
-CREATE INDEX IF NOT EXISTS "idx_orders_lygos_payment_id" 
-ON "orders"("lygos_payment_id");
 
 -- Ajouter des commentaires
 COMMENT ON COLUMN "orders"."wave_payment_id" IS 'ID unique du paiement Wave CI';
 COMMENT ON COLUMN "orders"."wave_payment_url" IS 'URL de paiement Wave CI générée';
-COMMENT ON COLUMN "orders"."lygos_payment_id" IS 'DEPRECATED - ID Lygos (migration en cours)';
-COMMENT ON COLUMN "orders"."lygos_payment_url" IS 'DEPRECATED - URL Lygos (migration en cours)';
 ```
 
 4. **Cliquer sur "Run"**
@@ -174,8 +164,6 @@ COMMENT ON COLUMN "orders"."lygos_payment_url" IS 'DEPRECATED - URL Lygos (migra
 3. Vérifiez que les colonnes apparaissent :
    - `wave_payment_id` (text)
    - `wave_payment_url` (text)
-   - `lygos_payment_id` (text)
-   - `lygos_payment_url` (text)
 
 ### 5.2 Via SQL Query
 
@@ -198,8 +186,6 @@ ORDER BY ordinal_position;
 | payment_reference | character varying | YES |
 | wave_payment_id | text | YES |
 | wave_payment_url | text | YES |
-| lygos_payment_id | text | YES |
-| lygos_payment_url | text | YES |
 
 ### 5.3 Via Drizzle Studio (Optionnel)
 
@@ -304,8 +290,7 @@ const order: Order = {
   // ... champs existants ...
   wavePaymentId: 'wave_123',
   wavePaymentUrl: 'https://pay.wave.com/...',
-  lygosPaymentId: 'lygos_old', // deprecated
-  lygosPaymentUrl: 'https://lygos...' // deprecated
+  WavePaymentUrl: 'https://Wave...' // deprecated
 }
 ```
 
@@ -313,24 +298,20 @@ const order: Order = {
 
 ## 🔄 ÉTAPE 8 : Migrer les Données Existantes (Optionnel)
 
-Si vous avez déjà des commandes avec Lygos, vous pouvez les migrer :
+Si vous avez déjà des commandes avec Wave, vous pouvez les migrer :
 
 ```sql
--- Script de migration des données Lygos vers Wave CI
+-- Script de migration des données Wave vers Wave CI
 UPDATE orders
 SET 
-  lygos_payment_id = payment_reference,
-  lygos_payment_url = NULL
-WHERE payment_method = 'lygos'
+WHERE payment_method = 'Wave'
 AND payment_reference IS NOT NULL
-AND lygos_payment_id IS NULL;
 
 -- Vérification
 SELECT 
   COUNT(*) as total_migrated,
-  COUNT(lygos_payment_id) as with_lygos_id
 FROM orders
-WHERE payment_method = 'lygos';
+WHERE payment_method = 'Wave';
 ```
 
 ---
@@ -439,6 +420,6 @@ Votre base de données est maintenant prête pour Wave CI ! Les colonnes `wave_p
 **Prochaines étapes :**
 1. Tester la création de commandes avec Wave CI
 2. Vérifier que les liens de paiement sont bien sauvegardés
-3. Migrer progressivement de Lygos vers Wave CI
+3. Migrer progressivement de Wave vers Wave CI
 
 Pour toute question, consultez la documentation complète dans `/docs`.

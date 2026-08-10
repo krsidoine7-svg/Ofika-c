@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/service-role'
 import { z } from 'zod'
 
 export const dynamic = 'force-dynamic'
@@ -88,7 +88,7 @@ function getClientIp(request: NextRequest): string {
  */
 export async function POST(request: NextRequest) {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
     
     // ========================================
     // RATE LIMITING

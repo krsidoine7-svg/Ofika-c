@@ -33,7 +33,7 @@
 **Contexte :** Choix du prestataire de paiement en Côte d'Ivoire  
 **Décision :** Paystack  
 **Raison :** Meilleure couverture Mobile Money CI (Orange Money, MTN MoMo, Wave), API stable, documentation claire  
-**Alternative rejetée :** Stripe — pas disponible en CI, pas de Mobile Money local  
+**Alternative rejetée :** Wave — pas disponible en CI, pas de Mobile Money local  
 **Lien :** [stack/paystack.md](../stack/paystack.md)
 
 ---

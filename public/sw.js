@@ -5,14 +5,100 @@
 // (Bloqué par .gitignore - normal pour éviter versionning)
 // ==========================================
 
+// ==================================
+// STRATÉGIES DE MISE EN CACHE (PWA)
+// ==================================
+
+const CACHE_NAME = 'ofika-cache-v1'
+const STATIC_ASSETS = [
+    '/',
+    '/manifest.json',
+    '/assets/logos/logo-orange.svg',
+    '/assets/logos/logo-black.svg'
+]
+
 self.addEventListener('install', (event) => {
     console.log('[Ofika SW] Installing Service Worker v1.0...')
+    event.waitUntil(
+        caches.open(CACHE_NAME).then((cache) => {
+            return cache.addAll(STATIC_ASSETS).catch(err => console.warn('Erreur pré-cache:', err))
+        })
+    )
     self.skipWaiting()
 })
 
 self.addEventListener('activate', (event) => {
     console.log('[Ofika SW] Activating Service Worker...')
+    event.waitUntil(
+        caches.keys().then((cacheNames) => {
+            return Promise.all(
+                cacheNames.map((cacheName) => {
+                    if (cacheName !== CACHE_NAME) {
+                        return caches.delete(cacheName)
+                    }
+                })
+            )
+        })
+    )
     event.waitUntil(self.clients.claim())
+})
+
+self.addEventListener('fetch', (event) => {
+    const url = new URL(event.request.url)
+
+    // Ne pas mettre en cache les requêtes API Supabase ou Next.js internes (sauf _next/static)
+    if (
+        url.pathname.startsWith('/api/') || 
+        url.hostname.includes('supabase.co') ||
+        (url.pathname.startsWith('/_next/') && !url.pathname.startsWith('/_next/static/'))
+    ) {
+        return
+    }
+
+    // Stratégie "Cache First" pour les images et assets statiques (Stale-While-Revalidate)
+    if (
+        event.request.destination === 'image' || 
+        event.request.destination === 'style' || 
+        event.request.destination === 'script' ||
+        url.pathname.startsWith('/_next/static/')
+    ) {
+        event.respondWith(
+            caches.match(event.request).then((cachedResponse) => {
+                const fetchPromise = fetch(event.request).then((networkResponse) => {
+                    if (networkResponse && networkResponse.status === 200) {
+                        const responseToCache = networkResponse.clone()
+                        caches.open(CACHE_NAME).then((cache) => {
+                            cache.put(event.request, responseToCache)
+                        })
+                    }
+                    return networkResponse
+                }).catch(() => null)
+                return cachedResponse || fetchPromise
+            })
+        )
+        return
+    }
+
+    // Stratégie "Network First" (Puis Cache) pour le HTML / Pages
+    if (event.request.mode === 'navigate' || event.request.destination === 'document') {
+        event.respondWith(
+            fetch(event.request).then((networkResponse) => {
+                if (networkResponse && networkResponse.status === 200) {
+                    const clonedResponse = networkResponse.clone()
+                    caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clonedResponse))
+                }
+                return networkResponse
+            }).catch(() => {
+                // Mode hors-ligne : servir depuis le cache
+                return caches.match(event.request).then((cachedResponse) => {
+                    if (cachedResponse) return cachedResponse
+                    // Fallback (page d'accueil ou page d'erreur hors ligne si elle existait)
+                    return caches.match('/')
+                })
+            })
+        )
+        return
+    }
 })
 
 // ==================================

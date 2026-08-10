@@ -33,7 +33,14 @@ export default function AuthCallbackPage() {
 
         if (session) {
           toast.success('Connexion réussie!')
-          router.push(next)
+          let finalNext = next
+          if (next === '/dashboard') {
+            const { data: userData } = await supabase.from('users').select('role').eq('id', session.user.id).single()
+            if (userData && (userData.role === 'admin' || userData.role === 'super_admin')) {
+              finalNext = '/dashboard/admin'
+            }
+          }
+          router.push(finalNext)
         } else {
           console.warn('Aucune session trouvée après callback')
           router.push('/auth/login')

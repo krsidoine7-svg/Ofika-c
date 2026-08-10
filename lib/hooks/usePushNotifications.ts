@@ -41,14 +41,18 @@ export function usePushNotifications() {
       const perm = await Notification.requestPermission()
       setPermission(perm)
 
-      if (perm !== 'granted') {
-        toast.error('Permission refusée pour les notifications')
+      if (perm === 'denied') {
+        toast.error("Notifications bloquées par votre navigateur", {
+          description: "Pour recevoir nos alertes, veuillez autoriser les notifications pour ce site dans les paramètres de votre navigateur (petit cadenas à côté de l'URL)."
+        })
+        return false
+      } else if (perm !== 'granted') {
+        toast.info('Abonnement annulé')
         return false
       }
 
-      // 3. Enregistrer et attendre le Service Worker
-      const registration = await navigator.serviceWorker.register('/sw.js')
-      await navigator.serviceWorker.ready
+      // 3. Attendre que le Service Worker (déjà enregistré globalement) soit prêt
+      const registration = await navigator.serviceWorker.ready
 
       // 4. Récupérer et nettoyer la clé VAPID
       const rawVapidKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY
@@ -69,10 +73,30 @@ export function usePushNotifications() {
       }
 
       // 6. Souscription PushManager
-      const subscription = await registration.pushManager.subscribe({
-        userVisibleOnly: true,
-        applicationServerKey: applicationServerKey as any
-      })
+      let subscription: PushSubscription | null = null
+      try {
+        subscription = await registration.pushManager.subscribe({
+          userVisibleOnly: true,
+          applicationServerKey: applicationServerKey as any
+        })
+      } catch (err: any) {
+        if (err.name === 'InvalidStateError') {
+          console.warn('Ancienne souscription détectée. Désabonnement en cours...')
+          const oldSubscription = await registration.pushManager.getSubscription()
+          if (oldSubscription) {
+            await oldSubscription.unsubscribe()
+          }
+          // Réessayer
+          subscription = await registration.pushManager.subscribe({
+            userVisibleOnly: true,
+            applicationServerKey: applicationServerKey as any
+          })
+        } else {
+          throw err
+        }
+      }
+
+      if (!subscription) throw new Error("Impossible de créer la souscription")
 
       // 7. Sauvegarde dans Supabase (Même sans compte connecté/guest)
       const { data: { user } } = await supabase.auth.getUser()

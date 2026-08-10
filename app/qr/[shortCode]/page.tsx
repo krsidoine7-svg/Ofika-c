@@ -26,6 +26,7 @@ export default async function QRRedirectPage({ params }: QRRedirectPageProps) {
       .select('*')
       .ilike('short_code', shortCode) // Insensible à la casse
       .eq('is_active', true)
+      .is('deleted_at', null)
       .maybeSingle() 
 
     if (error) {

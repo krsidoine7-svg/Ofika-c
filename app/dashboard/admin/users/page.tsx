@@ -4,6 +4,7 @@ import React, { useEffect, useState, useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { Users, Mail, Phone, Calendar, Search, Shield, User, Filter, MoreHorizontal, Loader2, Star, Trash2, Edit, Globe, Smartphone, LayoutGrid, List, Eye, Key, Lock, ChevronDown, CheckCircle2 } from "lucide-react"
 import { useRouter } from 'next/navigation'
+import { fetchUsersAdmin } from './actions'
 import { createClient } from '@/lib/supabase/client'
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -47,7 +48,9 @@ export default function AdminUsersPage() {
     const [loading, setLoading] = useState(true)
     const [search, setSearch] = useState('')
     const [filter, setFilter] = useState('all')
-    const [viewMode, setViewMode] = useState<'table' | 'grid'>('grid')
+    const [currentPage, setCurrentPage] = useState(1)
+    const [viewMode, setViewMode] = useState<'table' | 'grid'>('table')
+    const itemsPerPage = 15
     const supabase = useMemo(() => createClient(), [])
     const router = useRouter()
 
@@ -84,46 +87,7 @@ export default function AdminUsersPage() {
     async function fetchUsers() {
         try {
             setLoading(true)
-
-            // 1. Récupérer les utilisateurs
-            const { data: usersData, error: usersError } = await supabase
-                .from('users')
-                .select('id, email, name, subscription_tier, created_at, last_login')
-                .order('created_at', { ascending: false })
-
-            if (usersError) throw usersError
-
-            // 2. Récupérer la liste des admins
-            const { data: adminsData, error: adminsError } = await supabase
-                .from('admin_users')
-                .select('id, role')
-
-            if (adminsError) throw adminsError
-
-            // 3. Récupérer les nombres de profils et de cartes NFC
-            const { data: profilesData } = await supabase.from('profiles').select('user_id')
-            const { data: cardsData } = await supabase.from('digital_nfc_cards').select('user_id')
-
-            const profilesMap: Record<string, number> = {}
-            profilesData?.forEach(p => {
-                if (p.user_id) profilesMap[p.user_id] = (profilesMap[p.user_id] || 0) + 1
-            })
-
-            const cardsMap: Record<string, number> = {}
-            cardsData?.forEach(c => {
-                if (c.user_id) cardsMap[c.user_id] = (cardsMap[c.user_id] || 0) + 1
-            })
-
-            // 4. Fusionner les données
-            const adminsMap = new Map(adminsData.map(a => [a.id, a.role]))
-            const mergedUsers = (usersData || []).map(user => ({
-                ...user,
-                is_admin: adminsMap.has(user.id),
-                admin_role: adminsMap.get(user.id),
-                profileCount: profilesMap[user.id] || 0,
-                cardCount: cardsMap[user.id] || 0
-            }))
-
+            const mergedUsers = await fetchUsersAdmin()
             setUsers(mergedUsers)
         } catch (error) {
             console.error('Erreur fetch users:', error)
@@ -144,6 +108,14 @@ export default function AdminUsersPage() {
 
         return matchesSearch && matchesFilter
     })
+
+    const totalPages = Math.ceil(filteredUsers.length / itemsPerPage)
+    const paginatedUsers = filteredUsers.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage)
+
+    // Reset page quand on filtre ou cherche
+    useEffect(() => {
+        setCurrentPage(1)
+    }, [search, filter])
 
     const impersonateUser = async (user: UserRecord) => {
         try {
@@ -287,432 +259,382 @@ export default function AdminUsersPage() {
 
     return (
         <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {/* Header & Filters */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                <div className="flex-1 space-y-2">
-                    <h1 className="text-3xl font-black text-gray-900 tracking-tight">Utilisateurs</h1>
-                    <p className="text-gray-500 font-medium">Gestion globale des comptes et des permissions ({users.length})</p>
+            {/* Header & Filters (Airtable Style) */}
+            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-gray-200 pb-4">
+                <div className="flex-1 space-y-1">
+                    <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Utilisateurs</h1>
+                    <p className="text-sm text-gray-500 font-medium">{users.length} comptes enregistrés</p>
                 </div>
-                <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
-                    <div className="relative w-full sm:w-64">
-                        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
-                        <Input
-                            placeholder="Rechercher..."
-                            className="pl-10 h-11 border-gray-200 focus:ring-black rounded-xl"
-                            value={search}
-                            onChange={(e) => setSearch(e.target.value)}
-                        />
-                    </div>
-                    <div className="flex bg-gray-100 p-1 rounded-xl h-11">
+                
+                <div className="flex flex-col sm:flex-row items-center gap-2 w-full md:w-auto">
+                    {/* View Toggle */}
+                    <div className="flex bg-gray-100 p-0.5 rounded-md border border-gray-200">
                         <Button
                             variant="ghost"
                             size="sm"
-                            className={cn("px-3 rounded-lg flex items-center gap-2", viewMode === 'table' && "bg-white shadow-sm text-gray-900")}
+                            className={cn("h-8 px-2.5 rounded-sm transition-all text-gray-500", viewMode === 'table' && "bg-white text-gray-900 shadow-sm")}
                             onClick={() => setViewMode('table')}
+                            title="Vue Tableau"
                         >
                             <List className="w-4 h-4" />
-                            <span className="hidden sm:inline">Table</span>
                         </Button>
                         <Button
                             variant="ghost"
                             size="sm"
-                            className={cn("px-3 rounded-lg flex items-center gap-2", viewMode === 'grid' && "bg-white shadow-sm text-gray-900")}
+                            className={cn("h-8 px-2.5 rounded-sm transition-all text-gray-500", viewMode === 'grid' && "bg-white text-gray-900 shadow-sm")}
                             onClick={() => setViewMode('grid')}
+                            title="Vue Galerie"
                         >
                             <LayoutGrid className="w-4 h-4" />
-                            <span className="hidden sm:inline">Cartes</span>
                         </Button>
                     </div>
-                    <DropdownMenu>
-                        <DropdownMenuTrigger asChild>
-                            <Button
-                                variant="outline"
-                                className="h-11 px-4 border-gray-200 rounded-xl bg-white text-sm font-semibold text-gray-700 hover:bg-gray-50 hover:border-gray-300 w-full sm:w-auto flex items-center gap-2 shadow-sm"
-                            >
-                                <Filter className="w-4 h-4 text-gray-400" />
-                                {filter === 'all' ? 'Tous les rôles' :
-                                    filter === 'admin' ? 'Administrateurs' :
-                                    filter === 'user' ? 'Utilisateurs' :
-                                    `Abonnement ${filter.toUpperCase()}`}
-                                <ChevronDown className="w-4 h-4 text-gray-400 ml-1" />
-                            </Button>
-                        </DropdownMenuTrigger>
-                        <DropdownMenuContent align="end" className="w-52 rounded-xl shadow-xl border-gray-100 p-1">
-                            <DropdownMenuLabel className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-2 py-1.5">Filtrer par rôle</DropdownMenuLabel>
-                            <DropdownMenuSeparator className="my-1" />
-                            {[
-                                { value: 'all', label: 'Tous les rôles' },
-                                { value: 'admin', label: 'Administrateurs' },
-                                { value: 'user', label: 'Utilisateurs' },
-                            ].map(opt => (
-                                <DropdownMenuItem
-                                    key={opt.value}
-                                    onClick={() => setFilter(opt.value)}
-                                    className={cn(
-                                        "flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer font-medium text-sm",
-                                        filter === opt.value ? "bg-gray-900 text-white" : "text-gray-700 hover:bg-gray-50"
-                                    )}
+
+                    <div className="flex items-center bg-white border border-gray-200 rounded-md shadow-sm overflow-hidden h-9">
+                        <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                                <Button
+                                    variant="ghost"
+                                    className="h-full px-3 text-xs font-medium text-gray-600 hover:bg-gray-50 rounded-none border-r border-gray-200 flex items-center gap-1.5"
                                 >
-                                    {opt.label}
-                                    {filter === opt.value && <CheckCircle2 className="w-3.5 h-3.5" />}
-                                </DropdownMenuItem>
-                            ))}
-                            <DropdownMenuSeparator className="my-1" />
-                            <DropdownMenuLabel className="text-[10px] font-bold text-gray-400 uppercase tracking-widest px-2 py-1.5">Abonnement</DropdownMenuLabel>
-                            {['free', 'pro', 'business', 'entreprise'].map(tier => (
-                                <DropdownMenuItem
-                                    key={tier}
-                                    onClick={() => setFilter(tier)}
-                                    className={cn(
-                                        "flex items-center justify-between px-3 py-2 rounded-lg cursor-pointer font-medium text-sm capitalize",
-                                        filter === tier ? "bg-gray-900 text-white" : "text-gray-700 hover:bg-gray-50"
-                                    )}
-                                >
-                                    {tier.charAt(0).toUpperCase() + tier.slice(1)}
-                                    {filter === tier && <CheckCircle2 className="w-3.5 h-3.5" />}
-                                </DropdownMenuItem>
-                            ))}
-                        </DropdownMenuContent>
-                    </DropdownMenu>
+                                    <Filter className="w-3.5 h-3.5" />
+                                    {filter === 'all' ? 'Filtrer' : filter.toUpperCase()}
+                                    <ChevronDown className="w-3.5 h-3.5 opacity-50" />
+                                </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="start" className="w-48 rounded-md shadow-lg border-gray-200 p-1">
+                                <DropdownMenuLabel className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-2 py-1">Rôle</DropdownMenuLabel>
+                                {[
+                                    { value: 'all', label: 'Tous les rôles' },
+                                    { value: 'admin', label: 'Administrateurs' },
+                                    { value: 'user', label: 'Utilisateurs' },
+                                ].map(opt => (
+                                    <DropdownMenuItem
+                                        key={opt.value}
+                                        onClick={() => setFilter(opt.value)}
+                                        className={cn(
+                                            "flex items-center justify-between px-2 py-1.5 rounded-sm cursor-pointer text-xs",
+                                            filter === opt.value ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-700 hover:bg-gray-50"
+                                        )}
+                                    >
+                                        {opt.label}
+                                        {filter === opt.value && <CheckCircle2 className="w-3.5 h-3.5" />}
+                                    </DropdownMenuItem>
+                                ))}
+                                <DropdownMenuSeparator className="my-1" />
+                                <DropdownMenuLabel className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-2 py-1">Abonnement</DropdownMenuLabel>
+                                {['free', 'pro', 'business', 'entreprise'].map(tier => (
+                                    <DropdownMenuItem
+                                        key={tier}
+                                        onClick={() => setFilter(tier)}
+                                        className={cn(
+                                            "flex items-center justify-between px-2 py-1.5 rounded-sm cursor-pointer text-xs capitalize",
+                                            filter === tier ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-700 hover:bg-gray-50"
+                                        )}
+                                    >
+                                        {tier}
+                                        {filter === tier && <CheckCircle2 className="w-3.5 h-3.5" />}
+                                    </DropdownMenuItem>
+                                ))}
+                            </DropdownMenuContent>
+                        </DropdownMenu>
+
+                        <div className="relative flex items-center px-2 w-full sm:w-48">
+                            <Search className="w-3.5 h-3.5 text-gray-400 shrink-0" />
+                            <Input
+                                placeholder="Rechercher..."
+                                className="h-full border-none shadow-none focus-visible:ring-0 text-xs px-2"
+                                value={search}
+                                onChange={(e) => setSearch(e.target.value)}
+                            />
+                        </div>
+                    </div>
                 </div>
             </div>
 
-            {/* Users List Container */}
-            {viewMode === 'grid' ? (
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {filteredUsers.length > 0 ? filteredUsers.map((user) => (
-                        <Card key={user.id} className="border-none shadow-sm hover:shadow-xl transition-all duration-300 rounded-3xl overflow-hidden group bg-white">
-                            <div className={cn("h-2 w-full", user.is_admin ? "bg-gray-900" : "bg-blue-500")}></div>
-                            <CardHeader className="pb-2">
-                                <div className="flex justify-between items-start">
-                                    <div className="w-14 h-14 rounded-2xl bg-gradient-to-br from-gray-50 to-gray-100 flex items-center justify-center text-gray-600 font-extrabold text-xl border border-gray-200 shadow-inner group-hover:scale-110 transition-transform duration-500">
-                                        {user.name?.charAt(0).toUpperCase() || user.email.charAt(0).toUpperCase()}
-                                    </div>
-                                    <div className="flex flex-col items-end gap-2">
-                                        <Badge className={cn(
-                                            "text-[10px] font-black uppercase px-2 py-0.5 border-none",
-                                            user.is_admin ? "bg-gray-900 text-white" : "bg-blue-50 text-blue-600"
+            {/* Users List Container (Airtable Style) */}
+            {viewMode === 'table' ? (
+                <div className="bg-white border border-gray-200 overflow-x-auto shadow-sm rounded-md">
+                    <table className="w-full text-left border-collapse min-w-max text-[13px]">
+                        <thead>
+                            <tr className="bg-gray-50/80">
+                                <th className="sticky top-0 px-3 py-2 text-[11px] font-semibold text-gray-500 uppercase tracking-wider border-b border-r border-gray-200 bg-gray-50 z-10 w-64">Utilisateur</th>
+                                <th className="sticky top-0 px-3 py-2 text-[11px] font-semibold text-gray-500 uppercase tracking-wider border-b border-r border-gray-200 bg-gray-50 z-10 w-32">Profils / NFC</th>
+                                <th className="sticky top-0 px-3 py-2 text-[11px] font-semibold text-gray-500 uppercase tracking-wider border-b border-r border-gray-200 bg-gray-50 z-10 w-24">Rôle</th>
+                                <th className="sticky top-0 px-3 py-2 text-[11px] font-semibold text-gray-500 uppercase tracking-wider border-b border-r border-gray-200 bg-gray-50 z-10 w-24">Plan</th>
+                                <th className="sticky top-0 px-3 py-2 text-[11px] font-semibold text-gray-500 uppercase tracking-wider border-b border-r border-gray-200 bg-gray-50 z-10 w-32">Inscription</th>
+                                <th className="sticky top-0 px-3 py-2 text-[11px] font-semibold text-gray-500 uppercase tracking-wider border-b border-gray-200 bg-gray-50 z-10 w-32 text-center">Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody className="divide-y divide-gray-200 bg-white">
+                            {paginatedUsers.length > 0 ? paginatedUsers.map((user) => (
+                                <tr key={user.id} className="hover:bg-blue-50/30 transition-colors group">
+                                    <td className="px-3 py-1.5 border-r border-gray-200 max-w-[250px] truncate">
+                                        <div className="flex flex-col justify-center">
+                                            <span className="font-semibold text-gray-900 truncate">{user.name || 'Sans Nom'}</span>
+                                            <span className="text-gray-500 truncate text-[11px]">{user.email}</span>
+                                        </div>
+                                    </td>
+                                    <td className="px-3 py-1.5 border-r border-gray-200 text-gray-700">
+                                        <div className="flex items-center gap-3">
+                                            <span className="flex items-center gap-1" title="Profils / QR Codes"><Globe className="w-3 h-3 text-blue-500" /> {user.profileCount}</span>
+                                            <span className="flex items-center gap-1" title="Cartes NFC"><Smartphone className="w-3 h-3 text-gray-600" /> {user.cardCount}</span>
+                                        </div>
+                                    </td>
+                                    <td className="px-3 py-1.5 border-r border-gray-200">
+                                        <span className={cn(
+                                            "inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase",
+                                            user.is_admin ? "bg-gray-900 text-white" : "bg-blue-50 text-blue-700"
                                         )}>
                                             {user.is_admin ? (user.admin_role || 'ADMIN') : 'USER'}
-                                        </Badge>
-                                        {getTierBadge(user.subscription_tier)}
-                                    </div>
-                                </div>
-                                <div className="mt-4">
-                                    <CardTitle className="text-lg font-black text-gray-900 line-clamp-1 group-hover:text-gray-600 transition-colors uppercase tracking-tight">
-                                        {user.name || 'SANS NOM'}
-                                    </CardTitle>
-                                    <div className="text-sm text-gray-500 font-medium flex items-center mt-1">
-                                        <Mail className="w-3.5 h-3.5 mr-2 text-gray-400" />
-                                        <span className="truncate">{user.email}</span>
-                                    </div>
-                                </div>
-                            </CardHeader>
-                            <CardContent className="pt-4 space-y-6">
-                                {/* Stats Row */}
-                                <div className="grid grid-cols-2 gap-3">
-                                    <div className="bg-gray-50 rounded-2xl p-3 border border-gray-100 flex flex-col items-center justify-center text-center">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <Globe className="w-4 h-4 text-blue-500" />
-                                            <span className="text-xl font-black text-gray-900">{user.profileCount}</span>
+                                        </span>
+                                    </td>
+                                    <td className="px-3 py-1.5 border-r border-gray-200">
+                                        <span className={cn(
+                                            "inline-flex items-center px-1.5 py-0.5 rounded text-[10px] font-bold uppercase",
+                                            user.subscription_tier === 'free' ? "bg-gray-100 text-gray-600" :
+                                            user.subscription_tier === 'pro' ? "bg-blue-100 text-blue-700" :
+                                            user.subscription_tier === 'business' ? "bg-indigo-100 text-indigo-700" :
+                                            "bg-black text-white"
+                                        )}>
+                                            {user.subscription_tier}
+                                        </span>
+                                    </td>
+                                    <td className="px-3 py-1.5 border-r border-gray-200 text-gray-500 text-xs">
+                                        {new Date(user.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                    </td>
+                                    <td className="px-3 py-1.5">
+                                        <div className="flex items-center justify-center gap-0.5 opacity-40 group-hover:opacity-100 transition-opacity">
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className={cn("h-6 w-6 p-0 rounded-sm hover:bg-gray-100", user.is_admin && "text-blue-600 bg-blue-50 hover:bg-blue-100 hover:text-blue-700")}
+                                                onClick={() => openConfirm(
+                                                    user.is_admin ? "Retirer admin ?" : "Promouvoir admin ?",
+                                                    user.is_admin ? "Cet utilisateur perdra l'accès admin." : "Il pourra gérer la plateforme.",
+                                                    () => toggleAdmin(user),
+                                                    user.is_admin ? 'destructive' : 'default'
+                                                )}
+                                                title={user.is_admin ? "Retirer droits admin" : "Promouvoir admin"}
+                                            >
+                                                <Shield className="w-3.5 h-3.5" />
+                                            </Button>
+
+                                            <DropdownMenu>
+                                                <DropdownMenuTrigger asChild>
+                                                    <Button variant="ghost" size="sm" className="h-6 w-6 p-0 rounded-sm hover:bg-gray-100" title="Changer Plan">
+                                                        <Edit className="w-3.5 h-3.5" />
+                                                    </Button>
+                                                </DropdownMenuTrigger>
+                                                <DropdownMenuContent align="end" className="w-40 rounded-md shadow-lg border-gray-200 p-1">
+                                                    <DropdownMenuLabel className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-2 py-1">Plan</DropdownMenuLabel>
+                                                    <DropdownMenuSeparator className="my-1"/>
+                                                    {['free', 'pro', 'business', 'entreprise'].map((tier) => (
+                                                        <DropdownMenuItem
+                                                            key={tier}
+                                                            className={cn(
+                                                                "flex items-center justify-between px-2 py-1 cursor-pointer rounded-sm text-xs capitalize",
+                                                                user.subscription_tier === tier ? "bg-blue-50 text-blue-700 font-medium" : "text-gray-700 hover:bg-gray-50"
+                                                            )}
+                                                            onClick={() => openConfirm("Changer l'abonnement ?", `Passer au plan ${tier.toUpperCase()} ?`, () => updatePlan(user, tier))}
+                                                        >
+                                                            {tier}
+                                                            {user.subscription_tier === tier && <Star className="w-3 h-3 text-blue-500 fill-blue-500" />}
+                                                        </DropdownMenuItem>
+                                                    ))}
+                                                </DropdownMenuContent>
+                                            </DropdownMenu>
+
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="h-6 w-6 p-0 rounded-sm hover:bg-gray-100"
+                                                onClick={() => { setResetUser(user); setIsResetDialogOpen(true); }}
+                                                title="Réinitialiser mot de passe"
+                                            >
+                                                <Key className="w-3.5 h-3.5" />
+                                            </Button>
+                                            
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="h-6 w-6 p-0 rounded-sm hover:bg-gray-100"
+                                                onClick={() => openConfirm("Mascarade", `Se connecter en tant que ${user.email} ?`, () => impersonateUser(user))}
+                                                title="Login As"
+                                            >
+                                                <Eye className="w-3.5 h-3.5" />
+                                            </Button>
+
+                                            <Button
+                                                variant="ghost"
+                                                size="sm"
+                                                className="h-6 w-6 p-0 rounded-sm hover:bg-red-50 text-red-500 hover:text-red-600 ml-1"
+                                                onClick={() => openConfirm("Supprimer ?", "Cette action est irréversible.", () => deleteUser(user), 'destructive')}
+                                                title="Supprimer"
+                                            >
+                                                <Trash2 className="w-3.5 h-3.5" />
+                                            </Button>
                                         </div>
-                                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">QR Codes</span>
+                                    </td>
+                                </tr>
+                            )) : (
+                                <tr>
+                                    <td colSpan={6} className="py-12 text-center text-gray-400 text-sm">
+                                        Aucun utilisateur ne correspond à votre recherche
+                                    </td>
+                                </tr>
+                            )}
+                        </tbody>
+                    </table>
+                </div>
+            ) : (
+                <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-4 gap-4">
+                    {paginatedUsers.length > 0 ? paginatedUsers.map((user) => (
+                        <div key={user.id} className="bg-white border border-gray-200 rounded-md overflow-hidden hover:shadow-md transition-shadow group flex flex-col relative">
+                            {/* Header: Avatar + Title + Actions (...) */}
+                            <div className="flex items-start justify-between p-3 border-b border-gray-100 bg-gray-50/50">
+                                <div className="flex items-center gap-3 min-w-0">
+                                    <div className="w-9 h-9 shrink-0 rounded bg-gray-200 flex items-center justify-center text-gray-700 font-bold border border-gray-300">
+                                        {user.name?.charAt(0).toUpperCase() || user.email.charAt(0).toUpperCase()}
                                     </div>
-                                    <div className="bg-gray-50 rounded-2xl p-3 border border-gray-100 flex flex-col items-center justify-center text-center">
-                                        <div className="flex items-center gap-2 mb-1">
-                                            <Smartphone className="w-4 h-4 text-gray-900" />
-                                            <span className="text-xl font-black text-gray-900">{user.cardCount}</span>
-                                        </div>
-                                        <span className="text-[9px] font-black text-gray-400 uppercase tracking-widest">Cartes NFC</span>
+                                    <div className="min-w-0 flex-1">
+                                        <p className="text-[13px] font-bold text-gray-900 truncate" title={user.name}>{user.name || 'Sans Nom'}</p>
+                                        <p className="text-[11px] text-gray-500 truncate" title={user.email}>{user.email}</p>
                                     </div>
                                 </div>
-
-                                <div className="flex items-center justify-between pt-2 border-t border-gray-50 uppercase tracking-tighter">
-                                    <div className="flex items-center text-[10px] font-bold text-gray-400">
-                                        <Calendar className="w-3 h-3 mr-1.5" />
-                                        Depuis {new Date(user.created_at).toLocaleDateString('fr-FR', { month: 'short', year: 'numeric' })}
-                                    </div>
-
-                                    <div className="flex items-center gap-2">
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className={cn(
-                                                "h-9 w-9 p-0 rounded-xl transition-all",
-                                                user.is_admin ? "bg-gray-900 text-white hover:bg-gray-800" : "bg-gray-100 text-gray-400 hover:bg-gray-200"
-                                            )}
-                                            onClick={() => openConfirm(
-                                                user.is_admin ? "Retirer les droits admin ?" : "Promouvoir administrateur ?",
-                                                user.is_admin ? `L'utilisateur ${user.email} n'aura plus accès à la section administration.` : `L'utilisateur ${user.email} aura un accès complet au dashboard admin.`,
-                                                () => toggleAdmin(user),
-                                                user.is_admin ? 'destructive' : 'default'
-                                            )}
-                                        >
-                                            <Shield className="w-4 h-4" />
-                                        </Button>
-
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className="h-9 w-9 p-0 rounded-xl bg-gray-50 text-gray-900 hover:bg-gray-100"
-                                            onClick={() => {
-                                                setResetUser(user)
-                                                setIsResetDialogOpen(true)
-                                            }}
-                                            title="Réinitialiser le mot de passe"
-                                        >
-                                            <Key className="w-4 h-4" />
-                                        </Button>
-
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className="h-9 w-9 p-0 rounded-xl bg-gray-50 text-gray-900 hover:bg-gray-100"
-                                            onClick={() => openConfirm(
-                                                "Activer le mode Mascarade ?",
-                                                `Vous allez être redirigé vers le dashboard de ${user.email}. Vous pourrez revenir à votre compte admin à tout moment.`,
-                                                () => impersonateUser(user)
-                                            )}
-                                            title="Mascarade (Login as)"
-                                        >
-                                            <Eye className="w-4 h-4" />
-                                        </Button>
-
-                                        <DropdownMenu>
-                                            <DropdownMenuTrigger asChild>
-                                                <Button
-                                                    variant="ghost"
-                                                    size="sm"
-                                                    className="h-9 w-9 p-0 rounded-xl bg-gray-50 text-gray-900 hover:bg-gray-100"
+                                <div className="shrink-0 ml-2">
+                                    <DropdownMenu>
+                                        <DropdownMenuTrigger asChild>
+                                            <Button variant="ghost" size="sm" className="h-7 w-7 p-0 rounded-sm text-gray-400 hover:text-gray-900 hover:bg-gray-200">
+                                                <MoreHorizontal className="w-4 h-4" />
+                                            </Button>
+                                        </DropdownMenuTrigger>
+                                        <DropdownMenuContent align="end" className="w-48 rounded-md shadow-xl border-gray-200 p-1">
+                                            <DropdownMenuItem
+                                                onClick={() => openConfirm(
+                                                    user.is_admin ? "Retirer admin ?" : "Promouvoir admin ?",
+                                                    user.is_admin ? "Cet utilisateur perdra l'accès admin." : "Il pourra gérer la plateforme.",
+                                                    () => toggleAdmin(user),
+                                                    user.is_admin ? 'destructive' : 'default'
+                                                )}
+                                                className={cn("text-xs cursor-pointer", user.is_admin ? "text-red-600 focus:bg-red-50" : "")}
+                                            >
+                                                <Shield className="w-3.5 h-3.5 mr-2" /> {user.is_admin ? "Retirer Admin" : "Promouvoir Admin"}
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem
+                                                onClick={() => { setResetUser(user); setIsResetDialogOpen(true); }}
+                                                className="text-xs cursor-pointer"
+                                            >
+                                                <Key className="w-3.5 h-3.5 mr-2" /> Réinitialiser mot de passe
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem
+                                                onClick={() => openConfirm("Mascarade", `Se connecter en tant que ${user.email} ?`, () => impersonateUser(user))}
+                                                className="text-xs cursor-pointer"
+                                            >
+                                                <Eye className="w-3.5 h-3.5 mr-2" /> Se connecter (Login As)
+                                            </DropdownMenuItem>
+                                            <DropdownMenuSeparator />
+                                            <DropdownMenuLabel className="text-[10px] font-bold text-gray-400 uppercase tracking-wider px-2 py-1">Changer le Plan</DropdownMenuLabel>
+                                            {['free', 'pro', 'business', 'entreprise'].map((tier) => (
+                                                <DropdownMenuItem
+                                                    key={tier}
+                                                    className={cn("text-xs capitalize cursor-pointer", user.subscription_tier === tier && "bg-blue-50 text-blue-700")}
+                                                    onClick={() => openConfirm("Changer l'abonnement ?", `Passer au plan ${tier.toUpperCase()} ?`, () => updatePlan(user, tier))}
                                                 >
-                                                    <Edit className="w-4 h-4" />
-                                                </Button>
-                                            </DropdownMenuTrigger>
-                                            <DropdownMenuContent align="end" className="w-48 rounded-xl shadow-xl border-gray-100">
-                                                <DropdownMenuLabel className="text-xs font-bold text-gray-400 uppercase tracking-widest px-3 py-2">Plan Tarifaire</DropdownMenuLabel>
-                                                <DropdownMenuSeparator />
-                                                {['free', 'pro', 'business', 'entreprise'].map((tier) => (
-                                                    <DropdownMenuItem
-                                                        key={tier}
-                                                        className={cn(
-                                                            "flex items-center justify-between px-3 py-2 cursor-pointer rounded-lg mx-1 my-0.5 font-bold text-sm capitalize",
-                                                            user.subscription_tier === tier ? "bg-gray-100 text-gray-900" : "text-gray-600 hover:bg-gray-50"
-                                                        )}
-                                                        onClick={() => openConfirm(
-                                                            "Changer le plan tarifaire ?",
-                                                            `Passer l'utilisateur ${user.email} au plan ${tier.toUpperCase()} ?`,
-                                                            () => updatePlan(user, tier)
-                                                        )}
-                                                    >
-                                                        {tier}
-                                                        {user.subscription_tier === tier && <Star className="w-3 h-3 fill-gray-900 text-gray-900" />}
-                                                    </DropdownMenuItem>
-                                                ))}
-                                            </DropdownMenuContent>
-                                        </DropdownMenu>
-
-                                        <Button
-                                            variant="ghost"
-                                            size="sm"
-                                            className="h-9 w-9 p-0 rounded-xl bg-red-50 text-red-500 hover:bg-red-100"
-                                            onClick={() => openConfirm(
-                                                "Supprimer l'utilisateur ?",
-                                                `Cette action est irréversible. Toutes les données de ${user.email} (profils, cartes, analytics) seront définitivement supprimées.`,
-                                                () => deleteUser(user),
-                                                'destructive'
-                                            )}
-                                        >
-                                            <Trash2 className="w-4 h-4" />
-                                        </Button>
-                                    </div>
+                                                    <Star className={cn("w-3.5 h-3.5 mr-2", user.subscription_tier === tier ? "text-blue-500 fill-blue-500" : "text-gray-400")} />
+                                                    {tier}
+                                                </DropdownMenuItem>
+                                            ))}
+                                            <DropdownMenuSeparator />
+                                            <DropdownMenuItem
+                                                onClick={() => openConfirm("Supprimer ?", "Cette action est irréversible.", () => deleteUser(user), 'destructive')}
+                                                className="text-xs cursor-pointer text-red-600 focus:bg-red-50 focus:text-red-700"
+                                            >
+                                                <Trash2 className="w-3.5 h-3.5 mr-2" /> Supprimer l'utilisateur
+                                            </DropdownMenuItem>
+                                        </DropdownMenuContent>
+                                    </DropdownMenu>
                                 </div>
-                            </CardContent>
-                        </Card>
+                            </div>
+                            
+                            {/* Data Fields */}
+                            <div className="p-3 flex flex-col gap-2 flex-1">
+                                <div className="flex justify-between items-center text-[12px]">
+                                    <span className="text-gray-500 font-medium">Rôle</span>
+                                    <span className={cn(
+                                        "px-1.5 py-0.5 rounded text-[10px] font-bold uppercase",
+                                        user.is_admin ? "bg-gray-900 text-white" : "bg-blue-50 text-blue-700"
+                                    )}>
+                                        {user.is_admin ? (user.admin_role || 'ADMIN') : 'USER'}
+                                    </span>
+                                </div>
+                                
+                                <div className="flex justify-between items-center text-[12px]">
+                                    <span className="text-gray-500 font-medium">Plan</span>
+                                    <span className={cn(
+                                        "px-1.5 py-0.5 rounded text-[10px] font-bold uppercase",
+                                        user.subscription_tier === 'free' ? "bg-gray-100 text-gray-600" :
+                                        user.subscription_tier === 'pro' ? "bg-blue-100 text-blue-700" :
+                                        user.subscription_tier === 'business' ? "bg-indigo-100 text-indigo-700" :
+                                        "bg-black text-white"
+                                    )}>
+                                        {user.subscription_tier}
+                                    </span>
+                                </div>
+
+                                <div className="flex justify-between items-center text-[12px] border-t border-gray-100 pt-2 mt-1">
+                                    <span className="text-gray-500 font-medium flex items-center gap-1.5"><Globe className="w-3.5 h-3.5"/> Profils / QR</span>
+                                    <span className="font-semibold text-gray-900">{user.profileCount}</span>
+                                </div>
+
+                                <div className="flex justify-between items-center text-[12px]">
+                                    <span className="text-gray-500 font-medium flex items-center gap-1.5"><Smartphone className="w-3.5 h-3.5"/> Cartes NFC</span>
+                                    <span className="font-semibold text-gray-900">{user.cardCount}</span>
+                                </div>
+                                
+                                <div className="mt-auto pt-3 border-t border-gray-100 flex items-center text-[11px] text-gray-400">
+                                    <Calendar className="w-3 h-3 mr-1" />
+                                    Inscrit le {new Date(user.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: 'numeric' })}
+                                </div>
+                            </div>
+                        </div>
                     )) : (
-                        <div className="col-span-full py-20 text-center bg-white rounded-3xl shadow-sm border border-gray-50">
-                            <Users className="w-12 h-12 text-gray-100 mx-auto mb-4" />
-                            <p className="text-gray-400 font-bold uppercase tracking-widest text-sm">Aucun utilisateur trouvé</p>
+                        <div className="col-span-full py-12 text-center text-gray-400 text-sm bg-white border border-gray-200 rounded-md">
+                            Aucun utilisateur ne correspond à votre recherche
                         </div>
                     )}
                 </div>
-            ) : (
-                <Card className="border-none shadow-sm overflow-hidden rounded-2xl">
-                    <CardContent className="p-0">
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-left border-collapse">
-                                <thead>
-                                    <tr className="border-b border-gray-100 bg-gray-50/50">
-                                        <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest">Utilisateur</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-center">Profils</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-center">NFC</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-center">Rôle</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-center">Plan</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest">Date Création</th>
-                                        <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-right">Actions</th>
-                                    </tr>
-                                </thead>
-                                <tbody className="divide-y divide-gray-50">
-                                    {filteredUsers.length > 0 ? filteredUsers.map((user) => (
-                                        <tr key={user.id} className="hover:bg-gray-50 transition-colors group">
-                                            <td className="px-6 py-4">
-                                                <div className="flex items-center">
-                                                    <div className="w-10 h-10 rounded-xl bg-gray-100 flex items-center justify-center text-gray-600 font-bold mr-4 border border-gray-200 group-hover:scale-110 transition-transform">
-                                                        {user.name?.charAt(0).toUpperCase() || user.email.charAt(0).toUpperCase()}
-                                                    </div>
-                                                    <div className="min-w-0">
-                                                        <p className="text-sm font-bold text-gray-900 group-hover:text-gray-600 transition-colors truncate">{user.name || 'Sans Nom'}</p>
-                                                        <p className="text-xs text-gray-400 flex items-center truncate mt-0.5">
-                                                            <Mail className="w-3 h-3 mr-1" />
-                                                            {user.email}
-                                                        </p>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4 text-center">
-                                                <div className="inline-flex items-center space-x-1.5 bg-gray-50 px-2 py-1 rounded-lg border border-gray-100">
-                                                    <Globe className="w-3.5 h-3.5 text-blue-500" />
-                                                    <span className="text-sm font-bold text-gray-700">{user.profileCount}</span>
-                                                </div>
-                                                <div className="text-[9px] text-gray-400 mt-0.5 font-bold uppercase tracking-tighter">QR CODES</div>
-                                            </td>
-                                            <td className="px-6 py-4 text-center">
-                                                <div className="inline-flex items-center space-x-1.5 bg-gray-50 px-2 py-1 rounded-lg border border-gray-100">
-                                                    <Smartphone className="w-3.5 h-3.5 text-gray-900" />
-                                                    <span className="text-sm font-bold text-gray-700">{user.cardCount}</span>
-                                                </div>
-                                                <div className="text-[9px] text-gray-400 mt-0.5 font-bold uppercase tracking-tighter">CARTES</div>
-                                            </td>
-                                            <td className="px-6 py-4 text-center">
-                                                <Badge
-                                                    className={cn(
-                                                        "text-[10px] font-black uppercase px-2 py-0.5 border-none",
-                                                        user.is_admin ? "bg-gray-900 text-white" : "bg-blue-50 text-blue-600"
-                                                    )}
-                                                >
-                                                    {user.is_admin ? (user.admin_role || 'ADMIN') : 'USER'}
-                                                </Badge>
-                                            </td>
-                                            <td className="px-6 py-4 text-center">
-                                                {getTierBadge(user.subscription_tier)}
-                                            </td>
-                                            <td className="px-6 py-4">
-                                                <div className="flex items-center text-xs text-gray-500">
-                                                    <Calendar className="w-3 h-3 mr-1.5 opacity-60" />
-                                                    {new Date(user.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'long', year: 'numeric' })}
-                                                </div>
-                                            </td>
-                                            <td className="px-6 py-4 text-right">
-                                                <div className="flex items-center justify-end space-x-2">
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        className={cn(
-                                                            "h-8 w-8 p-0 rounded-lg transition-all",
-                                                            user.is_admin ? "bg-gray-900 text-white border-none shadow-md" : "bg-gray-50 text-gray-400 border-gray-100 hover:bg-gray-100"
-                                                        )}
-                                                        onClick={() => openConfirm(
-                                                            user.is_admin ? "Retirer les droits admin ?" : "Promouvoir administrateur ?",
-                                                            user.is_admin ? "Cet utilisateur perdra l'accès à la zone admin." : "L'utilisateur pourra gérer toute la plateforme.",
-                                                            () => toggleAdmin(user),
-                                                            user.is_admin ? 'destructive' : 'default'
-                                                        )}
-                                                        title={user.is_admin ? "Retirer admin" : "Promouvoir admin"}
-                                                    >
-                                                        <Shield className={cn("w-4 h-4", user.is_admin ? "fill-white/20" : "")} />
-                                                    </Button>
+            )}
 
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        className="h-8 w-8 p-0 rounded-lg hover:bg-gray-50 hover:text-gray-900 border border-transparent hover:border-gray-100 transition-all"
-                                                        onClick={() => {
-                                                            setResetUser(user)
-                                                            setIsResetDialogOpen(true)
-                                                        }}
-                                                        title="Réinitialiser le mot de passe"
-                                                    >
-                                                        <Key className="w-4 h-4" />
-                                                    </Button>
-
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        className="h-8 w-8 p-0 rounded-lg hover:bg-gray-50 hover:text-gray-900 border border-transparent hover:border-gray-100 transition-all"
-                                                        onClick={() => openConfirm(
-                                                            "Simuler cet utilisateur ?",
-                                                            `Prendre le contrôle du compte de ${user.email} ?`,
-                                                            () => impersonateUser(user)
-                                                        )}
-                                                        title="Mode Mascarade"
-                                                    >
-                                                        <Eye className="w-4 h-4" />
-                                                    </Button>
-
-                                                    <DropdownMenu>
-                                                        <DropdownMenuTrigger asChild>
-                                                            <Button
-                                                                variant="ghost"
-                                                                size="sm"
-                                                                className="h-8 w-8 p-0 rounded-lg hover:bg-gray-50 hover:text-gray-900 border border-transparent hover:border-gray-100 transition-all"
-                                                            >
-                                                                <Edit className="w-4 h-4" />
-                                                            </Button>
-                                                        </DropdownMenuTrigger>
-                                                        <DropdownMenuContent align="end" className="w-48 rounded-xl shadow-xl border-gray-100">
-                                                            <DropdownMenuLabel className="text-xs font-bold text-gray-400 uppercase tracking-widest px-3 py-2">Changer le Plan</DropdownMenuLabel>
-                                                            <DropdownMenuSeparator />
-                                                            {['free', 'pro', 'business', 'entreprise'].map((tier) => (
-                                                                <DropdownMenuItem
-                                                                    key={tier}
-                                                                    className={cn(
-                                                                        "flex items-center justify-between px-3 py-2 cursor-pointer rounded-lg mx-1 my-0.5 font-bold text-sm capitalize",
-                                                                        user.subscription_tier === tier ? "bg-gray-100 text-gray-900" : "text-gray-600 hover:bg-gray-50"
-                                                                    )}
-                                                                    onClick={() => openConfirm(
-                                                                        "Changer l'abonnement ?",
-                                                                        `Passer au plan ${tier.toUpperCase()} ?`,
-                                                                        () => updatePlan(user, tier)
-                                                                    )}
-                                                                >
-                                                                    {tier}
-                                                                    {user.subscription_tier === tier && <Star className="w-3 h-3 fill-gray-900 text-gray-900" />}
-                                                                </DropdownMenuItem>
-                                                            ))}
-                                                        </DropdownMenuContent>
-                                                    </DropdownMenu>
-
-                                                    <Button
-                                                        variant="ghost"
-                                                        size="sm"
-                                                        className="h-8 w-8 p-0 rounded-lg hover:bg-red-50 hover:text-red-600 border border-transparent hover:border-red-100 transition-all"
-                                                        onClick={() => openConfirm(
-                                                            "Supprimer définitivement ?",
-                                                            `L'utilisateur ${user.email} sera effacé de la base de données.`,
-                                                            () => deleteUser(user),
-                                                            'destructive'
-                                                        )}
-                                                    >
-                                                        <Trash2 className="w-4 h-4" />
-                                                    </Button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    )) : (
-                                        <tr>
-                                            <td colSpan={7} className="py-20 text-center">
-                                                <div className="flex flex-col items-center">
-                                                    <Users className="w-12 h-12 text-gray-200 mb-4" />
-                                                    <p className="text-gray-400 font-medium">Aucun utilisateur ne correspond à votre recherche</p>
-                                                    <Button variant="link" className="text-gray-900 mt-2" onClick={() => { setSearch(''); setFilter('all') }}>Réinitialiser</Button>
-                                                </div>
-                                            </td>
-                                        </tr>
-                                    )}
-                                </tbody>
-                            </table>
+            {/* Pagination Controls */}
+            {totalPages > 1 && (
+                <div className="flex items-center justify-between border-t border-gray-200 pt-4">
+                    <p className="text-xs text-gray-500">
+                        Affichage de <span className="font-bold text-gray-900">{(currentPage - 1) * itemsPerPage + 1}</span> à <span className="font-bold text-gray-900">{Math.min(currentPage * itemsPerPage, filteredUsers.length)}</span> sur <span className="font-bold text-gray-900">{filteredUsers.length}</span> utilisateurs
+                    </p>
+                    <div className="flex gap-1">
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 text-xs px-3 shadow-none border-gray-200 hover:bg-gray-50"
+                            onClick={() => setCurrentPage(p => Math.max(1, p - 1))}
+                            disabled={currentPage === 1}
+                        >
+                            Précédent
+                        </Button>
+                        <div className="flex items-center px-3 text-xs font-medium text-gray-700 bg-gray-50 border border-gray-200 rounded-md">
+                            Page {currentPage} / {totalPages}
                         </div>
-                    </CardContent>
-                </Card>
+                        <Button
+                            variant="outline"
+                            size="sm"
+                            className="h-8 text-xs px-3 shadow-none border-gray-200 hover:bg-gray-50"
+                            onClick={() => setCurrentPage(p => Math.min(totalPages, p + 1))}
+                            disabled={currentPage === totalPages}
+                        >
+                            Suivant
+                        </Button>
+                    </div>
+                </div>
             )}
 
             {/* Modal de Confirmation Générique */}

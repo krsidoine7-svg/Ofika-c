@@ -241,7 +241,7 @@ export default function TermsPage() {
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                     <div className="p-6 bg-white border border-gray-100 rounded-2xl shadow-sm">
                                         <h4 className="font-black text-gray-900 mb-2 underline decoration-orange-500 underline-offset-4">Moyens de Paiement</h4>
-                                        <p className="text-xs italic">Nous acceptons les paiements par <strong>Mobile Money (Orange, MTN, Moov)</strong>, Cartes Bancaires (VISA/Mastercard) et Wave via nos passerelles sécurisées <strong>LyGOS</strong> et <strong>Wave</strong>.</p>
+                                        <p className="text-xs italic">Nous acceptons les paiements par <strong>Mobile Money (Orange, MTN, Moov)</strong>, Cartes Bancaires (VISA/Mastercard) et Wave via nos passerelles sécurisées <strong>GeniusPay</strong> et <strong>Wave</strong>.</p>
                                     </div>
                                     <div className="p-6 bg-white border border-gray-100 rounded-2xl shadow-sm">
                                         <h4 className="font-black text-gray-900 mb-2 underline decoration-orange-500 underline-offset-4">Le SaaS (Logiciel)</h4>
@@ -249,7 +249,7 @@ export default function TermsPage() {
                                     </div>
                                 </div>
                                 <p>
-                                    Les paiements sont sécurisés et opérés via notre partenaire <strong>LyGOS</strong>. En cas d'échec de virement ou de défaut de provision, Ofika se réserve le droit de suspendre l'accès aux fonctionnalités premium sans mise en demeure préalable.
+                                    Les paiements sont sécurisés et opérés via notre partenaire <strong>GeniusPay</strong>. En cas d'échec de virement ou de défaut de provision, Ofika se réserve le droit de suspendre l'accès aux fonctionnalités premium sans mise en demeure préalable.
                                 </p>
                             </div>
                         </section>

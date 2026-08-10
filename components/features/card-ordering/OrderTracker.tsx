@@ -16,6 +16,10 @@ import {
   ExternalLink,
   RefreshCw
 } from "lucide-react"
+import { cn } from "@/lib/utils"
+import { useCreatePayment, usePaymentMethods } from '@/lib/hooks/usePayments'
+import { createClient } from '@/lib/supabase/client'
+import { toast } from 'sonner'
 import { Order } from '@/lib/types/payments'
 
 interface OrderTrackerProps {
@@ -24,7 +28,7 @@ interface OrderTrackerProps {
   className?: string
 }
 
-type OrderStatus = 'pending' | 'paid' | 'failed' | 'cancelled'
+type OrderStatus = 'pending' | 'paid' | 'failed' | 'cancelled' | 'processing'
 
 interface TrackingStep {
   id: string
@@ -38,11 +42,73 @@ interface TrackingStep {
 export function OrderTracker({ order, onRefresh, className }: OrderTrackerProps) {
   const [trackingSteps, setTrackingSteps] = useState<TrackingStep[]>([])
   const [estimatedDelivery, setEstimatedDelivery] = useState<string>('')
+  const [receiptFile, setReceiptFile] = useState<File | null>(null)
+  const [receiptPreviewUrl, setReceiptPreviewUrl] = useState<string | null>(null)
+  const [isUploading, setIsUploading] = useState(false)
+
+  const { uploadReceipt } = useCreatePayment()
+  const { paymentMethods } = usePaymentMethods()
 
   useEffect(() => {
     updateTrackingSteps()
     calculateEstimatedDelivery()
   }, [order])
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0]
+      setReceiptFile(file)
+      setReceiptPreviewUrl(URL.createObjectURL(file))
+    }
+  }
+
+  const handleUploadAndSubmitReceipt = async () => {
+    if (!receiptFile) {
+      toast.error('Veuillez sélectionner un fichier à uploader')
+      return
+    }
+
+    setIsUploading(true)
+    try {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('Utilisateur non connecté')
+
+      const fileExt = receiptFile.name.split('.').pop()
+      const fileName = `receipts/${user.id}/${order.id}_${Date.now()}.${fileExt}`
+
+      const { error: uploadError } = await supabase.storage
+        .from('profile-images')
+        .upload(fileName, receiptFile, {
+          cacheControl: '3600',
+          upsert: false,
+          contentType: receiptFile.type
+        })
+
+      if (uploadError) throw uploadError
+
+      const { data: urlData } = supabase.storage
+        .from('profile-images')
+        .getPublicUrl(fileName)
+
+      const publicUrl = urlData.publicUrl
+
+      const submitResult = await uploadReceipt(order.id, publicUrl)
+
+      if (submitResult.success) {
+        toast.success('Preuve de paiement soumise avec succès !')
+        onRefresh?.()
+      } else {
+        throw new Error(submitResult.error || 'Erreur de soumission')
+      }
+
+    } catch (err: any) {
+      console.error('Error uploading receipt:', err)
+      toast.error(`Échec de la soumission : ${err.message}`)
+    } finally {
+      setIsUploading(false)
+    }
+  }
 
   const updateTrackingSteps = () => {
     const isPaid = order.status === 'paid' || order.payment_status === 'paid' || order.payment_status === 'succeeded'
@@ -292,21 +358,97 @@ export function OrderTracker({ order, onRefresh, className }: OrderTrackerProps)
       )}
 
       {/* Actions */}
-      {order.status === 'pending' && (order as any).lygos_payment_url && (
-        <Card>
-          <CardContent className="p-6">
-            <div className="text-center">
-              <h3 className="font-medium mb-2">Paiement en attente</h3>
-              <p className="text-gray-600 mb-4">
-                Votre commande est en attente de paiement. Cliquez ci-dessous pour finaliser votre achat via LyGOS.
+      {order.status === 'pending' && (
+        <Card className="border-orange-200 bg-orange-50/10">
+          <CardContent className="p-6 space-y-6">
+            <div className="text-center space-y-2">
+              <h3 className="text-lg font-bold text-gray-900">Paiement Wave Marchand Direct</h3>
+              <p className="text-sm text-gray-600">
+                Votre commande est en attente de paiement. Veuillez effectuer le règlement via Wave puis soumettre votre preuve de paiement.
               </p>
+            </div>
+
+            <div className="flex flex-col sm:flex-row gap-4 justify-center">
               <Button
-                onClick={() => window.open((order as any).lygos_payment_url, '_blank')}
-                className="bg-blue-600 hover:bg-blue-700 text-white"
+                onClick={() => window.open((order as any).wave_payment_url || (order as any).checkout_url, '_blank')}
+                className="bg-sky-500 hover:bg-sky-600 text-white font-bold gap-2 px-6 py-4 rounded-xl shadow-sm"
               >
-                <ExternalLink className="h-4 w-4 mr-2" />
-                Payer avec LyGOS
+                <ExternalLink className="h-4 w-4" />
+                Payer avec Wave
               </Button>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-100">
+              {/* Option A : Uploader le reçu */}
+              <div className="space-y-4">
+                <div className="space-y-1">
+                  <h4 className="text-sm font-bold text-gray-900">Option A : Uploader votre reçu</h4>
+                  <p className="text-xs text-gray-500">Uploadez la capture d'écran du reçu Wave.</p>
+                </div>
+
+                <div className="space-y-2">
+                  <label className="flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-lg p-3 cursor-pointer hover:bg-gray-50 transition-all">
+                    <span className="text-xs font-semibold text-gray-600">Choisir une capture d'écran</span>
+                    <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+                  </label>
+
+                  {receiptPreviewUrl && (
+                    <div className="relative rounded overflow-hidden border border-gray-200 max-h-32">
+                      <img src={receiptPreviewUrl} alt="Aperçu reçu" className="object-cover w-full h-full" />
+                    </div>
+                  )}
+
+                  <Button
+                    onClick={handleUploadAndSubmitReceipt}
+                    disabled={!receiptFile || isUploading}
+                    className="w-full bg-green-600 hover:bg-green-700 text-white text-xs font-bold py-2"
+                  >
+                    {isUploading ? 'Upload en cours...' : 'Soumettre le reçu'}
+                  </Button>
+                </div>
+              </div>
+
+              {/* Option B : WhatsApp */}
+              <div className="space-y-4 flex flex-col justify-between">
+                <div className="space-y-1">
+                  <h4 className="text-sm font-bold text-gray-900">Option B : Envoyer par WhatsApp</h4>
+                  <p className="text-xs text-gray-500">Envoyez le reçu directement à notre support.</p>
+                </div>
+
+                {(() => {
+                  const waveMethod = paymentMethods.find(m => m.id === 'wave')
+                  const whatsappNumber = (waveMethod as any)?.whatsapp_number || '+2250503681588'
+                  const cleanWhatsappNumber = whatsappNumber.replace(/[^0-9]/g, '')
+                  const whatsappPrefilledText = encodeURIComponent(
+                    `Bonjour Ofika, voici le reçu de paiement de ma commande #${order.order_number || order.id}`
+                  )
+                  const whatsappUrl = `https://wa.me/${cleanWhatsappNumber}?text=${whatsappPrefilledText}`
+
+                  return (
+                    <Button
+                      onClick={() => window.open(whatsappUrl, '_blank')}
+                      className="w-full bg-emerald-500 hover:bg-emerald-600 text-white text-xs font-bold py-2 gap-2"
+                    >
+                      Envoyer par WhatsApp
+                    </Button>
+                  )
+                })()}
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
+
+      {((order.status as any) === 'processing' || (order.payment_status as any) === 'processing') && (
+        <Card className="border-green-200 bg-green-50/20">
+          <CardContent className="p-6">
+            <div className="text-center space-y-2">
+              <CheckCircle className="h-10 w-10 text-green-600 mx-auto" />
+              <h3 className="text-lg font-bold text-green-900">Vérification en cours</h3>
+              <p className="text-sm text-green-800 max-w-md mx-auto">
+                Votre reçu de paiement a été soumis avec succès et est en cours d'examen par notre équipe. 
+                Votre commande sera traitée dès confirmation.
+              </p>
             </div>
           </CardContent>
         </Card>

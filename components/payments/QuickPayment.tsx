@@ -49,10 +49,10 @@ export function QuickPayment({
 }: QuickPaymentProps) {
   const { paymentMethods, loading: methodsLoading } = usePaymentMethods()
   const { createPayment, isProcessing } = useCreatePayment()
-  const [selectedMethod, setSelectedMethod] = useState<string>('lygos')
+  const [selectedMethod, setSelectedMethod] = useState<string>('wave')
 
-  // Trouver la méthode de paiement par défaut (LyGOS si disponible)
-  const defaultMethod = paymentMethods.find(m => m.id === 'lygos') || paymentMethods[0]
+  // Trouver la méthode de paiement par défaut (Wave si disponible)
+  const defaultMethod = paymentMethods.find(m => m.id === 'wave') || paymentMethods[0]
 
   const handlePayment = async () => {
     if (!defaultMethod) {
@@ -110,7 +110,7 @@ export function QuickPayment({
         onClick={handlePayment}
         disabled={isProcessing}
         size={size}
-        className={`${className} ${defaultMethod.provider === 'lygos' ? 'bg-orange-600 hover:bg-orange-700' : ''}`}
+        className={`${className} ${defaultMethod.provider === 'wave' ? 'bg-sky-500 hover:bg-sky-600' : ''}`}
       >
         {isProcessing ? (
           <Loader2 className="h-4 w-4 mr-2 animate-spin" />

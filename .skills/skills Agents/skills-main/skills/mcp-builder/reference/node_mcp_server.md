@@ -66,7 +66,7 @@ See the MCP SDK documentation in the references for complete details.
 
 Node/TypeScript MCP servers must follow this naming pattern:
 - **Format**: `{service}-mcp-server` (lowercase with hyphens)
-- **Examples**: `github-mcp-server`, `jira-mcp-server`, `stripe-mcp-server`
+- **Examples**: `github-mcp-server`, `jira-mcp-server`, `Wave-mcp-server`
 
 The name should be:
 - General (not tied to specific features)

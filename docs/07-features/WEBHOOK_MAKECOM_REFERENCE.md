@@ -30,11 +30,11 @@ Les webhooks Make.com sont envoyés automatiquement lors des événements import
     "ville": "Abidjan",
     "code_postal": "00225",
     "date_creation": "2025-10-01T22:30:00.000Z",
-    "lien_paiement": "https://pay.lygosapp.com/checkout/73380b6c-fc8f-4c98-9493-63138876f67a",
+    "lien_paiement": "https://pay.Waveapp.com/checkout/73380b6c-fc8f-4c98-9493-63138876f67a",
     "url_redirection": "http://localhost:3000/payment/success/7e3b58ac-dd1f-4969-a9a0-034aa6b4f92c",
     "url_echec": "http://localhost:3000/payment/failure/7e3b58ac-dd1f-4969-a9a0-034aa6b4f92c",
     "description_commande": "Commande carte nfc_qr - 1 unité(s)",
-    "message_lygos": "Commande carte nfc_qr - 1 unité(s)",
+    "message_Wave": "Commande carte nfc_qr - 1 unité(s)",
     "statut_commande": "pending",
     "profile_id": "profile-123",
     "user_id": "user-456"
@@ -45,7 +45,7 @@ Les webhooks Make.com sont envoyés automatiquement lors des événements import
 ```
 
 ### 2. PAYMENT_COMPLETED
-**Déclenché** : Lorsqu'un paiement est confirmé par Lygos
+**Déclenché** : Lorsqu'un paiement est confirmé par Wave
 
 **Données envoyées** :
 ```json
@@ -56,8 +56,8 @@ Les webhooks Make.com sont envoyés automatiquement lors des événements import
   "user_email": "john.doe@example.com",
   "data": {
     "id_commande": "7e3b58ac-dd1f-4969-a9a0-034aa6b4f92c",
-    "id_paiement": "lygos-payment-123",
-    "order_id_lygos": "lygos-7e3b58ac-dd1f-4969-a9a0-034aa6b4f92c-1759500000000",
+    "id_paiement": "Wave-payment-123",
+    "order_id_Wave": "Wave-7e3b58ac-dd1f-4969-a9a0-034aa6b4f92c-1759500000000",
     "montant": 14600,
     "devise": "XOF",
     "type_carte": "nfc_qr",
@@ -70,11 +70,11 @@ Les webhooks Make.com sont envoyés automatiquement lors des événements import
     "code_postal": "00225",
     "date_creation": "2025-10-01T22:30:00.000Z",
     "date_paiement": "2025-10-01T22:35:00.000Z",
-    "lien_paiement": "https://pay.lygosapp.com/checkout/73380b6c-fc8f-4c98-9493-63138876f67a",
+    "lien_paiement": "https://pay.Waveapp.com/checkout/73380b6c-fc8f-4c98-9493-63138876f67a",
     "url_redirection": "http://localhost:3000/payment/success/7e3b58ac-dd1f-4969-a9a0-034aa6b4f92c",
     "url_echec": "http://localhost:3000/payment/failure/7e3b58ac-dd1f-4969-a9a0-034aa6b4f92c",
     "description_commande": "Commande carte nfc_qr - 1 unité(s)",
-    "message_lygos": "Commande carte nfc_qr - 1 unité(s)",
+    "message_Wave": "Commande carte nfc_qr - 1 unité(s)",
     "statut_paiement": "confirmé",
     "statut_commande": "paid",
     "profile_id": "profile-123",
@@ -107,16 +107,16 @@ Les webhooks Make.com sont envoyés automatiquement lors des événements import
 - `date_creation` : Date de création de la commande (ISO 8601)
 - `date_paiement` : Date de confirmation du paiement (ISO 8601) - PAYMENT_COMPLETED uniquement
 
-### Informations de paiement Lygos
-- `lien_paiement` : URL de paiement Lygos générée (dans les deux webhooks)
+### Informations de paiement Wave
+- `lien_paiement` : URL de paiement Wave générée (dans les deux webhooks)
 - `url_redirection` : URL de succès après paiement (dans les deux webhooks)
 - `url_echec` : URL d'échec après paiement (dans les deux webhooks)
-- `id_paiement` : ID du paiement Lygos (PAYMENT_COMPLETED uniquement)
-- `order_id_lygos` : Order ID unique envoyé à Lygos (PAYMENT_COMPLETED uniquement)
+- `id_paiement` : ID du paiement Wave (PAYMENT_COMPLETED uniquement)
+- `order_id_Wave` : Order ID unique envoyé à Wave (PAYMENT_COMPLETED uniquement)
 
 ### Description et messages
 - `description_commande` : Description de la commande
-- `message_lygos` : Message envoyé à Lygos
+- `message_Wave` : Message envoyé à Wave
 
 ### Statuts
 - `statut_commande` : Statut de la commande (`pending`, `paid`, `failed`, `cancelled`)
@@ -163,4 +163,4 @@ Les webhooks sont configurés dans :
 - `lib/services/business-rules.ts` : Service WebhookService
 - `app/api/webhooks/make/route.ts` : Route API pour Make.com
 - `lib/services/payments.ts` : Webhook PHYSICAL_CARD_ORDERED
-- `app/api/webhooks/lygos/route.ts` : Webhook PAYMENT_COMPLETED
+- `app/api/webhooks/Wave/route.ts` : Webhook PAYMENT_COMPLETED

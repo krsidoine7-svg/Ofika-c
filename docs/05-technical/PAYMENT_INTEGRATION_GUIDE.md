@@ -25,10 +25,7 @@ SELECT * FROM payment_methods;
 
 **Ajouter dans `.env.local` :**
 ```env
-# Lygos API (à configurer avec vos vraies clés)
-LYGOS_API_KEY=your_lygos_api_key_here
-LYGOS_BASE_URL=https://api.lygos.com
-LYGOS_WEBHOOK_SECRET=your_webhook_secret_here
+# Wave API (à configurer avec vos vraies clés)
 
 # URL de l'application
 NEXT_PUBLIC_APP_URL=http://localhost:3000

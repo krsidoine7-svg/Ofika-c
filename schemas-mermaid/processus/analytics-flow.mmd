@@ -1,0 +1,37 @@
+sequenceDiagram
+    participant V as Visiteur (Navigateur)
+    participant B as Bannière RGPD
+    participant F as Frontend (ProfileClient)
+    participant API as API Analytics (Next.js)
+    participant RPC as Fonction RPC (Postgres)
+    participant DB as Supabase DB
+
+    V->>F: Accède à la page de profil
+    F->>B: Vérifie le consentement (LocalStorage)
+    alt Pas de consentement
+        B-->>V: Affiche la bannière
+        V->>B: Accepte ou Refuse
+    end
+
+    F->>API: POST /api/analytics/track (profile_viewed)
+    API->>DB: INSERT into analytics_events
+
+    alt Visiteur scanne QR / NFC
+        F->>API: POST /api/analytics/track (qr_scanned)
+        API->>DB: INSERT into analytics_events
+    end
+
+    alt Visiteur clique sur un lien
+        V->>F: Clic sur le lien
+        F->>API: POST /api/analytics/link-click
+        API->>RPC: increment_link_click(link_uuid)
+        Note over RPC: Sécurité: SECURITY DEFINER contourne le RLS pour l'update direct
+        RPC->>DB: UPDATE links SET click_count = click_count + 1
+        API->>DB: INSERT into analytics_events (Asynchrone)
+    end
+
+    alt Visiteur quitte la page (>2s)
+        V->>F: Ferme l'onglet ou navigue
+        F->>API: navigator.sendBeacon('/api/analytics/track', time_spent)
+        API->>DB: INSERT into analytics_events
+    end

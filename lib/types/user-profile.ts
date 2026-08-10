@@ -11,6 +11,8 @@ export interface UserProfileData {
   name?: string | null
   email?: string | null
   phone?: string | null
+  city?: string | null
+  address?: string | null
   image?: string | null
   preferred_language?: SupportedLanguage | null
   created_at?: string

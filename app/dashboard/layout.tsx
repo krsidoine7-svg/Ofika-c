@@ -7,7 +7,7 @@ import { ProtectedRoute } from "@/components/core/auth/ProtectedRoute"
 import { Logo } from "@/components/ui/logo"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
-import { LayoutDashboard, Users, QrCode, Settings, Menu, X, BarChart3, CreditCard, Shield, Star, ShieldCheck } from "lucide-react"
+import { LayoutDashboard, Users, QrCode, Settings, Menu, X, BarChart3, CreditCard, Shield, Star, ShieldCheck, Search, Bell } from "lucide-react"
 import { LogoutButton } from "@/components/core/auth/LogoutButton"
 import { useAuth } from "@/lib/hooks/useAuth"
 import { useProfiles } from "@/lib/hooks/useProfiles"
@@ -125,7 +125,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         { href: '/dashboard/qr-codes', label: 'QR Codes', icon: QrCode },
         { href: '/dashboard/avis-clients', label: 'Avis Clients', icon: Star },
         { href: '/dashboard/orders', label: 'Commandes', icon: CreditCard },
-        { href: '/dashboard/analytics', label: 'Analytics', icon: BarChart3 },
+        // { href: '/dashboard/analytics', label: 'Analytics', icon: BarChart3 }, // Masqué à la demande de l'utilisateur
         { href: '/dashboard/settings', label: 'Paramètres', icon: Settings },
     ]
 
@@ -202,75 +202,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                 })}
                             </nav>
 
-                            {/* Bouton Admin — visible uniquement pour les admins */}
-                            {(userData?.is_admin || userData?.role === 'admin' || userData?.role === 'superadmin') && (
-                                <div className="px-4 pb-3">
-                                    <Link href="/dashboard/admin">
-                                        <Button
-                                            variant="ghost"
-                                            className="w-full justify-start bg-orange-50 text-orange-700 hover:bg-orange-100 hover:text-orange-800 border border-orange-200 shadow-sm"
-                                        >
-                                            <ShieldCheck className="mr-2 h-4 w-4 text-orange-600" />
-                                            <span className="font-semibold text-sm">Dashboard Admin</span>
-                                        </Button>
-                                    </Link>
-                                </div>
-                            )}
-
-                            <div className="p-4 border-t border-gray-100 flex items-center">
-                                <DropdownMenu>
-                                    <DropdownMenuTrigger asChild>
-                                        <Button variant="ghost" className="flex items-center gap-3 p-0 h-auto hover:bg-transparent">
-                                            <Avatar className="h-9 w-9 border border-gray-200">
-                                                <AvatarImage src={avatarUrl} alt={displayName} />
-                                                <AvatarFallback className="bg-orange-100 text-orange-700 text-xs">
-                                                    {displayName?.substring(0, 2).toUpperCase()}
-                                                </AvatarFallback>
-                                            </Avatar>
-                                            <div className="text-left hidden lg:block">
-                                                <p className="text-sm font-medium text-gray-900 truncate max-w-[120px]">{displayName}</p>
-                                                <p className="text-xs text-gray-500">{subscriptionLabel}</p>
-                                            </div>
-                                        </Button>
-                                    </DropdownMenuTrigger>
-                                    <DropdownMenuContent className="w-56" align="start" side="right" forceMount>
-                                        <DropdownMenuLabel className="font-normal">
-                                            <div className="flex flex-col space-y-1">
-                                                <p className="text-sm font-medium leading-none">{displayName}</p>
-                                                <p className="text-xs leading-none text-muted-foreground">
-                                                    {user?.email}
-                                                </p>
-                                            </div>
-                                        </DropdownMenuLabel>
-                                        <DropdownMenuSeparator />
-                                        <Link href="/dashboard/settings">
-                                            <DropdownMenuItem className="cursor-pointer">
-                                                <Settings className="mr-2 h-4 w-4" />
-                                                <span>Paramètres</span>
-                                            </DropdownMenuItem>
-                                        </Link>
-                                        {(userData?.is_admin || userData?.role === 'admin' || userData?.role === 'superadmin') && (
-                                            <>
-                                                <DropdownMenuSeparator />
-                                                <Link href="/dashboard/admin">
-                                                    <DropdownMenuItem className="cursor-pointer text-orange-700 focus:text-orange-700 focus:bg-orange-50">
-                                                        <ShieldCheck className="mr-2 h-4 w-4" />
-                                                        <span className="font-semibold">Dashboard Admin</span>
-                                                    </DropdownMenuItem>
-                                                </Link>
-                                            </>
-                                        )}
-                                        <DropdownMenuSeparator />
-                                        <DropdownMenuItem
-                                            className="text-red-600 cursor-pointer focus:text-red-600 focus:bg-red-50"
-                                            onClick={handleLogout}
-                                        >
-                                            <LogOut className="mr-2 h-4 w-4" />
-                                            <span>Déconnexion</span>
-                                        </DropdownMenuItem>
-                                    </DropdownMenuContent>
-                                </DropdownMenu>
-                            </div>
                         </aside>
                     )}
 
@@ -279,26 +210,49 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         "flex-1 flex flex-col min-w-0 transition-all duration-300",
                         !isAdminPath && "md:ml-64"
                     )}>
-                        {/* Mobile Header - Hidden on Admin paths */}
+                        {/* Global Header - Hidden on Admin paths */}
                         {!isAdminPath && (
-                            <header className="md:hidden bg-white border-b border-gray-200 p-4 flex items-center justify-between sticky top-0 z-10">
-                                <div className="flex items-center gap-2">
-                                    <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-                                        {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-                                    </Button>
-                                    <Logo size="sm" showText={false} />
+                            <header className="bg-white border-b border-gray-100 h-16 flex items-center justify-between sticky top-0 z-30 px-4 md:px-8">
+                                {/* Left Section */}
+                                <div className="flex items-center gap-4">
+                                    {/* Mobile: Hamburger & Logo */}
+                                    <div className="flex items-center gap-2 md:hidden">
+                                        <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
+                                            {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                                        </Button>
+                                        <Logo size="sm" showText={false} />
+                                    </div>
+
+                                    {/* Desktop: Search Bar */}
+                                    <div className="hidden md:flex items-center relative">
+                                        <Search className="w-4 h-4 text-gray-400 absolute left-3" />
+                                        <input 
+                                            type="text" 
+                                            placeholder="Rechercher..." 
+                                            className="h-10 pl-10 pr-4 rounded-xl bg-gray-50 border border-transparent focus:bg-white focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all text-sm w-64 outline-none"
+                                        />
+                                    </div>
                                 </div>
 
+                                {/* Right Section: Notification & User Profile */}
                                 <div className="flex items-center gap-3">
+                                    <Button variant="ghost" size="icon" className="relative h-10 w-10 rounded-full hover:bg-gray-100 hidden md:flex text-gray-600">
+                                        <Bell className="w-5 h-5" />
+                                        <span className="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
+                                    </Button>
+
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" className="relative h-9 w-9 rounded-full overflow-hidden p-0 border border-gray-200">
-                                                <Avatar className="h-full w-full">
+                                            <Button variant="ghost" className="relative h-10 w-10 md:w-auto md:px-2 rounded-full md:rounded-xl overflow-hidden p-0 md:p-1.5 border border-gray-200 hover:bg-gray-50 flex items-center gap-2 transition-all">
+                                                <Avatar className="h-8 w-8 md:h-7 md:w-7 border border-gray-200">
                                                     <AvatarImage src={avatarUrl} alt={displayName} />
-                                                    <AvatarFallback className="bg-orange-100 text-orange-700 text-sm">
+                                                    <AvatarFallback className="bg-orange-100 text-orange-700 text-xs">
                                                         {displayName?.substring(0, 2).toUpperCase()}
                                                     </AvatarFallback>
                                                 </Avatar>
+                                                <div className="hidden md:block text-left mr-1">
+                                                    <p className="text-xs font-semibold text-gray-900 leading-none">{displayName}</p>
+                                                </div>
                                             </Button>
                                         </DropdownMenuTrigger>
                                         <DropdownMenuContent className="w-56" align="end" forceMount>
@@ -317,17 +271,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                                     <span>Paramètres</span>
                                                 </DropdownMenuItem>
                                             </Link>
-                                            {(userData?.is_admin || userData?.role === 'admin' || userData?.role === 'superadmin') && (
-                                                <>
-                                                    <DropdownMenuSeparator />
-                                                    <Link href="/dashboard/admin">
-                                                        <DropdownMenuItem className="cursor-pointer text-orange-700 focus:text-orange-700 focus:bg-orange-50">
-                                                            <ShieldCheck className="mr-2 h-4 w-4" />
-                                                            <span className="font-semibold">Dashboard Admin</span>
-                                                        </DropdownMenuItem>
-                                                    </Link>
-                                                </>
-                                            )}
                                             <DropdownMenuSeparator />
                                             <DropdownMenuItem
                                                 className="text-red-600 cursor-pointer focus:text-red-600 focus:bg-red-50"
@@ -362,18 +305,6 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                             </Button>
                                         </Link>
                                     ))}
-                                    {/* Bouton Admin mobile */}
-                                    {(userData?.is_admin || userData?.role === 'admin' || userData?.role === 'superadmin') && (
-                                        <Link href="/dashboard/admin" onClick={() => setIsMobileMenuOpen(false)}>
-                                            <Button
-                                                variant="ghost"
-                                                className="w-full justify-start text-lg h-12 bg-orange-50 text-orange-700 border border-orange-200 mt-2"
-                                            >
-                                                <ShieldCheck className="mr-3 h-5 w-5" />
-                                                Dashboard Admin
-                                            </Button>
-                                        </Link>
-                                    )}
                                     <div className="pt-4 mt-4 border-t border-gray-100">
                                         <div className="mb-4 px-2">
                                             <p className="font-medium text-gray-900">{displayName}</p>

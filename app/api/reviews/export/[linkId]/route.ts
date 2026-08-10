@@ -123,6 +123,7 @@ export async function GET(
       .from('review_links')
       .select('id, title, user_id')
       .eq('id', linkId)
+      .is('deleted_at', null)
       .single()
     
     if (linkError || !link) {
@@ -154,6 +155,7 @@ export async function GET(
       .from('reviews')
       .select('*')
       .eq('link_id', linkId)
+      .is('deleted_at', null)
       .order('created_at', { ascending: false })
     
     if (rating && !isNaN(parseInt(rating))) {

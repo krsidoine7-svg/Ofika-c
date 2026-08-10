@@ -24,22 +24,14 @@ export async function PATCH(request: Request) {
         const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
         if (action === 'TOGGLE_ADMIN') {
-            const { isAdmin, email, name } = body
+            const { isAdmin, email } = body
             
-            if (isAdmin) {
-                // Devenir Admin
-                const { error } = await supabase
-                    .from('admin_users')
-                    .insert({ id: userId, email, name, role: 'admin' })
-                if (error) throw error
-            } else {
-                // Retirer l'admin
-                const { error } = await supabase
-                    .from('admin_users')
-                    .delete()
-                    .eq('id', userId)
-                if (error) throw error
-            }
+            const newRole = isAdmin ? 'admin' : 'client'
+            const { error } = await supabase
+                .from('users')
+                .update({ role: newRole })
+                .eq('id', userId)
+            if (error) throw error
 
             await AuditService.log({
                 action: 'USER_ROLE_UPDATE',

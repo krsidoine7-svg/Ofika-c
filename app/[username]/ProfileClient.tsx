@@ -10,8 +10,9 @@ import { LinkInBioDesign7 } from '@/components/features/profiles/LinkInBioDesign
 import { LinkInBioInfluencer } from '@/components/features/profiles/LinkInBioInfluencer'
 import { LinkInBioEcommerce } from '@/components/features/profiles/LinkInBioEcommerce'
 import { LinkInBioFreelance } from '@/components/features/profiles/LinkInBioFreelance'
-import { trackProfileView, trackQRScan } from '@/lib/services/profile-analytics'
+import { trackProfileView, trackQRScan, trackTimeSpent } from '@/lib/services/profile-analytics'
 import { PublicProfile } from '@/lib/types/public-profile'
+import { CookieBanner } from '@/components/ui/cookie-banner'
 
 interface ProfileClientProps {
     initialProfile: PublicProfile | null
@@ -35,18 +36,69 @@ export default function ProfileClient({ initialProfile }: ProfileClientProps) {
         }
     }, [initialProfile])
 
-    // Tracker la vue du profil
+    // Tracker la vue du profil (toujours, indépendamment du consentement)
     useEffect(() => {
-        if (profile?.id) {
-            // Enregistrer la vue du profil
-            trackProfileView(profile.id, {
-                referrer: typeof document !== 'undefined' ? document.referrer : undefined
-            } as any).catch(err => console.error('Error tracking profile view:', err))
+        if (!profile?.id) return;
 
-            // Si la source est un QR code ou un scan NFC, enregistrer le scan
-            const isQR = searchParams.get('source') === 'qr' || searchParams.get('src') === 'qr' || searchParams.get('utm_source') === 'qr'
-            if (isQR) {
-                trackQRScan(profile.id).catch(err => console.error('Error tracking QR scan:', err))
+        // Enregistrer la vue du profil
+        trackProfileView(profile.id, {
+            referrer: typeof document !== 'undefined' ? document.referrer : undefined
+        } as any).catch(err => console.error('Error tracking profile view:', err))
+
+        // Si la source est un QR code ou un scan NFC, enregistrer le scan
+        const isQR = searchParams.get('source') === 'qr' || searchParams.get('src') === 'qr' || searchParams.get('utm_source') === 'qr'
+        if (isQR) {
+            trackQRScan(profile.id).catch(err => console.error('Error tracking QR scan:', err))
+        }
+
+        let startTime = Date.now();
+        let hasTrackedTime = false;
+        let unloadHandler: (() => void) | null = null;
+
+        const startDetailedTracking = () => {
+            if (hasTrackedTime) return;
+            hasTrackedTime = true;
+            startTime = Date.now();
+
+            // Handler pour le temps passé
+            unloadHandler = () => {
+                const timeSpent = Math.floor((Date.now() - startTime) / 1000)
+                if (timeSpent > 2) { // Ne tracker que s'ils restent plus de 2 secondes
+                    const data = {
+                        profile_id: profile.id,
+                        event_type: 'time_spent',
+                        event_data: { time_spent_seconds: timeSpent }
+                    }
+                    if (typeof navigator !== 'undefined' && navigator.sendBeacon) {
+                        navigator.sendBeacon('/api/analytics/track', JSON.stringify(data))
+                    } else {
+                        trackTimeSpent(profile.id, timeSpent).catch(() => {})
+                    }
+                }
+            }
+            window.addEventListener('beforeunload', unloadHandler)
+        }
+
+        // Vérifier le consentement initial pour le tracking détaillé (temps passé)
+        const currentConsent = localStorage.getItem('ofika_cookie_consent')
+        if (currentConsent === 'accepted') {
+            startDetailedTracking()
+        }
+
+        // Écouter si l'utilisateur accepte depuis la bannière
+        const onConsentUpdate = (e: Event) => {
+            const customEvent = e as CustomEvent
+            if (customEvent.detail === 'accepted') {
+                startDetailedTracking()
+            }
+        }
+        window.addEventListener('ofika_consent_update', onConsentUpdate)
+        
+        return () => {
+            window.removeEventListener('ofika_consent_update', onConsentUpdate)
+            if (unloadHandler) {
+                window.removeEventListener('beforeunload', unloadHandler)
+                unloadHandler()
             }
         }
     }, [profile?.id, searchParams])
@@ -149,6 +201,7 @@ export default function ProfileClient({ initialProfile }: ProfileClientProps) {
     return (
         <div className="ofika-profile-container selection:bg-orange-100">
             {renderTemplate()}
+            <CookieBanner />
         </div>
     )
 }

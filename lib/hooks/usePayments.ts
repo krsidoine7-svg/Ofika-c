@@ -69,6 +69,7 @@ export function PaymentMethodSelector({
 // Hook pour récupérer les méthodes de paiement disponibles
 export function usePaymentMethods() {
   const [paymentMethods, setPaymentMethods] = useState<PaymentMethod[]>([])
+  const [basePrice, setBasePrice] = useState<number>(14600)
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState<string | null>(null)
 
@@ -84,6 +85,9 @@ export function usePaymentMethods() {
 
         const data = await response.json()
         setPaymentMethods(data.methods || [])
+        if (data.methods?.[0]?.base_price) {
+          setBasePrice(data.methods[0].base_price)
+        }
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Erreur inconnue')
         console.error('Erreur chargement méthodes de paiement:', err)
@@ -95,7 +99,7 @@ export function usePaymentMethods() {
     fetchPaymentMethods()
   }, [])
 
-  return { paymentMethods, loading, error }
+  return { paymentMethods, basePrice, loading, error }
 }
 
 // Hook pour créer un paiement
@@ -141,7 +145,31 @@ export function useCreatePayment() {
     }
   }
 
-  return { createPayment, isProcessing }
+  const uploadReceipt = async (orderId: string, receiptUrl: string): Promise<PaymentResult> => {
+    setIsProcessing(true)
+    try {
+      const response = await fetch('/api/orders/receipt', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ order_id: orderId, receipt_url: receiptUrl })
+      })
+
+      const result = await response.json()
+      if (!response.ok) {
+        throw new Error(result.error || 'Erreur lors de la soumission du reçu')
+      }
+      return result
+    } catch (error) {
+      const errorMessage = error instanceof Error ? error.message : 'Erreur inconnue'
+      return { success: false, error: errorMessage }
+    } finally {
+      setIsProcessing(false)
+    }
+  }
+
+  return { createPayment, uploadReceipt, isProcessing }
 }
 
 // Hook pour vérifier le statut d'un paiement

@@ -10,14 +10,17 @@ import { Loader2, CreditCard, Package, MapPin, Smartphone, Wallet, CheckCircle2 
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 
+import { usePaymentMethods } from '@/lib/hooks/usePayments'
+
 function OrderCreateForm() {
     const router = useRouter()
     const searchParams = useSearchParams()
     const [isLoading, setIsLoading] = useState(false)
+    const { basePrice } = usePaymentMethods()
 
     // Paramètres par défaut
     const cardType = searchParams.get('type') || 'nfc_qr'
-    const defaultAmount = process.env.NEXT_PUBLIC_LYGOS_DEFAULT_AMOUNT || '14600'
+    const defaultAmount = basePrice.toString()
     const amount = cardType === 'nfc_qr' ? defaultAmount : '10000'
 
     // Formulaire
@@ -28,7 +31,7 @@ function OrderCreateForm() {
         address: '',
         city: '',
         postalCode: '',
-        paymentMethod: 'lygos' as 'lygos' | 'wave'
+        paymentMethod: 'geniuspay' as 'geniuspay' | 'wave'
     })
 
     const [availableMethods, setAvailableMethods] = useState<{id: string, name: string, is_active: boolean}[]>([])
@@ -331,7 +334,7 @@ function OrderCreateForm() {
 
                 {/* Informations de sécurité */}
                 <div className="mt-6 text-center text-sm text-gray-600">
-                    <p>🔒 Paiement sécurisé par LyGOS</p>
+                    <p>🔒 Paiement sécurisé par GeniusPay</p>
                     <p className="mt-2">Livraison sous 7-14 jours ouvrés</p>
                 </div>
             </div>

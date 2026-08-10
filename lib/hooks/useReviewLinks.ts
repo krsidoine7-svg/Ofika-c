@@ -166,11 +166,11 @@ export function useCreateReviewLink() {
 /**
  * Hook pour modifier un lien existant
  */
-export function useUpdateReviewLink(id: string) {
+export function useUpdateReviewLink() {
   const queryClient = useQueryClient()
   
   return useMutation({
-    mutationFn: async (input: UpdateReviewLinkInput) => {
+    mutationFn: async ({ id, input }: { id: string; input: UpdateReviewLinkInput }) => {
       const res = await fetch(`/api/reviews/links/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
@@ -187,7 +187,7 @@ export function useUpdateReviewLink(id: string) {
     },
     onSuccess: (data) => {
       // Mettre à jour le cache du lien
-      queryClient.setQueryData(reviewLinksKeys.detail(id), data)
+      queryClient.setQueryData(reviewLinksKeys.detail(data.id), data)
       
       // Invalider les listes pour refetch
       queryClient.invalidateQueries({ queryKey: reviewLinksKeys.lists() })
@@ -209,8 +209,9 @@ export function useDeleteReviewLink() {
   const queryClient = useQueryClient()
   
   return useMutation({
-    mutationFn: async (id: string) => {
-      const res = await fetch(`/api/reviews/links/${id}`, {
+    mutationFn: async ({ id, deleteReviews }: { id: string; deleteReviews?: boolean }) => {
+      const url = `/api/reviews/links/${id}?delete_reviews=${deleteReviews ? 'true' : 'false'}`
+      const res = await fetch(url, {
         method: 'DELETE',
       })
       

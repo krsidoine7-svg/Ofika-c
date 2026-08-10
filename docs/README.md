@@ -20,7 +20,7 @@ Schémas de base de données, migrations Drizzle, requêtes SQL.
 Corrections de bugs, résolutions de problèmes et bugfixes.
 
 ### 💳 [06-payment/](./06-payment/)
-Intégration des paiements (LyGOS, Wave), tarification dynamique.
+Intégration des paiements (Wave, Wave), tarification dynamique.
 
 ### ⚡ [07-features/](./07-features/)
 Documentation des fonctionnalités (QR Codes, NFC, Avis Clients, Templates, Analytics).

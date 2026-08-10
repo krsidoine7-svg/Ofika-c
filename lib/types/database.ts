@@ -130,10 +130,26 @@ export interface Order {
   total_price: number
   currency: string
   status: string
+  payment_provider?: string
+  payment_method?: string
+  payment_status?: string
+  payment_reference?: string
+  fees?: number
+  net_amount?: number
+  metadata?: any
+  paid_at?: string
   lygos_payment_id?: string
-  lygos_payment_url?: string
+  wave_payment_url?: string
   created_at: string
   updated_at: string
+}
+
+export interface GeniuspayWebhookEvent {
+  id: string
+  event_type: string
+  payload: any
+  processed_at?: string
+  received_at: string
 }
 
 export interface PaymentMethod {
@@ -217,6 +233,11 @@ export interface Database {
         Row: PaymentMethod
         Insert: Omit<PaymentMethod, 'id' | 'created_at'>
         Update: Partial<Omit<PaymentMethod, 'id' | 'created_at'>>
+      }
+      geniuspay_webhook_events: {
+        Row: GeniuspayWebhookEvent
+        Insert: Omit<GeniuspayWebhookEvent, 'received_at'>
+        Update: Partial<Omit<GeniuspayWebhookEvent, 'received_at'>>
       }
       analytics_events: {
         Row: AnalyticsEvent

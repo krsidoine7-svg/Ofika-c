@@ -176,29 +176,21 @@ export class AuthGuard {
     resource?: string
   ) {
     try {
-      // 1. Vérifier si l'utilisateur est dans la table admin_users
-      const { data: admin, error: adminError } = await supabase
-        .from('admin_users')
-        .select('role, permissions')
+      // 1. Vérifier le rôle de l'utilisateur dans la table users
+      const { data: user, error: userError } = await supabase
+        .from('users')
+        .select('role')
         .eq('id', userId)
         .single()
       
-      if (!adminError && admin) {
-        // C'est un admin, on vérifie ses permissions
-        // S'il a ["all"], il a accès à tout
-        if (admin.permissions?.includes('all')) return { success: true, error: null }
+      if (!userError && user && (user.role === 'admin' || user.role === 'super_admin')) {
+        // S'il est super_admin, il a ["all"]
+        if (user.role === 'super_admin') return { success: true, error: null }
         
-        const rolePermissions = this.getRolePermissions(admin.role || 'admin')
+        const rolePermissions = this.getRolePermissions(user.role)
         if (rolePermissions.includes(action)) return { success: true, error: null }
       }
 
-      // 2. Si non admin, on vérifie s'il est un utilisateur standard
-      const { data: user, error: userError } = await supabase
-        .from('users')
-        .select('id')
-        .eq('id', userId)
-        .single()
-      
       if (userError || !user) {
         return { success: false, error: 'Utilisateur non trouvé' }
       }
@@ -224,7 +216,7 @@ export class AuthGuard {
    */
   private static getRolePermissions(role: string): string[] {
     const permissions = {
-      superadmin: ['all', 'read:all', 'write:all', 'delete:all', 'manage:users', 'manage:orders', 'manage:analytics', 'manage:admins'],
+      super_admin: ['all', 'read:all', 'write:all', 'delete:all', 'manage:users', 'manage:orders', 'manage:analytics', 'manage:admins'],
       admin: [
         'read:all',
         'write:all',
@@ -245,6 +237,6 @@ export class AuthGuard {
       ]
     }
 
-    return permissions[role as keyof typeof permissions] || (role === 'superadmin' ? permissions.superadmin : (role === 'admin' ? permissions.admin : permissions.guest))
+    return permissions[role as keyof typeof permissions] || (role === 'super_admin' ? permissions.super_admin : (role === 'admin' ? permissions.admin : permissions.guest))
   }
 }

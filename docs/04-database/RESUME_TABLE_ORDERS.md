@@ -42,8 +42,6 @@
 | 14 | `tracking_number` | VARCHAR(100) | ❌ | - | Ajouté lors de l'expédition |
 | 15 | `estimated_delivery` | DATE | ❌ | - | Calculé après validation |
 | 16 | `actual_delivery` | DATE | ❌ | - | Rempli à la livraison |
-| 17 | `lygos_payment_id` | TEXT | ❌ | - | Webhook LyGOS |
-| 18 | `lygos_payment_url` | TEXT | ❌ | - | API LyGOS |
 | 19 | `wave_payment_id` | TEXT | ❌ | - | Webhook Wave |
 | 20 | `wave_payment_url` | TEXT | ❌ | - | API Wave |
 | 21 | `created_at` | TIMESTAMP | ✅ | now() | Auto-généré |
@@ -59,7 +57,7 @@
 {
   "card_type": "nfc_qr",
   "quantity": 1,
-  "payment_method": "lygos",
+  "payment_method": "Wave",
   "shipping_address": {
     "name": "Jean Kouassi",
     "email": "jean.kouassi@example.com",
@@ -135,7 +133,7 @@ Ces champs ne sont **PAS** envoyés depuis le formulaire, mais sont **calculés 
 ### Validations côté serveur (Zod)
 - `card_type` : enum strict (`'nfc_qr' | 'qr_only' | 'premium_subscription' | 'custom'`)
 - `quantity` : entier entre 1 et 2
-- `payment_method` : enum strict (`'lygos' | 'wave' | 'orange_money' | 'mtn_money'`)
+- `payment_method` : enum strict (`'Wave' | 'wave' | 'orange_money' | 'mtn_money'`)
 - `shipping_address` : validation stricte de chaque sous-champ
 
 ### Protections supplémentaires
@@ -159,7 +157,7 @@ Ville : Abidjan
 Code Postal : BP 1234
 Type de carte : NFC + QR Code (nfc_qr)
 Quantité : 1
-Méthode de paiement : Mobile Money (lygos)
+Méthode de paiement : Mobile Money (Wave)
 ```
 
 ### 2. Données envoyées à l'API
@@ -169,7 +167,7 @@ POST /api/orders/create
 {
   "card_type": "nfc_qr",
   "quantity": 1,
-  "payment_method": "lygos",
+  "payment_method": "Wave",
   "shipping_address": {
     "name": "Jean Kouassi",
     "email": "jean.kouassi@example.com",
@@ -194,15 +192,13 @@ INSERT INTO orders VALUES (
   15000.00,                                 -- total_amount (calculé)
   'XOF',                                    -- currency
   'nfc_qr',                                 -- card_type
-  'lygos',                                  -- payment_method
+  'Wave',                                  -- payment_method
   'pending',                                -- payment_status
   NULL,                                     -- payment_reference
   '{"name":"Jean Kouassi","email":"jean.kouassi@example.com","phone":"+225 07 12 34 56 78","address":"Cocody, Riviera 3, Rue des Jardins","city":"Abidjan","postalCode":"BP 1234"}',  -- shipping_address (JSONB)
   NULL,                                     -- tracking_number
   NULL,                                     -- estimated_delivery
   NULL,                                     -- actual_delivery
-  NULL,                                     -- lygos_payment_id
-  NULL,                                     -- lygos_payment_url
   NULL,                                     -- wave_payment_id
   NULL,                                     -- wave_payment_url
   '2025-12-04 15:00:00+00',                -- created_at
@@ -230,7 +226,6 @@ Ces champs sont remplis par d'autres processus (webhooks, expédition, etc.) :
 - `tracking_number` : Lors de l'expédition
 - `estimated_delivery` : Calculé après validation
 - `actual_delivery` : À la livraison
-- `lygos_payment_id` / `lygos_payment_url` : Par le webhook LyGOS
 - `wave_payment_id` / `wave_payment_url` : Par le webhook Wave
 
 ### 🚀 Recommandations

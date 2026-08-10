@@ -2,8 +2,10 @@
 
 Dossier réservé aux schémas d'architecture système (C4, ERD, infra Supabase).
 
-_Aucun schéma pour l'instant._ Les prochains diagrammes iront ici :
+| Fichier source | Aperçu SVG | Sujet |
+|---|---|---|
+| [rbac-unified-roles.mmd](./rbac-unified-roles.mmd) | ![Modèle RBAC Unifié](./rbac-unified-roles.svg) | Architecture des rôles unifiés (client, admin) avec synchronisation JWT |
 
+*Prochains schémas potentiels :*
 - Contexte C4 Ofika
-- Schéma base de données (ERD)
 - Flux auth Supabase

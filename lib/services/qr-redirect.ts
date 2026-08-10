@@ -204,6 +204,7 @@ export async function getQRRedirectByShortCode(
       .select('*')
       .eq('short_code', shortCode)
       .eq('is_active', true)
+      .is('deleted_at', null)
       .single()
 
     if (error) {
@@ -238,6 +239,7 @@ export async function getUserQRRedirects(): Promise<{
       .from('qr_redirects')
       .select('*')
       .eq('user_id', user.id)
+      .is('deleted_at', null)
       .order('created_at', { ascending: false })
 
     if (error) {
@@ -268,7 +270,7 @@ export async function deleteQRRedirect(
 
     const { error } = await supabase
       .from('qr_redirects')
-      .delete()
+      .update({ deleted_at: new Date().toISOString() })
       .eq('id', id)
       .eq('user_id', user.id)
 
@@ -343,7 +345,10 @@ export async function trackQRScan(
     }
 
     // Incrémenter le compteur de scans de manière atomique via RPC
-    const { error: updateError } = await supabase
+    // Utiliser le client administrateur car la fonction a été révoquée pour 'anon'
+    const { createAdminClient } = await import('@/lib/supabase/service-role')
+    const adminSupabase = createAdminClient()
+    const { error: updateError } = await adminSupabase
       .rpc('increment_scan_count', { qr_id: redirect.id })
 
     if (updateError) {

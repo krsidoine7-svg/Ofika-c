@@ -1,5 +1,5 @@
 import { notFound } from 'next/navigation'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/service-role'
 import { PublicReviewForm } from '@/components/features/reviews'
 import { Logo } from '@/components/ui/logo'
 import Link from 'next/link'
@@ -14,7 +14,7 @@ export default async function PublicReviewPage({
     params: Promise<{ slug: string }>
 }) {
     const { slug } = await params
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     // Récupérer le lien de collecte
     const { data: link, error } = await supabase
@@ -117,7 +117,7 @@ export async function generateMetadata({
     params: Promise<{ slug: string }>
 }) {
     const { slug } = await params
-    const supabase = await createClient()
+    const supabase = createAdminClient()
 
     const { data: link } = await supabase
         .from('review_links')

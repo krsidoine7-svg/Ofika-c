@@ -179,13 +179,13 @@ C4Container
 
   Container(myApp, "My App", "Node.js")
 
-  System_Boundary(stripe, "Stripe") {
-    Container(stripeApi, "Stripe API", "Ruby")
-    Container(stripeWorker, "Payment Worker", "Java")
-    ContainerDb(stripeDb, "Payment DB", "MySQL")
+  System_Boundary(Wave, "Wave") {
+    Container(WaveApi, "Wave API", "Ruby")
+    Container(WaveWorker, "Payment Worker", "Java")
+    ContainerDb(WaveDb, "Payment DB", "MySQL")
   }
 
-  Rel(myApp, stripeApi, "Charges cards")
+  Rel(myApp, WaveApi, "Charges cards")
 ```
 
 **Correct - External system as black box:**
@@ -194,9 +194,9 @@ C4Context
   title CORRECT: External System Black Box
 
   Container(myApp, "My App", "Node.js", "E-commerce backend")
-  System_Ext(stripe, "Stripe", "Payment processing platform")
+  System_Ext(Wave, "Wave", "Payment processing platform")
 
-  Rel(myApp, stripe, "Processes payments", "REST API")
+  Rel(myApp, Wave, "Processes payments", "REST API")
 ```
 
 ## Metadata and Documentation Mistakes

@@ -13,6 +13,7 @@ import { useState, useEffect } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { usePushNotifications } from "@/lib/hooks/usePushNotifications"
 import { trackContactAction } from "@/lib/services/profile-analytics"
+import { generateCompleteVCard } from "@/lib/utils/vcard"
 
 interface AddToContactsAutoProps {
   profile: ProfileWithLinks
@@ -81,20 +82,10 @@ export function AddToContactsAuto({
     })
   }, [])
 
-  /**
-   * Télécharge automatiquement le fichier vCard depuis l'API
-   */
   const downloadVCard = async (): Promise<boolean> => {
     try {
-      const apiUrl = `${window.location.origin}/api/contacts/${profile.id}`
-      const response = await fetch(apiUrl)
-
-      if (!response.ok) {
-        const errorData = await response.json()
-        throw new Error(errorData.error || 'Erreur lors du téléchargement')
-      }
-
-      const vcardContent = await response.text()
+      const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
+      const vcardContent = generateCompleteVCard(profile, baseUrl)
       const fileName = `${profile.name.replace(/[^a-zA-Z0-9\s-]/g, '').replace(/\s+/g, '_')}.vcf`
 
       // Créer et déclencher le téléchargement
@@ -130,16 +121,10 @@ export function AddToContactsAuto({
     }
   }
 
-  /**
-   * Partage via Web Share API (iOS/Android moderne)
-   */
   const shareViaWebShare = async (): Promise<boolean> => {
     try {
-      const apiUrl = `${window.location.origin}/api/contacts/${profile.id}`
-      const response = await fetch(apiUrl)
-      if (!response.ok) throw new Error('Erreur API')
-
-      const vcardContent = await response.text()
+      const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
+      const vcardContent = generateCompleteVCard(profile, baseUrl)
       const blob = new Blob([vcardContent], { type: 'text/vcard' })
       const file = new File([blob], `${profile.name.replace(/[^a-zA-Z0-9\s-]/g, '').replace(/\s+/g, '_')}.vcf`, {
         type: 'text/vcard'
@@ -194,10 +179,14 @@ export function AddToContactsAuto({
             const supabase = createClient()
             const { data: { user } } = await supabase.auth.getUser()
             if (user) {
-              await supabase.rpc('log_contact_activity', {
-                p_contact_id: profile.id,
-                p_activity_type: 'share',
-                p_metadata: { source: 'web_share' }
+              await fetch('/api/analytics/contact-activity', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                  contactId: profile.id,
+                  activityType: 'share',
+                  metadata: { source: 'web_share' }
+                })
               })
             }
           } catch (e) { }

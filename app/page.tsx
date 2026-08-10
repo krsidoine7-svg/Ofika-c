@@ -17,9 +17,17 @@ import { Badge } from "@/components/ui/badge"
 
 import { ArrowRight, Smartphone, CreditCard, Users, Globe, Shield, Zap, Play, CheckCircle, Smartphone as PhoneIcon, Zap as LightningIcon, Wifi, WifiOff, QrCode, Upload, User, Briefcase, Building, Image, RotateCcw, Palette, Mail, Phone, X, Loader2, UserPlus, Menu, Star, TrendingUp, Award, Link as LinkIcon, AlertTriangle, Facebook, Instagram, Linkedin, MessageCircle, Music2, Sparkles, Video } from "lucide-react"
 import Link from "next/link"
-import { HowItWorks } from "@/components/HowItWorks"
-import InteractiveBusinessCard from "@/components/InteractiveBusinessCard"
+import dynamic from 'next/dynamic'
 import { Logo } from "@/components/ui/logo"
+
+const InteractiveBusinessCard = dynamic(() => import("@/components/InteractiveBusinessCard"), {
+  ssr: false,
+  loading: () => (
+    <div className="w-full h-[400px] flex items-center justify-center bg-gray-900 rounded-3xl border border-gray-800">
+      <Loader2 className="w-8 h-8 text-ofika-orange animate-spin" />
+    </div>
+  )
+})
 
 import { ModernHero } from "@/components/landing/ModernHero"
 import { ScrollStorytelling } from "@/components/landing/ScrollStorytelling"
@@ -30,6 +38,66 @@ import { NFC_CARD_BASE_PRICE } from "@/lib/config/pricing"
 export default function HomePage() {
   // États pour le menu mobile
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+
+  // État du carrousel de comparaison
+  const [currentSlide, setCurrentSlide] = useState(0)
+  const alternatives = [
+    {
+      name: 'Linktree',
+      tagline: 'Liens statiques standard VS Carte NFC connectée physique',
+      competitorPoint: 'Linktree limite votre partage à un simple lien numérique dans votre bio Instagram.',
+      ofikaPoint: 'Partagez instantanément par simple contact NFC lors de vos rencontres réelles, en plus du QR code dynamique.',
+      valueAdded: 'Zéro friction en face-à-face, taux de conversion des prospects multiplié par 5.',
+      href: '/onboarding/public-page'
+    },
+    {
+      name: 'Beacons',
+      tagline: 'Complexité e-commerce VS Focus Impact & Networking',
+      competitorPoint: 'Beacons surcharge votre interface avec des outils de vente e-book complexes.',
+      ofikaPoint: 'Design premium ultra-rapide axé sur votre portfolio et le networking physique pro.',
+      valueAdded: 'Idéal pour les designers, réalisateurs et professionnels B2B.',
+      href: '/onboarding/public-page'
+    },
+    {
+      name: 'Dot.me',
+      tagline: 'Carte simple VS Mini-site personnalisé complet',
+      competitorPoint: 'Dot propose un profil basique limité en design et en personnalisation.',
+      ofikaPoint: 'Votre véritable mini-site dynamique, avec redirection instantanée en un clic.',
+      valueAdded: 'Changez la destination du lien physique à tout moment, sans réimprimer.',
+      href: '/onboarding/public-page'
+    },
+    {
+      name: 'Koji',
+      tagline: 'Apps complexes VS Clarté et Vitesse d\'exécution',
+      competitorPoint: 'Koji propose des mini-apps complexes et lourdes à charger sur mobile.',
+      ofikaPoint: 'Une structure légère, ultra-rapide, optimisée pour le réseau mobile d\'Afrique de l\'Ouest.',
+      valueAdded: 'Chargement en moins de 1 seconde pour vos prospects.',
+      href: '/onboarding/public-page'
+    },
+    {
+      name: 'Lnk.Bio',
+      tagline: 'Abonnements récurrents VS Solution Locale Wave Direct',
+      competitorPoint: 'Lnk.Bio requiert des abonnements mensuels récurrents en devises étrangères.',
+      ofikaPoint: 'Paiement unique via Wave Direct sans abonnement obligatoire, 100% adapté localement.',
+      valueAdded: 'Intégration locale parfaite et facturation transparente.',
+      href: '/onboarding/public-page'
+    },
+    {
+      name: 'Milkshake',
+      tagline: 'Simple page mobile VS Écosystème Connecté Premium',
+      competitorPoint: 'Milkshake se limite à une application de création de page mobile basique.',
+      ofikaPoint: 'Un profil professionnel interconnecté à des cartes NFC premium et tag QR Ofika.',
+      valueAdded: 'Synergie totale entre le physique et le numérique.',
+      href: '/onboarding/public-page'
+    }
+  ]
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setCurrentSlide((prev) => (prev + 1) % alternatives.length)
+    }, 5500)
+    return () => clearInterval(timer)
+  }, [])
 
   // Authentification
   const { user, loading } = useAuth()
@@ -593,6 +661,121 @@ export default function HomePage() {
               </p>
             </div>
           </div>
+        </div>
+      </section>
+
+      {/* Section Alternatives / Comparatifs */}
+      <section className="py-20 bg-white border-t border-gray-100 relative overflow-hidden">
+        <div className="absolute top-0 left-1/4 w-80 h-80 bg-orange-500/5 blur-[120px] pointer-events-none rounded-full" />
+        <div className="container mx-auto px-4 max-w-6xl relative z-10">
+          <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
+            <Badge variant="outline" className="border-orange-500/30 text-orange-600 bg-orange-500/10 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider">
+              Comparatifs
+            </Badge>
+            <h2 className="text-3xl md:text-5xl font-black text-gray-900 tracking-tight">
+              Ofika vs Les Alternatives
+            </h2>
+            <p className="text-gray-600 font-medium">
+              Découvrez en une seconde pourquoi Ofika est le choix privilégié des professionnels pour se démarquer en ligne et dans le monde physique.
+            </p>
+          </div>
+
+          {/* Carrousel de Comparatif Animé */}
+          {(() => {
+            const activeAlt = alternatives[currentSlide]
+            return (
+              <div className="relative max-w-4xl mx-auto overflow-hidden bg-white rounded-3xl border border-gray-100 p-8 md:p-12 shadow-[0_10px_50px_rgba(0,0,0,0.05)]">
+                <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/5 blur-[50px] pointer-events-none rounded-full" />
+                
+                {/* Slide Wrapper avec transition */}
+                <div className="transition-all duration-700 ease-in-out transform min-h-[300px] flex flex-col justify-between">
+                  <div className="space-y-6">
+                    <div className="flex items-center justify-between">
+                      <span className="text-sm font-black tracking-widest text-orange-600 uppercase">
+                        CONFRONTATION DIRECTE
+                      </span>
+                      <Badge variant="outline" className="border-orange-500/20 text-orange-600 bg-orange-500/5 font-black uppercase text-[10px]">
+                        Ofika vs {activeAlt.name}
+                      </Badge>
+                    </div>
+
+                    <div className="space-y-2">
+                      <h3 className="text-xl md:text-3xl font-black text-gray-900 leading-tight">
+                        {activeAlt.tagline}
+                      </h3>
+                      <p className="text-[10px] text-gray-400 font-black uppercase tracking-wider">
+                        CE QUI VOUS REND UNIQUE EN 1 SECONDE
+                      </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-100">
+                      {/* Point Concurrent */}
+                      <div className="bg-red-500/5 border border-red-500/10 rounded-2xl p-5 space-y-2">
+                        <span className="text-xs font-black tracking-wider uppercase text-red-500 block">
+                          Chez {activeAlt.name}
+                        </span>
+                        <p className="text-base md:text-lg text-gray-700 leading-relaxed font-semibold">
+                          {activeAlt.competitorPoint}
+                        </p>
+                      </div>
+
+                      {/* Point Ofika */}
+                      <div className="bg-green-500/5 border border-green-500/10 rounded-2xl p-5 space-y-2 relative overflow-hidden">
+                        <div className="absolute top-0 right-0 w-24 h-24 bg-green-500/5 blur-2xl rounded-full" />
+                        <span className="text-xs font-black tracking-wider uppercase text-green-600 block">
+                          Avec Ofika (Point Fort)
+                        </span>
+                        <p className="text-base md:text-lg text-gray-900 leading-relaxed font-black">
+                          {activeAlt.ofikaPoint}
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="bg-orange-500/5 border border-orange-500/10 rounded-2xl p-5">
+                      <div className="space-y-1">
+                        <span className="text-xs font-black tracking-wider uppercase text-orange-600 block">
+                          Valeur Ajoutée Unique
+                        </span>
+                        <p className="text-sm md:text-base text-gray-800 font-bold leading-relaxed">
+                          {activeAlt.valueAdded}
+                        </p>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Navigation du Carrousel */}
+                <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-100">
+                  <div className="flex gap-1.5">
+                    {alternatives.map((_, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setCurrentSlide(idx)}
+                        className={`h-1.5 rounded-full transition-all duration-300 ${
+                          currentSlide === idx ? 'w-8 bg-orange-500' : 'w-2 bg-gray-200 hover:bg-gray-300'
+                        }`}
+                      />
+                    ))}
+                  </div>
+
+                  <div className="flex gap-3">
+                    <button 
+                      onClick={() => setCurrentSlide((prev) => (prev - 1 + alternatives.length) % alternatives.length)}
+                      className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:text-gray-900 hover:border-orange-500/40 transition-all font-bold shadow-sm"
+                    >
+                      ←
+                    </button>
+                    <button 
+                      onClick={() => setCurrentSlide((prev) => (prev + 1) % alternatives.length)}
+                      className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:text-gray-900 hover:border-orange-500/40 transition-all font-bold shadow-sm"
+                    >
+                      →
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )
+          })()}
         </div>
       </section>
 

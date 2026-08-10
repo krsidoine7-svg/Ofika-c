@@ -44,6 +44,8 @@ export const PLACEHOLDERS = {
   name: 'Votre nom complet',
   email: 'votre@email.com',
   phone: `${DEFAULTS.phoneCountryCode} XX XX XX XX`,
+  city: 'Abidjan',
+  address: 'Quartier, Rue, Bâtiment...',
   language: 'Sélectionnez une langue'
 } as const
 
@@ -57,6 +59,8 @@ export const LABELS = {
     name: 'Nom complet',
     email: 'Email',
     phone: 'Téléphone',
+    city: 'Ville',
+    address: 'Adresse de livraison détaillée',
     language: 'Langue préférée',
     image: 'Photo de profil'
   },

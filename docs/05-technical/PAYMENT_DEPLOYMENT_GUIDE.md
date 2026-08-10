@@ -2,10 +2,10 @@
 
 ## 📋 **PRÉPARATION PRODUCTION**
 
-### **1. Configuration Lygos API**
+### **1. Configuration Wave API**
 
 **Obtenir les clés API :**
-1. Créer un compte sur [Lygos](https://lygos.com)
+1. Créer un compte sur [Wave](https://Wave.com)
 2. Activer les méthodes de paiement :
    - Orange Money
    - MTN Money  
@@ -15,10 +15,7 @@
 
 **Variables d'environnement production :**
 ```env
-# Lygos API Production
-LYGOS_API_KEY=prod_lygos_api_key_here
-LYGOS_BASE_URL=https://api.lygos.com
-LYGOS_WEBHOOK_SECRET=prod_webhook_secret_here
+# Wave API Production
 
 # Application
 NEXT_PUBLIC_APP_URL=https://ofika.app
@@ -48,15 +45,15 @@ SELECT get_user_order_stats('user-uuid-here');
 
 ### **3. Configuration Webhooks**
 
-**URL webhook à configurer dans Lygos :**
+**URL webhook à configurer dans Wave :**
 ```
-https://ofika.app/api/webhooks/lygos
+https://ofika.app/api/webhooks/Wave
 ```
 
 **Headers requis :**
 ```
 Content-Type: application/json
-X-Lygos-Signature: [signature]
+X-Wave-Signature: [signature]
 ```
 
 **Événements à écouter :**
@@ -69,7 +66,7 @@ X-Lygos-Signature: [signature]
 **Checklist de tests :**
 - [ ] Création de commande
 - [ ] Génération lien de paiement
-- [ ] Redirection vers Lygos
+- [ ] Redirection vers Wave
 - [ ] Webhook de confirmation
 - [ ] Mise à jour statut commande
 - [ ] Email de confirmation
@@ -85,8 +82,8 @@ X-Lygos-Signature: [signature]
 
 ### **Logs importants :**
 ```bash
-# Webhooks Lygos
-grep "Webhook Lygos" /var/log/app.log
+# Webhooks Wave
+grep "Webhook Wave" /var/log/app.log
 
 # Erreurs de paiement
 grep "Payment error" /var/log/app.log
@@ -109,13 +106,13 @@ SELECT * FROM order_stats;
 ### **Erreurs courantes :**
 
 **1. Webhook non reçu :**
-- Vérifier l'URL webhook dans Lygos
+- Vérifier l'URL webhook dans Wave
 - Contrôler les logs du serveur
 - Tester manuellement l'endpoint
 
 **2. Paiement non confirmé :**
 - Vérifier la signature du webhook
-- Contrôler les logs de l'API Lygos
+- Contrôler les logs de l'API Wave
 - Relancer manuellement si nécessaire
 
 **3. Limite utilisateur dépassée :**
@@ -190,7 +187,7 @@ ORDER BY created_at DESC;
 - Vérifier les méthodes de paiement
 
 **"Mon paiement n'est pas confirmé" :**
-- Vérifier le statut dans Lygos
+- Vérifier le statut dans Wave
 - Contrôler les logs de webhook
 - Relancer manuellement si nécessaire
 

@@ -13,14 +13,10 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
     }
 
-    // Admin Check (assuming business logic handles role validation)
-    const { data: isAdmin } = await supabase.from('admin_users').select('id').eq('id', user.id).single()
-    if (!isAdmin) {
-       // Optional: fall back to checking user role in users table if admin_users is just a list
-       const { data: userRole } = await supabase.from('users').select('role').eq('id', user.id).single()
-       if (userRole?.role !== 'admin') {
-         return NextResponse.json({ error: 'Accès refusé' }, { status: 403 })
-       }
+    // Admin Check
+    const { data: userRole } = await supabase.from('users').select('role').eq('id', user.id).single()
+    if (!userRole || (userRole.role !== 'admin' && userRole.role !== 'super_admin')) {
+      return NextResponse.json({ error: 'Accès refusé' }, { status: 403 })
     }
 
     // 1. Fetch All Analytics Events

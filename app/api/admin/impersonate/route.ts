@@ -19,13 +19,13 @@ export async function POST(request: NextRequest) {
     }
 
     // 1. Vérifier si l'utilisateur est un admin
-    const { data: isAdmin } = await supabase
-      .from('admin_users')
-      .select('id')
+    const { data: userRecord } = await supabase
+      .from('users')
+      .select('role')
       .eq('id', user.id)
       .single()
 
-    if (!isAdmin) {
+    if (!userRecord || (userRecord.role !== 'admin' && userRecord.role !== 'super_admin')) {
       return NextResponse.json({ error: 'Accès refusé' }, { status: 403 })
     }
 

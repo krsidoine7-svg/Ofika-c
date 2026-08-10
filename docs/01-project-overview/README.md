@@ -56,7 +56,7 @@ Documentation complète de la table `orders` et de sa cohérence avec le formula
 
 - **[API_REFERENCE.md](./API_REFERENCE.md)** : Documentation de l'API REST
 - **[WEBHOOK_MAKECOM_REFERENCE.md](./WEBHOOK_MAKECOM_REFERENCE.md)** : Intégration Make.com
-- **[PAYMENT_INTEGRATION.md](./PAYMENT_INTEGRATION.md)** : Intégration LyGOS et Wave
+- **[PAYMENT_INTEGRATION.md](./PAYMENT_INTEGRATION.md)** : Intégration Wave et Wave
 
 ### Guides de développement
 
@@ -129,7 +129,7 @@ Documentation complète de la table `orders` et de sa cohérence avec le formula
                             │
                             ▼
                      ┌──────────────┐
-                     │   LyGOS      │
+                     │   Wave      │
                      │   Paiement   │
                      └──────────────┘
 ```
@@ -142,7 +142,7 @@ Documentation complète de la table `orders` et de sa cohérence avec le formula
 - **Supabase** : https://supabase.com/docs
 - **Next.js** : https://nextjs.org/docs
 - **PostgreSQL** : https://www.postgresql.org/docs
-- **LyGOS** : https://lygos.ci
+- **Wave** : https://Wave.ci
 
 ### Ressources internes
 - **Dépôt GitHub** : [Lien vers votre repo]

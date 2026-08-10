@@ -172,7 +172,8 @@ Par défaut, fournir :
 1. Fichier **`.mmd`** dans le bon sous-dossier de `schemas-mermaid/`.
 2. Fichier **`.svg`** exporté via `.\schemas-mermaid\render-all.ps1`.
 3. Ligne ajoutée dans le **README** du sous-dossier concerné.
-4. (Optionnel) Bloc ` ```mermaid ` dans une PR ou doc si demandé.
+4. **Onboarding & Étapes** : Intégrer systématiquement un ou plusieurs diagrammes de flux SVG directement dans les documents Markdown d'onboarding ou d'étapes (en haut ou à des endroits clés) pour permettre une assimilation visuelle instantanée en plus du texte explicatif.
+5. (Optionnel) Bloc ` ```mermaid ` dans une PR ou doc si demandé.
 
 Indiquer brièvement **pourquoi** ce type de diagramme a été choisi et **quel sous-dossier** a été utilisé.
 

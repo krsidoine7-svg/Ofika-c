@@ -111,6 +111,32 @@ export default function AdminBroadcastPage() {
         }
     }
 
+    const handleTestPush = async () => {
+        setSendingPush(true)
+        try {
+            // L'astuce ici est d'utiliser le même endpoint mais de simuler l'envoi juste pour vérifier que l'appel part
+            const res = await fetch('/api/admin/push-all', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    title: "🔔 Test Admin",
+                    body: "Votre appareil reçoit bien les notifications !",
+                    url: '/dashboard'
+                })
+            })
+            const json = await res.json()
+            if (json.success) {
+                toast.success(`Test envoyé. (Reçu par ${json.sentCount} appareils abonnés)`)
+            } else {
+                throw new Error(json.error)
+            }
+        } catch (err: any) {
+            toast.error(err.message || "Erreur lors de l'envoi test")
+        } finally {
+            setSendingPush(false)
+        }
+    }
+
     if (loading) return <div className="flex h-[400px] items-center justify-center"><Loader2 className="w-8 h-8 animate-spin text-orange-500" /></div>
 
     return (
@@ -231,16 +257,27 @@ export default function AdminBroadcastPage() {
                                     value={pushBody}
                                     onChange={(e) => setPushBody(e.target.value)}
                                 />
+                                <div className="flex gap-3">
+                                    <Button 
+                                        variant="outline"
+                                        className="w-full h-14 rounded-2xl font-bold bg-gray-50 hover:bg-gray-100 text-gray-700 transition-all border-none"
+                                        onClick={handleTestPush}
+                                        disabled={sendingPush}
+                                    >
+                                        S'envoyer un Test
+                                    </Button>
+                                    <Button 
+                                        className="w-full h-14 rounded-2xl font-bold bg-gradient-to-r from-orange-500 to-red-500 hover:from-orange-600 hover:to-red-600 text-white shadow-lg shadow-orange-500/20 transition-all"
+                                        onClick={handleSendPush}
+                                        disabled={sendingPush}
+                                    >
+                                        <span className="flex items-center gap-2">
+                                            Envoyer à tous
+                                            {sendingPush ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
+                                        </span>
+                                    </Button>
+                                </div>
                             </div>
-
-                            <Button 
-                                onClick={handleSendPush}
-                                disabled={sendingPush}
-                                className="w-full h-16 rounded-3xl bg-white text-blue-600 hover:bg-blue-50 font-black text-sm tracking-widest gap-3 shadow-xl hover:scale-105 transition-all"
-                            >
-                                {sendingPush ? <Loader2 className="w-5 h-5 animate-spin" /> : <Send className="w-5 h-5" />}
-                                ENVOYER À TOUT LE MONDE
-                            </Button>
                             
                             <p className="text-[10px] text-center font-bold text-blue-100/60 uppercase tracking-widest">
                                 Sera envoyé à tous ceux qui ont activé les rappels.

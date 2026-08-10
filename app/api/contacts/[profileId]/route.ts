@@ -3,10 +3,21 @@ import { createClient } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
+// Store en mémoire pour le Rate Limiting basique
+const rateLimitMap = new Map<string, number[]>()
+
 interface SimpleLink {
   platform?: string
   title?: string
   url: string
+}
+
+/**
+ * Échappe les caractères spéciaux pour éviter les injections de commandes vCard
+ */
+function escapeVCard(text: string | null | undefined): string {
+  if (!text) return ''
+  return text.replace(/[\\,;]/g, '\\$&').replace(/\n/g, '\\n')
 }
 
 /**
@@ -18,15 +29,15 @@ function generateCompleteVCard(profile: any, baseUrl: string): string {
     'VERSION:3.0'
   ]
 
-  const name = profile.full_name || profile.name || profile.profile_name
+  const name = escapeVCard(profile.full_name || profile.name || profile.profile_name)
   if (name) {
-    lines.push(`FN:${name}`)
-    lines.push(`N:${name};;;`)
+    lines.push(`FN;CHARSET=UTF-8:${name}`)
+    lines.push(`N;CHARSET=UTF-8:${name};;;`)
   }
 
-  const bio = profile.bio || ''
+  const bio = escapeVCard(profile.bio)
   if (bio) {
-    lines.push(`NOTE:${bio.replace(/\n/g, '\\n')}`)
+    lines.push(`NOTE;CHARSET=UTF-8:${bio}`)
   }
 
   if (profile.email) {
@@ -43,14 +54,15 @@ function generateCompleteVCard(profile: any, baseUrl: string): string {
   }
 
   if (profile.location) {
-    lines.push(`ADR;TYPE=WORK:;;${profile.location.replace(/;/g, ',')};;;;`)
+    const loc = escapeVCard(profile.location.replace(/;/g, ','))
+    lines.push(`ADR;TYPE=WORK;CHARSET=UTF-8:;;${loc};;;;`)
   }
 
   if (profile.company) {
-    lines.push(`ORG:${profile.company}`)
+    lines.push(`ORG;CHARSET=UTF-8:${escapeVCard(profile.company)}`)
   }
   if (profile.job_title) {
-    lines.push(`TITLE:${profile.job_title}`)
+    lines.push(`TITLE;CHARSET=UTF-8:${escapeVCard(profile.job_title)}`)
   }
 
   // Collecter tous les liens
@@ -137,7 +149,30 @@ export async function GET(
 ) {
   try {
     const { profileId: profileIdOrUsername } = await params
+    
+    // 1. Validation de base
     if (!profileIdOrUsername) return NextResponse.json({ error: 'ID ou Username manquant' }, { status: 400 })
+    
+    // 2. Sécurité : Sanitization de l'entrée (empêche les injections SQL ou vCard)
+    const sanitizedId = profileIdOrUsername.trim().replace(/[^a-zA-Z0-9\-_]/g, '')
+    if (sanitizedId !== profileIdOrUsername) {
+      return NextResponse.json({ error: 'Format invalide' }, { status: 400 })
+    }
+
+    // 3. Rate Limiting très basique en mémoire (Anti-Spam / DDoS)
+    const ip = request.headers.get('x-forwarded-for') || request.headers.get('x-real-ip') || 'unknown'
+    const now = Date.now()
+    if (ip !== 'unknown') {
+      const userRequests = rateLimitMap.get(ip) || []
+      const recentRequests = userRequests.filter(time => now - time < 60000) // Requêtes dans la dernière minute
+      
+      if (recentRequests.length >= 20) { // Max 20 vCards générées par minute par IP
+        return NextResponse.json({ error: 'Trop de requêtes, veuillez patienter.' }, { status: 429 })
+      }
+      
+      recentRequests.push(now)
+      rateLimitMap.set(ip, recentRequests)
+    }
 
     const supabase = await createClient()
     let profile: any = null

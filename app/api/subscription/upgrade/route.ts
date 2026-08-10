@@ -4,14 +4,13 @@ import { AuthGuard } from '@/lib/security/auth-guard'
 import { createRateLimitMiddleware, RATE_LIMIT_CONFIGS } from '@/lib/security/rate-limiter'
 import { InputSanitizer } from '@/lib/security/input-sanitizer'
 import { SUBSCRIPTION_PLANS } from '@/lib/hooks/usePayments'
-import { createLygosPayment } from '@/lib/services/lygos-api'
+import { generateWavePaymentUrl, WaveApiConfig } from '@/lib/services/wave-api'
 
 export const dynamic = 'force-dynamic'
 
-
 /**
  * POST /api/subscription/upgrade
- * Met à niveau l'abonnement de l'utilisateur vers un plan premium
+ * Met à niveau l'abonnement de l'utilisateur vers un plan premium via Wave
  */
 export async function POST(request: NextRequest) {
   try {
@@ -60,42 +59,53 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Générer un ID de commande unique pour l'abonnement
-    const orderId = `sub_${Date.now()}_${user.id.substring(0, 8)}`
+    // 1. Récupérer la configuration Wave
+    const { data: dbConfig } = await supabase
+      .from('system_config')
+      .select('value')
+      .eq('key', 'payment_gateways')
+      .single()
 
-    // Créer le paiement via LyGOS
-    const paymentResult = await createLygosPayment({
-      amount: plan.price,
-      order_id: orderId,
-      message: `Abonnement ${plan.name}${plan.interval ? ` - ${plan.interval}` : ''}`,
-      success_url: `${process.env.NEXT_PUBLIC_APP_URL}/subscription/success?plan=${planId}`,
-      failure_url: `${process.env.NEXT_PUBLIC_APP_URL}/subscription/cancelled`
-    })
-
-    if (!paymentResult.success || !paymentResult.data) {
-      console.error('❌ Erreur création paiement abonnement:', paymentResult.error)
+    const waveConfig = dbConfig?.value?.wave || {}
+    const isWaveActive = waveConfig.is_active ?? true
+    
+    if (!isWaveActive) {
       return NextResponse.json(
-        {
-          success: false,
-          error: paymentResult.error || 'Erreur lors de la création du paiement'
-        },
-        { status: 500 }
+        { success: false, error: 'La méthode de paiement Wave est temporairement désactivée.' },
+        { status: 403 }
       )
     }
 
-    // TODO: Sauvegarder l'intention d'abonnement en base de données
-    // Pour l'instant, on redirige directement vers le paiement
+    // Générer un ID de commande unique pour l'abonnement
+    const orderId = `sub_${Date.now()}_${user.id.substring(0, 8)}`
+
+    // Déterminer le lien de paiement Wave
+    let paymentLink = waveConfig.wave_payment_link
+    if (!paymentLink) {
+      paymentLink = generateWavePaymentUrl({
+        amount: plan.price,
+        orderId: orderId,
+        merchantId: waveConfig.wave_merchant_id || WaveApiConfig.merchantId,
+        countryCode: 'ci'
+      })
+    } else {
+      if (paymentLink.includes('?')) {
+        paymentLink = `${paymentLink}&a=${plan.price}`
+      } else {
+        paymentLink = `${paymentLink}?a=${plan.price}`
+      }
+    }
 
     console.log('✅ Paiement abonnement créé:', {
       plan: planId,
       amount: plan.price,
-      payment_id: paymentResult.data.id
+      order_id: orderId
     })
 
     return NextResponse.json({
       success: true,
       data: {
-        payment_url: paymentResult.data.link,
+        payment_url: paymentLink,
         plan_id: planId,
         amount: plan.price,
         currency: plan.currency,

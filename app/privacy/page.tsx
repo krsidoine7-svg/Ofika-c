@@ -143,7 +143,7 @@ export default function PrivacyPage() {
                                     </div>
                                     <div className="p-4 bg-gray-50 border border-gray-100 rounded-xl">
                                         <p className="text-xs font-black mb-1">Données de Paiement</p>
-                                        <p className="text-[11px] text-gray-500">Traitement via <strong>Mobile Money (Orange, MTN, Moov)</strong>, Wave et Cartes Bancaires opéré par LyGOS. Ofika ne stocke jamais vos numéros de carte ou secrets de paiement.</p>
+                                        <p className="text-[11px] text-gray-500">Traitement via <strong>Mobile Money (Orange, MTN, Moov)</strong>, Wave et Cartes Bancaires opéré par GeniusPay. Ofika ne stocke jamais vos numéros de carte ou secrets de paiement.</p>
                                     </div>
                                 </div>
                             </div>

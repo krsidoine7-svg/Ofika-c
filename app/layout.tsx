@@ -6,6 +6,7 @@ import { ConditionalAnalytics } from '@/components/Analytics'
 import { Toaster } from 'sonner'
 import { QueryProvider } from '@/lib/providers/QueryProvider'
 import { AuthProvider } from '@/lib/context/AuthContext'
+import { PwaRegister } from '@/components/PwaRegister'
 import './globals.css'
 
 const inter = Inter({
@@ -23,8 +24,8 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://ofika.ci'),
-  title: 'Ofika - Le lien en bio et la carte NFC des créatifs',
-  description: 'Partagez tous vos réseaux et contacts avec une simple carte NFC ou un lien en bio. La meilleure alternative à Linktree, Beacons et Lnk.Bio conçue spécifiquement pour les créatifs et professionnels.',
+  title: 'Ofika | Le Link in Bio Ultime & Carte de Visite NFC pour Créatifs',
+  description: 'Créez votre mini-site portfolio gratuitement et partagez vos réseaux d\'un simple geste grâce à notre carte de visite NFC. La meilleure alternative locale à Linktree et Beacons en Afrique.',
   generator: 'v0.app',
   manifest: '/manifest.json',
   appleWebApp: {
@@ -84,6 +85,7 @@ export default function RootLayout({
               closeButton={true}
             />
             <ConditionalAnalytics />
+            <PwaRegister />
           </AuthProvider>
         </QueryProvider>
       </body>

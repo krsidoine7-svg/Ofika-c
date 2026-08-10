@@ -94,8 +94,8 @@ CREATE TABLE IF NOT EXISTS orders (
   -- Statut de paiement
   payment_status TEXT NOT NULL DEFAULT 'pending'
     CHECK (payment_status IN ('pending', 'processing', 'succeeded', 'failed', 'refunded', 'cancelled')),
-  payment_provider TEXT DEFAULT 'stripe',
-  payment_intent_id TEXT,  -- Stripe PaymentIntent ID
+  payment_provider TEXT DEFAULT 'Wave',
+  payment_intent_id TEXT,  -- Wave PaymentIntent ID
   
   -- Statut de livraison
   shipping_status TEXT NOT NULL DEFAULT 'pending'

@@ -9,16 +9,8 @@ export const dynamic = 'force-dynamic'
 
 /**
  * API Route pour créer un paiement Wave Direct
- * 
  * POST /api/payments/wave/create
- * 
- * Body:
- * {
- *   amount: number (requis)
- *   order_id: string (requis)
- *   message?: string
  */
-
 export async function POST(request: NextRequest) {
   try {
     console.log('🚀 API Route Wave - Création de paiement direct')
@@ -36,7 +28,7 @@ export async function POST(request: NextRequest) {
     })
     if (protectionResponse) return protectionResponse
 
-    // 1. Vérifier si la méthode est activée dans le dashboard admin
+    // 1. Récupérer la configuration depuis la DB
     const supabase = await createClient()
     const { data: dbConfig } = await supabase
       .from('system_config')
@@ -45,7 +37,7 @@ export async function POST(request: NextRequest) {
       .single()
 
     const waveConfig = dbConfig?.value?.wave || {}
-    const isWaveActive = waveConfig.is_active ?? false // Par défaut false pour Wave Direct car demande config manuelle
+    const isWaveActive = waveConfig.is_active ?? true
     
     if (!isWaveActive) {
       return NextResponse.json(
@@ -58,12 +50,6 @@ export async function POST(request: NextRequest) {
     const rawData = await request.json()
     const paymentData = InputSanitizer.sanitizeObject(rawData)
     
-    console.log('💳 Données de paiement Wave:', {
-      amount: paymentData.amount,
-      order_id: paymentData.order_id
-    })
-
-    // Validation des données requises
     if (!paymentData.amount || paymentData.amount <= 0) {
       return NextResponse.json(
         { success: false, error: 'Montant invalide (doit être > 0)' },
@@ -101,21 +87,31 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Générer le lien de paiement Wave Direct (Merchant Link)
-    const paymentLink = generateWavePaymentUrl({
-      amount: paymentData.amount,
-      orderId: paymentData.order_id,
-      merchantId: waveConfig.merchant_id,
-      countryCode: waveConfig.country_code
-    })
+    // Déterminer le lien de paiement (utiliser le lien configuré en DB s'il existe, sinon générer dynamiquement)
+    let paymentLink = waveConfig.wave_payment_link
+    if (!paymentLink) {
+      paymentLink = generateWavePaymentUrl({
+        amount: paymentData.amount,
+        orderId: paymentData.order_id,
+        merchantId: waveConfig.wave_merchant_id || WaveApiConfig.merchantId,
+        countryCode: 'ci'
+      })
+    } else {
+      // Si un lien statique est configuré, on s'assure qu'il a le montant
+      if (paymentLink.includes('?')) {
+        paymentLink = `${paymentLink}&a=${paymentData.amount}`
+      } else {
+        paymentLink = `${paymentLink}?a=${paymentData.amount}`
+      }
+    }
 
-    // Mettre à jour la commande avec les informations Wave
-    // Note: On réutilise lygos_payment_url pour simplifier si possible, ou on ajoute l'info en metadata
+    // Mettre à jour la commande
     const { error: updateError } = await supabase
       .from('orders')
       .update({
         payment_provider: 'wave',
-        lygos_payment_url: paymentLink, // On stocke l'URL finale dans ce champ pour l'instant
+        checkout_url: paymentLink,
+        wave_payment_url: paymentLink, // Ex lygos_payment_url, migré vers wave
         payment_status: 'pending',
         updated_at: new Date().toISOString()
       })
@@ -125,9 +121,6 @@ export async function POST(request: NextRequest) {
       console.error('❌ Erreur mise à jour commande Wave:', updateError)
     }
 
-    console.log('✅ Lien Wave généré:', paymentLink)
-
-    // Retourner la réponse
     return NextResponse.json({
       success: true,
       data: {

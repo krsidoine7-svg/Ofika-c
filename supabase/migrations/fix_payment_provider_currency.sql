@@ -6,14 +6,12 @@ ALTER TABLE public.orders
 ADD COLUMN IF NOT EXISTS currency TEXT DEFAULT 'XOF' 
 CHECK (currency = ANY (ARRAY['EUR'::text, 'USD'::text, 'XOF'::text]));
 
--- 2. Modifier le défaut de payment_provider de 'stripe' à 'lygos'
 ALTER TABLE public.orders 
-ALTER COLUMN payment_provider SET DEFAULT 'lygos';
+ALTER COLUMN payment_provider SET DEFAULT 'Wave';
 
--- 3. Mettre à jour les commandes existantes avec payment_provider NULL ou 'stripe'
 UPDATE public.orders 
-SET payment_provider = 'lygos'
-WHERE payment_provider IS NULL OR payment_provider = 'stripe';
+SET payment_provider = 'Wave'
+WHERE payment_provider IS NULL OR payment_provider = 'Wave';
 
 -- 4. Mettre à jour les commandes existantes avec currency NULL ou 'EUR'
 UPDATE public.orders 

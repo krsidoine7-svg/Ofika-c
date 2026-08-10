@@ -47,9 +47,8 @@ export function PushNotificationManager() {
                 return
             }
 
-            // Enregistrer le service worker
-            const registration = await navigator.serviceWorker.register('/sw.js')
-            await navigator.serviceWorker.ready
+            // 3. Obtenir le Service Worker
+            const registration = await navigator.serviceWorker.ready
 
             // VAPID public key
             const vapidPublicKey = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY!

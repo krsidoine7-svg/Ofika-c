@@ -156,7 +156,7 @@ function PaymentSuccessContent() {
                 </div>
                 <div className="flex items-center gap-2 mt-4 px-4 py-2 bg-green-500/10 rounded-full border border-green-500/20 w-fit">
                    <ShieldCheck className="w-4 h-4 text-green-500" />
-                   <span className="text-xs font-bold text-green-500 uppercase">Paiement Sécurisé LyGOS</span>
+                   <span className="text-xs font-bold text-green-500 uppercase">Paiement Sécurisé GeniusPay</span>
                 </div>
               </div>
             </CardContent>

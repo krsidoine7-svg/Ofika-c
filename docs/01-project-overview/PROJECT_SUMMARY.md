@@ -19,7 +19,7 @@
 ## 📁 Structure de Documentation
 
 ### 1. **Vision & Stratégie**
-- `01_VISION_STRATEGY.md` - Vision produit et stratégie marché
+- `01_VISION_STRATEGY.md` - Vision, stratégie, monétisation et marché du produit
 - `02_USER_JOURNEY.md` - Parcours utilisateur détaillé
 - `03_TARGET_MARKET.md` - Analyse du marché cible
 
@@ -29,14 +29,11 @@
 - `06_PAYMENT_INTEGRATION.md` - Intégration des paiements
 
 ### 3. **Architecture Technique**
-- `05_TECHNICAL_ARCHITECTURE.md` - Architecture générale
-- `06_DATABASE_DESIGN.md` - Conception base de données
-- `07_API_SPECIFICATIONS.md` - Spécifications API
+- `05_TECHNICAL_ARCHITECTURE.md` - Architecture, base de données et APIs du système
 
 ### 4. **Design & UX**
 - `08_PRODUCT_DESIGN.md` - Design produit
 - `DESIGN_SYSTEM.md` - Système de design
-- `09_MONETIZATION_STRATEGY.md` - Stratégie de monétisation
 
 ### 5. **Modules de Développement**
 - `MODULE_1_AUTHENTIFICATION.md` - Authentification
@@ -49,7 +46,6 @@
 
 ### 6. **Planification & Implémentation**
 - `10_IMPLEMENTATION_ROADMAP.md` - Feuille de route 3 semaines
-- `11_AFRICAN_MARKET_SPECIFICS.md` - Spécificités marché africain
 
 ---
 
@@ -69,7 +65,7 @@
 - **Supabase Storage** : Stockage fichiers
 
 ### Intégrations
-- **Lygos** : Paiements africains
+- **Wave** : Paiements africains
 - **Google/Apple OAuth** : Connexion sociale
 - **Web Share API** : Add to Contacts
 - **Web NFC API** : Cartes NFC

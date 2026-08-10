@@ -20,12 +20,14 @@ import {
 } from "lucide-react"
 import { CardOrderingFlow } from '@/components/features/card-ordering/CardOrderingFlow'
 import { ProtectedRoute } from "@/components/core/auth/ProtectedRoute"
+import { usePaymentMethods } from '@/lib/hooks/usePayments'
 
 type OnboardingStep = 'welcome' | 'benefits' | 'order'
 
 export default function CardOrderOnboardingPage() {
   const router = useRouter()
   const [currentStep, setCurrentStep] = useState<OnboardingStep>('welcome')
+  const { basePrice } = usePaymentMethods()
 
   const handleBack = () => {
     if (currentStep === 'benefits') {
@@ -81,7 +83,7 @@ export default function CardOrderOnboardingPage() {
               Technologie NFC pour un partage instantané + QR Code de secours
             </p>
             <Badge variant="secondary" className="text-lg font-bold px-4 py-2">
-              {parseInt(process.env.NEXT_PUBLIC_LYGOS_DEFAULT_AMOUNT || '14600').toLocaleString('fr-FR')} XOF
+              {basePrice.toLocaleString('fr-FR')} XOF
             </Badge>
             <div className="mt-4 space-y-2">
               <div className="flex items-center text-sm text-gray-600">

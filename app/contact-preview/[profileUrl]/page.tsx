@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useParams } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { ProfileWithLinks } from '@/lib/types/database'
+import { generateCompleteVCard } from '@/lib/utils/vcard'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
@@ -124,27 +125,11 @@ export default function ContactPreviewPage() {
     }
   }
 
-  // Génération vCard complète
+  // Utilisation du générateur unifié ultra-rapide
   const generateVCard = () => {
     if (!profile) return ''
-
-    const vcard = [
-      'BEGIN:VCARD',
-      'VERSION:3.0',
-      `FN:${profile.name}`,
-      `N:${profile.name};;;`,
-      profile.bio ? `NOTE:${profile.bio}` : '',
-      profile.email ? `EMAIL:${profile.email}` : '',
-      profile.phone ? `TEL:${profile.phone}` : '',
-      profile.image_url ? `PHOTO:${profile.image_url}` : '',
-      // Réseaux sociaux depuis social_links
-      ...(profile.social_links || []).map(link => `URL:${link.url}`),
-      // URL du profil public
-      `URL:${typeof window !== 'undefined' ? window.location.href : ''}`,
-      'END:VCARD'
-    ].filter(line => line).join('\n')
-
-    return vcard
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
+    return generateCompleteVCard(profile, baseUrl)
   }
 
   // Ajout aux contacts mobiles

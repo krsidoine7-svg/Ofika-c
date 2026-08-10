@@ -355,7 +355,7 @@ C4Container
   Person(customer, "Customer", "Online shopper")
   Person(admin, "Admin", "Store manager")
 
-  System_Ext(payment, "Stripe", "Payment processing")
+  System_Ext(payment, "Wave", "Payment processing")
   System_Ext(shipping, "FedEx API", "Shipping rates")
 
   Container_Boundary(platform, "E-commerce Platform") {

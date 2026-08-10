@@ -46,7 +46,6 @@ The official MCP Python SDK provides FastMCP, a high-level framework for buildin
 
 Python MCP servers must follow this naming pattern:
 - **Format**: `{service}_mcp` (lowercase with underscores)
-- **Examples**: `github_mcp`, `jira_mcp`, `stripe_mcp`
 
 The name should be:
 - General (not tied to specific features)

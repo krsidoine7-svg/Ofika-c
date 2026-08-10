@@ -187,6 +187,17 @@ export async function middleware(request: NextRequest) {
       return NextResponse.redirect(redirectUrl)
     }
 
+    // Redirection stricte des administrateurs vers le dashboard admin (sauf pour les paramètres de profil)
+    if (user && path.startsWith('/dashboard') && !path.startsWith('/dashboard/admin')) {
+      const role = user.app_metadata?.role
+      if (role === 'admin' || role === 'super_admin') {
+        // Autoriser l'accès aux paramètres de profil pour l'admin
+        if (path !== '/dashboard/settings' && !path.startsWith('/dashboard/settings/')) {
+          return NextResponse.redirect(new URL('/dashboard/admin', request.url))
+        }
+      }
+    }
+
     // Redirection si déjà connecté
     if (user && (path.startsWith('/auth/login') || path.startsWith('/auth/signup'))) {
       return NextResponse.redirect(new URL('/dashboard', request.url))

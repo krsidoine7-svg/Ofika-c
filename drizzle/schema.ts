@@ -123,9 +123,16 @@ export const orders = pgTable("orders", {
   estimatedDelivery: date("estimated_delivery"),
   actualDelivery: date("actual_delivery"),
   
+  // Nouveaux champs pour intégration paiement (GeniusPay & autres)
+  paymentProvider: varchar("payment_provider", { length: 50 }),
+  fees: decimal("fees", { precision: 10, scale: 2 }),
+  netAmount: decimal("net_amount", { precision: 10, scale: 2 }),
+  metadata: jsonb("metadata"),
+  paidAt: timestamp("paid_at", { withTimezone: true }),
+  
   // 💳 LYGOS - Paiements via LyGOS
   lygosPaymentId: text("lygos_payment_id"),
-  lygosPaymentUrl: text("lygos_payment_url"),
+  wavePaymentUrl: text("wave_payment_url"),
   
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
@@ -142,6 +149,15 @@ export const paymentMethods = pgTable("payment_methods", {
   isActive: boolean("is_active").default(true),
   metadata: jsonb("metadata"),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
+});
+
+// Table Webhook Events GeniusPay
+export const geniuspayWebhookEvents = pgTable("geniuspay_webhook_events", {
+  id: varchar("id", { length: 100 }).primaryKey().notNull(),
+  eventType: varchar("event_type", { length: 100 }).notNull(),
+  payload: jsonb("payload").notNull(),
+  processedAt: timestamp("processed_at", { withTimezone: true }),
+  receivedAt: timestamp("received_at", { withTimezone: true }).defaultNow().notNull(),
 });
 
 // Table Analytics Events
@@ -194,6 +210,7 @@ export const qrRedirects = pgTable("qr_redirects", {
   isActive: boolean("is_active").default(true),
   createdAt: timestamp("created_at", { withTimezone: true }).defaultNow().notNull(),
   updatedAt: timestamp("updated_at", { withTimezone: true }).defaultNow().notNull(),
+  deletedAt: timestamp("deleted_at", { withTimezone: true }),
 });
 
 // Table QR Scans
@@ -449,6 +466,9 @@ export type NewCard = typeof cards.$inferInsert;
 
 export type Order = typeof orders.$inferSelect;
 export type NewOrder = typeof orders.$inferInsert;
+
+export type GeniuspayWebhookEvent = typeof geniuspayWebhookEvents.$inferSelect;
+export type NewGeniuspayWebhookEvent = typeof geniuspayWebhookEvents.$inferInsert;
 
 export type QrRedirect = typeof qrRedirects.$inferSelect;
 export type NewQrRedirect = typeof qrRedirects.$inferInsert;

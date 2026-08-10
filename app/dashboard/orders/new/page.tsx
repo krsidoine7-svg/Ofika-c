@@ -26,16 +26,17 @@ import { usePaymentMethods } from '@/lib/hooks/usePayments'
 import { useUser } from '@/lib/hooks/useUser'
 import { CARD_PRICING } from '@/lib/types/payments'
 import { API_ENDPOINTS } from '@/lib/config/urls'
-
+import { createClient } from '@/lib/supabase/client'
 export default function NewOrderPage() {
   const router = useRouter()
   // Un seul produit disponible : NFC + QR Code
   const selectedCardType = 'nfc_qr' as const
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>('')
-  const [selectedProvider, setSelectedProvider] = useState<'lygos' | 'wave'>('lygos')
+  const [selectedProvider, setSelectedProvider] = useState<'lygos' | 'wave' | 'geniuspay'>('geniuspay')
   const [error, setError] = useState<string | null>(null)
+  const [productPrice, setProductPrice] = useState<number>(14600)
 
-  const { paymentMethods, loading: paymentMethodsLoading } = usePaymentMethods()
+  const { paymentMethods, basePrice, loading: paymentMethodsLoading } = usePaymentMethods()
   const { user, getUserData } = useUser()
 
   const [isProcessing, setIsProcessing] = useState(false)
@@ -50,17 +51,45 @@ export default function NewOrderPage() {
     postalCode: ''
   })
 
-  // Pré-remplir les informations utilisateur
+  // Mettre à jour le prix avec la valeur officielle BD
   useEffect(() => {
+    if (basePrice) {
+      setProductPrice(basePrice)
+    }
+  }, [basePrice])
+
+  // Pré-remplir les informations utilisateur et le prix de secours produits
+  useEffect(() => {
+    const fetchProductPrice = async () => {
+      try {
+        const supabase = createClient()
+        const { data, error } = await supabase
+          .from('products')
+          .select('price')
+          .eq('type', selectedCardType)
+          .single()
+        
+        if (data && !error && data.price && !basePrice) {
+          setProductPrice(data.price)
+        }
+      } catch (err) {
+        console.error('Erreur lors de la récupération du prix:', err)
+      }
+    }
+    fetchProductPrice()
+
     const loadUserData = async () => {
       if (user) {
-        const userData = await getUserData()
-        if (userData) {
+        const response = await getUserData()
+        if (response) {
+          const userData = response.data || response
           setShippingInfo(prev => ({
             ...prev,
             name: userData.name || prev.name,
             email: userData.email || user.email || prev.email,
-            phone: userData.phone || prev.phone
+            phone: userData.phone || prev.phone,
+            city: userData.city || prev.city,
+            address: userData.address || prev.address
           }))
         }
       }
@@ -140,27 +169,49 @@ export default function NewOrderPage() {
 
       const orderId = data.order.id
 
-      // Créer le paiement (LyGOS ou Wave)
-      const paymentResponse = await fetch(`/api/payments/${selectedProvider}/create`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          amount: CARD_PRICING[selectedCardType],
-          order_id: orderId,
-          message: `Commande carte Ofika ${selectedCardType}`
+      // Gérer la création de paiement selon le fournisseur
+      if (selectedProvider === 'geniuspay') {
+        const paymentResponse = await fetch('/api/payments/geniuspay/initiate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            order_id: orderId,
+          })
         })
-      })
 
-      const paymentData = await paymentResponse.json()
+        const paymentData = await paymentResponse.json()
 
-      if (!paymentData.success || !paymentData.data) {
-        throw new Error(paymentData.error || 'Erreur lors de la création du paiement')
+        if (!paymentData.success || !paymentData.checkout_url) {
+          throw new Error(paymentData.error || 'Erreur lors de la création du paiement GeniusPay')
+        }
+
+        // Rediriger vers le checkout GeniusPay
+        window.location.href = paymentData.checkout_url
+      } else {
+        // Ancienne logique (LyGOS ou Wave)
+        const paymentResponse = await fetch(`/api/payments/${selectedProvider}/create`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            amount: productPrice,
+            order_id: orderId,
+            message: `Commande carte Ofika ${selectedCardType}`
+          })
+        })
+
+        const paymentData = await paymentResponse.json()
+
+        if (!paymentData.success || !paymentData.data) {
+          throw new Error(paymentData.error || 'Erreur lors de la création du paiement')
+        }
+
+        // Rediriger vers le checkout
+        window.location.href = paymentData.data.link
       }
-
-      // Rediriger vers le checkout LyGOS
-      window.location.href = paymentData.data.link
 
     } catch (err) {
       console.error('Erreur lors de la commande:', err)
@@ -179,270 +230,209 @@ export default function NewOrderPage() {
 
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <div className="container mx-auto px-4 py-8">
-        <div className="max-w-3xl mx-auto">
-          <div className="mb-6">
-            <Button
-              variant="outline"
-              onClick={handleBack}
-              className="mb-4"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Retour
-            </Button>
-
-            <h1 className="text-3xl font-bold text-gray-900">Commander votre carte NFC</h1>
-            <p className="text-gray-600 mt-2">
-              Carte complète avec technologie NFC et QR Code - {CARD_PRICING.nfc_qr.toLocaleString()} XOF
-            </p>
+    <div className="min-h-screen bg-gray-50/50 py-12 font-sans">
+      <div className="container mx-auto px-4">
+        <div className="max-w-5xl mx-auto">
+          <div className="mb-10">
+            <h1 className="text-4xl font-extrabold tracking-tight text-gray-900">Finaliser la commande</h1>
+            <p className="text-gray-500 mt-2 text-lg">Complétez vos informations pour recevoir votre carte intelligente.</p>
           </div>
 
-          <div className="grid gap-6">
-            {/* Produit */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <Smartphone className="h-5 w-5" />
-                  Votre produit
-                </CardTitle>
-              </CardHeader>
-              <CardContent>
-                <div className="border-2 border-orange-500 bg-orange-50 rounded-lg p-6">
-                  <div className="flex items-center gap-6">
-                    <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <Smartphone className="h-8 w-8 text-orange-600" />
-                    </div>
-                    <div className="flex-1">
-                      <h3 className="font-bold text-xl mb-2">Carte NFC + QR Code</h3>
-                      <p className="text-gray-700 mb-3">
-                        Carte complète avec technologie NFC et QR Code
-                      </p>
-                      <div className="flex items-center gap-3">
-                        <Badge className="bg-orange-600 text-white text-lg font-bold px-4 py-1">
-                          {CARD_PRICING.nfc_qr.toLocaleString()} XOF
-                        </Badge>
-                        <span className="text-sm text-gray-600">• Livraison 7-14 jours</span>
-                      </div>
-                    </div>
-                  </div>
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+            {/* Colonne de Gauche : Formulaire (Prend 7 colonnes sur 12) */}
+            <div className="lg:col-span-7 space-y-10">
+              
+              {/* Informations de livraison */}
+              <section>
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="h-8 w-8 rounded-full bg-gray-900 text-white flex items-center justify-center font-bold text-sm">1</div>
+                  <h2 className="text-xl font-bold text-gray-900">Informations de livraison</h2>
                 </div>
-              </CardContent>
-            </Card>
-
-            {/* Informations de livraison */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  <MapPin className="h-5 w-5" />
-                  Informations de livraison
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
                   <div className="space-y-2">
-                    <Label htmlFor="name">Nom complet *</Label>
-                    <div className="relative">
-                      <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        id="name"
-                        name="name"
-                        value={shippingInfo.name}
-                        onChange={handleInputChange}
-                        placeholder="Votre nom"
-                        className="pl-9"
-                      />
-                    </div>
+                    <Label htmlFor="name" className="text-sm font-semibold text-gray-700">Nom complet</Label>
+                    <Input
+                      id="name"
+                      name="name"
+                      value={shippingInfo.name}
+                      onChange={handleInputChange}
+                      placeholder="Jane Doe"
+                      className="h-12 bg-white border-gray-200 focus:border-gray-900 focus:ring-gray-900 rounded-xl transition-all"
+                    />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email *</Label>
-                    <div className="relative">
-                      <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        id="email"
-                        name="email"
-                        type="email"
-                        value={shippingInfo.email}
-                        onChange={handleInputChange}
-                        placeholder="votre@email.com"
-                        className="pl-9"
-                      />
-                    </div>
+                    <Label htmlFor="email" className="text-sm font-semibold text-gray-700">Adresse email</Label>
+                    <Input
+                      id="email"
+                      name="email"
+                      type="email"
+                      value={shippingInfo.email}
+                      onChange={handleInputChange}
+                      placeholder="jane@example.com"
+                      className="h-12 bg-white border-gray-200 focus:border-gray-900 focus:ring-gray-900 rounded-xl transition-all"
+                    />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="phone">Téléphone *</Label>
-                    <div className="relative">
-                      <Phone className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-                      <Input
-                        id="phone"
-                        name="phone"
-                        value={shippingInfo.phone}
-                        onChange={handleInputChange}
-                        placeholder="+225..."
-                        className="pl-9"
-                      />
-                    </div>
+                    <Label htmlFor="phone" className="text-sm font-semibold text-gray-700">Numéro de téléphone</Label>
+                    <Input
+                      id="phone"
+                      name="phone"
+                      value={shippingInfo.phone}
+                      onChange={handleInputChange}
+                      placeholder="+225..."
+                      className="h-12 bg-white border-gray-200 focus:border-gray-900 focus:ring-gray-900 rounded-xl transition-all"
+                    />
                   </div>
                   <div className="space-y-2">
-                    <Label htmlFor="city">Ville *</Label>
+                    <Label htmlFor="city" className="text-sm font-semibold text-gray-700">Ville</Label>
                     <Input
                       id="city"
                       name="city"
                       value={shippingInfo.city}
                       onChange={handleInputChange}
                       placeholder="Abidjan"
+                      className="h-12 bg-white border-gray-200 focus:border-gray-900 focus:ring-gray-900 rounded-xl transition-all"
                     />
                   </div>
                   <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor="address">Adresse de livraison *</Label>
+                    <Label htmlFor="address" className="text-sm font-semibold text-gray-700">Adresse de livraison détaillée</Label>
                     <Input
                       id="address"
                       name="address"
                       value={shippingInfo.address}
                       onChange={handleInputChange}
-                      placeholder="Quartier, Rue, Appartement..."
-                    />
-                  </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="postalCode">Code Postal (Optionnel)</Label>
-                    <Input
-                      id="postalCode"
-                      name="postalCode"
-                      value={shippingInfo.postalCode}
-                      onChange={handleInputChange}
-                      placeholder="BP..."
+                      placeholder="Quartier, Rue, Bâtiment..."
+                      className="h-12 bg-white border-gray-200 focus:border-gray-900 focus:ring-gray-900 rounded-xl transition-all"
                     />
                   </div>
                 </div>
-              </CardContent>
-            </Card>
+              </section>
 
-            {/* Méthodes de paiement */}
-            <Card>
-              <CardHeader>
-                <CardTitle className="flex items-center gap-2">
-                  Paiement
-                </CardTitle>
-              </CardHeader>
-              <CardContent className="space-y-6">
-                <div className="space-y-4 border-2 border-blue-200 rounded-lg p-4 bg-blue-50">
-                  <Label className="text-lg font-bold text-blue-900">Choisissez votre méthode de paiement *</Label>
+              <hr className="border-gray-100" />
 
-                  {paymentMethodsLoading ? (
-                    <div className="flex items-center justify-center py-8">
-                      <Loader2 className="h-6 w-6 animate-spin mr-2" />
-                      <span>Chargement des méthodes de paiement...</span>
-                    </div>
-                  ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                      {/* Dynamically list active payment methods */}
-                      {paymentMethods.filter(m => m.is_active).map(method => (
-                        <Card
-                          key={method.id}
-                          className={`cursor-pointer transition-all duration-200 border-2 ${selectedPaymentMethod === method.id
-                            ? 'ring-4 ring-orange-500 bg-orange-50 border-orange-500 shadow-lg scale-105'
-                            : 'border-gray-300 hover:border-orange-300 hover:shadow-md'
-                            }`}
-                          onClick={() => {
-                            setSelectedPaymentMethod(method.id)
-                            setSelectedProvider(method.provider as any)
-                          }}
-                        >
-                          <CardContent className="p-5 flex flex-col items-center justify-center text-center h-full">
-                            <div className={`w-12 h-12 rounded-full flex items-center justify-center mb-3 ${selectedPaymentMethod === method.id
-                              ? 'bg-orange-500'
-                              : 'bg-gray-100'
-                              }`}>
-                              {method.provider === 'wave' ? (
-                                <Wallet className={`h-6 w-6 ${selectedPaymentMethod === method.id ? 'text-white' : 'text-gray-600'}`} />
-                              ) : (
-                                <Smartphone className={`h-6 w-6 ${selectedPaymentMethod === method.id ? 'text-white' : 'text-gray-600'}`} />
-                              )}
-                            </div>
-                            <span className="font-semibold text-base block mb-1">{method.name}</span>
-                            <span className="text-sm text-gray-600 block">{method.description || 'Paiement sécurisé'}</span>
-                            {selectedPaymentMethod === method.id && (
-                              <div className="mt-3 w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center">
-                                <span className="text-white text-xs">✓</span>
-                              </div>
-                            )}
-                          </CardContent>
-                        </Card>
-                      ))}
-
-                      {/* Fallback if none found */}
-                      {paymentMethods.filter(m => m.is_active).length === 0 && (
-                        <div className="col-span-1 md:col-span-2 text-center p-8 bg-gray-50 rounded-xl border border-dashed border-gray-300">
-                          <AlertCircle className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-                          <p className="text-sm text-gray-500">Aucun mode de paiement activé.</p>
-                        </div>
-                      )}
-                    </div>
-                  )}
+              {/* Méthodes de paiement */}
+              <section>
+                <div className="flex items-center gap-3 mb-6">
+                  <div className="h-8 w-8 rounded-full bg-gray-900 text-white flex items-center justify-center font-bold text-sm">2</div>
+                  <h2 className="text-xl font-bold text-gray-900">Moyen de paiement</h2>
                 </div>
 
-                {/* Résumé de la commande */}
-                <div className="bg-gradient-to-br from-orange-50 to-orange-100 rounded-lg p-5 border-2 border-orange-200">
-                  <h4 className="font-bold text-lg mb-4 text-orange-900">Résumé de la commande</h4>
+                {paymentMethodsLoading ? (
+                  <div className="flex items-center justify-center py-12 text-gray-400">
+                    <Loader2 className="h-6 w-6 animate-spin mr-3" />
+                    <span>Chargement...</span>
+                  </div>
+                ) : (
                   <div className="space-y-3">
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-700">Produit :</span>
-                      <span className="font-semibold">Carte NFC + QR Code</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-700">Quantité :</span>
-                      <span className="font-semibold">1</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-700">Livraison :</span>
-                      <span className="font-semibold text-green-600">Gratuite</span>
-                    </div>
-                    <div className="flex justify-between items-center">
-                      <span className="text-gray-700">Délai estimé :</span>
-                      <span className="font-semibold">7-14 jours ouvrés</span>
-                    </div>
-                    <div className="flex justify-between items-center text-xl font-bold border-t-2 border-orange-300 pt-3 mt-3">
-                      <span className="text-gray-900">Total à payer :</span>
-                      <span className="text-orange-600">
-                        {CARD_PRICING.nfc_qr.toLocaleString()} XOF
-                      </span>
-                    </div>
+                    {paymentMethods.filter(m => m.is_active).map(method => (
+                      <div
+                        key={method.id}
+                        onClick={() => {
+                          setSelectedPaymentMethod(method.id)
+                          setSelectedProvider(method.provider as any)
+                        }}
+                        className={`group relative flex items-center p-5 rounded-2xl cursor-pointer transition-all duration-300 border-2 ${
+                          selectedPaymentMethod === method.id
+                            ? 'border-gray-900 bg-gray-900/5 shadow-md'
+                            : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50'
+                        }`}
+                      >
+                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 mr-4 transition-colors ${
+                          selectedPaymentMethod === method.id ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-600 group-hover:bg-gray-200'
+                        }`}>
+                          {method.provider === 'wave' ? <Wallet className="h-6 w-6" /> : <Smartphone className="h-6 w-6" />}
+                        </div>
+                        <div className="flex-1">
+                          <h3 className={`font-bold text-base ${selectedPaymentMethod === method.id ? 'text-gray-900' : 'text-gray-700'}`}>{method.name}</h3>
+                          <p className="text-sm text-gray-500 mt-0.5">{method.description || 'Paiement sécurisé'}</p>
+                        </div>
+                        {/* Radio Check Indicator */}
+                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
+                          selectedPaymentMethod === method.id ? 'border-gray-900 bg-gray-900' : 'border-gray-300'
+                        }`}>
+                          {selectedPaymentMethod === method.id && <div className="w-2.5 h-2.5 rounded-full bg-white" />}
+                        </div>
+                      </div>
+                    ))}
+                    
+                    {paymentMethods.filter(m => m.is_active).length === 0 && (
+                      <div className="text-center p-8 bg-gray-50 rounded-2xl border border-dashed border-gray-300">
+                        <AlertCircle className="w-8 h-8 text-gray-300 mx-auto mb-2" />
+                        <p className="text-sm text-gray-500">Aucun mode de paiement activé.</p>
+                      </div>
+                    )}
+                  </div>
+                )}
+              </section>
+            </div>
+
+            {/* Colonne de Droite : Résumé de la commande (Prend 5 colonnes sur 12) */}
+            <div className="lg:col-span-5">
+              <div className="sticky top-8 bg-white border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[2rem] p-8">
+                <h3 className="font-bold text-xl text-gray-900 mb-6">Résumé</h3>
+                
+                {/* Produit Item */}
+                <div className="flex gap-4 mb-6 pb-6 border-b border-gray-100">
+                  <div className="w-20 h-20 bg-gray-50 rounded-2xl flex items-center justify-center shrink-0 border border-gray-100">
+                     <Smartphone className="h-10 w-10 text-gray-400" />
+                  </div>
+                  <div className="flex flex-col justify-center">
+                    <h4 className="font-bold text-gray-900 leading-tight">Carte NFC + QR Code</h4>
+                    <p className="text-sm text-gray-500 mt-1">Édition Standard</p>
+                    <p className="font-bold text-gray-900 mt-2">{productPrice.toLocaleString()} XOF</p>
                   </div>
                 </div>
 
-                {/* Bouton commander */}
+                <div className="space-y-4 mb-8">
+                  <div className="flex justify-between text-gray-500 text-sm">
+                    <span>Sous-total</span>
+                    <span className="font-medium text-gray-900">{productPrice.toLocaleString()} XOF</span>
+                  </div>
+                  <div className="flex justify-between text-gray-500 text-sm">
+                    <span>Livraison (7-14 jours)</span>
+                    <span className="font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full">Offerte</span>
+                  </div>
+                </div>
+
+                <div className="flex justify-between items-end mb-8 pt-6 border-t border-gray-100">
+                  <div>
+                    <span className="block text-sm font-medium text-gray-500 mb-1">Total</span>
+                    <span className="block text-xs text-gray-400">Taxes incluses</span>
+                  </div>
+                  <span className="text-3xl font-extrabold text-gray-900 tracking-tight">
+                    {productPrice.toLocaleString()} <span className="text-xl text-gray-500">XOF</span>
+                  </span>
+                </div>
+
                 <Button
                   onClick={handleOrder}
                   disabled={!selectedPaymentMethod || isProcessing}
-                  className={`w-full py-6 text-lg font-semibold shadow-lg transition-all ${!selectedPaymentMethod || isProcessing
-                    ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
-                    : 'bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white'
-                    }`}
+                  className={`w-full h-14 rounded-2xl text-base font-bold transition-all duration-300 ${!selectedPaymentMethod || isProcessing
+                    ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
+                    : 'bg-orange-500 hover:bg-orange-600 text-white shadow-lg hover:shadow-orange-500/25 hover:-translate-y-0.5'
+                  }`}
                 >
                   {isProcessing ? (
-                    <>
-                      <Loader2 className="h-5 w-5 mr-2 animate-spin" />
-                      Traitement en cours...
-                    </>
+                     <Loader2 className="h-5 w-5 animate-spin" />
                   ) : (
-                    <>
-                      <CreditCard className="h-5 w-5 mr-2" />
-                      Payer {CARD_PRICING.nfc_qr.toLocaleString()} XOF 💳
-                    </>
+                    `Payer ${productPrice.toLocaleString()} XOF`
                   )}
                 </Button>
 
-                {/* Messages d'erreur */}
+                <p className="text-center text-xs text-gray-400 mt-6 flex items-center justify-center gap-1.5">
+                  <CreditCard className="w-3.5 h-3.5" /> Paiement 100% sécurisé
+                </p>
+
                 {error && (
-                  <Alert className="border-red-200 bg-red-50">
-                    <AlertCircle className="h-4 w-4 text-red-600" />
-                    <AlertDescription className="text-red-800">
-                      {error}
-                    </AlertDescription>
-                  </Alert>
+                  <div className="mt-6 p-4 rounded-xl bg-red-50 border border-red-100 flex items-start gap-3">
+                    <AlertCircle className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
+                    <p className="text-sm text-red-800">{error}</p>
+                  </div>
                 )}
-              </CardContent>
-            </Card>
+              </div>
+            </div>
+            
           </div>
         </div>
       </div>

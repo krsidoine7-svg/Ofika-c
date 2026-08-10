@@ -30,8 +30,8 @@ create table if not exists public.orders (
   payment_status text not null default 'pending', -- pending, paid, failed
   shipping_status text not null default 'pending', -- pending, shipped, delivered
   
-  payment_method text null, -- lygos, wave, etc.
-  payment_provider text null, -- lygos
+  payment_method text null, -- Wave, wave, etc.
+  payment_provider text null, -- Wave
   
   -- Infos livraison
   shipping_address jsonb null,

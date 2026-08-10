@@ -83,7 +83,7 @@ function PaymentCancelledContent() {
                   <div className="flex justify-between">
                     <span>Montant :</span>
                     <span className="font-medium">
-                      {parseInt(cardType === 'nfc_qr' ? (process.env.NEXT_PUBLIC_LYGOS_DEFAULT_AMOUNT || '14600') : '10000').toLocaleString('fr-FR')} XOF
+                      {parseInt(cardType === 'nfc_qr' ? '14600' : '10000').toLocaleString('fr-FR')} XOF
                     </span>
                   </div>
                   <div className="flex justify-between">

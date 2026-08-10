@@ -17,17 +17,17 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     }
 
     const { data: adminUser } = await supabase
-      .from('admin_users')
-      .select('id')
+      .from('users')
+      .select('role')
       .eq('id', user.id)
       .single()
 
-    if (!adminUser) {
+    if (!adminUser || (adminUser.role !== 'admin' && adminUser.role !== 'super_admin')) {
       return NextResponse.json({ success: false, error: 'Non autorisé' }, { status: 403 })
     }
 
     const body = await request.json()
-    const validUpdates = ['nfc_link', 'is_active', 'title', 'description', 'short_code']
+    const validUpdates = ['target_url', 'is_active', 'title', 'description', 'short_code']
     
     const updates: any = {}
     validUpdates.forEach(key => {
@@ -78,12 +78,12 @@ export async function DELETE(request: Request, { params }: { params: Promise<{ i
     }
 
     const { data: adminUser } = await supabase
-      .from('admin_users')
-      .select('id')
+      .from('users')
+      .select('role')
       .eq('id', user.id)
       .single()
 
-    if (!adminUser) {
+    if (!adminUser || (adminUser.role !== 'admin' && adminUser.role !== 'super_admin')) {
       return NextResponse.json({ success: false, error: 'Non autorisé' }, { status: 403 })
     }
 

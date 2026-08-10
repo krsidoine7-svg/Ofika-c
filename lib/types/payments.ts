@@ -10,7 +10,7 @@
 export type Currency = 'XOF' | 'EUR' | 'USD'
 export type CardType = 'nfc_qr' | 'qr_only' | 'premium_subscription' | 'custom'
 export type OrderStatus = 'pending' | 'paid' | 'preparing' | 'failed' | 'cancelled' | 'shipped' | 'delivered'
-export type PaymentStatus = 'pending' | 'paid' | 'succeeded' | 'failed' | 'cancelled' | 'refunded'
+export type PaymentStatus = 'pending' | 'paid' | 'succeeded' | 'failed' | 'cancelled' | 'refunded' | 'processing'
 export type PaymentProvider = 'lygos' | 'wave' | 'orange_money' | 'mtn_money'
 
 // =====================================================
@@ -54,7 +54,7 @@ export interface Order {
   // Métadonnées et tracking
   metadata?: Record<string, any>
   lygos_payment_id?: string
-  lygos_payment_url?: string
+  wave_payment_url?: string
   tracking_number?: string
   estimated_delivery?: string
   actual_delivery?: string
@@ -90,7 +90,7 @@ export interface CreateOrderData {
 export interface UpdateOrderData {
   status?: Order['status']
   lygos_payment_id?: string
-  lygos_payment_url?: string
+  wave_payment_url?: string
 }
 
 export interface OrderStats {
@@ -146,8 +146,8 @@ function parsePrice(envVar: string | undefined, defaultValue: number): number {
   return parsed
 }
 
-// Prix validés et sécurisés
-const NFC_QR_PRICE = parsePrice(process.env.NEXT_PUBLIC_LYGOS_DEFAULT_AMOUNT, 14600)
+// Prix validés et sécurisés (Secours Niveau 2)
+const NFC_QR_PRICE = 14600
 const QR_ONLY_PRICE = 10000 // Obsolète mais gardé pour compatibilité
 
 export const CARD_PRICING = {

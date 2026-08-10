@@ -246,7 +246,7 @@ export function useUser() {
         if (response.status === 400) {
           throw new Error(errorData.error || 'Mot de passe actuel incorrect')
         } else if (response.status === 401) {
-          throw new Error('Session expirée. Veuillez vous reconnecter.')
+          throw new Error(errorData.error || 'Session expirée. Veuillez vous reconnecter.')
         } else if (response.status === 429) {
           throw new Error('Trop de tentatives. Veuillez réessayer plus tard.')
         } else {

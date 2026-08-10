@@ -53,143 +53,124 @@ export function ChangePasswordForm() {
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Shield className="h-5 w-5" />
-          Sécurité
-        </CardTitle>
-        <CardDescription>
-          Changez votre mot de passe pour sécuriser votre compte
-        </CardDescription>
-      </CardHeader>
-      <CardContent>
-        <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-          {/* Mot de passe actuel */}
-          <div className="space-y-2">
-            <Label htmlFor="currentPassword">
-              Mot de passe actuel *
-            </Label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-              <Input
-                id="currentPassword"
-                type={showCurrentPassword ? "text" : "password"}
-                {...register('currentPassword')}
-                placeholder="Votre mot de passe actuel"
-                className="pl-10 pr-10"
-                disabled={isSubmitting}
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-                onClick={() => setShowCurrentPassword(!showCurrentPassword)}
-                disabled={isSubmitting}
-              >
-                {showCurrentPassword ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
-            {errors.currentPassword && (
-              <p className="text-sm text-red-500">{errors.currentPassword.message}</p>
-            )}
+    <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6 md:p-8">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+        {/* Mot de passe actuel */}
+        <div className="space-y-2">
+          <Label htmlFor="currentPassword">Mot de passe actuel *</Label>
+          <div className="relative">
+            <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+            <Input
+              id="currentPassword"
+              type={showCurrentPassword ? "text" : "password"}
+              {...register('currentPassword')}
+              placeholder="Votre mot de passe actuel"
+              className="pl-10 pr-10"
+              disabled={isSubmitting}
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+              onClick={() => setShowCurrentPassword(!showCurrentPassword)}
+              disabled={isSubmitting}
+            >
+              {showCurrentPassword ? (
+                <EyeOff className="h-4 w-4" />
+              ) : (
+                <Eye className="h-4 w-4" />
+              )}
+            </Button>
           </div>
+          {errors.currentPassword && (
+            <p className="text-sm text-red-500">{errors.currentPassword?.message as string}</p>
+          )}
+        </div>
 
-          {/* Nouveau mot de passe */}
-          <div className="space-y-2">
-            <Label htmlFor="newPassword">
-              Nouveau mot de passe *
-            </Label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-              <Input
-                id="newPassword"
-                type={showNewPassword ? "text" : "password"}
-                {...register('newPassword')}
-                placeholder="Votre nouveau mot de passe"
-                className="pl-10 pr-10"
-                disabled={isSubmitting}
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-                onClick={() => setShowNewPassword(!showNewPassword)}
-                disabled={isSubmitting}
-              >
-                {showNewPassword ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
-            {errors.newPassword && (
-              <p className="text-sm text-red-500">{errors.newPassword.message}</p>
-            )}
-            <p className="text-xs text-gray-500">
-              Minimum 6 caractères
-            </p>
+        {/* Nouveau mot de passe */}
+        <div className="space-y-2">
+          <Label htmlFor="newPassword">Nouveau mot de passe *</Label>
+          <div className="relative">
+            <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+            <Input
+              id="newPassword"
+              type={showNewPassword ? "text" : "password"}
+              {...register('newPassword')}
+              placeholder="Votre nouveau mot de passe"
+              className="pl-10 pr-10"
+              disabled={isSubmitting}
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+              onClick={() => setShowNewPassword(!showNewPassword)}
+              disabled={isSubmitting}
+            >
+              {showNewPassword ? (
+                <EyeOff className="h-4 w-4" />
+              ) : (
+                <Eye className="h-4 w-4" />
+              )}
+            </Button>
           </div>
+          {errors.newPassword && (
+            <p className="text-sm text-red-500">{errors.newPassword?.message as string}</p>
+          )}
+          <p className="text-xs text-gray-500">Minimum 6 caractères</p>
+        </div>
 
-          {/* Confirmer le nouveau mot de passe */}
-          <div className="space-y-2">
-            <Label htmlFor="confirmPassword">
-              Confirmer le nouveau mot de passe *
-            </Label>
-            <div className="relative">
-              <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-              <Input
-                id="confirmPassword"
-                type={showConfirmPassword ? "text" : "password"}
-                {...register('confirmPassword')}
-                placeholder="Confirmez votre nouveau mot de passe"
-                className="pl-10 pr-10"
-                disabled={isSubmitting}
-              />
-              <Button
-                type="button"
-                variant="ghost"
-                size="sm"
-                className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
-                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                disabled={isSubmitting}
-              >
-                {showConfirmPassword ? (
-                  <EyeOff className="h-4 w-4" />
-                ) : (
-                  <Eye className="h-4 w-4" />
-                )}
-              </Button>
-            </div>
-            {errors.confirmPassword && (
-              <p className="text-sm text-red-500">{errors.confirmPassword.message}</p>
-            )}
+        {/* Confirmer le nouveau mot de passe */}
+        <div className="space-y-2">
+          <Label htmlFor="confirmPassword">Confirmer le nouveau mot de passe *</Label>
+          <div className="relative">
+            <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+            <Input
+              id="confirmPassword"
+              type={showConfirmPassword ? "text" : "password"}
+              {...register('confirmPassword')}
+              placeholder="Confirmez votre nouveau mot de passe"
+              className="pl-10 pr-10"
+              disabled={isSubmitting}
+            />
+            <Button
+              type="button"
+              variant="ghost"
+              size="sm"
+              className="absolute right-0 top-0 h-full px-3 hover:bg-transparent"
+              onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+              disabled={isSubmitting}
+            >
+              {showConfirmPassword ? (
+                <EyeOff className="h-4 w-4" />
+              ) : (
+                <Eye className="h-4 w-4" />
+              )}
+            </Button>
           </div>
+          {errors.confirmPassword && (
+            <p className="text-sm text-red-500">{errors.confirmPassword?.message as string}</p>
+          )}
+        </div>
 
-          {/* Bouton de soumission */}
-          <Button
-            type="submit"
-            disabled={isSubmitting}
-            className="w-full bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600"
-          >
-            {isSubmitting ? (
-              <>
-                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                Changement en cours...
-              </>
-            ) : (
-              'Changer le mot de passe'
-            )}
-          </Button>
-        </form>
-      </CardContent>
-    </Card>
+        {/* Bouton de soumission */}
+        <Button
+          type="submit"
+          disabled={isSubmitting}
+          className="w-full h-12 bg-gray-900 hover:bg-black text-white rounded-xl shadow-md transition-all font-medium"
+        >
+          {isSubmitting ? (
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Changement en cours...
+            </>
+          ) : (
+            'Mettre à jour le mot de passe'
+          )}
+        </Button>
+      </form>
+    </div>
   )
 }

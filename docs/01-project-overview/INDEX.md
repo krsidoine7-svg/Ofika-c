@@ -4,15 +4,11 @@
 
 | Fichier | Description | Usage |
 |---------|-------------|-------|
-| `01_VISION_STRATEGY.md` | Vision et stratégie du projet | Comprendre les objectifs |
+| `01_VISION_STRATEGY.md` | Vision, stratégie, monétisation et marché | Objectifs, modèle économique et adaptation locale |
 | `02_USER_JOURNEY.md` | Parcours utilisateur | UX et expérience utilisateur |
-| `05_TECHNICAL_ARCHITECTURE.md` | Architecture technique | Architecture du système |
-| `06_DATABASE_DESIGN.md` | Conception base de données | Schéma et modélisation |
-| `07_API_SPECIFICATIONS.md` | Spécifications API | Documentation des APIs |
+| `05_TECHNICAL_ARCHITECTURE.md` | Architecture, Base de Données et APIs | Infrastructure, MCD/SQL et spécifications API |
 | `08_PRODUCT_DESIGN.md` | Design du produit | Design et UX |
-| `09_MONETIZATION_STRATEGY.md` | Stratégie de monétisation | Modèle économique |
 | `10_IMPLEMENTATION_ROADMAP.md` | Feuille de route | Plan d'implémentation |
-| `11_AFRICAN_MARKET_SPECIFICS.md` | Spécificités marché africain | Adaptation locale |
 | `PROJECT_SUMMARY.md` | Résumé du projet | Vue d'ensemble rapide |
 
 ## 📐 schemas-mermaid/ - Schémas Visuels (Mermaid)

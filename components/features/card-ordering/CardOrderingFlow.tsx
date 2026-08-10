@@ -25,9 +25,10 @@ import {
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { CARD_PRICING, CARD_TYPE_LABELS } from '@/lib/types/payments'
-import { useOrderProcess, usePaymentMethods } from '@/lib/hooks/usePayments'
+import { useOrderProcess, usePaymentMethods, useCreatePayment } from '@/lib/hooks/usePayments'
 import { useProfiles } from '@/lib/hooks/useProfiles'
 import { useNFCCards } from '@/lib/hooks/useNFCCards'
+import { createClient } from '@/lib/supabase/client'
 import {
   validateCustomerDetails,
   validateName,
@@ -45,7 +46,7 @@ interface CardOrderingFlowProps {
   className?: string
 }
 
-type Step = 'card_selection' | 'details' | 'confirmation'
+type Step = 'card_selection' | 'details' | 'confirmation' | 'payment_proof'
 
 export function CardOrderingFlow({ onComplete, className }: CardOrderingFlowProps) {
   const router = useRouter()
@@ -63,11 +64,17 @@ export function CardOrderingFlow({ onComplete, className }: CardOrderingFlowProp
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>('wave')
   const [validationErrors, setValidationErrors] = useState<Partial<Record<keyof CustomerDetails, string>>>({})
   const [isFormValid, setIsFormValid] = useState(false)
+  const [createdOrder, setCreatedOrder] = useState<any>(null)
+  const [createdPaymentUrl, setCreatedPaymentUrl] = useState<string>('')
+  const [receiptFile, setReceiptFile] = useState<File | null>(null)
+  const [receiptPreviewUrl, setReceiptPreviewUrl] = useState<string | null>(null)
+  const [isUploadingReceipt, setIsUploadingReceipt] = useState(false)
 
   const { profiles } = useProfiles()
   const { cards: nfcCards, loading: nfcLoading } = useNFCCards()
   const { paymentMethods, loading: paymentMethodsLoading } = usePaymentMethods()
   const { processOrder, isProcessing, currentStep: orderStep, error: orderError, paymentUrl } = useOrderProcess()
+  const { uploadReceipt } = useCreatePayment()
 
   // Auto-select first active payment method
   useEffect(() => {
@@ -82,7 +89,8 @@ export function CardOrderingFlow({ onComplete, className }: CardOrderingFlowProp
   const steps = [
     { id: 'card_selection', title: 'Sélection carte', icon: QrCode },
     { id: 'details', title: 'Informations', icon: User },
-    { id: 'confirmation', title: 'Confirmation', icon: Check }
+    { id: 'confirmation', title: 'Confirmation', icon: Check },
+    { id: 'payment_proof', title: 'Paiement Wave', icon: Wallet }
   ]
 
   const currentStepIndex = steps.findIndex(step => step.id === currentStep)
@@ -121,6 +129,8 @@ export function CardOrderingFlow({ onComplete, className }: CardOrderingFlowProp
       setCurrentStep('card_selection')
     } else if (currentStep === 'confirmation') {
       setCurrentStep('details')
+    } else if (currentStep === 'payment_proof') {
+      setCurrentStep('confirmation')
     }
   }
 
@@ -160,14 +170,13 @@ export function CardOrderingFlow({ onComplete, className }: CardOrderingFlowProp
       const result = await processOrder(orderData)
 
       if (result.success && result.order) {
-        toast.success('Commande créée avec succès ! Redirection vers le paiement...')
-
-        // Rediriger directement vers Lygos si le lien est disponible
+        toast.success('Commande créée avec succès !')
+        setCreatedOrder(result.order)
+        setCreatedPaymentUrl(result.paymentUrl || '')
+        setCurrentStep('payment_proof')
+        
         if (result.paymentUrl) {
-          window.location.href = result.paymentUrl
-        } else {
-          // Fallback: rediriger vers la page de redirection
-          router.push(`/payment/redirect/${result.order.id}`)
+          window.open(result.paymentUrl, '_blank')
         }
       } else {
         toast.error(result.error || 'Erreur lors de la création de la commande')
@@ -573,6 +582,194 @@ export function CardOrderingFlow({ onComplete, className }: CardOrderingFlowProp
     </div>
   )
 
+  const getDeliveryDateString = () => {
+    const tomorrow = new Date()
+    tomorrow.setDate(tomorrow.getDate() + 1)
+    const options: Intl.DateTimeFormatOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' }
+    return tomorrow.toLocaleDateString('fr-FR', options)
+  }
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (e.target.files && e.target.files[0]) {
+      const file = e.target.files[0]
+      setReceiptFile(file)
+      setReceiptPreviewUrl(URL.createObjectURL(file))
+    }
+  }
+
+  const handleUploadAndSubmitReceipt = async () => {
+    if (!receiptFile || !createdOrder) {
+      toast.error('Veuillez sélectionner un fichier à uploader')
+      return
+    }
+
+    setIsUploadingReceipt(true)
+    try {
+      const supabase = createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) throw new Error('Utilisateur non connecté')
+
+      const fileExt = receiptFile.name.split('.').pop()
+      const fileName = `receipts/${user.id}/${createdOrder.id}_${Date.now()}.${fileExt}`
+
+      const { error: uploadError } = await supabase.storage
+        .from('profile-images')
+        .upload(fileName, receiptFile, {
+          cacheControl: '3600',
+          upsert: false,
+          contentType: receiptFile.type
+        })
+
+      if (uploadError) throw uploadError
+
+      const { data: urlData } = supabase.storage
+        .from('profile-images')
+        .getPublicUrl(fileName)
+
+      const publicUrl = urlData.publicUrl
+
+      const submitResult = await uploadReceipt(createdOrder.id, publicUrl)
+
+      if (submitResult.success) {
+        toast.success('Preuve de paiement soumise avec succès !')
+        router.push('/dashboard/orders')
+      } else {
+        throw new Error(submitResult.error || 'Erreur de soumission')
+      }
+
+    } catch (err: any) {
+      console.error('Error uploading receipt:', err)
+      toast.error(`Échec de la soumission : ${err.message}`)
+    } finally {
+      setIsUploadingReceipt(false)
+    }
+  }
+
+  const renderStepPaymentProof = () => {
+    const waveMethod = paymentMethods.find(m => m.id === 'wave')
+    const whatsappNumber = (waveMethod as any)?.whatsapp_number || '+2250503681588'
+    const cleanWhatsappNumber = whatsappNumber.replace(/[^0-9]/g, '')
+    const whatsappPrefilledText = encodeURIComponent(
+      `Bonjour Ofika, voici la preuve de paiement pour ma commande #${createdOrder?.order_number || createdOrder?.id}`
+    )
+    const whatsappUrl = `https://wa.me/${cleanWhatsappNumber}?text=${whatsappPrefilledText}`
+    const finalAmount = createdOrder ? createdOrder.amount_cents : 14600
+
+    return (
+      <div className="space-y-6">
+        <div className="text-center">
+          <h2 className="text-2xl font-bold text-gray-900 mb-2">Paiement Wave Marchand</h2>
+          <p className="text-gray-600">Veuillez effectuer le paiement et soumettre votre reçu</p>
+        </div>
+
+        <Card className="border-orange-200 bg-orange-50/30 p-6 text-center space-y-4">
+          <div className="space-y-1">
+            <p className="text-sm font-semibold uppercase tracking-wider text-orange-800">Montant à régler</p>
+            <p className="text-3xl font-extrabold text-orange-600">
+              {finalAmount.toLocaleString()} XOF
+            </p>
+          </div>
+
+          <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 max-w-md mx-auto space-y-2">
+            <p className="text-sm font-bold text-gray-800">🚀 Estimation de livraison</p>
+            <p className="text-sm text-gray-600 font-medium">
+              Livraison prévue le <span className="text-orange-600 font-bold">{getDeliveryDateString()}</span> entre <span className="font-bold">10h et 18h</span>.
+            </p>
+          </div>
+
+          <Button
+            onClick={() => window.open(createdPaymentUrl, '_blank')}
+            className="w-full max-w-md bg-sky-500 hover:bg-sky-600 text-white font-bold text-lg py-6 rounded-xl shadow-md transition-all gap-2"
+          >
+            <Wallet className="h-6 w-6" />
+            Ouvrir Wave pour Payer
+          </Button>
+        </Card>
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+          {/* Option 1: Uploader la capture d'écran */}
+          <Card className="border border-gray-100 shadow-sm p-6 space-y-4 flex flex-col justify-between">
+            <div className="space-y-2">
+              <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <Smartphone className="h-5 w-5 text-orange-500" />
+                Option A : Uploader le reçu
+              </h3>
+              <p className="text-xs text-gray-500">
+                Uploadez la capture d'écran du paiement réussi pour validation automatique.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <label className="flex flex-col items-center justify-center border-2 border-dashed border-gray-200 rounded-xl p-4 cursor-pointer hover:bg-gray-50 transition-all">
+                <div className="text-center space-y-2">
+                  <Package className="h-8 w-8 text-gray-400 mx-auto" />
+                  <span className="text-xs font-semibold text-gray-600">Sélectionner une capture d'écran</span>
+                  <span className="text-[10px] text-gray-400 block">PNG, JPG ou WEBP (Max 5Mo)</span>
+                </div>
+                <input type="file" accept="image/*" className="hidden" onChange={handleFileChange} />
+              </label>
+
+              {receiptPreviewUrl && (
+                <div className="relative rounded-lg overflow-hidden border border-gray-200 max-h-48">
+                  <img src={receiptPreviewUrl} alt="Reçu de paiement" className="object-cover w-full h-full" />
+                </div>
+              )}
+
+              <Button
+                onClick={handleUploadAndSubmitReceipt}
+                disabled={!receiptFile || isUploadingReceipt}
+                className="w-full bg-green-600 hover:bg-green-700 text-white font-bold"
+              >
+                {isUploadingReceipt ? (
+                  <>
+                    <LoadingSpinner size="sm" className="mr-2" />
+                    Upload en cours...
+                  </>
+                ) : (
+                  'Soumettre sur le site'
+                )}
+              </Button>
+            </div>
+          </Card>
+
+          {/* Option 2: Envoyer par WhatsApp */}
+          <Card className="border border-gray-100 shadow-sm p-6 space-y-4 flex flex-col justify-between">
+            <div className="space-y-2">
+              <h3 className="text-lg font-bold text-gray-900 flex items-center gap-2">
+                <Smartphone className="h-5 w-5 text-emerald-500" />
+                Option B : Envoyer par WhatsApp
+              </h3>
+              <p className="text-xs text-gray-500">
+                Envoyez-nous directement la capture d'écran de votre paiement sur notre numéro WhatsApp officiel.
+              </p>
+            </div>
+
+            <div className="space-y-4">
+              <Button
+                onClick={() => {
+                  window.open(whatsappUrl, '_blank')
+                  router.push('/dashboard/orders')
+                }}
+                className="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold gap-2 py-6 rounded-xl"
+              >
+                <Smartphone className="h-5 w-5" />
+                Envoyer Reçu par WhatsApp
+              </Button>
+              
+              <Button
+                variant="ghost"
+                onClick={() => router.push('/dashboard/orders')}
+                className="w-full text-gray-500 hover:text-gray-600 text-xs font-semibold"
+              >
+                Aller à mes commandes ➔
+              </Button>
+            </div>
+          </Card>
+        </div>
+      </div>
+    )
+  }
+
   return (
     <div className={cn("max-w-4xl mx-auto", className)}>
 
@@ -586,7 +783,7 @@ export function CardOrderingFlow({ onComplete, className }: CardOrderingFlowProp
 
             return (
               <div key={step.id} className="flex items-center">
-                <div className={`w-10 h-10 rounded-full flex items-center justify-center ${isActive
+                <div className={`w-10 h-10 rounded-full flex items-center justify-center transition-all ${isActive
                     ? isCurrent
                       ? 'bg-orange-500 text-white'
                       : 'bg-green-500 text-white'
@@ -617,44 +814,47 @@ export function CardOrderingFlow({ onComplete, className }: CardOrderingFlowProp
           {currentStep === 'card_selection' && renderCardSelection()}
           {currentStep === 'details' && renderStepDetails()}
           {currentStep === 'confirmation' && renderStepConfirmation()}
+          {currentStep === 'payment_proof' && renderStepPaymentProof()}
         </CardContent>
       </Card>
 
       {/* Navigation Buttons */}
-      <div className="flex justify-between mt-6">
-        <Button
-          variant="outline"
-          onClick={handleBack}
-          disabled={currentStep === 'card_selection'}
-        >
-          Précédent
-        </Button>
+      {currentStep !== 'payment_proof' && (
+        <div className="flex justify-between mt-6">
+          <Button
+            variant="outline"
+            onClick={handleBack}
+            disabled={currentStep === 'card_selection'}
+          >
+            Précédent
+          </Button>
 
-        <Button
-          onClick={handleNext}
-          className="bg-orange-500 hover:bg-orange-600 text-white"
-          disabled={isProcessing}
-        >
-          {currentStep === 'confirmation' ? (
-            isProcessing ? (
-              <>
-                <LoadingSpinner size="sm" className="mr-2" />
-                Traitement en cours...
-              </>
+          <Button
+            onClick={handleNext}
+            className="bg-orange-500 hover:bg-orange-600 text-white"
+            disabled={isProcessing}
+          >
+            {currentStep === 'confirmation' ? (
+              isProcessing ? (
+                <>
+                  <LoadingSpinner size="sm" className="mr-2" />
+                  Traitement en cours...
+                </>
+              ) : (
+                <>
+                  <CreditCard className="h-4 w-4 mr-2" />
+                  Procéder au paiement
+                </>
+              )
             ) : (
               <>
-                <CreditCard className="h-4 w-4 mr-2" />
-                Procéder au paiement
+                Suivant
+                <ArrowRight className="h-4 w-4 ml-2" />
               </>
-            )
-          ) : (
-            <>
-              Suivant
-              <ArrowRight className="h-4 w-4 ml-2" />
-            </>
-          )}
-        </Button>
-      </div>
+            )}
+          </Button>
+        </div>
+      )}
     </div>
   )
 }

@@ -3,10 +3,8 @@
  * Les prix sont récupérés depuis les variables d'environnement
  */
 
-// Prix unique de la carte (en XOF)
-export const NFC_CARD_BASE_PRICE = parseInt(
-  process.env.NEXT_PUBLIC_LYGOS_DEFAULT_AMOUNT || '11850'
-)
+// Prix unique de secours de la carte (en XOF - Niveau 2)
+export const NFC_CARD_BASE_PRICE = 14600
 
 // Frais de livraison par zone (en XOF)
 export const SHIPPING_COSTS = {

@@ -55,6 +55,7 @@ export async function createQRRedirect(
       .from('qr_redirects')
       .select('*', { count: 'exact', head: true })
       .eq('user_id', user.id)
+      .is('deleted_at', null)
 
     if (countError) {
       console.error('Error counting QR codes:', countError)
@@ -112,6 +113,7 @@ export async function getUserQRRedirects(): Promise<{
       .from('qr_redirects')
       .select('*')
       .eq('user_id', user.id)
+      .is('deleted_at', null)
       .order('created_at', { ascending: false })
 
     if (error) {
@@ -201,7 +203,7 @@ export async function deleteQRRedirect(
 
     const { error } = await supabase
       .from('qr_redirects')
-      .delete()
+      .update({ deleted_at: new Date().toISOString() })
       .eq('id', id)
       .eq('user_id', user.id)
 

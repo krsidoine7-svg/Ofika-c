@@ -106,16 +106,18 @@ export function CreateLinkDialog({
 
     return (
         <Dialog open={dialogOpen} onOpenChange={handleOpenChange}>
-            <DialogTrigger asChild>
-                {trigger || (
-                    <Button>
-                        <Plus className="mr-2 h-4 w-4" />
-                        Nouveau lien
-                    </Button>
-                )}
-            </DialogTrigger>
+            {(trigger || !isControlled) && (
+                <DialogTrigger asChild>
+                    {trigger || (
+                        <Button>
+                            <Plus className="mr-2 h-4 w-4" />
+                            Nouveau lien
+                        </Button>
+                    )}
+                </DialogTrigger>
+            )}
 
-            <DialogContent className="sm:max-w-[550px]">
+            <DialogContent className="sm:max-w-[550px]" onOpenAutoFocus={(e) => e.preventDefault()}>
                 <form onSubmit={handleSubmit}>
                     <DialogHeader>
                         <DialogTitle>Créer un lien de collecte d'avis</DialogTitle>

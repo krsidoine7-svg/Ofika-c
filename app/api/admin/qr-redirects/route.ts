@@ -17,12 +17,12 @@ export async function GET(request: Request) {
 
     // Verify admin status
     const { data: adminUser } = await supabase
-      .from('admin_users')
-      .select('id')
+      .from('users')
+      .select('role')
       .eq('id', user.id)
       .single()
 
-    if (!adminUser) {
+    if (!adminUser || (adminUser.role !== 'admin' && adminUser.role !== 'super_admin')) {
       return NextResponse.json({ success: false, error: 'Non autorisé' }, { status: 403 })
     }
 

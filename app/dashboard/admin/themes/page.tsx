@@ -200,7 +200,7 @@ export default function AdminThemesPage() {
                 <div className="flex-1 space-y-2">
                     <h1 className="text-3xl font-black text-gray-900 tracking-tight flex items-center gap-3">
                         <Palette className="w-8 h-8 text-orange-500" />
-                        Thèmes & Design
+                        Design & Templates
                     </h1>
                     <p className="text-gray-500 font-medium">Gestion des apparences et contrôle esthétique de la plateforme.</p>
                 </div>

@@ -1,0 +1,169 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1172.7000000000003 2002" width="1172.7000000000003" height="2002" style="--bg:#1a1b26;--fg:#a9b1d6;--line:#3d59a1;--accent:#7aa2f7;--muted:#565f89;background:var(--bg)">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap');
+  text { font-family: 'Inter', system-ui, sans-serif; }
+  svg {
+    /* Derived from --bg and --fg (overridable via --line, --accent, etc.) */
+    --_text:          var(--fg);
+    --_text-sec:      var(--muted, color-mix(in srgb, var(--fg) 60%, var(--bg)));
+    --_text-muted:    var(--muted, color-mix(in srgb, var(--fg) 40%, var(--bg)));
+    --_text-faint:    color-mix(in srgb, var(--fg) 25%, var(--bg));
+    --_line:          var(--line, color-mix(in srgb, var(--fg) 30%, var(--bg)));
+    --_arrow:         var(--accent, color-mix(in srgb, var(--fg) 50%, var(--bg)));
+    --_node-fill:     var(--surface, color-mix(in srgb, var(--fg) 3%, var(--bg)));
+    --_node-stroke:   var(--border, color-mix(in srgb, var(--fg) 20%, var(--bg)));
+    --_group-fill:    var(--bg);
+    --_group-hdr:     color-mix(in srgb, var(--fg) 5%, var(--bg));
+    --_inner-stroke:  color-mix(in srgb, var(--fg) 12%, var(--bg));
+    --_key-badge:     color-mix(in srgb, var(--fg) 10%, var(--bg));
+  }
+</style>
+<defs>
+  <marker id="seq-arrow" markerWidth="8" markerHeight="4.8" refX="8" refY="2.4" orient="auto-start-reverse">
+    <polygon points="0 0, 8 2.4, 0 4.8" fill="var(--_arrow)" />
+  </marker>
+  <marker id="seq-arrow-open" markerWidth="8" markerHeight="4.8" refX="8" refY="2.4" orient="auto-start-reverse">
+    <polyline points="0 0, 8 2.4, 0 4.8" fill="none" stroke="var(--_arrow)" stroke-width="1" />
+  </marker>
+</defs>
+<rect x="30" y="588" width="962.0500000000002" height="140" rx="0" ry="0" fill="none" stroke="var(--_node-stroke)" stroke-width="1" />
+<rect x="30" y="588" width="264.82" height="18" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
+<text x="36" y="597" dy="0.35em" font-size="11" font-weight="600" fill="var(--_text-sec)">alt [Avec envoi de média (image/vidéo)]</text>
+<rect x="30" y="816" width="1112.7000000000003" height="284" rx="0" ry="0" fill="none" stroke="var(--_node-stroke)" stroke-width="1" />
+<rect x="30" y="816" width="290.34" height="18" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
+<text x="36" y="825" dy="0.35em" font-size="11" font-weight="600" fill="var(--_text-sec)">alt [Tentative de fraude / Doublon détecté]</text>
+<line x1="30" y1="932" x2="1142.7000000000003" y2="932" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" />
+<text x="38" y="946" font-size="11" font-weight="400" fill="var(--_text-muted)">[Soumission valide]</text>
+<rect x="209.25" y="1308" width="933.4500000000003" height="444" rx="0" ry="0" fill="none" stroke="var(--_node-stroke)" stroke-width="1" />
+<rect x="209.25" y="1308" width="188.26" height="18" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="1" />
+<text x="215.25" y="1317" dy="0.35em" font-size="11" font-weight="600" fill="var(--_text-sec)">alt [Approbation de l&#39;avis]</text>
+<line x1="209.25" y1="1536" x2="1142.7000000000003" y2="1536" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" />
+<text x="217.25" y="1550" font-size="11" font-weight="400" fill="var(--_text-muted)">[Rejet ou Suppression de l&#39;avis]</text>
+<line x1="109.625" y1="70" x2="109.625" y2="1972" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" />
+<line x1="321.05" y1="70" x2="321.05" y2="1972" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" />
+<line x1="528.9000000000001" y1="70" x2="528.9000000000001" y2="1972" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" />
+<line x1="715.3000000000002" y1="70" x2="715.3000000000002" y2="1972" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" />
+<line x1="908.8500000000001" y1="70" x2="908.8500000000001" y2="1972" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" />
+<line x1="1077.3750000000002" y1="70" x2="1077.3750000000002" y2="1972" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" />
+<line x1="321.05" y1="90" x2="528.9000000000001" y2="90" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="424.975" y="84" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Accède au Dashboard Avis</text>
+<line x1="528.9000000000001" y1="130" x2="715.3000000000002" y2="130" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="622.1000000000001" y="124" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">POST /api/reviews/create-link</text>
+<line x1="715.3000000000002" y1="170" x2="1077.3750000000002" y2="170" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="896.3375000000002" y="164" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">INSERT INTO review_links</text>
+<line x1="1077.3750000000002" y1="210" x2="715.3000000000002" y2="210" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#seq-arrow)" />
+<text x="896.3375000000002" y="204" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Enregistrement OK</text>
+<line x1="715.3000000000002" y1="250" x2="528.9000000000001" y2="250" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#seq-arrow)" />
+<text x="622.1000000000001" y="244" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Lien créé + URL publique</text>
+<polyline points="528.9000000000001,290 558.9000000000001,290 558.9000000000001,310 528.9000000000001,310" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="564.9000000000001" y="300" dy="0.35em" font-size="11" font-weight="400" fill="var(--_text-muted)">Génère le QR Code (statique/dynamique)</text>
+<line x1="528.9000000000001" y1="360" x2="321.05" y2="360" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#seq-arrow)" />
+<text x="424.975" y="354" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Affiche le QR Code + Option Téléchargement</text>
+<line x1="109.625" y1="400" x2="528.9000000000001" y2="400" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="319.26250000000005" y="394" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Flashe le QR Code / Visite /avis/[slug]</text>
+<line x1="528.9000000000001" y1="440" x2="715.3000000000002" y2="440" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="622.1000000000001" y="434" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">GET /api/reviews/links/:slug</text>
+<line x1="715.3000000000002" y1="480" x2="1077.3750000000002" y2="480" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="896.3375000000002" y="474" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">SELECT FROM review_links WHERE slug = :slug</text>
+<line x1="1077.3750000000002" y1="520" x2="715.3000000000002" y2="520" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#seq-arrow)" />
+<text x="896.3375000000002" y="514" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Données du lien (actif, config champs)</text>
+<line x1="715.3000000000002" y1="560" x2="528.9000000000001" y2="560" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#seq-arrow)" />
+<text x="622.1000000000001" y="554" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Rendu du formulaire personnalisé</text>
+<line x1="109.625" y1="628" x2="528.9000000000001" y2="628" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="319.26250000000005" y="622" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Sélectionne un fichier média</text>
+<line x1="528.9000000000001" y1="668" x2="908.8500000000001" y2="668" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="718.8750000000001" y="662" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Téléverse le média (reviews-bucket)</text>
+<line x1="908.8500000000001" y1="708" x2="528.9000000000001" y2="708" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#seq-arrow)" />
+<text x="718.8750000000001" y="702" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">URL du média</text>
+<line x1="109.625" y1="748" x2="528.9000000000001" y2="748" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="319.26250000000005" y="742" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Rempli et soumet l&#39;avis</text>
+<line x1="528.9000000000001" y1="788" x2="715.3000000000002" y2="788" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="622.1000000000001" y="782" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">POST /api/reviews/submit</text>
+<line x1="715.3000000000002" y1="856" x2="528.9000000000001" y2="856" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#seq-arrow)" />
+<text x="622.1000000000001" y="850" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Rejet (409 ou 429)</text>
+<line x1="528.9000000000001" y1="896" x2="109.625" y2="896" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#seq-arrow)" />
+<text x="319.26250000000005" y="890" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Message d&#39;erreur</text>
+<line x1="715.3000000000002" y1="960" x2="1077.3750000000002" y2="960" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="896.3375000000002" y="954" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">INSERT INTO reviews (pending)</text>
+<line x1="1077.3750000000002" y1="1000" x2="715.3000000000002" y2="1000" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#seq-arrow)" />
+<text x="896.3375000000002" y="994" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Succès</text>
+<line x1="715.3000000000002" y1="1040" x2="528.9000000000001" y2="1040" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#seq-arrow)" />
+<text x="622.1000000000001" y="1034" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Code 201 (Merci !)</text>
+<line x1="528.9000000000001" y1="1080" x2="109.625" y2="1080" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#seq-arrow)" />
+<text x="319.26250000000005" y="1074" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Écran de succès + Confettis</text>
+<line x1="321.05" y1="1120" x2="528.9000000000001" y2="1120" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="424.975" y="1114" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Accède au Dashboard modération</text>
+<line x1="528.9000000000001" y1="1160" x2="715.3000000000002" y2="1160" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="622.1000000000001" y="1154" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">GET /api/reviews/[linkId]?status=pending</text>
+<line x1="715.3000000000002" y1="1200" x2="1077.3750000000002" y2="1200" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="896.3375000000002" y="1194" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">SELECT reviews WHERE link_id = :linkId</text>
+<line x1="1077.3750000000002" y1="1240" x2="715.3000000000002" y2="1240" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#seq-arrow)" />
+<text x="896.3375000000002" y="1234" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Liste des avis en attente</text>
+<line x1="715.3000000000002" y1="1280" x2="528.9000000000001" y2="1280" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#seq-arrow)" />
+<text x="622.1000000000001" y="1274" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Affichage des avis</text>
+<line x1="321.05" y1="1348" x2="528.9000000000001" y2="1348" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="424.975" y="1342" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Approuve l&#39;avis</text>
+<line x1="528.9000000000001" y1="1388" x2="715.3000000000002" y2="1388" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="622.1000000000001" y="1382" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">PATCH /api/reviews/:id/moderate (approved)</text>
+<line x1="715.3000000000002" y1="1428" x2="1077.3750000000002" y2="1428" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="896.3375000000002" y="1422" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">UPDATE reviews SET status = approved</text>
+<line x1="1077.3750000000002" y1="1468" x2="715.3000000000002" y2="1468" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#seq-arrow)" />
+<text x="896.3375000000002" y="1462" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">OK</text>
+<line x1="715.3000000000002" y1="1508" x2="528.9000000000001" y2="1508" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#seq-arrow)" />
+<text x="622.1000000000001" y="1502" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Mis à jour avec succès</text>
+<line x1="321.05" y1="1572" x2="528.9000000000001" y2="1572" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="424.975" y="1566" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Rejette ou Supprime l&#39;avis</text>
+<line x1="528.9000000000001" y1="1612" x2="715.3000000000002" y2="1612" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="622.1000000000001" y="1606" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">PATCH/DELETE /api/reviews/:id/moderate (rejected)</text>
+<line x1="715.3000000000002" y1="1652" x2="1077.3750000000002" y2="1652" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="896.3375000000002" y="1646" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">UPDATE/DELETE reviews</text>
+<line x1="1077.3750000000002" y1="1692" x2="715.3000000000002" y2="1692" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#seq-arrow)" />
+<text x="896.3375000000002" y="1686" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">OK</text>
+<line x1="715.3000000000002" y1="1732" x2="528.9000000000001" y2="1732" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#seq-arrow)" />
+<text x="622.1000000000001" y="1726" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Modifié/Supprimé</text>
+<line x1="321.05" y1="1772" x2="528.9000000000001" y2="1772" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="424.975" y="1766" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Clique sur Exporter (CSV/JSON)</text>
+<line x1="528.9000000000001" y1="1812" x2="715.3000000000002" y2="1812" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="622.1000000000001" y="1806" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">GET /api/reviews/export/[linkId]?format=csv</text>
+<line x1="715.3000000000002" y1="1852" x2="1077.3750000000002" y2="1852" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="896.3375000000002" y="1846" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">SELECT ALL approved reviews</text>
+<line x1="1077.3750000000002" y1="1892" x2="715.3000000000002" y2="1892" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#seq-arrow)" />
+<text x="896.3375000000002" y="1886" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Données des avis</text>
+<line x1="715.3000000000002" y1="1932" x2="528.9000000000001" y2="1932" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#seq-arrow)" />
+<text x="622.1000000000001" y="1926" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Flux text/csv (Téléchargement de fichier)</text>
+<rect x="608.2725" y="74" width="181.88" height="27" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<polygon points="784.1525,74 790.1525,80 784.1525,80" fill="var(--_inner-stroke)" />
+<text x="699.2125000000001" y="87.5" text-anchor="middle" dy="0.35em" font-size="11" font-weight="400" fill="var(--_text-muted)">1. Création de lien &amp; QR Code</text>
+<rect x="502.5600000000001" y="364" width="181.88" height="27" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<polygon points="678.44,364 684.44,370 678.44,370" fill="var(--_inner-stroke)" />
+<text x="593.5000000000001" y="377.5" text-anchor="middle" dy="0.35em" font-size="11" font-weight="400" fill="var(--_text-muted)">2. Soumission d&#39;Avis (Public)</text>
+<rect x="507.10000000000014" y="792" width="416.40000000000003" height="27" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<polygon points="917.5000000000002,792 923.5000000000002,798 917.5000000000002,798" fill="var(--_inner-stroke)" />
+<text x="715.3000000000002" y="805.5" text-anchor="middle" dy="0.35em" font-size="11" font-weight="400" fill="var(--_text-muted)">Validation Zod + Détection fraude (IP, Email, Fingerprint, Rate Limit)</text>
+<rect x="568.2325000000001" y="1084" width="261.96000000000004" height="27" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<polygon points="824.1925000000001,1084 830.1925000000001,1090 824.1925000000001,1090" fill="var(--_inner-stroke)" />
+<text x="699.2125000000001" y="1097.5" text-anchor="middle" dy="0.35em" font-size="11" font-weight="400" fill="var(--_text-muted)">3. Modération &amp; Exploitation (Propriétaire)</text>
+<rect x="639.2125000000001" y="1736" width="120" height="27" fill="var(--_group-hdr)" stroke="var(--_node-stroke)" stroke-width="0.75" />
+<polygon points="753.2125000000001,1736 759.2125000000001,1742 753.2125000000001,1742" fill="var(--_inner-stroke)" />
+<text x="699.2125000000001" y="1749.5" text-anchor="middle" dy="0.35em" font-size="11" font-weight="400" fill="var(--_text-muted)">4. Exportation</text>
+<g transform="translate(91.625,32) scale(1.5)">
+  <path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" fill="none" stroke="var(--_line)" stroke-width="0.6666666666666666" />
+  <path d="M15 10C15 11.6569 13.6569 13 12 13C10.3431 13 9 11.6569 9 10C9 8.34315 10.3431 7 12 7C13.6569 7 15 8.34315 15 10Z" fill="none" stroke="var(--_line)" stroke-width="0.6666666666666666" />
+  <path d="M5.62842 18.3563C7.08963 17.0398 9.39997 16 12 16C14.6 16 16.9104 17.0398 18.3716 18.3563" fill="none" stroke="var(--_line)" stroke-width="0.6666666666666666" />
+</g>
+<text x="109.625" y="84" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)">Client (Public)</text>
+<g transform="translate(303.05,32) scale(1.5)">
+  <path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" fill="none" stroke="var(--_line)" stroke-width="0.6666666666666666" />
+  <path d="M15 10C15 11.6569 13.6569 13 12 13C10.3431 13 9 11.6569 9 10C9 8.34315 10.3431 7 12 7C13.6569 7 15 8.34315 15 10Z" fill="none" stroke="var(--_line)" stroke-width="0.6666666666666666" />
+  <path d="M5.62842 18.3563C7.08963 17.0398 9.39997 16 12 16C14.6 16 16.9104 17.0398 18.3716 18.3563" fill="none" stroke="var(--_line)" stroke-width="0.6666666666666666" />
+</g>
+<text x="321.05" y="84" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)">Propriétaire (Dashboard)</text>
+<rect x="462.8500000000001" y="30" width="132.10000000000002" height="40" rx="4" ry="4" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+<text x="528.9000000000001" y="50" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">Frontend Ofika</text>
+<rect x="634.9500000000002" y="30" width="160.70000000000002" height="40" rx="4" ry="4" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+<text x="715.3000000000002" y="50" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">API (/api/reviews)</text>
+<rect x="835.6500000000001" y="30" width="146.4" height="40" rx="4" ry="4" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+<text x="908.8500000000001" y="50" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">Supabase Storage</text>
+<rect x="1022.0500000000002" y="30" width="110.65" height="40" rx="4" ry="4" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+<text x="1077.3750000000002" y="50" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">Supabase DB</text>
+</svg>

@@ -73,7 +73,7 @@ CREATE TABLE orders (
   total_cents INTEGER GENERATED ALWAYS AS (amount_cents + shipping_cents + tax_cents) STORED,
   payment_status TEXT NOT NULL DEFAULT 'pending'
     CHECK (payment_status IN ('pending', 'processing', 'succeeded', 'failed', 'refunded', 'cancelled')),
-  payment_provider TEXT DEFAULT 'stripe',
+  payment_provider TEXT DEFAULT 'Wave',
   payment_intent_id TEXT,
   shipping_status TEXT NOT NULL DEFAULT 'pending'
     CHECK (shipping_status IN ('pending', 'preparing', 'shipped', 'in_transit', 'delivered', 'returned')),

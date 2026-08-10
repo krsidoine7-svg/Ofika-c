@@ -44,6 +44,16 @@ CREATE POLICY "Only admins can update pricing config"
     )
   );
 
+CREATE POLICY "Only admins can insert pricing config"
+  ON pricing_config FOR INSERT
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM users
+      WHERE users.id = auth.uid()::text
+      AND users.subscription_tier = 'admin'
+    )
+  );
+
 -- Fonction pour récupérer le prix de base
 CREATE OR REPLACE FUNCTION get_nfc_card_base_price()
 RETURNS INTEGER AS $$

@@ -25,14 +25,14 @@ export function AdminGuard({ children }: AdminGuardProps) {
                 }
 
                 const { data: adminData, error: adminError } = await supabase
-                    .from('admin_users')
-                    .select('id')
+                    .from('users')
+                    .select('role')
                     .eq('id', user.id)
                     .single()
 
-                if (adminError || !adminData) {
-                    console.error('Accès admin refusé:', adminError)
-                    router.push('/admin/auth')
+                if (adminError || !adminData || (adminData.role !== 'admin' && adminData.role !== 'super_admin')) {
+                    console.error('Accès admin refusé:', adminError || 'Rôle insuffisant')
+                    router.push('/dashboard')
                     return
                 }
 

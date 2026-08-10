@@ -96,7 +96,7 @@ Définissez clairement les objectifs de performance de l'application (Service Le
 ### C. Isolation et Étanchéité de l'Environnement
 * **NE JAMAIS tester sur l'environnement de production** sous peine de perturber les vrais utilisateurs ou de corrompre les données réelles.
 * Utiliser un environnement de **Staging (Pré-production)** configuré de manière aussi identique que possible à la production (mêmes specs de base de données, ressources CPU/RAM identiques).
-* Désactiver ou simuler (mocker) les services tiers payants ou externes (ex: passerelles de paiement Stripe, envois d'e-mails réels) pour éviter de saturer des API tierces ou de générer des frais.
+* Désactiver ou simuler (mocker) les services tiers payants ou externes (ex: passerelles de paiement Wave, envois d'e-mails réels) pour éviter de saturer des API tierces ou de générer des frais.
 
 ### D. Gestion et Rotation des Données de Test (Data Seeding)
 * **Éviter le biais de cache de base de données** : Si 1000 utilisateurs virtuels interrogent en boucle le profil de l'utilisateur avec l'ID `1`, la base de données va stocker ce profil en mémoire cache. Vos résultats seront artificiellement excellents.

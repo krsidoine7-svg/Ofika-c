@@ -59,6 +59,7 @@ export async function GET(
         .from('review_links')
         .select('id')
         .eq('user_id', user.id)
+        .is('deleted_at', null)
 
       if (linksError) {
         return NextResponse.json({ error: 'Erreur liens' }, { status: 500 })
@@ -81,6 +82,7 @@ export async function GET(
         .from('review_links')
         .select('id, user_id')
         .eq('id', linkId)
+        .is('deleted_at', null)
         .single()
       
       if (linkError || !link) {
@@ -101,6 +103,7 @@ export async function GET(
       .from('reviews')
       .select('*', { count: 'exact' })
       .in('link_id', targetLinkIds) // Utilisation de .in() pour gérer 1 ou N liens
+      .is('deleted_at', null)
       .order('created_at', { ascending: false })
     
     // Filtre par rating

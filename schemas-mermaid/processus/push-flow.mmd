@@ -1,0 +1,73 @@
+sequenceDiagram
+    autonumber
+    actor U as Utilisateur
+    participant V as Navigateur (Frontend)
+    participant SW as Service Worker (sw.js)
+    participant API as API Next.js (Backend)
+    participant DB as Supabase (push_subscriptions)
+    participant Gate as Passerelle Push (Apple APNs / Google FCM)
+
+    %% 1. Vérification iOS / Standalone
+    Note over U, V: 1. Initialisation & Vérification PWA
+    V->>V: Est-ce iOS? Et Mode Standalone?
+    alt iOS et non standalone
+        V-->>U: Affiche la bannière d'onboarding "Ajouter à l'écran d'accueil"
+    else Standalone ou Autre OS (Android/PC)
+        V-->>U: Affiche le commutateur d'activation des notifications
+    end
+
+    %% 2. Demande de Permission & Souscription
+    U->>V: Clic sur "Activer les notifications"
+    V->>V: Demande permission : Notification.requestPermission()
+    U-->>V: Accord (Granted)
+
+    %% 3. Récupération Clé & Vérification / Auto-réparation
+    V->>API: GET /api/push/public-key
+    API-->>V: Clé Publique VAPID Actuelle
+    
+    V->>SW: pushManager.getSubscription()
+    SW-->>V: Abonnement existant (si présent)
+
+    alt Clé VAPID obsolète ou Erreur d'état (InvalidStateError)
+        Note over V, SW: Auto-réparation VAPID
+        V->>SW: pushManager.unsubscribe()
+        SW-->>V: Désabonnement OK
+        V->>SW: pushManager.subscribe(Nouvelle Clé VAPID)
+        SW->>Gate: Enregistrement nouvelle clé
+        Gate-->>SW: Nouvel Endpoint & Clés (p256dh, auth)
+        SW-->>V: Nouvel abonnement
+        V->>DB: Mettre à jour / Insérer le nouvel abonnement
+    else Pas d'abonnement existant
+        V->>SW: pushManager.subscribe(Clé VAPID)
+        SW->>Gate: Demande d'enregistrement
+        Gate-->>SW: Endpoint & Clés (p256dh, auth)
+        SW-->>V: Nouvel abonnement
+        V->>DB: Sauvegarder l'abonnement
+    end
+
+    %% 4. Déclenchement Admin et Envoi Push
+    Note over API, DB: 2. Envoi d'une Notification (Admin Broadcast)
+    API->>DB: Sélectionne les abonnements
+    DB-->>API: Liste des abonnés (Endpoints, keys)
+    API->>API: Chiffre le payload avec VAPID_PRIVATE_KEY
+    API->>Gate: POST HTTP (Endpoint URL + Payload chiffré)
+    
+    alt Endpoint Invalide / Expiré (Code 404 / 410)
+        Gate-->>API: Code 404/410 GONE
+        API->>DB: Supprime l'abonnement invalide (Nettoyage DB)
+    else Envoi Réussi (Code 201)
+        Gate-->>API: 201 Created
+        Gate->>SW: Réveille le Service Worker en tâche de fond (événement "push")
+        SW->>V: Affiche la notification système : showNotification()
+    end
+
+    %% 5. Clic sur Notification
+    Note over U, SW: 3. Clic sur la Notification
+    U->>SW: Clic sur la notification
+    SW->>SW: Intercepte "notificationclick"
+    SW->>V: Cherche un onglet ouvert contenant l'URL cible
+    alt Onglet trouvé
+        SW->>V: Met le focus sur l'onglet existant (client.focus)
+    else Aucun onglet correspondant
+        SW->>V: Ouvre un nouvel onglet avec l'URL (clients.openWindow)
+    end

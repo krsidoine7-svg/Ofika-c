@@ -23,65 +23,64 @@ export function withAuth<T = any>(
     request: NextRequest,
     context: { params: Promise<T> }
   ): Promise<NextResponse> => {
-    const resolvedParams = await context.params
-    const supabase = await createClient()
-    
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    
-    if (authError || !user) {
-      return NextResponse.json(
-        { success: false, error: 'Non authentifié' },
-        { status: 401 }
-      )
-    }
-
-    // Vérifier si le compte de l'utilisateur est actif (Soft Delete Check)
-    let isActive = true
-    const { data: dbUser } = await supabase
-      .from('users')
-      .select('is_active')
-      .eq('id', user.id)
-      .maybeSingle()
+    try {
+      const resolvedParams = (context && context.params) ? await context.params : ({} as T)
+      const supabase = await createClient()
       
-    if (dbUser) {
-      isActive = dbUser.is_active !== false
-    } else {
-      const { data: dbAdmin } = await supabase
-        .from('admin_users')
+      const { data: { user }, error: authError } = await supabase.auth.getUser()
+      
+      if (authError || !user) {
+        return NextResponse.json(
+          { success: false, error: 'Non authentifié' },
+          { status: 401 }
+        )
+      }
+
+      // Vérifier si le compte de l'utilisateur est actif (Soft Delete Check)
+      let isActive = true
+      const { data: dbUser } = await supabase
+        .from('users')
         .select('is_active')
         .eq('id', user.id)
         .maybeSingle()
-      if (dbAdmin) {
-        isActive = dbAdmin.is_active !== false
+        
+      if (dbUser) {
+        isActive = dbUser.is_active !== false
       }
-    }
 
-    if (!isActive) {
+      if (!isActive) {
+        return NextResponse.json(
+          { success: false, error: 'Votre compte a été désactivé' },
+          { status: 403 }
+        )
+      }
+
+      // --- Support du Mode Mascarade (Impersonation) ---
+      const impersonatedId = request.cookies.get('x-impersonating-user')?.value
+      
+      if (impersonatedId && impersonatedId !== user.id) {
+          // 1. Vérifier que l'utilisateur ACTUEL est un administrateur
+          const { data: isAdmin } = await supabase
+              .from('users')
+              .select('role')
+              .eq('id', user.id)
+              .single()
+
+          if (isAdmin && (isAdmin.role === 'admin' || isAdmin.role === 'super_admin')) {
+              // 2. Créer un clone de l'utilisateur avec l'ID usurpé pour le reste de la requête
+              const impersonatedUser = { ...user, id: impersonatedId }
+              return handler(request, impersonatedUser, resolvedParams)
+          }
+      }
+      
+      return handler(request, user, resolvedParams)
+    } catch (error) {
+      console.error('Error in withAuth middleware:', error)
       return NextResponse.json(
-        { success: false, error: 'Votre compte a été désactivé' },
-        { status: 403 }
+        { success: false, error: 'Erreur interne du serveur' },
+        { status: 500 }
       )
     }
-
-    // --- Support du Mode Mascarade (Impersonation) ---
-    const impersonatedId = request.cookies.get('x-impersonating-user')?.value
-    
-    if (impersonatedId && impersonatedId !== user.id) {
-        // 1. Vérifier que l'utilisateur ACTUEL est un administrateur
-        const { data: isAdmin } = await supabase
-            .from('admin_users')
-            .select('id')
-            .eq('id', user.id)
-            .single()
-
-        if (isAdmin) {
-            // 2. Créer un clone de l'utilisateur avec l'ID usurpé pour le reste de la requête
-            const impersonatedUser = { ...user, id: impersonatedId }
-            return handler(request, impersonatedUser, resolvedParams)
-        }
-    }
-    
-    return handler(request, user, resolvedParams)
   }
 }
 

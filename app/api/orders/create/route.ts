@@ -35,7 +35,7 @@ const orderCreateSchema = z.object({
     .transform(val => typeof val === 'string' ? parseFloat(val) : val)
     .refine(val => val >= 0, 'Prix unitaire doit être positif')
     .optional(),
-  payment_method: z.enum(['lygos', 'wave', 'orange_money', 'mtn_money']).default('lygos'),
+  payment_method: z.enum(['lygos', 'wave', 'orange_money', 'mtn_money', 'geniuspay']).default('geniuspay'),
   shipping_address: shippingAddressSchema,
   metadata: z.record(z.any()).optional(),
 })
@@ -73,7 +73,7 @@ function createRateLimiter(windowMs = 60000, maxRequests = 5) {
 const checkRateLimit = createRateLimiter()
 
 // Calcul sécurisé du prix avec validation
-function calculatePrice(cardType: string = 'nfc_qr', quantity: number, unitPrice?: number): number {
+function calculatePrice(dbPrice: number, quantity: number, unitPrice?: number): number {
   // Validation des entrées
   if (quantity < 1 || quantity > ORDER_LIMITS.MAX_CARDS_PER_USER) {
     throw new Error(`Quantité invalide: ${quantity}`)
@@ -83,19 +83,16 @@ function calculatePrice(cardType: string = 'nfc_qr', quantity: number, unitPrice
     throw new Error(`Prix unitaire invalide: ${unitPrice}`)
   }
 
-  // Si un prix unitaire est fourni, l'utiliser avec validation
-  if (unitPrice !== undefined) {
-    return Math.round(unitPrice * quantity * 100) / 100 // Évite les problèmes de précision flottante
+  // Le prix doit être d'au moins 200 XOF pour satisfaire aux exigences des passerelles (GeniusPay)
+  const MIN_PRICE_XOF = 200
+
+  // Si un prix unitaire est fourni, l'utiliser avec validation du minimum de 200 XOF
+  if (unitPrice !== undefined && unitPrice >= MIN_PRICE_XOF) {
+    return Math.round(unitPrice * quantity * 100) / 100
   }
 
-  // Prix par défaut selon le type de carte
-  const price = CARD_PRICING[cardType as keyof typeof CARD_PRICING] ?? CARD_PRICING.nfc_qr
-
-  if (!price || price < 0) {
-    throw new Error(`Prix non défini pour le type de carte: ${cardType}`)
-  }
-
-  return Math.round(price * quantity * 100) / 100
+  const effectivePrice = Math.max(dbPrice || 14600, MIN_PRICE_XOF)
+  return Math.round(effectivePrice * quantity * 100) / 100
 }
 
 // Génération sécurisée de numéro de commande (avec retry en cas de collision)
@@ -347,14 +344,50 @@ export async function POST(request: NextRequest) {
     */
     log('⚠️ Validation limites utilisateur désactivée')
 
+    // 6.5. Récupération du prix depuis la base de données (system_config)
+    log('💵 Récupération du prix du produit')
+    let dbPrice = 14600 // fallback secours
+
+    try {
+      const { data: pricingDb } = await supabase
+        .from('system_config')
+        .select('value')
+        .eq('key', 'pricing_config')
+        .maybeSingle()
+
+      const { data: dbConfig } = await supabase
+        .from('system_config')
+        .select('value')
+        .eq('key', 'payment_gateways')
+        .maybeSingle()
+
+      const resolvedPrice = pricingDb?.value?.nfc_card_base_price || dbConfig?.value?.geniuspay?.base_price || dbConfig?.value?.wave?.base_price
+
+      if (resolvedPrice && resolvedPrice >= 200) {
+        dbPrice = resolvedPrice
+      } else {
+        // Fallback sur la table products si présent
+        const { data: productData } = await supabase
+          .from('products')
+          .select('price')
+          .eq('type', orderData.card_type)
+          .maybeSingle()
+        if (productData?.price && productData.price >= 200) {
+          dbPrice = productData.price
+        }
+      }
+    } catch (e) {
+      log('⚠️ Erreur fetch pricing config', { e })
+    }
+
     // 7. Calcul sécurisé du prix
     log('💰 Calcul du prix')
     let unitPrice: number
     let totalAmount: number
 
     try {
-      unitPrice = calculatePrice(orderData.card_type, 1, orderData.unit_price)
-      totalAmount = calculatePrice(orderData.card_type, orderData.quantity, orderData.unit_price)
+      unitPrice = calculatePrice(dbPrice, 1, orderData.unit_price)
+      totalAmount = calculatePrice(dbPrice, orderData.quantity, orderData.unit_price)
       log('✅ Prix calculé', { unitPrice, totalAmount, cardType: orderData.card_type })
     } catch (priceError) {
       log('❌ Erreur calcul prix', {
@@ -403,8 +436,8 @@ export async function POST(request: NextRequest) {
     const gateways = dbConfig?.value || {}
     const requestedMethod = orderData.payment_method
     
-    // Par défaut, LyGOS est actif si non configuré explicitement comme inactif
-    const isMethodActive = gateways[requestedMethod]?.is_active ?? (requestedMethod === 'lygos' ? true : false)
+    // Par défaut, Genius Pay est actif si non configuré explicitement comme inactif
+    const isMethodActive = gateways[requestedMethod]?.is_active ?? (requestedMethod === 'geniuspay' || requestedMethod === 'wave' ? true : false)
     
     if (!isMethodActive) {
       log(`❌ Méthode de paiement ${requestedMethod} inactive`)
@@ -560,6 +593,26 @@ export async function POST(request: NextRequest) {
       orderNumber: order.order_number,
       totalCents: order.total_cents
     })
+
+    // 10.5 Mise à jour silencieuse de l'adresse de l'utilisateur s'il a renseigné des informations
+    if (orderData.shipping_address) {
+      log('👤 Mise à jour des informations utilisateur avec la nouvelle adresse de livraison')
+      const { error: userUpdateError } = await supabase
+        .from('users')
+        .update({
+          name: orderData.shipping_address.name || undefined,
+          phone: orderData.shipping_address.phone || undefined,
+          city: orderData.shipping_address.city || undefined,
+          address: orderData.shipping_address.address || undefined,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', user.id)
+
+      if (userUpdateError) {
+        log('⚠️ Erreur mineure lors de la mise à jour du profil utilisateur:', { error: userUpdateError.message })
+        // On ne bloque pas la commande pour autant
+      }
+    }
 
     // 11. Réponse de succès avec données complètes
     const response = {

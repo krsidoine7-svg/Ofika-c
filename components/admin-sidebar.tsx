@@ -21,8 +21,7 @@ const navGroups = [
     title: 'Général',
     items: [
       { label: 'Dashboard', icon: LayoutDashboard, href: '/dashboard/admin' },
-      { label: 'Traffic & Trends', icon: TrendingUp, href: '/dashboard/admin/analytics' },
-      { label: 'Stats Ventes', icon: BarChart3, href: '/dashboard/admin/stats' },
+      // { label: 'Stats Ventes', icon: BarChart3, href: '/dashboard/admin/stats' }, // Masqué à la demande de l'utilisateur
     ]
   },
   {
@@ -30,7 +29,6 @@ const navGroups = [
     items: [
       { label: 'Utilisateurs', icon: Users, href: '/dashboard/admin/users' },
       { label: 'Profils VCard', icon: Contact, href: '/dashboard/admin/profiles' },
-      { label: 'Entreprises', icon: Building, href: '/dashboard/admin/companies' },
       { label: 'Modération', icon: ShieldCheck, href: '/dashboard/admin/moderation' },
     ]
   },
@@ -38,7 +36,7 @@ const navGroups = [
     title: "Ventes & Logistique",
     items: [
       { label: "Commandes NFC", icon: CreditCard, href: "/dashboard/admin/orders" },
-      { label: "Méthodes de Paiement", icon: Wallet, href: "/dashboard/admin/payments" },
+      { label: "Paiements & Config", icon: Wallet, href: "/dashboard/admin/payments" },
       { label: "Leads & CRM", icon: Users, href: "/dashboard/admin/leads" },
       { label: "Produits NFC", icon: Package, href: "/dashboard/admin/products" },
     ]
@@ -54,8 +52,7 @@ const navGroups = [
     title: 'Communication & Style',
     items: [
       { label: 'Broadcast', icon: Megaphone, href: '/dashboard/admin/broadcast' },
-      { label: 'Templates', icon: Sparkles, href: '/dashboard/admin/templates' },
-      { label: 'Thèmes & Design', icon: Palette, href: '/dashboard/admin/themes' },
+      { label: 'Design & Templates', icon: Palette, href: '/dashboard/admin/themes' },
     ]
   },
   {
@@ -63,8 +60,6 @@ const navGroups = [
     items: [
       { label: 'Surveillance', icon: Terminal, href: '/dashboard/admin/monitoring' },
       { label: "Journal d'Audit", icon: History, href: '/dashboard/admin/audit' },
-      { label: 'Paramètres', icon: Settings, href: '/dashboard/admin/settings' },
-      { label: 'Config Avancée', icon: Cpu, href: '/dashboard/admin/settings/advanced' },
     ]
   }
 ]
@@ -73,34 +68,28 @@ export function AdminSidebar({ ...props }: React.ComponentProps<typeof Sidebar>)
   const pathname = usePathname()
 
   return (
-    <Sidebar {...props}>
+    <Sidebar collapsible="icon" {...props} className="border-r border-gray-100 bg-white/80 backdrop-blur-xl">
       {/* Header */}
-      <SidebarHeader className="border-b border-sidebar-border p-5">
-        <Link href="/" className="flex items-center gap-3 group">
-          <div className="relative w-9 h-9 rounded-xl bg-gradient-to-br from-orange-500 to-orange-700 flex items-center justify-center shadow-lg shadow-orange-500/20 group-hover:shadow-orange-500/40 transition-shadow shrink-0">
-            <span className="text-white font-black text-lg leading-none">O</span>
+      <SidebarHeader className="border-b border-gray-100 p-4">
+        <Link href="/" className="flex items-center gap-3 group px-2">
+          <div className="relative w-8 h-8 rounded-lg bg-orange-50 flex items-center justify-center shrink-0 border border-orange-100 group-hover:bg-orange-100 transition-colors">
+            <span className="text-orange-500 font-semibold text-base leading-none">O</span>
           </div>
-          <div>
-            <p className="text-sm font-black tracking-widest text-sidebar-accent-foreground uppercase leading-none">Ofika</p>
-            <p className="text-[10px] font-medium text-sidebar-foreground/50 tracking-widest mt-0.5">ADMIN PANEL</p>
+          <div className="group-data-[collapsible=icon]:hidden">
+            <p className="text-sm font-semibold text-gray-900 leading-none">Ofika</p>
+            <p className="text-[11px] font-normal text-gray-500 mt-1 capitalize">Admin panel</p>
           </div>
         </Link>
-
-        {/* Superadmin badge */}
-        <div className="flex items-center gap-2 px-3 py-2 rounded-lg bg-emerald-500/10 border border-emerald-500/20">
-          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shadow-[0_0_6px_rgba(52,211,153,0.8)] animate-pulse shrink-0" />
-          <span className="text-[10px] font-bold text-emerald-400 tracking-widest uppercase">Session SuperAdmin</span>
-        </div>
       </SidebarHeader>
 
       {/* Nav */}
-      <SidebarContent className="py-2 gap-0">
+      <SidebarContent className="py-4 gap-4 scrollbar-hide">
         {navGroups.map((group) => (
-          <SidebarGroup key={group.title} className="px-3 py-0 mb-0.5">
-            <SidebarGroupLabel className="px-2 py-1.5 text-[9px] font-bold text-sidebar-foreground/30 uppercase tracking-[0.15em] h-auto mb-0.5">
+          <SidebarGroup key={group.title} className="px-3 py-0">
+            <SidebarGroupLabel className="px-3 py-1 text-[11px] font-semibold text-gray-900 group-data-[collapsible=icon]:hidden">
               {group.title}
             </SidebarGroupLabel>
-            <SidebarMenu className="gap-0.5">
+            <SidebarMenu className="gap-1 mt-1">
               {group.items.map((item) => {
                 const isActive = pathname === item.href
                 return (
@@ -110,20 +99,15 @@ export function AdminSidebar({ ...props }: React.ComponentProps<typeof Sidebar>)
                       isActive={isActive}
                       tooltip={item.label}
                       className={cn(
-                        "group/link relative h-9 rounded-lg transition-all duration-150",
+                        "group/link relative h-10 rounded-lg transition-all duration-200",
                         isActive
-                          ? "bg-orange-500/15 text-orange-400 hover:bg-orange-500/20 hover:text-orange-400"
-                          : "text-sidebar-foreground/60 hover:text-sidebar-accent-foreground hover:bg-sidebar-accent"
+                          ? "bg-teal-50 text-teal-700 font-medium"
+                          : "text-black hover:text-teal-700 hover:bg-teal-50/50 font-normal"
                       )}
                     >
-                      <Link href={item.href} className="flex items-center gap-2.5 px-2.5">
-                        {/* Active bar indicator */}
-                        {isActive && (
-                          <span className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-5 rounded-r-full bg-orange-500 shadow-[0_0_8px_rgba(249,115,22,0.6)]" />
-                        )}
-                        <item.icon className={cn("w-3.5 h-3.5 shrink-0 transition-colors", isActive ? "text-orange-400" : "text-sidebar-foreground/40 group-hover/link:text-sidebar-foreground/80")} />
-                        <span className="text-xs font-medium truncate">{item.label}</span>
-                        {isActive && <ChevronRight className="ml-auto w-3 h-3 text-orange-400/60 shrink-0" />}
+                      <Link href={item.href} className="flex items-center gap-3 px-3">
+                        <item.icon className={cn("w-[18px] h-[18px] shrink-0 transition-colors", isActive ? "text-teal-600" : "text-gray-800 group-hover/link:text-teal-600")} strokeWidth={isActive ? 2 : 1.5} />
+                        <span className="text-[13px] tracking-wide group-data-[collapsible=icon]:hidden">{item.label}</span>
                       </Link>
                     </SidebarMenuButton>
                   </SidebarMenuItem>
@@ -134,16 +118,7 @@ export function AdminSidebar({ ...props }: React.ComponentProps<typeof Sidebar>)
         ))}
       </SidebarContent>
 
-      {/* Footer */}
-      <SidebarFooter className="border-t border-sidebar-border p-3">
-        <Link
-          href="/dashboard"
-          className="flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-sidebar-foreground/40 hover:text-sidebar-foreground/80 hover:bg-sidebar-accent transition-all duration-150 group/back"
-        >
-          <ArrowLeft className="w-3.5 h-3.5 shrink-0 group-hover/back:-translate-x-0.5 transition-transform" />
-          <span className="text-xs font-medium">Espace Client</span>
-        </Link>
-      </SidebarFooter>
+      {/* Footer removed */}
 
       <SidebarRail />
     </Sidebar>

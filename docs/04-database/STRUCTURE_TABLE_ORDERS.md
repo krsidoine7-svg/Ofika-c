@@ -30,8 +30,6 @@ CREATE TABLE "orders" (
     "actual_delivery" date,
     "wave_payment_id" text,
     "wave_payment_url" text,
-    "lygos_payment_id" text,
-    "lygos_payment_url" text,
     "created_at" timestamp with time zone DEFAULT now() NOT NULL,
     "updated_at" timestamp with time zone DEFAULT now() NOT NULL,
     CONSTRAINT "orders_order_number_unique" UNIQUE("order_number")
@@ -56,7 +54,7 @@ ON DELETE cascade ON UPDATE no action;
 | **total_amount** | numeric(10,2) | ✅ | - | Montant total de la commande |
 | **currency** | varchar(3) | ✅ | 'USD' | Devise (XOF pour la Côte d'Ivoire) |
 | **card_type** | varchar(50) | ❌ | - | Type de carte (nfc_qr, qr_only, premium_subscription, custom) |
-| **payment_method** | varchar(20) | ✅ | - | Méthode de paiement (lygos, wave, orange_money, mtn_money) |
+| **payment_method** | varchar(20) | ✅ | - | Méthode de paiement (Wave, wave, orange_money, mtn_money) |
 | **payment_status** | varchar(20) | ✅ | 'pending' | Statut du paiement (pending, completed, failed, refunded) |
 | **payment_reference** | varchar(100) | ❌ | - | Référence de transaction du fournisseur de paiement |
 | **shipping_address** | jsonb | ✅ | - | Adresse de livraison (format JSON) |
@@ -65,8 +63,6 @@ ON DELETE cascade ON UPDATE no action;
 | **actual_delivery** | date | ❌ | - | Date de livraison réelle |
 | **wave_payment_id** | text | ❌ | - | ID de paiement Wave |
 | **wave_payment_url** | text | ❌ | - | URL de paiement Wave |
-| **lygos_payment_id** | text | ❌ | - | ID de paiement LyGOS |
-| **lygos_payment_url** | text | ❌ | - | URL de paiement LyGOS |
 | **created_at** | timestamp | ✅ | now() | Date de création |
 | **updated_at** | timestamp | ✅ | now() | Date de dernière modification |
 
@@ -83,7 +79,7 @@ ON DELETE cascade ON UPDATE no action;
 {
   card_type: 'nfc_qr',              // Type de carte (fixe pour l'instant)
   quantity: 1,                       // Quantité (fixe à 1)
-  payment_method: 'lygos',          // Méthode de paiement
+  payment_method: 'Wave',          // Méthode de paiement
   shipping_address: {                // Adresse de livraison (JSONB)
     name: string,                    // Nom complet
     email: string,                   // Email
@@ -101,7 +97,7 @@ ON DELETE cascade ON UPDATE no action;
 {
   "card_type": "nfc_qr",
   "quantity": 1,
-  "payment_method": "lygos",
+  "payment_method": "Wave",
   "shipping_address": {
     "name": "Jean Kouassi",
     "email": "jean.kouassi@example.com",
@@ -141,7 +137,7 @@ const orderCreateSchema = z.object({
     .transform(val => typeof val === 'string' ? parseFloat(val) : val)
     .refine(val => val >= 0, 'Prix unitaire doit être positif')
     .optional(),
-  payment_method: z.enum(['lygos', 'wave', 'orange_money', 'mtn_money']).default('lygos'),
+  payment_method: z.enum(['Wave', 'wave', 'orange_money', 'mtn_money']).default('Wave'),
   shipping_address: shippingAddressSchema,
   metadata: z.record(z.any()).optional(),
 })
@@ -204,8 +200,6 @@ Ces champs sont remplis ultérieurement par d'autres processus :
 - **tracking_number** : Rempli lors de l'expédition
 - **estimated_delivery** : Calculé après validation
 - **actual_delivery** : Rempli à la livraison
-- **lygos_payment_id** : Rempli par le webhook LyGOS
-- **lygos_payment_url** : Rempli par l'API LyGOS
 - **wave_payment_id** : Rempli par le webhook Wave (si utilisé)
 - **wave_payment_url** : Rempli par l'API Wave (si utilisé)
 
@@ -283,8 +277,8 @@ graph TD
     M --> N[Insérer dans DB]
     N --> O{Insertion réussie?}
     O -->|Non| P[Retour erreur 500]
-    O -->|Oui| Q[Créer paiement LyGOS]
-    Q --> R[Redirection vers LyGOS]
+    O -->|Oui| Q[Créer paiement Wave]
+    Q --> R[Redirection vers Wave]
 ```
 
 ---
@@ -303,7 +297,7 @@ graph TD
 - Validation stricte avec Zod
 
 ### 🚀 Évolutivité
-- Champs de paiement pour Wave et LyGOS
+- Champs de paiement pour Wave et Wave
 - Métadonnées extensibles
 - Structure JSONB flexible pour shipping_address
 

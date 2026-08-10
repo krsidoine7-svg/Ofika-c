@@ -1,78 +1,62 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/service-role'
-import { validateLygosConfig } from '@/lib/services/lygos-api'
+import { WaveApiConfig } from '@/lib/services/wave-api'
 
 export const dynamic = 'force-dynamic'
 
 /**
- * GET /api/payments/methods - Récupère les méthodes de paiement disponibles
+ * GET /api/payments/methods - Récupère les méthodes de paiement disponibles (Wave uniquement)
  */
 export async function GET(request: NextRequest) {
   try {
     const supabase = createAdminClient()
 
-    // 1. Essayer de récupérer la config depuis la DB
+    // 1. Récupérer la config depuis la DB (pricing_config et payment_gateways)
+    const { data: pricingDb } = await supabase
+      .from('system_config')
+      .select('value')
+      .eq('key', 'pricing_config')
+      .maybeSingle()
+
     const { data: dbConfig } = await supabase
       .from('system_config')
       .select('value')
       .eq('key', 'payment_gateways')
-      .single()
+      .maybeSingle()
 
     const gateways = dbConfig?.value || {}
-
-    // 2. Fallback sur les env vars pour LyGOS
-    const lygosApiConfig = validateLygosConfig()
-    
-    const methods: any[] = []
-    const processedIds = new Set()
-
-    const lygosDb = gateways.lygos || {}
+    const geniusPayDb = gateways.geniuspay || {}
     const waveDb = gateways.wave || {}
+    const resolvedPrice = pricingDb?.value?.nfc_card_base_price || geniusPayDb.base_price || waveDb.base_price || 14600
 
-    // 1. Définir les méthodes standards
-    const standardMethods = [
-      {
-        id: 'lygos',
-        name: 'LyGOS',
-        provider: 'lygos',
-        is_active: lygosDb.hasOwnProperty('is_active') ? lygosDb.is_active : lygosApiConfig.valid,
-        description: 'Paiement mobile sécurisé - Orange Money, Moov Money, Wave',
-        fees: lygosDb.fees || 1.5,
-        currency: lygosDb.currency || 'XOF',
-        min_amount: 100,
-        max_amount: 1000000,
-        countries: ['CI', 'SN', 'BF', 'ML']
-      },
-      {
-        id: 'wave',
-        name: 'Wave CI Merchant',
-        provider: 'wave',
-        is_active: waveDb.hasOwnProperty('is_active') ? waveDb.is_active : false,
-        description: 'Paiement direct via lien Wave Marchand CI',
-        fees: waveDb.fees || 0,
-        currency: waveDb.currency || 'XOF',
-        merchant_id: waveDb.merchant_id || process.env.NEXT_PUBLIC_WAVE_MERCHANT_ID || 'M_ci_8aqIEVzY9rYq',
-        country_code: waveDb.country_code || process.env.NEXT_PUBLIC_WAVE_COUNTRY_CODE || 'ci',
-        base_url: waveDb.base_url || process.env.NEXT_PUBLIC_WAVE_BASE_URL || 'https://pay.wave.com/m'
-      }
-    ]
+    // 2. Définir Genius Pay
+    const geniusPayMethod = {
+      id: 'geniuspay',
+      name: 'Genius Pay',
+      provider: 'geniuspay',
+      is_active: geniusPayDb.hasOwnProperty('is_active') ? geniusPayDb.is_active : true, // Actif par défaut
+      description: 'Paiement sécurisé Mobile Money (Orange, MTN, Wave, Moov) ou Carte',
+      fees: geniusPayDb.fees || 0,
+      currency: geniusPayDb.currency || 'XOF',
+      base_price: resolvedPrice
+    }
 
-    // 2. Ajouter les standards
-    standardMethods.forEach(m => {
-      methods.push(m)
-      processedIds.add(m.id)
-    })
+    // 3. Définir Wave Direct
+    const waveMethod = {
+      id: 'wave',
+      name: 'Wave Direct',
+      provider: 'wave',
+      is_active: waveDb.hasOwnProperty('is_active') ? waveDb.is_active : true, // Actif par défaut si présent
+      description: 'Paiement instantané via Lien / QR Code Wave',
+      fees: waveDb.fees || 0,
+      currency: waveDb.currency || 'XOF',
+      base_price: resolvedPrice,
+      wave_merchant_id: waveDb.wave_merchant_id || 'M_ci_8aqIEVzY9rYq',
+      wave_payment_link: waveDb.wave_payment_link || `https://pay.wave.com/m/M_ci_8aqIEVzY9rYq/c/ci?a=${resolvedPrice}`,
+      whatsapp_number: waveDb.whatsapp_number || '+2250503681588'
+    }
 
-    // 3. Ajouter les autres méthodes configurées en DB
-    Object.keys(gateways).forEach(id => {
-      if (!processedIds.has(id)) {
-        methods.push({
-          id,
-          ...gateways[id],
-          provider: gateways[id].provider || 'custom'
-        })
-      }
-    })
+    const methods = [geniusPayMethod, waveMethod]
 
     return NextResponse.json({
       success: true,
@@ -88,50 +72,53 @@ export async function GET(request: NextRequest) {
 }
 
 /**
- * PATCH /api/payments/methods - Met à jour le statut ou la config d'une méthode
+ * PATCH /api/payments/methods - Met à jour la configuration d'une passerelle (GeniusPay ou Wave)
  */
 export async function PATCH(request: NextRequest) {
   try {
     const supabase = createAdminClient()
-    const { id, is_active, fees, currency, merchant_id, country_code } = await request.json()
+    const body = await request.json()
+    const { id = 'wave', is_active, fees, currency, base_price, wave_merchant_id, wave_payment_link, whatsapp_number } = body
 
-    if (!id) return NextResponse.json({ error: 'ID requis' }, { status: 400 })
-
-    // 1. Récupérer l'existant
+    // 1. Récupérer la config existante
     const { data: dbConfig } = await supabase
       .from('system_config')
       .select('value')
       .eq('key', 'payment_gateways')
-      .single()
+      .maybeSingle()
 
     const currentConfig = dbConfig?.value || {}
-    
-    // 2. Mettre à jour la méthode spécifique
+    const gatewayKey = id === 'geniuspay' ? 'geniuspay' : 'wave'
+    const targetGateway = currentConfig[gatewayKey] || {}
+
+    // 2. Mettre à jour la passerelle ciblée
     const updatedConfig = {
       ...currentConfig,
-      [id]: {
-        ...(currentConfig[id] || {}),
+      [gatewayKey]: {
+        ...targetGateway,
         ...(is_active !== undefined && { is_active }),
         ...(fees !== undefined && { fees }),
         ...(currency !== undefined && { currency }),
-        ...(merchant_id !== undefined && { merchant_id }),
-        ...(country_code !== undefined && { country_code })
+        ...(base_price !== undefined && { base_price }),
+        ...(wave_merchant_id !== undefined && { wave_merchant_id }),
+        ...(wave_payment_link !== undefined && { wave_payment_link }),
+        ...(whatsapp_number !== undefined && { whatsapp_number })
       }
     }
 
-    // 3. Sauvegarder
+    // 3. Sauvegarder dans system_config
     const { error } = await supabase
       .from('system_config')
       .upsert({
         key: 'payment_gateways',
         value: updatedConfig,
-        description: 'Configuration des passerelles de paiement',
+        description: 'Configurations des passerelles de paiement (GeniusPay et Wave Direct)',
         updated_at: new Date().toISOString()
       })
 
     if (error) throw error
 
-    return NextResponse.json({ success: true, method: updatedConfig[id] })
+    return NextResponse.json({ success: true, method: updatedConfig[gatewayKey] })
 
   } catch (error: any) {
     console.error('Erreur PATCH methods:', error)

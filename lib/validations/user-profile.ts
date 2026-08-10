@@ -45,6 +45,8 @@ export const userProfileSchema = z.object({
     .or(z.literal(''))
     .optional(),
   image: z.string().optional(),
+  city: z.string().max(100, 'La ville ne peut pas dépasser 100 caractères').optional(),
+  address: z.string().max(500, 'L\'adresse ne peut pas dépasser 500 caractères').optional(),
   preferred_language: z.enum(Object.keys(SUPPORTED_LANGUAGES) as [SupportedLanguage, ...SupportedLanguage[]])
     .optional()
 }).refine((data) => {
@@ -69,6 +71,8 @@ export const updateUserSchema = z.object({
   image: z.string()
     .url(VALIDATION_CONFIG.image.messages.invalid)
     .optional(),
+  city: z.string().max(100).optional(),
+  address: z.string().max(500).optional(),
   preferred_language: z.enum(Object.keys(SUPPORTED_LANGUAGES) as [SupportedLanguage, ...SupportedLanguage[]])
     .optional(),
   email: z.string()

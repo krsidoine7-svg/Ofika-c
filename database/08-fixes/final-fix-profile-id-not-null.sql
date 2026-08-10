@@ -66,9 +66,7 @@ AND indexname = 'idx_orders_profile_id';
 -- 9. Test final : essayer d'insérer une commande sans profile_id (doit échouer)
 -- Cette ligne doit générer une erreur si la contrainte fonctionne
 -- INSERT INTO orders (user_id, order_number, status, quantity, unit_price, total_amount, currency, payment_method, shipping_address) 
--- VALUES ('00000000-0000-0000-0000-000000000000', 'TEST-NULL-PROFILE', 'pending', 1, 15.00, 15.00, 'USD', 'lygos', '{"name": "Test"}');
 
 -- 10. Test réussi : insérer une commande avec profile_id (doit fonctionner)
 -- Cette ligne doit fonctionner si tout est correct
 -- INSERT INTO orders (user_id, profile_id, order_number, status, quantity, unit_price, total_amount, currency, payment_method, shipping_address) 
--- VALUES ('00000000-0000-0000-0000-000000000000', '00000000-0000-0000-0000-000000000000', 'TEST-WITH-PROFILE', 'pending', 1, 15.00, 15.00, 'USD', 'lygos', '{"name": "Test"}');

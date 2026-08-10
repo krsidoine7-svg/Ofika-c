@@ -1,292 +1,232 @@
-# 🏗️ Architecture Technique - Ofika
+# 🏗️ Architecture, Base de Données & Spécifications APIs - Ofika
 
-> **Architecture générale et stack technologique**  
+> **Documentation unifiée de l'infrastructure technique, de la modélisation de données et des spécifications API d'Ofika**  
 > *Version 1.0 - Janvier 2025*
 
 ---
 
 ## 📋 Table des Matières
 
-- [Vue d'ensemble de l'Architecture](#-vue-densemble-de-larchitecture)
-- [Stack Technologique](#-stack-technologique)
-- [Architecture des Services](#-architecture-des-services)
-- [Principe de Développement](#-principe-de-développement)
+1. [Architecture Technique & Système](#1-architecture-technique--système)
+2. [Modèle Conceptuel de Données (MCD)](#2-modèle-conceptuel-de-données-mcd)
+3. [Structure Physique de la Base de Données (SQL Schema)](#3-structure-physique-de-la-base-de-données-sql-schema)
+4. [Spécifications des APIs & Endpoints](#4-spécifications-des-apis--endpoints)
+5. [Politiques RLS & Sécurité](#5-politiques-rls--sécurité)
 
 ---
 
-## 🎯 Vue d'ensemble de l'Architecture
+## 1. Architecture Technique & Système
 
 ### Architecture Générale
-
-Ofika utilise une architecture microservices moderne, optimisée pour le marché africain avec une approche mobile-first et une haute disponibilité.
-
-#### **Principe d'Architecture**
-- **Microservices** : Services indépendants et scalables
-- **API-First** : Toutes les fonctionnalités via APIs
-- **Mobile-First** : Optimisé pour les appareils mobiles
-- **Cloud-Native** : Déployé sur infrastructure cloud
-- **Event-Driven** : Communication asynchrone entre services
+Ofika utilise une architecture Next.js moderne, optimisée pour le marché africain avec une approche mobile-first, une faible consommation de bande passante et des connexions résilientes.
 
 #### **Composants Principaux**
-1. **Frontend Web** : Interface utilisateur React/Next.js
-2. **API Gateway** : Point d'entrée unique pour toutes les APIs
-3. **Services Backend** : Microservices spécialisés
-4. **Base de Données** : PostgreSQL avec Redis pour le cache
-5. **Services Externes** : Paiements, email, SMS, stockage
-6. **CDN** : Distribution de contenu global
+1. **Frontend / Application Web** : Interface Next.js 15 (App Router, React 18, Tailwind CSS, shadcn/ui).
+2. **Backend & Serverless API** : Routes API intégrées dans Next.js via App Router, connectées à la base de données.
+3. **Base de Données** : PostgreSQL hébergé sur Supabase pour la persistance, avec gestion de l'authentification et du stockage de fichiers.
+
+### Stack Technologique
+
+#### **Frontend**
+* **Next.js 15** (App Router) & **React 18**
+* **TypeScript** pour la sécurité de typage.
+* **Tailwind CSS** & **shadcn/ui** pour un design premium et réactif.
+* **Framer Motion** & **GSAP** pour des micro-animations interactives fluides.
+
+#### **Backend & Données**
+* **Supabase** (PostgreSQL, Auth, Storage).
+* **Drizzle ORM** pour la modélisation, les jointures et l'écriture sécurisée des requêtes SQL.
 
 ---
 
-## 🛠️ Stack Technologique
+## 2. Modèle Conceptuel de Données (MCD)
 
-### Frontend
+### Diagramme MCD (Mermaid)
 
-#### **Framework Principal**
-- **Next.js 15** : Framework React avec App Router
-- **React 18** : Bibliothèque UI avec hooks modernes
-- **TypeScript** : Typage statique pour la robustesse
-- **Tailwind CSS** : Framework CSS utility-first
+```mermaid
+erDiagram
+    USER {
+        string id PK "Identifiant unique Auth"
+        string email UK "Email unique"
+        string phone "Numéro de téléphone"
+        string name "Nom complet"
+        string subscription_tier "Niveau d'abonnement (free/premium)"
+        boolean is_active "Compte actif"
+        timestamp created_at "Date de création"
+    }
 
-#### **Bibliothèques UI**
-- **shadcn/ui** : Composants UI modernes et accessibles
-- **Framer Motion** : Animations fluides et performantes
-- **React Hook Form** : Gestion des formulaires
-- **Zod** : Validation des schémas
+    PROFILE {
+        string id PK "Identifiant unique"
+        string user_id FK "Référence utilisateur"
+        string name "Nom du profil"
+        string bio "Biographie (max 100 caractères)"
+        string image_url "URL de l'image"
+        string username UK "Nom d'utilisateur unique"
+        boolean is_public "Profil public"
+        boolean is_active "Profil actif"
+        timestamp created_at "Date de création"
+    }
 
-#### **Outils de Développement**
-- **Vite** : Build tool rapide pour le développement
-- **ESLint** : Linting du code JavaScript/TypeScript
-- **Prettier** : Formatage automatique du code
-- **Husky** : Git hooks pour la qualité du code
+    LINK {
+        string id PK "Identifiant unique"
+        string profile_id FK "Référence profil"
+        string title "Titre du lien (max 30 caractères)"
+        string url "URL du lien"
+        integer position "Position (1 ou 2, max 2 liens)"
+        boolean is_active "Lien actif"
+        timestamp created_at "Date de création"
+    }
 
-### Backend
+    CARD {
+        string id PK "Identifiant unique"
+        string user_id FK "Référence utilisateur"
+        string profile_id FK "Référence profil"
+        string card_type "Type: nfc_qr, qr_only"
+        string unique_code UK "Code unique de la carte"
+        boolean is_activated "Carte activée"
+        integer tap_count "Nombre de scans/taps"
+        timestamp created_at "Date de création"
+    }
 
-#### **Runtime et Framework**
-- **Node.js 20** : Runtime JavaScript côté serveur
-- **Express.js** : Framework web minimaliste
-- **TypeScript** : Typage statique pour le backend
-- **tRPC** : APIs type-safe entre frontend et backend
+    ORDER {
+        string id PK "Identifiant unique"
+        string user_id FK "Référence utilisateur"
+        string profile_id FK "Référence profil"
+        string card_type "Type de carte"
+        integer quantity "Quantité"
+        decimal total_price "Prix total"
+        string currency "Devise (XOF)"
+        string status "Statut: pending, paid, failed, cancelled"
+        timestamp created_at "Date de création"
+    }
 
-#### **Base de Données**
-- **PostgreSQL 15** : Base de données relationnelle principale
-- **Redis 7** : Cache et session store
-- **Prisma** : ORM moderne pour TypeScript
-- **PostgREST** : API automatique pour PostgreSQL
+    ANALYTICS_EVENT {
+        string id PK "Identifiant unique"
+        string profile_id FK "Référence profil"
+        string event_type "Type d'événement"
+        jsonb event_data "Données associées"
+        string device_type "Type d'appareil"
+        timestamp created_at "Date de création"
+    }
 
-#### **Services de Données**
-- **Supabase** : Backend-as-a-Service pour l'authentification
-- **Upstash** : Redis serverless pour le cache
-- **PlanetScale** : Base de données MySQL serverless
-- **Neon** : PostgreSQL serverless
-
-### Infrastructure
-
-#### **Cloud Provider**
-- **Vercel** : Déploiement frontend et edge functions
-- **Railway** : Déploiement backend et base de données
-- **Cloudflare** : CDN et protection DDoS
-- **AWS S3** : Stockage de fichiers et images
-
-#### **Services de Monitoring**
-- **Vercel Analytics** : Analytics de performance
-- **Sentry** : Monitoring d'erreurs
-- **Uptime Robot** : Surveillance de disponibilité
-- **LogRocket** : Session replay et debugging
-
-#### **Services de Communication**
-- **Resend** : Service d'email transactionnel
-- **Twilio** : SMS et notifications push
-- **Pusher** : WebSockets en temps réel
-- **Clerk** : Authentification et gestion utilisateurs
-
----
-
-## 🏗️ Architecture des Services
-
-### Service 1 : API Gateway
-
-#### **Responsabilités**
-- **Routage** : Redirection des requêtes vers les bons services
-- **Authentification** : Vérification des tokens JWT
-- **Rate Limiting** : Limitation du nombre de requêtes
-- **Logging** : Enregistrement de toutes les requêtes
-- **Monitoring** : Surveillance de la santé des services
-
-#### **Technologies**
-- **Express.js** : Framework web
-- **Helmet** : Sécurité des headers HTTP
-- **CORS** : Gestion des requêtes cross-origin
-- **Morgan** : Logging des requêtes HTTP
-
-### Service 2 : Service Utilisateurs
-
-#### **Responsabilités**
-- **Gestion des profils** : CRUD des utilisateurs
-- **Authentification** : Login, logout, registration
-- **Autorisation** : Gestion des rôles et permissions
-- **Préférences** : Sauvegarde des paramètres utilisateur
-
-#### **Endpoints Principaux**
-- `POST /api/users/register` : Création de compte
-- `POST /api/users/login` : Connexion
-- `GET /api/users/profile` : Récupération du profil
-- `PUT /api/users/profile` : Mise à jour du profil
-- `DELETE /api/users/account` : Suppression de compte
-
-### Service 3 : Service Cartes
-
-#### **Responsabilités**
-- **Simulation** : Génération de prévisualisations
-- **Personnalisation** : Gestion des designs de cartes
-- **Commandes** : Création et suivi des commandes
-- **Production** : Interface avec l'imprimeur
-
-#### **Endpoints Principaux**
-- `POST /api/cards/simulate` : Simulation de carte
-- `POST /api/cards/customize` : Personnalisation
-- `POST /api/cards/order` : Création de commande
-- `GET /api/cards/orders` : Liste des commandes
-- `GET /api/cards/orders/:id` : Détails d'une commande
-
-### Service 4 : Service Paiements
-
-#### **Responsabilités**
-- **Gateways** : Intégration des méthodes de paiement
-- **Transactions** : Gestion des paiements
-- **Webhooks** : Traitement des notifications
-- **Remboursements** : Gestion des remboursements
-
-- **Paystack** : Paiements africains
-- **Flutterwave** : Mobile money et virements
-- **Orange Money** : Paiements mobiles
-- **MTN Money** : Paiements mobiles
-
-### Service 5 : Service Profils
-
-#### **Responsabilités**
-- **Link-in-Bio** : Gestion des profils publics
-- **vCard** : Génération des cartes de contact
-- **Analytics** : Suivi des interactions
-- **Partage** : Fonctionnalités de partage
-
-#### **Endpoints Principaux**
-- `GET /api/profiles/:username` : Profil public
-- `POST /api/profiles/vcard` : Génération vCard
-- `GET /api/profiles/analytics` : Statistiques
-- `POST /api/profiles/share` : Partage de profil
-
-### Service 6 : Service Notifications
-
-#### **Responsabilités**
-- **Email** : Envoi d'emails transactionnels
-- **SMS** : Envoi de SMS
-- **Push** : Notifications push
-- **Templates** : Gestion des modèles
-
-#### **Types de Notifications**
-- **Confirmation de commande** : Email après paiement
-- **Suivi de commande** : Updates sur le statut
-- **Activation de carte** : Instructions d'activation
-- **Analytics** : Rapports périodiques
+    USER ||--o{ PROFILE : "possède"
+    USER ||--o{ CARD : "possède"
+    USER ||--o{ ORDER : "passe"
+    PROFILE ||--o{ LINK : "contient"
+    PROFILE ||--o{ CARD : "associé_à"
+    PROFILE ||--o{ ORDER : "pour"
+    PROFILE ||--o{ ANALYTICS_EVENT : "génère"
+```
 
 ---
 
-## 🚀 Principe de Développement
+## 3. Structure Physique de la Base de Données (SQL Schema)
 
-### Approche Mobile-First
+### Schéma PostgreSQL principal
 
-#### **Design Responsive**
-- **Breakpoints** : Mobile, tablette, desktop
-- **Touch Targets** : Minimum 44px pour les éléments tactiles
-- **Performance** : Chargement <3 secondes sur 3G
-- **Accessibilité** : Support des lecteurs d'écran
+```sql
+-- Table des Utilisateurs
+CREATE TABLE users (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    email VARCHAR(255) UNIQUE NOT NULL,
+    first_name VARCHAR(100) NOT NULL,
+    last_name VARCHAR(100) NOT NULL,
+    phone VARCHAR(20),
+    country VARCHAR(2) NOT NULL,
+    role VARCHAR(20) DEFAULT 'user', -- 'user', 'admin'
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
 
-#### **Optimisations Mobile**
-- **Images** : Compression et formats modernes
-- **Fonts** : Polices système pour la rapidité
-- **CSS** : Tailwind CSS pour la performance
-- **JavaScript** : Code splitting et lazy loading
+-- Table des Profils Link-in-Bio
+CREATE TABLE profiles (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    username VARCHAR(50) UNIQUE NOT NULL,
+    display_name VARCHAR(100) NOT NULL,
+    company VARCHAR(100),
+    job_title VARCHAR(100),
+    bio TEXT,
+    logo_url VARCHAR(500),
+    photo_url VARCHAR(500),
+    theme VARCHAR(20) DEFAULT 'classic',
+    is_public BOOLEAN DEFAULT TRUE,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
 
-### Architecture Scalable
+-- Table des Liens Sociaux (Max 2 par profil)
+CREATE TABLE social_links (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    profile_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+    platform VARCHAR(20) NOT NULL,
+    url VARCHAR(500) NOT NULL,
+    display_name VARCHAR(100),
+    order_index INTEGER NOT NULL,
+    is_active BOOLEAN DEFAULT TRUE,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
 
-#### **Microservices**
-- **Indépendance** : Chaque service peut évoluer séparément
-- **Résilience** : Panne d'un service n'affecte pas les autres
-- **Scalabilité** : Mise à l'échelle indépendante
-- **Maintenance** : Déploiement et maintenance simplifiés
+-- Table des Commandes de Cartes Physiques (Wave Direct)
+CREATE TABLE card_orders (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    user_id UUID NOT NULL REFERENCES users(id) ON DELETE CASCADE,
+    order_number VARCHAR(20) UNIQUE NOT NULL,
+    status VARCHAR(20) NOT NULL DEFAULT 'pending',
+    quantity INTEGER NOT NULL CHECK (quantity > 0 AND quantity <= 2),
+    total_amount DECIMAL(10,2) NOT NULL,
+    currency VARCHAR(3) NOT NULL DEFAULT 'XOF',
+    payment_method VARCHAR(20) NOT NULL, -- 'wave', 'manual_upload'
+    payment_status VARCHAR(20) NOT NULL DEFAULT 'pending',
+    payment_reference VARCHAR(100),
+    shipping_address JSONB NOT NULL,
+    receipt_image_url VARCHAR(500), -- Pour la preuve d'upload manuelle
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW(),
+    updated_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
 
-#### **Event-Driven Architecture**
-- **Asynchrone** : Communication non-bloquante
-- **Découplage** : Services indépendants
-- **Scalabilité** : Gestion des pics de charge
-- **Fiabilité** : Retry et fallback automatiques
-
-### Sécurité Intégrée
-
-#### **Security by Design**
-- **Authentification** : JWT avec rotation automatique
-- **Autorisation** : RBAC (Role-Based Access Control)
-- **Validation** : Validation de toutes les entrées
-- **Chiffrement** : TLS 1.3 et chiffrement des données
-
-#### **Conformité**
-- **RGPD** : Protection des données personnelles
-- **PCI DSS** : Sécurité des paiements
-- **Audit** : Logs complets et traçabilité
-- **Monitoring** : Surveillance en temps réel
-
----
-
-## �� Métriques de Performance
-
-### Objectifs de Performance
-
-#### **Temps de Réponse**
-- **API** : <200ms pour 95% des requêtes
-- **Page Load** : <3 secondes sur 3G
-- **Time to Interactive** : <5 secondes
-- **First Contentful Paint** : <1.5 secondes
-
-#### **Disponibilité**
-- **Uptime** : 99.9% de disponibilité
-- **RTO** : Recovery Time Objective <1 heure
-- **RPO** : Recovery Point Objective <15 minutes
-- **MTTR** : Mean Time To Recovery <30 minutes
-
-### Monitoring et Alertes
-
-#### **Métriques Clés**
-- **Response Time** : Temps de réponse des APIs
-- **Error Rate** : Taux d'erreur des services
-- **Throughput** : Nombre de requêtes par seconde
-- **Resource Usage** : Utilisation CPU, mémoire, disque
-
-#### **Alertes**
-- **Seuils** : Alertes automatiques en cas de dépassement
-- **Escalation** : Escalade automatique des alertes
-- **Notification** : Email, SMS, Slack
-- **Dashboard** : Tableaux de bord en temps réel
-
----
-
-## �� Conclusion
-
-L'architecture technique d'Ofika est conçue pour être **moderne, scalable et sécurisée**, avec un focus particulier sur les **performances mobiles** et l'**adaptation au marché africain**.
-
-**Points clés** :
-- **Microservices** pour la scalabilité
-- **Mobile-first** pour l'Afrique
-- **Cloud-native** pour la fiabilité
-- **Sécurité intégrée** dès la conception
-- **Monitoring complet** pour la maintenance
-
-**Prochaines étapes** :
-- Mise en place de l'infrastructure
-- Développement des services core
-- Tests de performance et sécurité
-- Déploiement progressif
+-- Table des Événements Analytics
+CREATE TABLE analytics_events (
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    profile_id UUID NOT NULL REFERENCES profiles(id) ON DELETE CASCADE,
+    event_type VARCHAR(50) NOT NULL, -- 'profile_view', 'social_click', 'nfc_tap'
+    event_data JSONB,
+    device_type VARCHAR(20),
+    browser VARCHAR(50),
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT NOW()
+);
+```
 
 ---
 
-*Document révisé : Janvier 2025*  
-*Prochaine révision : Avril 2025*
+## 4. Spécifications des APIs & Endpoints
+
+### 🔑 Authentification & Compte
+* `POST /api/auth/register` : Crée un compte utilisateur.
+* `POST /api/auth/login` : Connecte l'utilisateur.
+
+### 👤 Profils & Liens
+* `GET /api/profiles/:username` : Récupère le profil public d'un utilisateur par son nom unique.
+* `POST /api/profiles` : Crée ou met à jour le profil de l'utilisateur connecté.
+* `POST /api/social-links` : Ajoute ou modifie un lien social (Contrainte : 2 liens actifs maximum).
+
+### 🛒 Commandes & Paiements (Flux Wave)
+* `POST /api/payments/wave/create` : Génère le lien de paiement direct Wave ou enregistre les détails de transaction.
+* `POST /api/orders/manual-upload` : Enregistre une commande avec téléversement (upload) de la capture d'écran du reçu de paiement.
+* `POST /api/admin/orders/:id/verify` : (Réservé Admin) Valide un reçu manuel et confirme la commande pour la production.
+
+### 📊 Statistiques (Analytics)
+* `POST /api/analytics/track` : Enregistre anonymement un événement de visite (`profile_view`) ou de clic (`social_click`).
+
+---
+
+## 5. Politiques RLS & Sécurité
+
+### Row Level Security (RLS) sur Supabase
+Afin de protéger la confidentialité des données utilisateurs, toutes les tables de la base de données ont les politiques RLS configurées.
+
+* **Lecture Publique** : Les tables `profiles` et `social_links` autorisent la lecture publique anonyme pour l'affichage des mini-sites.
+* **Écriture restreinte** : Seuls les propriétaires authentifiés (vérification de `user_id = auth.uid()`) peuvent ajouter, modifier ou supprimer leurs liens, informations de profil et commandes de cartes.
+* **Accès Admin** : Les utilisateurs déclarés dans la table `admin_users` disposent des droits de lecture/écriture globaux pour la modération et la gestion des commandes physiques.

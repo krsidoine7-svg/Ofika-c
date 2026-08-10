@@ -136,8 +136,8 @@ CREATE TABLE "orders" (
 	"actual_delivery" date,
 	"wave_payment_id" text,
 	"wave_payment_url" text,
-	"lygos_payment_id" text,
-	"lygos_payment_url" text,
+	"Wave_payment_id" text,
+	"Wave_payment_url" text,
 	"created_at" timestamp with time zone DEFAULT now() NOT NULL,
 	"updated_at" timestamp with time zone DEFAULT now() NOT NULL,
 	CONSTRAINT "orders_order_number_unique" UNIQUE("order_number")

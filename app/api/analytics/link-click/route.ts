@@ -124,14 +124,12 @@ export async function POST(request: NextRequest): Promise<NextResponse<LinkClick
     const newClickCount = (link.click_count || 0) + 1
     const timestamp = new Date().toISOString()
 
-    // Utiliser une transaction pour garantir la cohérence des données
-    const { error: updateError } = await supabase
-      .from('links')
-      .update({ 
-        click_count: newClickCount,
-        updated_at: timestamp
-      })
-      .eq('id', linkId)
+    // Utiliser le client administrateur (Service Role) car l'accès public à cette fonction RPC a été révoqué
+    const { createAdminClient } = await import('@/lib/supabase/service-role')
+    const adminSupabase = createAdminClient()
+    const { error: updateError } = await adminSupabase.rpc('increment_link_click', {
+      link_uuid: linkId
+    })
 
     if (updateError) {
       console.error('Erreur lors de l\'incrémentation du compteur:', updateError)

@@ -1212,47 +1212,49 @@ export function ProfileForm({ profile_id, isEditing = false, onSuccess, onCancel
               <div className="space-y-4">
                 <h3 className="text-lg font-semibold text-gray-900">Images</h3>
 
-                <FormField
-                  control={form.control}
-                  name="image_url"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Photo de profil</FormLabel>
-                      <FormControl>
-                        <ImageUpload
-                          value={field.value}
-                          onChange={field.onChange}
-                          disabled={loading}
-                        />
-                      </FormControl>
-                      <p className="text-sm text-gray-500">
-                        Image de profil pour votre page (recommandé : 400x400px)
-                      </p>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+                  <FormField
+                    control={form.control}
+                    name="image_url"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Photo de profil</FormLabel>
+                        <FormControl>
+                          <ImageUpload
+                            value={field.value}
+                            onChange={field.onChange}
+                            disabled={loading}
+                          />
+                        </FormControl>
+                        <p className="text-sm text-gray-500">
+                          Image de profil pour votre page (recommandé : 400x400px)
+                        </p>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                <FormField
-                  control={form.control}
-                  name="cover_image_url"
-                  render={({ field }) => (
-                    <FormItem>
-                      <FormLabel>Photo de couverture</FormLabel>
-                      <FormControl>
-                        <ImageUpload
-                          value={field.value}
-                          onChange={field.onChange}
-                          disabled={loading}
-                        />
-                      </FormControl>
-                      <p className="text-sm text-gray-500">
-                        Image de fond pour votre profil (recommandé : 1200x400px)
-                      </p>
-                      <FormMessage />
-                    </FormItem>
-                  )}
-                />
+                  <FormField
+                    control={form.control}
+                    name="cover_image_url"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Photo de couverture</FormLabel>
+                        <FormControl>
+                          <ImageUpload
+                            value={field.value}
+                            onChange={field.onChange}
+                            disabled={loading}
+                          />
+                        </FormControl>
+                        <p className="text-sm text-gray-500">
+                          Image de fond pour votre profil (recommandé : 1200x400px)
+                        </p>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+                </div>
               </div>
             )}
 

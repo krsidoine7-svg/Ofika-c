@@ -111,6 +111,8 @@ Date | Décision | Contexte | Raison | Alternative rejetée | Liens
 | `sessions/2026-05-29.md` | Session 002 — Création de ChefsOfika + Sécurité & Stack PROMPTs + npm audit |
 | `sessions/2026-05-31.md` | Session 003 — skill-mermaidH + schemas-mermaid/ + schémas link-to-bio/vCard |
 | `sessions/2026-07-19.md` | Session 004 — Restructuration d'onboarding NFC, corrections DB & RLS, build de production |
+| `sessions/2026-07-20.md` | Sessions 005 & 006 — Onboarding Option A (formulaire en premier), mockup épuré, nettoyage LyGOS/Stripe, et optimisations de performance/SEO |
+| `sessions/2026-07-22.md` | Session 007 — Documentation d'onboarding PWA & Push, amélioration des compétences Mermaid, audit de sécurité et validation du build Next.js 15 |
 
 **Relations :** Chaque résumé de session pointe vers le fichier fourtour correspondant.
 
@@ -156,4 +158,4 @@ sessions/*.md → fourtour/*.md (journal source)
 
 ---
 
-*Index créé : Mai 2026 | Mis à jour : 19 Juillet 2026*
+*Index créé : Mai 2026 | Mis à jour : 22 Juillet 2026*

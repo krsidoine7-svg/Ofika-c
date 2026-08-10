@@ -23,8 +23,8 @@ interface QRRedirect {
     id: string
     user_id: string
     short_code: string
-    nfc_link: string
-    redirect_type: string
+    target_url: string
+    type: string
     title: string | null
     description: string | null
     scan_count: number
@@ -80,7 +80,7 @@ export default function AdminQRRedirectsPage() {
 
     const handleEditClick = (redirect: QRRedirect) => {
         setEditingRedirect(redirect)
-        setEditUrl(redirect.nfc_link)
+        setEditUrl(redirect.target_url)
         setEditShortCode(redirect.short_code)
         setEditIsActive(redirect.is_active)
         setIsEditDialogOpen(true)
@@ -95,7 +95,7 @@ export default function AdminQRRedirectsPage() {
                 method: 'PATCH',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    nfc_link: editUrl,
+                    target_url: editUrl,
                     short_code: editShortCode,
                     is_active: editIsActive
                 })
@@ -143,7 +143,7 @@ export default function AdminQRRedirectsPage() {
 
     const filteredRedirects = redirects.filter(r => 
         r.short_code.toLowerCase().includes(search.toLowerCase()) ||
-        r.nfc_link.toLowerCase().includes(search.toLowerCase()) ||
+        r.target_url?.toLowerCase().includes(search.toLowerCase()) ||
         (r.user?.name || '').toLowerCase().includes(search.toLowerCase()) ||
         (r.user?.email || '').toLowerCase().includes(search.toLowerCase())
     )
@@ -272,15 +272,15 @@ export default function AdminQRRedirectsPage() {
                                                 </div>
                                                 <div className="flex flex-col">
                                                     <span className="text-xs text-gray-400">Pointe vers :</span>
-                                                    <a href={redirect.nfc_link} target="_blank" rel="noreferrer" className="text-sm font-medium text-blue-600 hover:underline truncate">
-                                                        {redirect.nfc_link}
+                                                    <a href={redirect.target_url} target="_blank" rel="noreferrer" className="text-sm font-medium text-blue-600 hover:underline truncate">
+                                                        {redirect.target_url}
                                                     </a>
                                                 </div>
                                             </div>
                                         </td>
                                         <td className="px-6 py-4 text-center">
                                             <Badge variant="secondary" className="bg-purple-50 text-purple-600 border-none uppercase text-[10px] tracking-widest">
-                                                {redirect.redirect_type || 'NFC'}
+                                                {redirect.type || 'NFC'}
                                             </Badge>
                                         </td>
                                         <td className="px-6 py-4 text-center font-mono font-bold text-gray-600">

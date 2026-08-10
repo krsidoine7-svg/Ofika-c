@@ -14,6 +14,7 @@ Ce document liste de manière exhaustive toutes les compétences (skills) à dis
 | **copywriting** | `copywriting/` | Rédaction éditoriale, articles de blog, pages de capture | *écris un article, copywriting, texte marketing* |
 | **react-email** | `react-email/` | Conception d'emails transactionnels HTML de haute qualité | *email transactionnel, gabarit email, react email* |
 | **skill-mermaidH** | `skill-mermaidH/` | Cartographie de processus, diagrammes Mermaid (20+ types), parcours utilisateur, onboarding client, visualisation / création / modification / mise à jour / suppression de features. **Stockage livrables :** `schemas-mermaid/` | *diagramme, mermaid, schéma, architecture, flux, parcours utilisateur, onboarding, user journey, cartographie, processus, flowchart, séquence, ERD, C4, visualiser une feature, link-to-bio, workflow, schemas-mermaid, svg* |
+| **skillgenius** | `skillgenius/` | Intégration du moyen de paiement GeniusPay (Mobile Money Wave, Orange Money, MTN, Moov, PawaPay, cartes bancaires), endpoints, webhooks, vérification de signature HMAC. | *geniuspay, paiement, intégrer paiement, webhook paiement, signature HMAC, wave, orange money, mtn, moov, pawapay* |
 
 ---
 

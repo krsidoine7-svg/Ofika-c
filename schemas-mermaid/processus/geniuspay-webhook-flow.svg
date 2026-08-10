@@ -1,0 +1,87 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1250.7500000000002 850" width="1250.7500000000002" height="850" style="--bg:#1a1b26;--fg:#a9b1d6;--line:#3d59a1;--accent:#7aa2f7;--muted:#565f89;background:var(--bg)">
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap');
+  text { font-family: 'Inter', system-ui, sans-serif; }
+  svg {
+    /* Derived from --bg and --fg (overridable via --line, --accent, etc.) */
+    --_text:          var(--fg);
+    --_text-sec:      var(--muted, color-mix(in srgb, var(--fg) 60%, var(--bg)));
+    --_text-muted:    var(--muted, color-mix(in srgb, var(--fg) 40%, var(--bg)));
+    --_text-faint:    color-mix(in srgb, var(--fg) 25%, var(--bg));
+    --_line:          var(--line, color-mix(in srgb, var(--fg) 30%, var(--bg)));
+    --_arrow:         var(--accent, color-mix(in srgb, var(--fg) 50%, var(--bg)));
+    --_node-fill:     var(--surface, color-mix(in srgb, var(--fg) 3%, var(--bg)));
+    --_node-stroke:   var(--border, color-mix(in srgb, var(--fg) 20%, var(--bg)));
+    --_group-fill:    var(--bg);
+    --_group-hdr:     color-mix(in srgb, var(--fg) 5%, var(--bg));
+    --_inner-stroke:  color-mix(in srgb, var(--fg) 12%, var(--bg));
+    --_key-badge:     color-mix(in srgb, var(--fg) 10%, var(--bg));
+  }
+</style>
+<defs>
+  <marker id="seq-arrow" markerWidth="8" markerHeight="4.8" refX="8" refY="2.4" orient="auto-start-reverse">
+    <polygon points="0 0, 8 2.4, 0 4.8" fill="var(--_arrow)" />
+  </marker>
+  <marker id="seq-arrow-open" markerWidth="8" markerHeight="4.8" refX="8" refY="2.4" orient="auto-start-reverse">
+    <polyline points="0 0, 8 2.4, 0 4.8" fill="none" stroke="var(--_arrow)" stroke-width="1" />
+  </marker>
+</defs>
+<line x1="70" y1="70" x2="70" y2="820" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" />
+<line x1="258.95" y1="70" x2="258.95" y2="820" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" />
+<line x1="484.675" y1="70" x2="484.675" y2="820" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" />
+<line x1="688.95" y1="70" x2="688.95" y2="820" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" />
+<line x1="871.7750000000001" y1="70" x2="871.7750000000001" y2="820" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" />
+<line x1="1093.9250000000002" y1="70" x2="1093.9250000000002" y2="820" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" />
+<line x1="70" y1="90" x2="258.95" y2="90" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="164.475" y="84" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">1. Choix GeniusPay &amp; Clic sur &quot;Payer&quot;</text>
+<line x1="258.95" y1="130" x2="484.675" y2="130" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="371.8125" y="124" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">2. POST /api/orders/create (status: &#39;pending&#39;)</text>
+<line x1="484.675" y1="170" x2="871.7750000000001" y2="170" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="678.225" y="164" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">3. Insertion commande (payment_status: &#39;pending&#39;)</text>
+<line x1="258.95" y1="210" x2="484.675" y2="210" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="371.8125" y="204" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">4. POST /api/payments/geniuspay/initiate</text>
+<line x1="484.675" y1="250" x2="688.95" y2="250" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="586.8125" y="244" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">5. Requête /payments (order_id, amount)</text>
+<line x1="688.95" y1="290" x2="484.675" y2="290" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#seq-arrow)" />
+<text x="586.8125" y="284" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">6. Retour URL Checkout GeniusPay</text>
+<line x1="484.675" y1="330" x2="258.95" y2="330" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#seq-arrow)" />
+<text x="371.8125" y="324" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">7. Redirection client vers GeniusPay Checkout</text>
+<line x1="70" y1="370" x2="688.95" y2="370" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="379.475" y="364" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">8. Saisie numéro Mobile Money / Carte &amp; Validation OTP</text>
+<line x1="688.95" y1="410" x2="484.675" y2="410" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="586.8125" y="404" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">9. Webhook POST /api/webhooks/geniuspay (payment.success)</text>
+<polyline points="484.675,450 514.675,450 514.675,470 484.675,470" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="520.675" y="460" dy="0.35em" font-size="11" font-weight="400" fill="var(--_text-muted)">Vérification Signature HMAC &amp; Horodatage</text>
+<line x1="484.675" y1="520" x2="871.7750000000001" y2="520" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="678.225" y="514" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">Contrôle idempotence (table geniuspay_webhook_events)</text>
+<line x1="484.675" y1="560" x2="871.7750000000001" y2="560" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="678.225" y="554" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">UPDATE orders SET payment_status=&#39;succeeded&#39;, status=&#39;paid&#39;</text>
+<polyline points="871.7750000000001,600 901.7750000000001,600 901.7750000000001,620 871.7750000000001,620" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="907.7750000000001" y="610" dy="0.35em" font-size="11" font-weight="400" fill="var(--_text-muted)">Trigger notify_on_order_status_change() (NEW.user_id::uuid)</text>
+<polyline points="871.7750000000001,670 901.7750000000001,670 901.7750000000001,690 871.7750000000001,690" fill="none" stroke="var(--_line)" stroke-width="0.75" marker-end="url(#seq-arrow)" />
+<text x="907.7750000000001" y="680" dy="0.35em" font-size="11" font-weight="400" fill="var(--_text-muted)">Insertion notification client (&quot;Paiement confirmé !&quot;)</text>
+<line x1="871.7750000000001" y1="740" x2="1093.9250000000002" y2="740" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#seq-arrow)" />
+<text x="982.8500000000001" y="734" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">10. Supabase Realtime : Mise à jour en direct de l&#39;Admin</text>
+<line x1="871.7750000000001" y1="780" x2="258.95" y2="780" stroke="var(--_line)" stroke-width="0.75" stroke-dasharray="6 4" marker-end="url(#seq-arrow)" />
+<text x="565.3625000000001" y="774" text-anchor="middle" font-size="11" font-weight="400" fill="var(--_text-muted)">11. Le bouton &quot;Payer&quot; DISPARAÎT. Statut passe à &quot;Payée&quot;.</text>
+<g transform="translate(52,32) scale(1.5)">
+  <path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" fill="none" stroke="var(--_line)" stroke-width="0.6666666666666666" />
+  <path d="M15 10C15 11.6569 13.6569 13 12 13C10.3431 13 9 11.6569 9 10C9 8.34315 10.3431 7 12 7C13.6569 7 15 8.34315 15 10Z" fill="none" stroke="var(--_line)" stroke-width="0.6666666666666666" />
+  <path d="M5.62842 18.3563C7.08963 17.0398 9.39997 16 12 16C14.6 16 16.9104 17.0398 18.3716 18.3563" fill="none" stroke="var(--_line)" stroke-width="0.6666666666666666" />
+</g>
+<text x="70" y="84" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)">Client</text>
+<rect x="150" y="30" width="217.9" height="40" rx="4" ry="4" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+<text x="258.95" y="50" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">Client (/dashboard/orders)</text>
+<rect x="407.9" y="30" width="153.55" height="40" rx="4" ry="4" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+<text x="484.675" y="50" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">API Server (/api)</text>
+<rect x="601.45" y="30" width="175" height="40" rx="4" ry="4" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+<text x="688.95" y="50" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">Passerelle GeniusPay</text>
+<rect x="816.45" y="30" width="110.65" height="40" rx="4" ry="4" fill="var(--_node-fill)" stroke="var(--_node-stroke)" stroke-width="1" />
+<text x="871.7750000000001" y="50" text-anchor="middle" dy="0.35em" font-size="13" font-weight="500" fill="var(--_text)">Supabase BD</text>
+<g transform="translate(1075.9250000000002,32) scale(1.5)">
+  <path d="M21 12C21 16.9706 16.9706 21 12 21C7.02944 21 3 16.9706 3 12C3 7.02944 7.02944 3 12 3C16.9706 3 21 7.02944 21 12Z" fill="none" stroke="var(--_line)" stroke-width="0.6666666666666666" />
+  <path d="M15 10C15 11.6569 13.6569 13 12 13C10.3431 13 9 11.6569 9 10C9 8.34315 10.3431 7 12 7C13.6569 7 15 8.34315 15 10Z" fill="none" stroke="var(--_line)" stroke-width="0.6666666666666666" />
+  <path d="M5.62842 18.3563C7.08963 17.0398 9.39997 16 12 16C14.6 16 16.9104 17.0398 18.3716 18.3563" fill="none" stroke="var(--_line)" stroke-width="0.6666666666666666" />
+</g>
+<text x="1093.9250000000002" y="84" text-anchor="middle" font-size="13" font-weight="500" fill="var(--_text)">Admin (/dashboard/admin/orders)</text>
+</svg>

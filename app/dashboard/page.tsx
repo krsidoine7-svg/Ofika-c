@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { useAuth } from "@/lib/hooks/useAuth"
+import { useUser } from "@/lib/hooks/useUser"
 import { useProfiles } from "@/lib/hooks/useProfiles"
 import { useCardLogic } from "@/lib/hooks/useNFCCards"
 import { 
@@ -201,6 +202,7 @@ function ProfileRow({ profile, index, onEdit, onView }: ProfileRowProps) {
 
 export default function DashboardPage() {
   const { user } = useAuth()
+  const { getUserData } = useUser()
   const { profiles, loading: profilesLoading } = useProfiles()
   const { status: cardLogicStatus, loading: cardLogicLoading } = useCardLogic()
   const router = useRouter()
@@ -242,28 +244,26 @@ export default function DashboardPage() {
 
   return (
     <div className="space-y-8 max-w-7xl mx-auto">
-      {/* En-tête de bienvenue moderne et raffiné */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-4 border-b border-neutral-100 pb-6">
-        <div>
-          <h2 className="text-3xl font-extrabold text-neutral-900 tracking-tight leading-tight">
-            Ravi de vous revoir, <span className="bg-gradient-to-r from-orange-600 to-amber-500 bg-clip-text text-transparent">{user?.user_metadata?.name || user?.email?.split('@')[0]}</span>
+      {/* En-tête de bienvenue moderne et premium */}
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 pb-8 border-b border-gray-100">
+        <div className="space-y-1">
+          <p className="text-sm font-semibold tracking-widest uppercase text-gray-400">Vue d'ensemble</p>
+          <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tighter">
+            Bonjour, {user?.user_metadata?.name?.split(' ')[0] || user?.email?.split('@')[0]}.
           </h2>
-          <p className="text-neutral-500 text-sm mt-1 font-medium text-balance">
+          <p className="text-gray-500 text-base md:text-lg font-medium mt-2 max-w-xl">
             Gérez vos profils, analysez vos partages et commandez vos cartes intelligentes NFC.
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <Button variant="outline" size="icon" className="rounded-xl border-neutral-200 text-neutral-600 hover:bg-neutral-50 h-11 w-11 shadow-sm transition-all">
-            <Bell className="w-5 h-5" />
-          </Button>
           <Link href="/dashboard/profiles">
-            <Button variant="outline" className="rounded-xl border-neutral-200 text-neutral-700 hover:bg-neutral-50 font-semibold h-11 px-5 shadow-sm transition-all">
+            <Button variant="outline" className="rounded-full border-gray-200 text-gray-700 hover:bg-gray-50 hover:text-gray-900 font-bold h-12 px-6 shadow-sm transition-all text-sm">
               Mes Profils
             </Button>
           </Link>
           <Button 
             onClick={handleOrderCard}
-            className="rounded-xl bg-neutral-950 hover:bg-neutral-900 text-white font-bold h-11 px-5 shadow-md hover:shadow-neutral-300 transition-all flex items-center gap-2"
+            className="rounded-full bg-gray-950 hover:bg-gray-900 text-white font-bold h-12 px-6 shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-2 text-sm"
           >
             <CreditCard className="w-4 h-4" />
             Commander une carte

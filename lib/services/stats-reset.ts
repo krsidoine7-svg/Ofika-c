@@ -34,28 +34,29 @@ export async function checkStatsResetStatus(userId: string): Promise<{
   error?: string
 }> {
   try {
-    // Appeler la fonction Supabase pour vérifier
-    const { data, error } = await getSupabase()
-      .rpc('should_reset_user_stats', { user_uuid: userId })
+    // Appeler notre route API sécurisée au lieu du RPC direct (qui est désormais bloqué pour le public)
+    const response = await fetch('/api/analytics/stats-reset', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'check', userId })
+    })
 
-    if (error) {
-      console.error('Error checking stats reset status:', error)
-      return { success: false, error: error.message }
+    if (!response.ok) {
+      const errorText = await response.text().catch(() => '')
+      console.error('Error checking stats reset status:', errorText)
+      return { success: false, error: `Erreur serveur (${response.status})` }
     }
 
-    // Récupérer les détails du dernier reset
-    const { data: userData, error: userError } = await getSupabase()
-      .from('users')
-      .select('stats_last_reset_at')
-      .eq('id', userId)
-      .maybeSingle()
+    const result = await response.json()
 
-    if (userError) {
-      console.error('Error fetching user reset data:', userError)
-      return { success: false, error: userError.message }
+    if (!result.success) {
+      console.error('Error checking stats reset status:', result.error)
+      return { success: false, error: result.error }
     }
+    
+    const needsReset = typeof result.data === 'boolean' ? result.data : (result.data?.needsReset ?? false)
+    const lastResetAt = typeof result.data === 'object' && result.data?.lastResetAt ? result.data.lastResetAt : null
 
-    const lastResetAt = userData?.stats_last_reset_at
     const lastResetDate = lastResetAt ? new Date(lastResetAt) : null
     const now = new Date()
 
@@ -71,7 +72,7 @@ export async function checkStatsResetStatus(userId: string): Promise<{
     return {
       success: true,
       data: {
-        needsReset: data === true,
+        needsReset,
         lastResetAt,
         daysSinceReset,
         daysUntilNextReset
@@ -94,34 +95,40 @@ export async function resetUserStats(userId: string): Promise<StatsResetResult> 
   try {
     console.log(`🔄 Réinitialisation des stats pour l'utilisateur ${userId}...`)
 
-    // Appeler la fonction Supabase pour réinitialiser
-    const { data, error } = await getSupabase()
-      .rpc('reset_user_stats', { user_uuid: userId })
+    // Appeler la route API pour réinitialiser
+    const response = await fetch('/api/analytics/stats-reset', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ action: 'reset', userId })
+    })
 
-    if (error) {
-      console.error('❌ Erreur lors du reset des stats:', error)
+    const result = await response.json()
+
+    if (!result.success) {
+      console.error('❌ Erreur lors du reset des stats:', result.error)
       return {
         success: false,
         message: 'Erreur lors de la réinitialisation',
-        error: error.message
+        error: result.error
       }
     }
 
-    // La fonction RPC retourne un tableau avec un seul élément
-    const result = Array.isArray(data) ? data[0] : data
+    const data = result.data
+    // La fonction RPC retourne un tableau avec un seul élément ou un objet
+    const resultObj = Array.isArray(data) ? data[0] : data
 
-    if (result && result.success) {
-      console.log(`✅ Stats réinitialisées avec succès. ${result.deleted_count} événements supprimés.`)
+    if (resultObj && resultObj.success) {
+      console.log(`✅ Stats réinitialisées avec succès. ${resultObj.deleted_count} événements supprimés.`)
       return {
         success: true,
-        deletedCount: result.deleted_count,
-        message: result.message
+        deletedCount: resultObj.deleted_count,
+        message: resultObj.message
       }
     } else {
-      console.error('❌ Échec du reset:', result?.message)
+      console.error('❌ Échec du reset:', resultObj?.message)
       return {
         success: false,
-        message: result?.message || 'Échec de la réinitialisation'
+        message: resultObj?.message || 'Échec de la réinitialisation'
       }
     }
   } catch (error) {

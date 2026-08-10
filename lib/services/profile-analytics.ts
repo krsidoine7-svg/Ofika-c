@@ -8,7 +8,7 @@ const getSupabase = () => createClient()
 
 export interface ProfileViewEvent {
   profile_id: string
-  event_type: 'profile_viewed' | 'link_clicked' | 'qr_scanned' | 'contact_added' | 'share_clicked'
+  event_type: 'profile_viewed' | 'link_clicked' | 'qr_scanned' | 'contact_added' | 'share_clicked' | 'time_spent'
   event_data?: {
     link_id?: string
     link_url?: string
@@ -97,6 +97,29 @@ export async function trackLinkClick(
   } catch (error) {
     console.error('Error in trackLinkClick:', error)
     return { success: false, error: 'Erreur lors de l\'enregistrement du clic' }
+  }
+}
+
+/**
+ * Enregistre le temps passé sur un profil
+ */
+export async function trackTimeSpent(
+  profileId: string,
+  timeInSeconds: number,
+  additionalData?: Partial<ProfileViewEvent>
+): Promise<{ success: boolean; error?: string }> {
+  try {
+    return await sendToTrackingAPI({
+      profile_id: profileId,
+      event_type: 'time_spent',
+      event_data: {
+        time_spent_seconds: timeInSeconds,
+        ...additionalData?.event_data
+      }
+    })
+  } catch (error) {
+    console.error('Error in trackTimeSpent:', error)
+    return { success: false, error: 'Erreur lors de l\'enregistrement du temps passé' }
   }
 }
 

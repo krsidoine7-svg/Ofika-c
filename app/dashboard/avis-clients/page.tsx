@@ -1,7 +1,7 @@
 'use client'
 
 import { useState } from 'react'
-import { Star, Plus, Loader2 } from 'lucide-react'
+import { Star, Plus, Loader2, QrCode } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
@@ -9,7 +9,7 @@ import {
     CreateLinkDialog,
     ReviewsTable,
 } from '@/components/features/reviews'
-import { useReviewLinks, useCopyReviewLink, useDeleteReviewLink } from '@/lib/hooks/useReviewLinks'
+import { useReviewLinks, useCopyReviewLink, useDeleteReviewLink, useUpdateReviewLink } from '@/lib/hooks/useReviewLinks'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { formatDistanceToNow } from 'date-fns'
@@ -22,6 +22,14 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
+import {
+    Dialog,
+    DialogContent,
+    DialogDescription,
+    DialogHeader,
+    DialogTitle,
+} from '@/components/ui/dialog'
+import { QRCodeSVG } from 'qrcode.react'
 
 // ========================================
 // COMPONENT
@@ -31,10 +39,13 @@ export default function AvisClientsPage() {
     const [showCreateDialog, setShowCreateDialog] = useState(false)
     const [selectedLinkId, setSelectedLinkId] = useState<string | null>(null)
     const [activeTab, setActiveTab] = useState('all')
+    const [showQrLinkId, setShowQrLinkId] = useState<string | null>(null)
+    const [deleteConfirmLinkId, setDeleteConfirmLinkId] = useState<string | null>(null)
 
     const { data: links, isLoading } = useReviewLinks()
     const { mutate: copyLink } = useCopyReviewLink()
     const { mutate: deleteLink } = useDeleteReviewLink()
+    const { mutate: updateLink } = useUpdateReviewLink()
 
     // État vide (aucun lien créé)
     if (!isLoading && (!links || links.length === 0)) {
@@ -182,10 +193,18 @@ export default function AvisClientsPage() {
                                                     <ExternalLink className="mr-2 h-4 w-4" />
                                                     Ouvrir
                                                 </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => setShowQrLinkId(link.id)}>
+                                                    <QrCode className="mr-2 h-4 w-4" />
+                                                    QR Code
+                                                </DropdownMenuItem>
+                                                <DropdownMenuItem onClick={() => updateLink({ id: link.id, input: { is_active: !link.is_active } })}>
+                                                    <Settings className="mr-2 h-4 w-4" />
+                                                    {link.is_active ? 'Désactiver' : 'Activer'}
+                                                </DropdownMenuItem>
                                                 <DropdownMenuSeparator />
                                                 <DropdownMenuItem
-                                                    onClick={() => deleteLink(link.id)}
-                                                    className="text-red-600"
+                                                    onClick={() => setDeleteConfirmLinkId(link.id)}
+                                                    className="text-red-600 font-semibold"
                                                 >
                                                     Supprimer
                                                 </DropdownMenuItem>
@@ -242,6 +261,117 @@ export default function AvisClientsPage() {
             </Tabs>
 
             <CreateLinkDialog open={showCreateDialog} onOpenChange={setShowCreateDialog} />
+
+            <Dialog open={showQrLinkId !== null} onOpenChange={(open) => !open && setShowQrLinkId(null)}>
+                <DialogContent className="sm:max-w-md" onOpenAutoFocus={(e) => e.preventDefault()}>
+                    <DialogHeader>
+                        <DialogTitle>QR Code de collecte d'avis</DialogTitle>
+                        <DialogDescription>
+                            Flashez ce code pour laisser un avis sur le lien de collecte.
+                        </DialogDescription>
+                    </DialogHeader>
+                    {showQrLinkId && (() => {
+                        const link = links?.find(l => l.id === showQrLinkId)
+                        if (!link) return null
+                        return (
+                            <div className="flex flex-col items-center justify-center p-4 space-y-4">
+                                <div className="bg-white p-4 rounded-xl border shadow-sm">
+                                    <QRCodeSVG
+                                        id={`qr-review-${link.id}`}
+                                        value={link.public_url!}
+                                        size={200}
+                                        includeMargin
+                                        level="H"
+                                    />
+                                </div>
+                                <p className="text-sm font-medium text-gray-700 text-center break-all max-w-full">
+                                    {link.public_url}
+                                </p>
+                                <div className="flex gap-2 w-full">
+                                    <Button
+                                        className="flex-1"
+                                        onClick={() => {
+                                            import('@/lib/utils/download-qr').then(m => {
+                                                m.downloadSVGAsFile(`qr-review-${link.id}`, `qr-avis-${link.slug}`, 'png')
+                                            })
+                                        }}
+                                    >
+                                        Télécharger PNG
+                                    </Button>
+                                    <Button
+                                        variant="outline"
+                                        className="flex-1"
+                                        onClick={() => {
+                                            import('@/lib/utils/download-qr').then(m => {
+                                                m.downloadSVGAsFile(`qr-review-${link.id}`, `qr-avis-${link.slug}`, 'svg')
+                                            })
+                                        }}
+                                    >
+                                        Télécharger SVG
+                                    </Button>
+                                </div>
+                            </div>
+                        )
+                    })()}
+                </DialogContent>
+            </Dialog>
+
+            <Dialog open={deleteConfirmLinkId !== null} onOpenChange={(open) => !open && setDeleteConfirmLinkId(null)}>
+                <DialogContent className="sm:max-w-md" onOpenAutoFocus={(e) => e.preventDefault()}>
+                    <DialogHeader>
+                        <DialogTitle className="text-red-600">Confirmer l'archivage</DialogTitle>
+                        <DialogDescription>
+                            Cette action archive le lien. Les données restent accessibles pour vos futurs audits ou restaurations.
+                        </DialogDescription>
+                    </DialogHeader>
+                    {deleteConfirmLinkId && (() => {
+                        const link = links?.find(l => l.id === deleteConfirmLinkId)
+                        if (!link) return null
+                        const totalReviews = link.stats?.total_reviews || 0
+                        return (
+                            <div className="space-y-6 py-4">
+                                <div className="bg-red-50 border border-red-200 rounded-lg p-4 text-sm text-red-800 space-y-2">
+                                    <p className="font-semibold">⚠️ Cartographie d'impact UI/UX :</p>
+                                    <p>
+                                        Vous allez archiver le lien de collecte : <span className="font-bold">"{link.title}"</span>.
+                                    </p>
+                                    <p>
+                                        Ce lien est rattaché à <span className="font-bold">{totalReviews}</span> avis client(s).
+                                    </p>
+                                </div>
+
+                                <div className="flex flex-col gap-3">
+                                    <Button
+                                        variant="outline"
+                                        onClick={() => {
+                                            deleteLink({ id: link.id, deleteReviews: false })
+                                            setDeleteConfirmLinkId(null)
+                                        }}
+                                    >
+                                        Archiver uniquement le lien (conserver les {totalReviews} avis)
+                                    </Button>
+                                    <Button
+                                        variant="destructive"
+                                        onClick={() => {
+                                            deleteLink({ id: link.id, deleteReviews: true })
+                                            setDeleteConfirmLinkId(null)
+                                        }}
+                                    >
+                                        Archiver le lien ET tous les {totalReviews} avis associés
+                                    </Button>
+                                    <Button
+                                        variant="ghost"
+                                        onClick={() => setDeleteConfirmLinkId(null)}
+                                        className="text-gray-500 hover:text-gray-800"
+                                    >
+                                        Annuler
+                                    </Button>
+                                </div>
+                            </div>
+                        )
+                    })()}
+                </DialogContent>
+            </Dialog>
         </div>
     )
 }

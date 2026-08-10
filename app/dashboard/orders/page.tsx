@@ -1,7 +1,7 @@
 'use client'
 
-import { useState } from 'react'
-import { useRouter } from 'next/navigation'
+import { useRouter, useSearchParams } from 'next/navigation'
+import { useEffect, useState } from 'react'
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
 import { Button } from "@/components/ui/button"
 import { Badge } from "@/components/ui/badge"
@@ -23,6 +23,7 @@ import {
 import { ProtectedRoute } from "@/components/core/auth/ProtectedRoute"
 import { useOrders, useOrderStats } from '@/lib/hooks/usePayments'
 import { OrderNotifications } from '@/components/features/card-ordering/OrderNotifications'
+import { PaymentButtonGeniusPay } from '@/components/features/card-ordering/PaymentButtonGeniusPay'
 import { Order } from '@/lib/types/payments'
 import { toast } from "sonner"
 
@@ -33,6 +34,24 @@ export default function OrdersPage() {
   
   const { orders, loading, error, refreshOrders } = useOrders()
   const { stats, loading: statsLoading } = useOrderStats()
+  const searchParams = useSearchParams()
+
+  useEffect(() => {
+    const paymentStatus = searchParams?.get('payment')
+    const orderIdParam = searchParams?.get('order_id')
+    
+    if (paymentStatus === 'success') {
+      toast.success('Paiement initié avec succès !', {
+        description: 'La commande sera mise à jour dès confirmation par le fournisseur (cela peut prendre quelques instants).',
+        duration: 8000,
+      })
+    } else if (paymentStatus === 'error') {
+      toast.error('Échec du paiement', {
+        description: 'Le paiement a échoué ou a été annulé. Vous pouvez réessayer.',
+        duration: 8000,
+      })
+    }
+  }, [searchParams])
 
   const handleNewOrder = () => {
     router.push('/dashboard/orders/new')
@@ -328,16 +347,34 @@ export default function OrdersPage() {
                           <p className="font-semibold text-gray-900">
                             {(order.total_amount || 0).toLocaleString()} XOF
                           </p>
-                          {order.status === 'pending' && order.lygos_payment_url && (
-                            <Button
-                              size="sm"
-                              variant="outline"
-                              onClick={() => window.open(order.lygos_payment_url, '_blank')}
-                              className="mt-1 text-green-600 border-green-600 hover:bg-green-50"
-                            >
-                              Payer avec LyGOS
-                            </Button>
-                          )}
+                          {(() => {
+                            const isPaid = order.payment_status === 'paid' || order.payment_status === 'succeeded' || order.status === 'paid'
+                            const isProcessing = order.payment_status === 'processing'
+
+                            if (isProcessing) {
+                              return (
+                                <div className="mt-2">
+                                  <Badge className="bg-purple-100 text-purple-700 border-none font-bold text-[10px]">
+                                    Reçu en cours de vérification
+                                  </Badge>
+                                </div>
+                              )
+                            }
+
+                            if (!isPaid && (order.payment_status === 'pending' || order.payment_status === 'failed' || order.status === 'pending' || order.status === 'failed')) {
+                              return (
+                                <div className="mt-2">
+                                  <PaymentButtonGeniusPay 
+                                    orderId={order.id} 
+                                    text="Payer ma commande"
+                                    className="w-full text-xs py-1"
+                                  />
+                                </div>
+                              )
+                            }
+
+                            return null
+                          })()}
                         </div>
                         
                         <Button

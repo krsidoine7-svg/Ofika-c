@@ -82,28 +82,38 @@ export default function OrderDetailPage() {
 
   const getStatusMessage = (status: string) => {
     switch (status) {
+      case 'processing':
+        return 'Votre reçu de paiement a bien été transmis et est en cours de vérification par notre équipe administrative.'
       case 'pending':
         return 'Votre commande est en attente de paiement. Veuillez procéder au paiement pour confirmer votre commande.'
       case 'paid':
-        return 'Votre commande a été payée avec succès. Elle est maintenant en cours de traitement.'
+      case 'succeeded':
+        return 'Votre commande a été payée avec succès. Elle est maintenant en cours de préparation.'
       case 'failed':
-        return 'Le paiement de votre commande a échoué. Vous pouvez réessayer ou contacter le support.'
+        return 'Le paiement de votre commande n\'a pas pu être validé. Vous pouvez réessayer ou contacter le support.'
       case 'cancelled':
-        return 'Votre commande a été annulée. Vous pouvez passer une nouvelle commande si vous le souhaitez.'
+        return 'Votre commande a été annulée.'
       default:
-        return 'Statut de commande inconnu.'
+        return 'Statut de commande en cours.'
     }
   }
 
   const getNextSteps = (status: string) => {
     switch (status) {
+      case 'processing':
+        return [
+          'Vérification manuelle de votre reçu de paiement en cours',
+          'Validation par l\'administrateur sous peu',
+          'Notification dès validation de votre commande'
+        ]
       case 'pending':
         return [
-          'Effectuer le paiement via le lien fourni',
-          'Attendre la confirmation de paiement',
-          'Recevoir un email de confirmation'
+          'Effectuer le paiement via le moyen sélectionné',
+          'Attendre la confirmation automatique ou la validation du reçu',
+          'Recevoir une notification de confirmation'
         ]
       case 'paid':
+      case 'succeeded':
         return [
           'Votre carte est en cours de production',
           'Vous recevrez un email avec le numéro de suivi',

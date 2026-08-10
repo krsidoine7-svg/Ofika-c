@@ -43,6 +43,7 @@ export async function GET(request: NextRequest) {
       .from('review_links')
       .select('*')
       .eq('user_id', user.id)
+      .is('deleted_at', null)
       .order('created_at', { ascending: false })
     
     // Filtre actif uniquement

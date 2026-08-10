@@ -327,7 +327,7 @@ export function TemplateSelectionStep({
               Aperçu en temps réel
             </h3>
 
-            <ScaledSmartphonePreview maxHeightClass="max-h-[380px] xl:max-h-[420px]" scaleClass="scale-[0.42] xl:scale-[0.46]">
+            <div className="w-[360px] h-[720px] max-h-[90vh] rounded-[2rem] overflow-y-auto overflow-x-hidden custom-scrollbar bg-white shadow-2xl border border-gray-100 flex flex-col relative min-h-0">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={selectedTemplate}
@@ -335,7 +335,7 @@ export function TemplateSelectionStep({
                   animate={{ opacity: 1, y: 0, scale: 1 }}
                   exit={{ opacity: 0, y: -10, scale: 0.98 }}
                   transition={{ duration: 0.3 }}
-                  className="h-full animate-in fade-in zoom-in duration-300"
+                  className="min-h-full animate-in fade-in zoom-in duration-300"
                 >
                   {renderPreview(selectedTemplate) ?? (
                     <div className="flex flex-col items-center justify-center h-full text-gray-400 text-center italic p-8 gap-4">
@@ -347,7 +347,7 @@ export function TemplateSelectionStep({
                   )}
                 </motion.div>
               </AnimatePresence>
-            </ScaledSmartphonePreview>
+            </div>
 
             {/* Légende */}
             <div className="mt-2 flex-shrink-0 flex flex-col items-center gap-1">

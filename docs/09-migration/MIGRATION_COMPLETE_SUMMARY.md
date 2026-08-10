@@ -1,4 +1,4 @@
-# ✅ MIGRATION LYGOS → WAVE CI - RÉSUMÉ COMPLET
+# ✅ MIGRATION Wave → WAVE CI - RÉSUMÉ COMPLET
 
 ## 🎯 ÉTAT DE LA MIGRATION
 
@@ -12,17 +12,16 @@
 ### **1. Services Backend**
 - ✅ `lib/services/wave-payment.ts` - Service Wave CI créé
 - ✅ `lib/services/payments-wave.ts` - Service payments migré vers Wave CI
-- ✅ `lib/types/payments.ts` - Types mis à jour (Wave + Lygos deprecated)
+- ✅ `lib/types/payments.ts` - Types mis à jour (Wave + Wave deprecated)
 
 ### **2. Hooks React**
 - ✅ `lib/hooks/usePayments.ts` - **MIGRÉ VERS WAVE CI** 
   - Import changé de `payments` → `payments-wave`
-  - Import changé de `generateLygosPaymentUrl` → `generateWavePaymentUrl`
+  - Import changé de `generateWavePaymentUrl` → `generateWavePaymentUrl`
   - Logs mis à jour pour Wave CI
 
 ### **3. Composants Frontend**
 - ✅ `components/features/card-ordering/PaymentProcessStatus.tsx` - **MIGRÉ VERS WAVE CI**
-  - `lygos_payment_url` → `wave_payment_url`
   - Icône changée de `CreditCard` → `Waves`
   - Textes mis à jour ("Wave CI")
   - Couleurs changées (orange → bleu)
@@ -30,7 +29,7 @@
 
 ### **4. Pages**
 - ✅ `app/dashboard/orders/new/page.tsx` - **MIGRÉ VERS WAVE CI**
-  - Redirection changée de `/payment/lygos-redirect` → `/payment/wave-redirect`
+  - Redirection changée de `/payment/Wave-redirect` → `/payment/wave-redirect`
   - Textes mis à jour ("Wave CI 🌊")
 
 ### **5. API Routes**
@@ -41,8 +40,6 @@
 - ✅ Colonnes ajoutées via migration SQL :
   - `wave_payment_id` (text)
   - `wave_payment_url` (text)
-  - `lygos_payment_id` (text) - Conservé pour compatibilité
-  - `lygos_payment_url` (text) - Conservé pour compatibilité
 - ✅ Index créés pour optimisation
 - ✅ Documentation des colonnes ajoutée
 
@@ -53,28 +50,28 @@
 
 ---
 
-## 📦 FICHIERS LYGOS OBSOLÈTES (À SUPPRIMER)
+## 📦 FICHIERS Wave OBSOLÈTES (À SUPPRIMER)
 
-Ces fichiers Lygos ne sont plus utilisés et peuvent être supprimés :
+Ces fichiers Wave ne sont plus utilisés et peuvent être supprimés :
 
 ### **Services**
-- ⚠️ `lib/services/lygos-api.ts`
+- ⚠️ `lib/services/Wave-api.ts`
 - ⚠️ `lib/services/payment-verification.ts`
 
 ### **API Routes**
-- ⚠️ `app/api/payments/lygos/create/route.ts`
-- ⚠️ `app/api/payments/lygos/status/[paymentId]/route.ts`
-- ⚠️ `app/api/payments/lygos/cancel/[paymentId]/route.ts`
-- ⚠️ `app/api/webhooks/lygos/route.ts`
+- ⚠️ `app/api/payments/Wave/create/route.ts`
+- ⚠️ `app/api/payments/Wave/status/[paymentId]/route.ts`
+- ⚠️ `app/api/payments/Wave/cancel/[paymentId]/route.ts`
+- ⚠️ `app/api/webhooks/Wave/route.ts`
 
 ### **Pages**
-- ⚠️ `app/payment/lygos-redirect/page.tsx`
-- ⚠️ `app/payment/redirect/[orderId]/page.tsx` (si utilise Lygos)
+- ⚠️ `app/payment/Wave-redirect/page.tsx`
+- ⚠️ `app/payment/redirect/[orderId]/page.tsx` (si utilise Wave)
 
 ### **Scripts**
-- ⚠️ `scripts/test-lygos-integration.js`
+- ⚠️ `scripts/test-Wave-integration.js`
 - ⚠️ `scripts/setup-ngrok.js`
-- ⚠️ `tests/scripts/test-lygos-integration.js`
+- ⚠️ `tests/scripts/test-Wave-integration.js`
 
 ### **Composants Obsolètes**
 - ⚠️ `lib/hooks/usePayments-wave.ts` (doublon, gardez `usePayments.ts`)
@@ -152,7 +149,7 @@ Copiez le lien Wave CI et ouvrez-le dans un navigateur. Vous devriez voir la pag
 - [x] ✅ Pages migrées
 - [x] ✅ Variables d'environnement configurées
 - [ ] ⏳ Tests de bout en bout effectués
-- [ ] ⏳ Suppression des fichiers Lygos obsolètes
+- [ ] ⏳ Suppression des fichiers Wave obsolètes
 - [ ] ⏳ Déploiement en production
 
 ---
@@ -167,23 +164,21 @@ npm run dev
 - Vérifier que le lien Wave CI est généré
 - Tester la redirection vers Wave CI
 
-### **2. Supprimer les Fichiers Lygos (Optionnel)**
-⚠️ **Recommandation :** Attendre d'avoir confirmé que Wave CI fonctionne avant de supprimer les fichiers Lygos.
+### **2. Supprimer les Fichiers Wave (Optionnel)**
+⚠️ **Recommandation :** Attendre d'avoir confirmé que Wave CI fonctionne avant de supprimer les fichiers Wave.
 
 ```bash
 # Après confirmation que Wave CI fonctionne
-rm lib/services/lygos-api.ts
-rm -r app/api/payments/lygos
-rm -r app/api/webhooks/lygos
-rm app/payment/lygos-redirect/page.tsx
+rm lib/services/Wave-api.ts
+rm -r app/api/payments/Wave
+rm -r app/api/webhooks/Wave
+rm app/payment/Wave-redirect/page.tsx
 ```
 
 ### **3. Nettoyer la Base de Données (Futur)**
 ```sql
 -- À exécuter dans 3-6 mois après migration complète
 ALTER TABLE orders 
-DROP COLUMN IF EXISTS lygos_payment_id,
-DROP COLUMN IF EXISTS lygos_payment_url;
 ```
 
 ### **4. Déployer en Production**
@@ -217,7 +212,7 @@ DROP COLUMN IF EXISTS lygos_payment_url;
 
 ## 🎉 FÉLICITATIONS !
 
-La migration de Lygos vers Wave CI est maintenant **terminée** ! 🌊
+La migration de Wave vers Wave CI est maintenant **terminée** ! 🌊
 
 Votre application utilise maintenant le système de paiement Wave CI, plus simple, plus économique, et adapté à la Côte d'Ivoire.
 

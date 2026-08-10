@@ -8,9 +8,11 @@ import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
 import { getRawPrice } from '@/lib/config/pricing'
+import { usePaymentMethods } from '@/lib/hooks/usePayments'
 import { Logo } from '@/components/ui/logo'
 
 export default function GetStartedPage() {
+  const { basePrice } = usePaymentMethods()
   return (
     <div className="min-h-screen bg-gradient-to-br from-orange-50 via-white to-pink-50">
       {/* Header */}
@@ -83,7 +85,7 @@ export default function GetStartedPage() {
                 <div className="bg-white rounded-lg p-4 border-2 border-orange-100">
                   <div className="flex items-baseline gap-2">
                     <span className="text-3xl font-bold text-gray-900">
-                      {getRawPrice().toLocaleString('fr-FR')} XOF
+                      {basePrice.toLocaleString('fr-FR')} XOF
                     </span>
                     <span className="text-gray-500">+ livraison</span>
                   </div>

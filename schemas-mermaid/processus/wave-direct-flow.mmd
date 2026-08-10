@@ -1,0 +1,34 @@
+sequenceDiagram
+    autonumber
+    actor Client
+    participant Frontend as Client (/dashboard/orders)
+    participant API as API Server (/api)
+    participant Wave as App Wave Direct
+    participant Storage as Supabase Storage
+    participant DB as Supabase BD
+    actor Admin as Admin (/dashboard/admin/orders)
+
+    Client->>Frontend: 1. Choix Wave Direct & validation commande
+    Frontend->>API: 2. POST /api/orders/create (payment_method: 'wave')
+    API->>DB: 3. Commande créée (payment_status: 'pending')
+    Client->>Wave: 4. Virement sur le lien/QR Wave Marchand
+    Client->>Frontend: 5. Upload de la capture d'écran / reçu de paiement
+    Frontend->>Storage: 6. Téléversement image du reçu (profile-images/receipts/...)
+    Storage-->>Frontend: 7. URL publique de l'image (receipt_url)
+    Frontend->>API: 8. POST /api/payments/receipt/upload (receipt_url)
+    API->>DB: 9. UPDATE orders SET payment_status='processing', metadata.receipt_url=...
+    
+    Note over Client: Sur /dashboard/orders, le bouton "Payer" est remplacé par le badge "Reçu en cours de vérification"
+
+    DB-->>Admin: 10. L'Admin consulte le reçu sur /dashboard/admin/orders
+    
+    alt CAS A : Reçu Valide (Admin valide)
+        Admin->>API: 11. Clic sur "Valider le Reçu"
+        API->>DB: 12. PATCH /api/admin/orders (payment_status: 'succeeded', status: 'paid')
+        DB->>DB: Trigger PostgreSQL notifie le client ("Paiement confirmé !")
+        DB-->>Client: 13. Le statut passe à "Payée" (Bouton Payer masqué définitivement)
+    else CAS B : Reçu Invalide / Illisible (Admin rejette)
+        Admin->>API: 11. Clic sur "Marquer comme Échoué"
+        API->>DB: 12. PATCH /api/admin/orders (payment_status: 'failed', status: 'failed')
+        DB-->>Client: 13. Le bouton "Payer / Resoumettre" réapparaît pour réessayer
+    end

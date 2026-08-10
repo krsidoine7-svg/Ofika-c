@@ -1,0 +1,27 @@
+sequenceDiagram
+    autonumber
+    actor Client
+    participant Frontend as Client (/dashboard/orders)
+    participant API as API Server (/api)
+    participant GeniusPay as Passerelle GeniusPay
+    participant DB as Supabase BD
+    actor Admin as Admin (/dashboard/admin/orders)
+
+    Client->>Frontend: 1. Choix GeniusPay & Clic sur "Payer"
+    Frontend->>API: 2. POST /api/orders/create (status: 'pending')
+    API->>DB: 3. Insertion commande (payment_status: 'pending')
+    Frontend->>API: 4. POST /api/payments/geniuspay/initiate
+    API->>GeniusPay: 5. Requête /payments (order_id, amount)
+    GeniusPay-->>API: 6. Retour URL Checkout GeniusPay
+    API-->>Frontend: 7. Redirection client vers GeniusPay Checkout
+    Client->>GeniusPay: 8. Saisie numéro Mobile Money / Carte & Validation OTP
+    GeniusPay->>API: 9. Webhook POST /api/webhooks/geniuspay (payment.success)
+    
+    API->>API: Vérification Signature HMAC & Horodatage
+    API->>DB: Contrôle idempotence (table geniuspay_webhook_events)
+    API->>DB: UPDATE orders SET payment_status='succeeded', status='paid'
+    DB->>DB: Trigger notify_on_order_status_change() (NEW.user_id::uuid)
+    DB->>DB: Insertion notification client ("Paiement confirmé !")
+
+    DB-->>Admin: 10. Supabase Realtime : Mise à jour en direct de l'Admin
+    DB-->>Frontend: 11. Le bouton "Payer" DISPARAÎT. Statut passe à "Payée".

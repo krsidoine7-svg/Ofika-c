@@ -90,50 +90,44 @@ export default function AdminOrdersPage() {
     })
 
     const openConfirm = (title: string, message: string, action: () => void, variant: 'default' | 'destructive' = 'default') => {
-        setConfirmConfig({ title, message, action, variant })
-        setIsConfirmOpen(true)
+        // Laisser le DropdownMenu se fermer d'abord pour éviter tout blocage de focus
+        setTimeout(() => {
+            setConfirmConfig({ title, message, action, variant })
+            setIsConfirmOpen(true)
+        }, 50)
     }
 
     useEffect(() => {
         fetchOrders()
+
+        // Abonnement temps réel Supabase pour rafraîchir le tableau automatiquement dès qu'un webhook GeniusPay valide un paiement
+        const channel = supabase
+            .channel('admin-orders-realtime')
+            .on(
+                'postgres_changes',
+                { event: '*', schema: 'public', table: 'orders' },
+                () => {
+                    fetchOrders()
+                }
+            )
+            .subscribe()
+
+        return () => {
+            supabase.removeChannel(channel)
+        }
     }, [supabase])
 
     async function fetchOrders() {
         try {
             setLoading(true)
+            const res = await fetch('/api/admin/orders')
+            const json = await res.json()
 
-            // 1. Récupérer les commandes
-            const { data: ordersData, error: ordersError } = await supabase
-                .from('orders')
-                .select('*')
-                .order('created_at', { ascending: false })
-
-            if (ordersError) throw ordersError
-
-            // 2. Récupérer les infos utilisateurs pour ces commandes
-            const userIds = Array.from(new Set((ordersData || []).map(o => o.user_id)))
-
-            if (userIds.length > 0) {
-                const { data: usersData } = await supabase
-                    .from('users')
-                    .select('id, name, email')
-                    .in('id', userIds)
-
-                const usersMap = new Map(usersData?.map(u => [u.id, u]))
-
-                const mergedOrders = (ordersData || []).map(order => ({
-                    ...order,
-                    user: usersMap.get(order.user_id)
-                }))
-
-                setOrders(mergedOrders)
-            } else {
-                setOrders(ordersData || [])
-            }
-
-        } catch (error) {
+            if (!res.ok || !json.success) throw new Error(json.error || 'Erreur lors de la récupération')
+            setOrders(json.orders || [])
+        } catch (error: any) {
             console.error('Erreur fetch orders:', error)
-            toast.error('Impossible de charger les commandes')
+            toast.error(error?.message || 'Impossible de charger les commandes')
         } finally {
             setLoading(false)
         }
@@ -156,46 +150,52 @@ export default function AdminOrdersPage() {
 
     const updatePaymentStatus = async (orderId: string, newStatus: string) => {
         try {
-            const { error } = await supabase
-                .from('orders')
-                .update({
+            setIsConfirmOpen(false)
+            const res = await fetch('/api/admin/orders', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id: orderId,
                     payment_status: newStatus,
                     status: newStatus === 'succeeded' ? 'paid' : 'failed',
                     paid_at: newStatus === 'succeeded' ? new Date().toISOString() : null
                 })
-                .eq('id', orderId)
+            })
+            const json = await res.json()
 
-            if (error) throw error
+            if (!res.ok || !json.success) throw new Error(json.error || 'Erreur mise à jour')
 
             toast.success(`Statut de paiement mis à jour : ${newStatus}`)
-            setOrders(orders.map(o => o.id === orderId ? { ...o, payment_status: newStatus } : o))
-        } catch (error) {
-            toast.error('Erreur lors de la mise à jour')
-        } finally {
-            setIsConfirmOpen(false)
+            setOrders(orders.map(o => o.id === orderId ? { ...o, payment_status: newStatus, status: newStatus === 'succeeded' ? 'paid' : 'failed' } : o))
+        } catch (error: any) {
+            console.error('Erreur updatePaymentStatus:', error)
+            toast.error(error?.message || 'Erreur lors de la mise à jour')
         }
     }
 
     const updateShippingStatus = async (orderId: string, newStatus: string) => {
         try {
-            const { error } = await supabase
-                .from('orders')
-                .update({
+            setIsConfirmOpen(false)
+            const res = await fetch('/api/admin/orders', {
+                method: 'PATCH',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    id: orderId,
                     shipping_status: newStatus,
                     status: newStatus,
                     shipped_at: newStatus === 'shipped' ? new Date().toISOString() : null,
                     delivered_at: newStatus === 'delivered' ? new Date().toISOString() : null
                 })
-                .eq('id', orderId)
+            })
+            const json = await res.json()
 
-            if (error) throw error
+            if (!res.ok || !json.success) throw new Error(json.error || 'Erreur mise à jour')
 
             toast.success(`Statut de livraison mis à jour : ${newStatus}`)
-            setOrders(orders.map(o => o.id === orderId ? { ...o, shipping_status: newStatus } : o))
-        } catch (error) {
-            toast.error('Erreur lors de la mise à jour')
-        } finally {
-            setIsConfirmOpen(false)
+            setOrders(orders.map(o => o.id === orderId ? { ...o, shipping_status: newStatus, status: newStatus } : o))
+        } catch (error: any) {
+            console.error('Erreur updateShippingStatus:', error)
+            toast.error(error?.message || 'Erreur lors de la mise à jour')
         }
     }
 
@@ -203,6 +203,7 @@ export default function AdminOrdersPage() {
         switch (status) {
             case 'succeeded': return <Badge className="bg-green-100 text-green-700 border-none font-bold text-[10px] uppercase">Payé</Badge>
             case 'pending': return <Badge className="bg-yellow-100 text-yellow-700 border-none font-bold text-[10px] uppercase">En attente</Badge>
+            case 'processing': return <Badge className="bg-blue-100 text-blue-700 border-none font-bold text-[10px] uppercase animate-pulse">Reçu à valider</Badge>
             case 'failed': return <Badge className="bg-red-100 text-red-700 border-none font-bold text-[10px] uppercase">Échoué</Badge>
             case 'cancelled': return <Badge className="bg-gray-100 text-gray-700 border-none font-bold text-[10px] uppercase">Annulé</Badge>
             default: return <Badge variant="secondary" className="text-[10px] uppercase">{status}</Badge>
@@ -530,6 +531,39 @@ export default function AdminOrdersPage() {
                                         {selectedOrder?.payment_method || selectedOrder?.payment_provider || 'Non spécifié'}
                                     </span>
                                 </div>
+                                {((selectedOrder as any)?.metadata?.receipt_url) && (
+                                    <div className="pt-3 border-t border-gray-200 space-y-2">
+                                        <div className="flex justify-between items-center">
+                                            <span className="text-xs font-bold text-gray-400 uppercase block">Reçu de Paiement Wave :</span>
+                                            <Button 
+                                                size="sm" 
+                                                className="bg-green-600 hover:bg-green-700 text-white font-bold text-[10px] h-7 px-3 rounded-lg"
+                                                onClick={() => {
+                                                    setIsDetailsOpen(false);
+                                                    openConfirm(
+                                                        "Valider ce paiement ?",
+                                                        `Valider manuellement le reçu de paiement de la commande #${selectedOrder?.order_number} ?`,
+                                                        () => updatePaymentStatus(selectedOrder!.id, 'succeeded')
+                                                    );
+                                                }}
+                                            >
+                                                Valider le Reçu
+                                            </Button>
+                                        </div>
+                                        <a 
+                                            href={((selectedOrder as any)?.metadata?.receipt_url)} 
+                                            target="_blank" 
+                                            rel="noopener noreferrer" 
+                                            className="block relative rounded-xl overflow-hidden border border-gray-200 max-h-48 group cursor-zoom-in"
+                                        >
+                                            <img 
+                                                src={((selectedOrder as any)?.metadata?.receipt_url)} 
+                                                alt="Reçu Wave" 
+                                                className="object-cover w-full h-full transition-transform group-hover:scale-105" 
+                                            />
+                                        </a>
+                                    </div>
+                                )}
                             </div>
                         </div>
 

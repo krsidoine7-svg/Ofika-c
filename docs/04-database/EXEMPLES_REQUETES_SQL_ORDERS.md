@@ -185,7 +185,7 @@ UPDATE orders
 SET 
   status = 'paid',
   payment_status = 'completed',
-  payment_reference = 'LYGOS-12345',
+  payment_reference = 'Wave-12345',
   updated_at = NOW()
 WHERE order_number = 'ORD-1733328000000-ABC123';
 ```
@@ -245,19 +245,16 @@ WHERE
 ORDER BY created_at DESC;
 ```
 
-### 16. Commandes avec paiement LyGOS
+### 16. Commandes avec paiement Wave
 
 ```sql
 SELECT 
   order_number,
   total_amount,
-  lygos_payment_id,
-  lygos_payment_url,
   payment_status,
   created_at
 FROM orders
-WHERE payment_method = 'lygos'
-AND lygos_payment_id IS NOT NULL
+WHERE payment_method = 'Wave'
 ORDER BY created_at DESC;
 ```
 

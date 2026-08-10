@@ -14,15 +14,20 @@ export default function AdminProductsPage() {
     const [loading, setLoading] = React.useState(true)
     const [saving, setSaving] = React.useState(false)
     const [config, setConfig] = React.useState<any>(null)
+    const [products, setProducts] = React.useState<any[]>([])
     const supabase = createClient()
 
     const fetchConfig = async () => {
         try {
-            const { data, error } = await supabase
-                .from('pricing_config')
-                .select('*')
-                .eq('id', 'default')
-                .maybeSingle()
+            const [configRes, productsRes] = await Promise.all([
+                supabase.from('pricing_config').select('*').eq('id', 'default').maybeSingle(),
+                supabase.from('products').select('*').order('created_at', { ascending: false })
+            ])
+            const { data, error } = configRes
+            
+            if (productsRes.data) {
+                setProducts(productsRes.data)
+            }
 
             if (error) throw error
             
@@ -85,6 +90,27 @@ export default function AdminProductsPage() {
         } catch (err) {
             console.error(err)
             toast.error("Erreur lors de l'enregistrement")
+        } finally {
+            setSaving(false)
+        }
+    }
+
+    const handleProductPriceChange = async (productId: string, newPrice: number) => {
+        try {
+            setSaving(true)
+            const { error } = await supabase
+                .from('products')
+                .update({ price: newPrice, updated_at: new Date().toISOString() })
+                .eq('id', productId)
+
+            if (error) throw error
+            
+            // Mettre à jour l'état local
+            setProducts(products.map(p => p.id === productId ? { ...p, price: newPrice } : p))
+            toast.success("Prix du produit mis à jour avec succès")
+        } catch (err) {
+            console.error(err)
+            toast.error("Erreur lors de la mise à jour du produit")
         } finally {
             setSaving(false)
         }
@@ -231,32 +257,41 @@ export default function AdminProductsPage() {
                     </div>
                     
                     <div className="grid grid-cols-1 gap-4">
-                        {[
-                            { id: 1, name: "Ofika Card Classic", material: "PVC Premium", price: config.nfc_card_base_price, badge: "Best Seller" },
-                            { id: 2, name: "Ofika Card Wood", material: "Noyer / Bambou", price: config.nfc_card_base_price + config.premium_supplement, badge: "Eco-Friendly" },
-                            { id: 3, name: "Ofika Card Metal", material: "Acier Inoxydable", price: config.nfc_card_base_price + config.premium_supplement, badge: "Prestige" }
-                        ].map((prod) => (
-                            <Card key={prod.id} className="border-none shadow-sm rounded-3xl bg-white p-6 hover:shadow-md transition-all group">
-                                <div className="flex items-center gap-6">
-                                    <div className="w-20 h-28 rounded-xl bg-gray-900 flex items-center justify-center text-white shrink-0 relative overflow-hidden group-hover:scale-105 transition-transform">
-                                        <div className="absolute top-0 right-0 w-8 h-8 bg-white/10 rounded-bl-full" />
-                                        <div className="w-10 h-1 bg-white/20 rounded-full" />
-                                    </div>
-                                    <div className="flex-1 space-y-1">
-                                        <div className="flex items-center gap-2">
-                                            <h4 className="font-black text-gray-900 uppercase tracking-tight">{prod.name}</h4>
-                                            <Badge className="bg-orange-50 text-orange-600 border-none text-[8px] uppercase">{prod.badge}</Badge>
+                        {products.length === 0 ? (
+                            <div className="text-center p-6 text-gray-500">Aucun produit dans la base de données.</div>
+                        ) : (
+                            products.map((prod) => (
+                                <Card key={prod.id} className="border-none shadow-sm rounded-3xl bg-white p-6 hover:shadow-md transition-all group">
+                                    <div className="flex items-center gap-6">
+                                        <div className="w-20 h-28 rounded-xl bg-gray-900 flex items-center justify-center text-white shrink-0 relative overflow-hidden group-hover:scale-105 transition-transform">
+                                            <div className="absolute top-0 right-0 w-8 h-8 bg-white/10 rounded-bl-full" />
+                                            <div className="w-10 h-1 bg-white/20 rounded-full" />
                                         </div>
-                                        <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{prod.material}</p>
-                                        <p className="text-lg font-black text-orange-600 pt-1">{prod.price.toLocaleString()} XOF</p>
+                                        <div className="flex-1 space-y-1">
+                                            <div className="flex items-center gap-2">
+                                                <h4 className="font-black text-gray-900 uppercase tracking-tight">{prod.name}</h4>
+                                                <Badge className="bg-orange-50 text-orange-600 border-none text-[8px] uppercase">{prod.type}</Badge>
+                                            </div>
+                                            <p className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{prod.description}</p>
+                                            <div className="flex items-center gap-2 pt-2">
+                                                <Input 
+                                                    type="number"
+                                                    value={prod.price}
+                                                    onChange={(e) => setProducts(products.map(p => p.id === prod.id ? { ...p, price: parseInt(e.target.value) || 0 } : p))}
+                                                    className="w-32 h-10 border-gray-200 font-black text-orange-600 bg-orange-50"
+                                                />
+                                                <Button 
+                                                    onClick={() => handleProductPriceChange(prod.id, prod.price)}
+                                                    className="bg-orange-600 hover:bg-orange-700 text-white rounded-xl h-10 px-4 text-xs font-black shadow-md"
+                                                >
+                                                    Mettre à jour
+                                                </Button>
+                                            </div>
+                                        </div>
                                     </div>
-                                    <div className="flex flex-col gap-2">
-                                        <Button variant="ghost" size="icon" className="text-gray-300 hover:text-gray-900"><Edit3 className="w-4 h-4" /></Button>
-                                        <Button variant="ghost" size="icon" className="text-gray-300 hover:text-red-500"><Trash2 className="w-4 h-4" /></Button>
-                                    </div>
-                                </div>
-                            </Card>
-                        ))}
+                                </Card>
+                            ))
+                        )}
                     </div>
 
                     <div className="p-8 bg-orange-50/50 rounded-[2.5rem] border border-dashed border-orange-100 flex flex-col items-center text-center space-y-4">

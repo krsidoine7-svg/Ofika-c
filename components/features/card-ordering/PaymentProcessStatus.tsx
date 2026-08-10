@@ -52,20 +52,20 @@ export function PaymentProcessStatus({
       },
       {
         id: 'payment_link',
-        title: 'Lien de paiement LyGOS',
-        description: order.lygos_payment_url
-          ? 'Lien de paiement LyGOS généré avec succès'
-          : 'Génération du lien de paiement LyGOS...',
+        title: 'Lien de paiement Wave',
+        description: order.wave_payment_url
+          ? 'Lien de paiement Wave généré avec succès'
+          : 'Génération du lien de paiement Wave...',
         icon: Zap,
-        status: order.lygos_payment_url ? 'completed' : 'current'
+        status: order.wave_payment_url ? 'completed' : 'current'
       },
       {
         id: 'payment_pending',
         title: 'Paiement en attente',
-        description: 'En attente de votre paiement via LyGOS',
+        description: 'En attente de votre paiement via Wave (Reçu à soumettre)',
         icon: Loader2,
         status: order.status === 'paid' ? 'completed' :
-          order.lygos_payment_url ? 'current' : 'pending'
+          order.wave_payment_url ? 'current' : 'pending'
       },
       {
         id: 'payment_confirmed',
@@ -141,10 +141,10 @@ export function PaymentProcessStatus({
                     {step.description}
                   </p>
 
-                  {/* Action button for LyGOS payment step */}
+                  {/* Action button for Wave payment step */}
                   {step.id === 'payment_link' &&
                     step.status === 'completed' &&
-                    order.lygos_payment_url &&
+                    order.wave_payment_url &&
                     onPaymentRedirect && (
                       <Button
                         onClick={onPaymentRedirect}
@@ -152,24 +152,24 @@ export function PaymentProcessStatus({
                         className="mt-2 bg-green-600 hover:bg-green-700 text-white"
                       >
                         <Zap className="h-4 w-4 mr-2" />
-                        Payer avec LyGOS
+                        Payer avec Wave
                         <ExternalLink className="h-4 w-4 ml-2" />
                       </Button>
                     )}
 
-                  {/* Afficher le lien de paiement LyGOS */}
+                  {/* Afficher le lien de paiement Wave */}
                   {step.id === 'payment_link' &&
                     step.status === 'completed' &&
-                    order.lygos_payment_url && (
+                    order.wave_payment_url && (
                       <div className="mt-2 p-2 bg-green-50 rounded text-xs">
-                        <p className="text-green-800 font-medium mb-1">Lien de paiement LyGOS :</p>
+                        <p className="text-green-800 font-medium mb-1">Lien de paiement Wave :</p>
                         <a
-                          href={order.lygos_payment_url}
+                          href={order.wave_payment_url}
                           target="_blank"
                           rel="noopener noreferrer"
                           className="text-green-600 hover:underline break-all"
                         >
-                          {order.lygos_payment_url}
+                          {order.wave_payment_url}
                         </a>
                       </div>
                     )}
@@ -189,7 +189,7 @@ export function PaymentProcessStatus({
                   Échec du paiement
                 </h4>
                 <p className="text-sm text-red-700 mt-1">
-                  Votre paiement n'a pas pu être traité. Veuillez réessayer avec LyGOS.
+                  Votre paiement n'a pas pu être traité. Veuillez réessayer avec Wave.
                 </p>
               </div>
             </div>
@@ -206,7 +206,7 @@ export function PaymentProcessStatus({
                   Paiement confirmé !
                 </h4>
                 <p className="text-sm text-green-700 mt-1">
-                  Votre paiement via LyGOS a été validé.
+                  Votre paiement via Wave a été validé.
                   Votre commande est maintenant en cours de traitement.
                   Vous recevrez un email de confirmation sous peu.
                 </p>

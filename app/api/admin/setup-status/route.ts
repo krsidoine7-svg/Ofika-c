@@ -11,10 +11,11 @@ export async function GET(request: NextRequest) {
   try {
     const supabase = createAdminClient()
 
-    // Compter le nombre de lignes dans la table 'admin_users'
+    // Compter le nombre d'admins dans la table 'users'
     const { data: admins, error, count } = await supabase
-      .from('admin_users')
+      .from('users')
       .select('id', { count: 'exact' })
+      .in('role', ['admin', 'super_admin'])
     
     console.log('DEBUG ADMIN STATUS:', { 
         count: count, 

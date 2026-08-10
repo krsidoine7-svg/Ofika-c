@@ -289,9 +289,9 @@ Wave CI pour les comptes Business standards ne supporte pas les webhooks automat
 
 Oui, utilisez l'ID de test `M_ci_8a` pour générer des liens. Cependant, les paiements ne seront pas réellement traités.
 
-### Q: Différences avec Lygos ?
+### Q: Différences avec Wave ?
 
-| Fonctionnalité | Lygos | Wave CI |
+| Fonctionnalité | Wave | Wave CI |
 |---|---|---|
 | API Backend | ✅ Oui | ❌ Non (liens directs) |
 | Webhooks | ✅ Oui | ❌ Non (manuel) |
