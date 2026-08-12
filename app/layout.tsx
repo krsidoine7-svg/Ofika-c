@@ -7,6 +7,8 @@ import { Toaster } from 'sonner'
 import { QueryProvider } from '@/lib/providers/QueryProvider'
 import { AuthProvider } from '@/lib/context/AuthContext'
 import { PwaRegister } from '@/components/PwaRegister'
+import { PwaInstallPrompt } from '@/components/PwaInstallPrompt'
+import { CookieBanner } from '@/components/ui/cookie-banner'
 import './globals.css'
 
 const inter = Inter({
@@ -86,6 +88,8 @@ export default function RootLayout({
             />
             <ConditionalAnalytics />
             <PwaRegister />
+            <PwaInstallPrompt />
+            <CookieBanner />
           </AuthProvider>
         </QueryProvider>
       </body>

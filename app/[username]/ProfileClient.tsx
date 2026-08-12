@@ -14,7 +14,6 @@ import { LinkInBioEmeraude } from '@/components/features/profiles/LinkInBioEmera
 import { LinkInBioCJCD } from '@/components/features/profiles/LinkInBioCJCD'
 import { trackProfileView, trackQRScan, trackTimeSpent } from '@/lib/services/profile-analytics'
 import { PublicProfile } from '@/lib/types/public-profile'
-import { CookieBanner } from '@/components/ui/cookie-banner'
 
 interface ProfileClientProps {
     initialProfile: PublicProfile | null
@@ -208,7 +207,6 @@ export default function ProfileClient({ initialProfile }: ProfileClientProps) {
     return (
         <div className="ofika-profile-container selection:bg-orange-100">
             {renderTemplate()}
-            <CookieBanner />
         </div>
     )
 }
