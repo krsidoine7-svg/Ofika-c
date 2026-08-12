@@ -10,6 +10,8 @@ import { LinkInBioDesign7 } from '@/components/features/profiles/LinkInBioDesign
 import { LinkInBioInfluencer } from '@/components/features/profiles/LinkInBioInfluencer'
 import { LinkInBioEcommerce } from '@/components/features/profiles/LinkInBioEcommerce'
 import { LinkInBioFreelance } from '@/components/features/profiles/LinkInBioFreelance'
+import { LinkInBioEmeraude } from '@/components/features/profiles/LinkInBioEmeraude'
+import { LinkInBioCJCD } from '@/components/features/profiles/LinkInBioCJCD'
 import { trackProfileView, trackQRScan, trackTimeSpent } from '@/lib/services/profile-analytics'
 import { PublicProfile } from '@/lib/types/public-profile'
 import { CookieBanner } from '@/components/ui/cookie-banner'
@@ -193,6 +195,11 @@ export default function ProfileClient({ initialProfile }: ProfileClientProps) {
             case 'design-freelance':
             case 'freelance':
                 return <LinkInBioFreelance {...templateProps as any} />
+            case 'design-premium':
+            case 'premium':
+                return <LinkInBioEmeraude {...templateProps as any} />
+            case 'cjcd':
+                return <LinkInBioCJCD {...templateProps as any} />
             default:
                 return <LinkInBioDesign1 {...templateProps as any} />
         }

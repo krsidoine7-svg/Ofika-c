@@ -16,12 +16,12 @@ import {
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import { useRouter } from 'next/navigation'
+import { createClient } from '@/lib/supabase/client'
 import {
-  Sheet,
-  SheetContent,
-  SheetHeader,
-  SheetTitle,
-} from "@/components/ui/sheet"
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover"
 
 interface Notification {
   id: string
@@ -44,6 +44,32 @@ export function OrderNotifications({ className }: OrderNotificationsProps) {
   const [open, setOpen] = useState(false)
   const [loading, setLoading] = useState(false)
   const router = useRouter()
+  const supabase = createClient()
+
+  const playNotificationSound = useCallback(() => {
+    try {
+      const audioCtx = new (window.AudioContext || (window as any).webkitAudioContext)()
+      const oscillator = audioCtx.createOscillator()
+      const gainNode = audioCtx.createGain()
+
+      oscillator.connect(gainNode)
+      gainNode.connect(audioCtx.destination)
+
+      // Notification chime sound (two quick high notes)
+      oscillator.type = 'sine'
+      oscillator.frequency.setValueAtTime(880, audioCtx.currentTime)
+      oscillator.frequency.setValueAtTime(1108.73, audioCtx.currentTime + 0.1) // C#6
+      
+      gainNode.gain.setValueAtTime(0, audioCtx.currentTime)
+      gainNode.gain.linearRampToValueAtTime(0.3, audioCtx.currentTime + 0.05)
+      gainNode.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.4)
+
+      oscillator.start(audioCtx.currentTime)
+      oscillator.stop(audioCtx.currentTime + 0.4)
+    } catch (e) {
+      console.error('Audio play failed', e)
+    }
+  }, [])
 
   const loadNotifications = useCallback(async () => {
     try {
@@ -64,8 +90,47 @@ export function OrderNotifications({ className }: OrderNotificationsProps) {
   useEffect(() => {
     loadNotifications()
     const interval = setInterval(loadNotifications, 30000)
-    return () => clearInterval(interval)
-  }, [loadNotifications])
+    
+    // Supabase Realtime for notifications
+    const setupRealtime = async () => {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) return
+
+      const channelName = `user-notifications-${user.id}-${Math.random().toString(36).slice(2, 9)}`
+      const channel = supabase.channel(channelName)
+      
+      channel.on(
+          'postgres_changes',
+          { event: 'INSERT', schema: 'public', table: 'notifications', filter: `user_id=eq.${user.id}` },
+          (payload) => {
+            const notif = payload.new
+            playNotificationSound()
+            
+            // Show appropriate toast based on notification type
+            if (notif.type === 'payment_failed') {
+              toast.error(notif.title, { description: notif.message, duration: 10000 })
+            } else {
+              toast.success(notif.title, { description: notif.message, duration: 8000 })
+            }
+            
+            // Reload notifications to increment bell
+            loadNotifications()
+          }
+        )
+      
+      channel.subscribe()
+        
+      return channel
+    }
+    
+    let channel: any
+    setupRealtime().then(c => channel = c)
+
+    return () => {
+      clearInterval(interval)
+      if (channel) supabase.removeChannel(channel)
+    }
+  }, [loadNotifications, supabase, playNotificationSound])
 
   const handleOpen = () => {
     setOpen(true)
@@ -137,61 +202,59 @@ export function OrderNotifications({ className }: OrderNotificationsProps) {
 
   return (
     <>
-      {/* Bouton cloche */}
-      <Button
-        variant="ghost"
-        size="icon"
-        onClick={handleOpen}
-        className={cn("relative h-9 w-9 rounded-xl hover:bg-gray-100 transition-colors", className)}
-        aria-label="Notifications"
-      >
-        <Bell className="h-5 w-5 text-gray-600" />
-        {unreadCount > 0 && (
-          <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white">
-            {unreadCount > 9 ? '9+' : unreadCount}
-          </span>
-        )}
-      </Button>
+      <Popover open={open} onOpenChange={setOpen}>
+        <PopoverTrigger asChild>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={handleOpen}
+            className={cn("relative h-9 w-9 rounded-xl hover:bg-gray-100 transition-colors", className)}
+            aria-label="Notifications"
+          >
+            <Bell className="h-5 w-5 text-gray-600" />
+            {unreadCount > 0 && (
+              <span className="absolute -top-0.5 -right-0.5 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-[9px] font-bold text-white">
+                {unreadCount > 9 ? '9+' : unreadCount}
+              </span>
+            )}
+          </Button>
+        </PopoverTrigger>
 
-      {/* Panneau latéral — utilise un portail donc aucun problème de overflow/z-index */}
-      <Sheet open={open} onOpenChange={setOpen}>
-        <SheetContent side="right" className="w-full sm:max-w-md p-0 flex flex-col">
-          <SheetHeader className="px-6 py-4 border-b border-gray-100">
-            <div className="flex items-center justify-between">
-              <SheetTitle className="flex items-center gap-2 text-base font-black tracking-tight text-gray-900">
-                <Bell className="h-4 w-4" />
-                Notifications
-                {unreadCount > 0 && (
-                  <Badge className="bg-red-500 text-white text-[10px] h-5 px-1.5 rounded-full">
-                    {unreadCount}
-                  </Badge>
-                )}
-              </SheetTitle>
+        <PopoverContent align="end" className="w-[calc(100vw-2rem)] sm:w-[380px] p-0 flex flex-col shadow-xl rounded-xl border-gray-100 z-50">
+          <div className="px-4 py-3 border-b border-gray-100 flex items-center justify-between">
+            <h3 className="flex items-center gap-2 text-sm font-bold tracking-tight text-gray-900">
+              <Bell className="h-4 w-4" />
+              Notifications
               {unreadCount > 0 && (
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={markAllAsRead}
-                  className="text-xs text-gray-500 hover:text-gray-900 font-medium"
-                >
-                  Tout marquer lu
-                </Button>
+                <Badge className="bg-red-500 text-white text-[10px] h-5 px-1.5 rounded-full">
+                  {unreadCount}
+                </Badge>
               )}
-            </div>
-          </SheetHeader>
+            </h3>
+            {unreadCount > 0 && (
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={markAllAsRead}
+                className="text-xs text-gray-500 hover:text-gray-900 h-auto p-0 font-medium"
+              >
+                Tout marquer lu
+              </Button>
+            )}
+          </div>
 
-          <div className="flex-1 overflow-y-auto">
+          <div className="max-h-[400px] overflow-y-auto custom-scrollbar">
             {loading && notifications.length === 0 ? (
-              <div className="flex items-center justify-center py-20">
-                <Loader2 className="h-6 w-6 animate-spin text-gray-300" />
+              <div className="flex items-center justify-center py-10">
+                <Loader2 className="h-5 w-5 animate-spin text-gray-300" />
               </div>
             ) : notifications.length === 0 ? (
-              <div className="flex flex-col items-center justify-center py-20 text-center px-6">
-                <div className="w-16 h-16 rounded-2xl bg-gray-50 flex items-center justify-center mb-4">
-                  <Bell className="h-7 w-7 text-gray-200" />
+              <div className="flex flex-col items-center justify-center py-10 text-center px-4">
+                <div className="w-12 h-12 rounded-full bg-gray-50 flex items-center justify-center mb-3">
+                  <Bell className="h-5 w-5 text-gray-300" />
                 </div>
-                <p className="font-bold text-gray-400 text-sm uppercase tracking-widest">Aucune notification</p>
-                <p className="text-xs text-gray-400 mt-1">Vous serez notifié à chaque étape de votre commande</p>
+                <p className="font-semibold text-gray-500 text-xs uppercase tracking-wider">Aucune notification</p>
+                <p className="text-[11px] text-gray-400 mt-1">Vos alertes s'afficheront ici</p>
               </div>
             ) : (
               <div className="divide-y divide-gray-50">
@@ -239,18 +302,18 @@ export function OrderNotifications({ className }: OrderNotificationsProps) {
           </div>
 
           {notifications.length > 0 && (
-            <div className="px-6 py-4 border-t border-gray-100">
+            <div className="px-4 py-3 border-t border-gray-100 bg-gray-50/50 rounded-b-xl">
               <Button
                 variant="ghost"
-                className="w-full text-sm font-semibold text-gray-500 hover:text-gray-900"
+                className="w-full text-xs font-semibold text-gray-500 hover:text-gray-900 h-8"
                 onClick={() => { router.push('/dashboard/orders'); setOpen(false) }}
               >
                 Voir toutes mes commandes
               </Button>
             </div>
           )}
-        </SheetContent>
-      </Sheet>
+        </PopoverContent>
+      </Popover>
     </>
   )
 }

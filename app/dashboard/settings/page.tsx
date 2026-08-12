@@ -39,20 +39,19 @@ export default function SettingsPage() {
     <div className="min-h-screen bg-gray-50/50 pb-12 font-sans">
       <div className="container mx-auto px-4 py-8 max-w-6xl">
         {/* Header */}
-        <div className="mb-8">
-
-          <h1 className="text-4xl font-extrabold tracking-tight text-gray-900">Paramètres</h1>
-          <p className="text-gray-500 mt-2 text-lg">Gérez vos informations personnelles et la sécurité de votre compte.</p>
+        <div className="mb-6 sm:mb-8">
+          <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-gray-900">Paramètres</h1>
+          <p className="text-gray-500 mt-1 sm:mt-2 text-sm sm:text-lg">Gérez vos informations personnelles et la sécurité de votre compte.</p>
         </div>
 
         {/* Split-pane Layout */}
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-8 md:gap-12 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 md:gap-12 items-start">
           
           {/* Sidebar / Menu */}
-          <aside className="md:col-span-3 space-y-1">
+          <aside className="md:col-span-3 flex flex-row md:flex-col overflow-x-auto gap-2 pb-2 md:pb-0 border-b md:border-b-0 border-gray-100">
             <button
               onClick={() => setActiveTab('profile')}
-              className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+              className={`flex-1 md:flex-none flex items-center justify-center md:justify-start gap-2.5 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all shrink-0 whitespace-nowrap ${
                 activeTab === 'profile'
                   ? 'bg-white text-gray-900 shadow-sm border border-gray-200/60'
                   : 'text-gray-600 hover:bg-gray-100/50 hover:text-gray-900 border border-transparent'
@@ -64,7 +63,7 @@ export default function SettingsPage() {
             
             <button
               onClick={() => setActiveTab('security')}
-              className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+              className={`flex-1 md:flex-none flex items-center justify-center md:justify-start gap-2.5 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all shrink-0 whitespace-nowrap ${
                 activeTab === 'security'
                   ? 'bg-white text-gray-900 shadow-sm border border-gray-200/60'
                   : 'text-gray-600 hover:bg-gray-100/50 hover:text-gray-900 border border-transparent'
@@ -76,7 +75,7 @@ export default function SettingsPage() {
 
             <button
               onClick={() => setActiveTab('danger')}
-              className={`w-full flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all ${
+              className={`flex-1 md:flex-none flex items-center justify-center md:justify-start gap-2.5 px-3.5 py-2.5 rounded-xl text-xs sm:text-sm font-medium transition-all shrink-0 whitespace-nowrap ${
                 activeTab === 'danger'
                   ? 'bg-red-50 text-red-700 shadow-sm border border-red-100'
                   : 'text-gray-600 hover:bg-red-50 hover:text-red-700 border border-transparent'

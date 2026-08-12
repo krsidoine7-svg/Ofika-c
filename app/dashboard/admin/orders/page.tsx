@@ -97,6 +97,14 @@ export default function AdminOrdersPage() {
         }, 50)
     }
 
+    const openDetailsModal = (order: Order) => {
+        // Même chose : on attend que le menu déroulant se ferme pour éviter de bloquer la page
+        setTimeout(() => {
+            setSelectedOrder(order)
+            setIsDetailsOpen(true)
+        }, 50)
+    }
+
     useEffect(() => {
         fetchOrders()
 
@@ -324,10 +332,7 @@ export default function AdminOrdersPage() {
                                                 </DropdownMenuTrigger>
                                                 <DropdownMenuContent align="end" className="w-56 rounded-xl shadow-xl border-gray-100">
                                                     <DropdownMenuLabel>Actions Commande</DropdownMenuLabel>
-                                                    <DropdownMenuItem onClick={() => { 
-                                                        setSelectedOrder(order)
-                                                        setIsDetailsOpen(true)
-                                                    }}>
+                                                    <DropdownMenuItem onClick={() => openDetailsModal(order)}>
                                                         <Eye className="w-4 h-4 mr-2" /> Voir Détails
                                                     </DropdownMenuItem>
                                                     <DropdownMenuSeparator />
@@ -535,20 +540,38 @@ export default function AdminOrdersPage() {
                                     <div className="pt-3 border-t border-gray-200 space-y-2">
                                         <div className="flex justify-between items-center">
                                             <span className="text-xs font-bold text-gray-400 uppercase block">Reçu de Paiement Wave :</span>
-                                            <Button 
-                                                size="sm" 
-                                                className="bg-green-600 hover:bg-green-700 text-white font-bold text-[10px] h-7 px-3 rounded-lg"
-                                                onClick={() => {
-                                                    setIsDetailsOpen(false);
-                                                    openConfirm(
-                                                        "Valider ce paiement ?",
-                                                        `Valider manuellement le reçu de paiement de la commande #${selectedOrder?.order_number} ?`,
-                                                        () => updatePaymentStatus(selectedOrder!.id, 'succeeded')
-                                                    );
-                                                }}
-                                            >
-                                                Valider le Reçu
-                                            </Button>
+                                            <div className="flex gap-2">
+                                                <Button 
+                                                    size="sm" 
+                                                    variant="outline"
+                                                    className="border-red-200 text-red-600 hover:bg-red-50 hover:text-red-700 font-bold text-[10px] h-7 px-3 rounded-lg"
+                                                    onClick={() => {
+                                                        setIsDetailsOpen(false);
+                                                        openConfirm(
+                                                            "Paiement échoué ?",
+                                                            `Refuser le reçu et marquer la commande #${selectedOrder?.order_number} comme échouée ?`,
+                                                            () => updatePaymentStatus(selectedOrder!.id, 'failed'),
+                                                            'destructive'
+                                                        );
+                                                    }}
+                                                >
+                                                    Refuser
+                                                </Button>
+                                                <Button 
+                                                    size="sm" 
+                                                    className="bg-green-600 hover:bg-green-700 text-white font-bold text-[10px] h-7 px-3 rounded-lg"
+                                                    onClick={() => {
+                                                        setIsDetailsOpen(false);
+                                                        openConfirm(
+                                                            "Valider ce paiement ?",
+                                                            `Valider manuellement le reçu de paiement de la commande #${selectedOrder?.order_number} ?`,
+                                                            () => updatePaymentStatus(selectedOrder!.id, 'succeeded')
+                                                        );
+                                                    }}
+                                                >
+                                                    Valider le Reçu
+                                                </Button>
+                                            </div>
                                         </div>
                                         <a 
                                             href={((selectedOrder as any)?.metadata?.receipt_url)} 

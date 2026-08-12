@@ -45,7 +45,8 @@ export interface Order {
   // Statuts
   status: OrderStatus
   payment_status: PaymentStatus
-  payment_method: PaymentMethod
+  payment_method: PaymentMethod | string
+  payment_provider?: string
   shipping_status?: string
 
   // Adresse de livraison

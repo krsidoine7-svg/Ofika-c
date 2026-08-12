@@ -216,7 +216,7 @@ export function LinkInBioDesign1({
             <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-white"></div>
           </div>
         )}
-        <div className="relative z-10 p-4 pt-32">{content}</div>
+        <div className={`relative z-10 p-4 ${profile.cover_image_url ? 'pt-32' : 'pt-16'}`}>{content}</div>
       </div>
     );
   }
@@ -240,7 +240,7 @@ export function LinkInBioDesign1({
               <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-white"></div>
             </div>
           )}
-          <div className="relative z-10 p-6 pt-32">{content}</div>
+          <div className={`relative z-10 p-6 ${profile.cover_image_url ? 'pt-32' : 'pt-16'}`}>{content}</div>
         </div>
       </div>
     </div>

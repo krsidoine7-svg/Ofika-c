@@ -6,6 +6,8 @@ export interface User {
   email_verified?: string
   phone?: string
   name?: string
+  first_name?: string
+  last_name?: string
   image?: string
   preferred_language: string
   subscription_tier: string
@@ -45,6 +47,7 @@ export interface Profile {
   }>
   design_choice?: string
   color_theme?: string
+  theme_settings?: any
   is_public: boolean
   display_reviews?: boolean
   instagram_followers?: number

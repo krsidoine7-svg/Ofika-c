@@ -154,22 +154,22 @@ export default function AdminDashboardPage() {
                     </CardHeader>
                     <CardContent>
                         <div className="space-y-1">
-                            {stats?.recentUsers.map((user, i) => (
-                                <div key={user.id} className="flex items-center justify-between p-3 hover:bg-gray-50/80 rounded-xl transition-all group">
-                                    <div className="flex items-center">
-                                        <div className="w-10 h-10 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600 font-medium mr-4 border border-orange-100">
-                                            {user.name?.charAt(0).toUpperCase() || user.email.charAt(0).toUpperCase()}
+                            {stats?.recentUsers.map((user) => (
+                                <div key={user.id} className="flex items-center justify-between p-2.5 sm:p-3 hover:bg-gray-50/80 rounded-xl transition-all group gap-2">
+                                    <div className="flex items-center min-w-0 flex-1">
+                                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-orange-50 flex items-center justify-center text-orange-600 font-medium mr-3 shrink-0 border border-orange-100 text-xs sm:text-sm">
+                                            {user.name?.charAt(0).toUpperCase() || user.email?.charAt(0).toUpperCase() || 'U'}
                                         </div>
-                                        <div className="min-w-0">
-                                            <p className="font-medium text-gray-900 group-hover:text-teal-600 transition-colors truncate capitalize">{user.name || 'Sans Nom'}</p>
-                                            <p className="text-xs text-gray-500 truncate">{user.email}</p>
+                                        <div className="min-w-0 flex-1">
+                                            <p className="font-medium text-gray-900 group-hover:text-teal-600 transition-colors truncate capitalize text-xs sm:text-sm">{user.name || 'Sans Nom'}</p>
+                                            <p className="text-[10px] sm:text-xs text-gray-500 truncate">{user.email}</p>
                                         </div>
                                     </div>
-                                    <div className="text-right flex flex-col items-end">
-                                        <Badge variant="secondary" className="text-[10px] uppercase font-bold px-2 py-0 border-none bg-gray-100">
-                                            {user.role}
+                                    <div className="text-right flex flex-col items-end shrink-0">
+                                        <Badge variant="secondary" className="text-[9px] sm:text-[10px] uppercase font-bold px-2 py-0 border-none bg-gray-100">
+                                            {user.role || 'user'}
                                         </Badge>
-                                        <span className="text-[10px] text-gray-400 mt-1">{new Date(user.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}</span>
+                                        <span className="text-[9px] sm:text-[10px] text-gray-400 mt-0.5">{new Date(user.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' })}</span>
                                     </div>
                                 </div>
                             ))}
@@ -181,29 +181,29 @@ export default function AdminDashboardPage() {
                 <Card className="border-none shadow-sm h-full">
                     <CardHeader className="flex flex-row items-center justify-between">
                         <div>
-                            <CardTitle className="text-lg">Ventes Récentes</CardTitle>
-                            <CardDescription>Dernières transactions enregistrées</CardDescription>
+                            <CardTitle className="text-base sm:text-lg">Ventes Récentes</CardTitle>
+                            <CardDescription className="text-xs sm:text-sm">Dernières transactions enregistrées</CardDescription>
                         </div>
                         <Button variant="ghost" size="sm" asChild>
-                            <Link href="/dashboard/admin/orders" className="text-orange-500 hover:text-orange-600 font-medium">Tout voir</Link>
+                            <Link href="/dashboard/admin/orders" className="text-orange-500 hover:text-orange-600 font-medium text-xs sm:text-sm">Tout voir</Link>
                         </Button>
                     </CardHeader>
                     <CardContent>
-                        <div className="space-y-4">
+                        <div className="space-y-3">
                             {stats?.recentOrders.map((order) => (
-                                <div key={order.id} className="flex items-center justify-between p-3 rounded-xl border border-gray-100/50 hover:bg-gray-50/80 transition-all">
-                                    <div className="flex items-center">
-                                        <div className="w-10 h-10 rounded-xl bg-teal-50 flex items-center justify-center text-teal-600 mr-4 border border-teal-100">
-                                            <CreditCard className="w-5 h-5" strokeWidth={1.5} />
+                                <div key={order.id} className="flex items-center justify-between p-2.5 sm:p-3 rounded-xl border border-gray-100/50 hover:bg-gray-50/80 transition-all gap-2">
+                                    <div className="flex items-center min-w-0 flex-1">
+                                        <div className="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-teal-50 flex items-center justify-center text-teal-600 mr-3 shrink-0 border border-teal-100">
+                                            <CreditCard className="w-4 h-4 sm:w-5 sm:h-5" strokeWidth={1.5} />
                                         </div>
-                                        <div>
-                                            <p className="font-medium text-gray-900 truncate">#{order.order_number}</p>
-                                            <p className="text-xs text-gray-500 capitalize font-medium">{order.status}</p>
+                                        <div className="min-w-0 flex-1">
+                                            <p className="font-medium text-gray-900 truncate text-xs sm:text-sm">#{order.order_number}</p>
+                                            <p className="text-[10px] sm:text-xs text-gray-500 capitalize font-medium">{order.status}</p>
                                         </div>
                                     </div>
-                                    <div className="text-right">
-                                        <p className="font-semibold text-gray-900 text-sm">{(order.total_amount || 0).toLocaleString()} XOF</p>
-                                        <p className="text-[10px] text-gray-400 mt-0.5">{new Date(order.created_at).toLocaleDateString()}</p>
+                                    <div className="text-right shrink-0">
+                                        <p className="font-semibold text-gray-900 text-xs sm:text-sm">{(order.total_amount || 0).toLocaleString()} XOF</p>
+                                        <p className="text-[9px] sm:text-[10px] text-gray-400 mt-0.5">{new Date(order.created_at).toLocaleDateString()}</p>
                                     </div>
                                 </div>
                             ))}

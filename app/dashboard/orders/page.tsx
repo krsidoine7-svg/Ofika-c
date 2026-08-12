@@ -22,15 +22,19 @@ import {
 } from "lucide-react"
 import { ProtectedRoute } from "@/components/core/auth/ProtectedRoute"
 import { useOrders, useOrderStats } from '@/lib/hooks/usePayments'
-import { OrderNotifications } from '@/components/features/card-ordering/OrderNotifications'
+
 import { PaymentButtonGeniusPay } from '@/components/features/card-ordering/PaymentButtonGeniusPay'
+import { WaveReceiptUploadButton } from '@/components/features/card-ordering/WaveReceiptUploadButton'
 import { Order } from '@/lib/types/payments'
 import { toast } from "sonner"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from "@/components/ui/dialog"
 
 export default function OrdersPage() {
   const router = useRouter()
   const [searchTerm, setSearchTerm] = useState('')
   const [statusFilter, setStatusFilter] = useState<string>('all')
+  const [showErrorDialog, setShowErrorDialog] = useState(false)
+  const [isVerifying, setIsVerifying] = useState(false)
   
   const { orders, loading, error, refreshOrders } = useOrders()
   const { stats, loading: statsLoading } = useOrderStats()
@@ -39,8 +43,49 @@ export default function OrdersPage() {
   useEffect(() => {
     const paymentStatus = searchParams?.get('payment')
     const orderIdParam = searchParams?.get('order_id')
+    const referenceParam = searchParams?.get('reference')
     
-    if (paymentStatus === 'success') {
+    if (paymentStatus === 'success' && orderIdParam && referenceParam) {
+      const verifyPayment = async () => {
+        setIsVerifying(true)
+        const loadingToast = toast.loading('Vérification de votre paiement en cours...')
+        
+        try {
+          const res = await fetch('/api/payments/geniuspay/verify', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ order_id: orderIdParam, reference: referenceParam })
+          })
+          
+          const data = await res.json()
+          
+          toast.dismiss(loadingToast)
+          
+          if (data.success && data.payment_status === 'succeeded') {
+            toast.success('Paiement validé avec succès !', {
+              description: 'Votre commande a été mise à jour.',
+              duration: 8000,
+            })
+            refreshOrders()
+          } else {
+            setShowErrorDialog(true)
+            refreshOrders()
+          }
+          
+          router.replace('/dashboard/orders')
+          
+        } catch (error) {
+          toast.dismiss(loadingToast)
+          setShowErrorDialog(true)
+          router.replace('/dashboard/orders')
+        } finally {
+          setIsVerifying(false)
+        }
+      }
+      
+      verifyPayment()
+      
+    } else if (paymentStatus === 'success') {
       toast.success('Paiement initié avec succès !', {
         description: 'La commande sera mise à jour dès confirmation par le fournisseur (cela peut prendre quelques instants).',
         duration: 8000,
@@ -50,6 +95,8 @@ export default function OrdersPage() {
         description: 'Le paiement a échoué ou a été annulé. Vous pouvez réessayer.',
         duration: 8000,
       })
+      setShowErrorDialog(true)
+      router.replace('/dashboard/orders')
     }
   }, [searchParams])
 
@@ -160,7 +207,7 @@ export default function OrdersPage() {
               </p>
             </div>
             <div className="flex items-center gap-4">
-              <OrderNotifications />
+
               <Button
                 onClick={handleNewOrder}
                 className="bg-orange-500 hover:bg-orange-600 text-white"
@@ -173,53 +220,53 @@ export default function OrdersPage() {
 
           {/* Stats */}
           {!statsLoading && stats && (
-            <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6 mb-8">
               <Card>
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-gray-600">Total commandes</p>
-                      <p className="text-2xl font-bold text-gray-900">{stats.total_orders}</p>
+                      <p className="text-xs sm:text-sm text-gray-600">Total commandes</p>
+                      <p className="text-xl sm:text-2xl font-bold text-gray-900">{stats.total_orders}</p>
                     </div>
-                    <Package className="h-8 w-8 text-gray-400" />
+                    <Package className="h-6 w-6 sm:h-8 sm:w-8 text-gray-400" />
                   </div>
                 </CardContent>
               </Card>
               
               <Card>
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-gray-600">En cours</p>
-                      <p className="text-2xl font-bold text-blue-600">{stats.pending_orders + stats.paid_orders}</p>
+                      <p className="text-xs sm:text-sm text-gray-600">En cours</p>
+                      <p className="text-xl sm:text-2xl font-bold text-blue-600">{stats.pending_orders + stats.paid_orders}</p>
                     </div>
-                    <Clock className="h-8 w-8 text-blue-400" />
+                    <Clock className="h-6 w-6 sm:h-8 sm:w-8 text-blue-400" />
                   </div>
                 </CardContent>
               </Card>
               
               <Card>
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-gray-600">Livrées</p>
-                      <p className="text-2xl font-bold text-green-600">{stats.completed_orders}</p>
+                      <p className="text-xs sm:text-sm text-gray-600">Livrées</p>
+                      <p className="text-xl sm:text-2xl font-bold text-green-600">{stats.completed_orders}</p>
                     </div>
-                    <CheckCircle className="h-8 w-8 text-green-400" />
+                    <CheckCircle className="h-6 w-6 sm:h-8 sm:w-8 text-green-400" />
                   </div>
                 </CardContent>
               </Card>
               
               <Card>
-                <CardContent className="p-6">
+                <CardContent className="p-4 sm:p-6">
                   <div className="flex items-center justify-between">
                     <div>
-                      <p className="text-sm text-gray-600">Montant total</p>
-                      <p className="text-2xl font-bold text-orange-600">
+                      <p className="text-xs sm:text-sm text-gray-600">Montant total</p>
+                      <p className="text-xl sm:text-2xl font-bold text-orange-600">
                         {(stats.total_spent || 0).toLocaleString()} XOF
                       </p>
                     </div>
-                    <CreditCard className="h-8 w-8 text-orange-400" />
+                    <CreditCard className="h-6 w-6 sm:h-8 sm:w-8 text-orange-400" />
                   </div>
                 </CardContent>
               </Card>
@@ -228,8 +275,8 @@ export default function OrdersPage() {
 
           {/* Filters */}
           <Card className="mb-6">
-            <CardContent className="p-6">
-              <div className="flex flex-col md:flex-row gap-4">
+            <CardContent className="p-4 sm:p-6">
+              <div className="flex flex-col sm:flex-row gap-4">
                 <div className="flex-1">
                   <div className="relative">
                     <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
@@ -237,17 +284,17 @@ export default function OrdersPage() {
                       placeholder="Rechercher par ID de commande ou type de carte..."
                       value={searchTerm}
                       onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10"
+                      className="pl-10 text-sm"
                     />
                   </div>
                 </div>
                 
-                <div className="flex items-center gap-2">
-                  <Filter className="h-4 w-4 text-gray-400" />
+                <div className="flex items-center gap-2 w-full sm:w-auto">
+                  <Filter className="h-4 w-4 text-gray-400 shrink-0" />
                   <select
                     value={statusFilter}
                     onChange={(e) => setStatusFilter(e.target.value)}
-                    className="px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-orange-500"
+                    className="w-full sm:w-auto px-3 py-2 border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-orange-500 bg-white"
                   >
                     <option value="all">Tous les statuts</option>
                     <option value="pending">En attente</option>
@@ -259,11 +306,6 @@ export default function OrdersPage() {
                     <option value="cancelled">Annulée</option>
                   </select>
                 </div>
-                
-                <Button variant="outline" onClick={handleRefresh}>
-                  <RefreshCw className="h-4 w-4 mr-2" />
-                  Actualiser
-                </Button>
               </div>
             </CardContent>
           </Card>
@@ -285,18 +327,17 @@ export default function OrdersPage() {
 
           {filteredOrders.length === 0 ? (
             <Card>
-              <CardContent className="p-12 text-center">
-                <Package className="h-16 w-16 text-gray-300 mx-auto mb-4" />
-                <h3 className="text-xl font-semibold text-gray-900 mb-2">
-                  {orders?.length === 0 ? 'Aucune commande' : 'Aucun résultat'}
+              <CardContent className="p-8 text-center">
+                <Package className="h-12 w-12 text-gray-400 mx-auto mb-4" />
+                <h3 className="text-lg font-medium text-gray-900 mb-2">
+                  Aucune commande trouvée
                 </h3>
-                <p className="text-gray-600 mb-6">
-                  {orders?.length === 0 
-                    ? 'Vous n\'avez pas encore passé de commande de carte.'
-                    : 'Aucune commande ne correspond à vos critères de recherche.'
-                  }
+                <p className="text-gray-600 mb-6 text-sm">
+                  {searchTerm || statusFilter !== 'all'
+                    ? 'Aucune commande ne correspond à vos critères de recherche.'
+                    : 'Vous n\'avez pas encore passé de commande.'}
                 </p>
-                {orders?.length === 0 && (
+                {!searchTerm && statusFilter === 'all' && (
                   <Button
                     onClick={handleNewOrder}
                     className="bg-orange-500 hover:bg-orange-600 text-white"
@@ -311,40 +352,40 @@ export default function OrdersPage() {
             <div className="space-y-4">
               {filteredOrders.map((order) => (
                 <Card key={order.id} className="hover:shadow-md transition-shadow">
-                  <CardContent className="p-6">
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center space-x-4">
-                        <div className="w-12 h-12 bg-orange-100 rounded-lg flex items-center justify-center">
+                  <CardContent className="p-4 sm:p-6">
+                    <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+                      <div className="flex items-start sm:items-center space-x-3 sm:space-x-4">
+                        <div className="w-10 h-10 sm:w-12 sm:h-12 bg-orange-100 rounded-lg flex items-center justify-center shrink-0 mt-0.5 sm:mt-0">
                           {getStatusIcon(order.status)}
                         </div>
                         
-                        <div>
-                          <div className="flex items-center gap-2 mb-1">
-                            <h3 className="font-semibold text-gray-900">
+                        <div className="min-w-0 flex-1">
+                          <div className="flex flex-wrap items-center gap-2 mb-1">
+                            <h3 className="font-semibold text-gray-900 text-sm sm:text-base truncate max-w-[200px] sm:max-w-none">
                               Commande {order.order_number || `#${(order.id || '').slice(-8)}`}
                             </h3>
-                            <Badge className={getStatusColor(order.status)}>
+                            <Badge className={`${getStatusColor(order.status)} text-[10px] sm:text-xs shrink-0`}>
                               {getStatusLabel(order.status)}
                             </Badge>
                           </div>
-                          <div className="flex items-center text-sm text-gray-600 space-x-4">
+                          <div className="flex flex-wrap items-center text-xs sm:text-sm text-gray-600 gap-x-2 gap-y-1">
                             <span>
                               {order.card_type === 'nfc_qr' ? 'NFC + QR Code' : 'QR Code uniquement'}
                             </span>
-                            <span>•</span>
+                            <span className="hidden sm:inline">•</span>
                             <span>{order.quantity} carte(s)</span>
-                            <span>•</span>
+                            <span className="hidden sm:inline">•</span>
                             <span className="flex items-center">
-                              <Calendar className="h-3 w-3 mr-1" />
+                              <Calendar className="h-3 w-3 mr-1 shrink-0" />
                               {new Date(order.created_at).toLocaleDateString('fr-FR')}
                             </span>
                           </div>
                         </div>
                       </div>
                       
-                      <div className="flex items-center space-x-4">
-                        <div className="text-right">
-                          <p className="font-semibold text-gray-900">
+                      <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between md:justify-end gap-3 pt-3 md:pt-0 border-t md:border-t-0 border-gray-100">
+                        <div className="text-left sm:text-right flex items-center sm:flex-col justify-between sm:justify-center">
+                          <p className="font-semibold text-gray-900 text-sm sm:text-base">
                             {(order.total_amount || 0).toLocaleString()} XOF
                           </p>
                           {(() => {
@@ -353,7 +394,7 @@ export default function OrdersPage() {
 
                             if (isProcessing) {
                               return (
-                                <div className="mt-2">
+                                <div className="sm:mt-1">
                                   <Badge className="bg-purple-100 text-purple-700 border-none font-bold text-[10px]">
                                     Reçu en cours de vérification
                                   </Badge>
@@ -362,8 +403,20 @@ export default function OrdersPage() {
                             }
 
                             if (!isPaid && (order.payment_status === 'pending' || order.payment_status === 'failed' || order.status === 'pending' || order.status === 'failed')) {
+                              if (order.payment_provider === 'wave' || order.payment_method === 'wave') {
+                                return (
+                                  <div className="sm:mt-1 w-full sm:w-auto">
+                                    <WaveReceiptUploadButton 
+                                      orderId={order.id}
+                                      paymentStatus={order.payment_status}
+                                      onUploadComplete={() => refreshOrders()}
+                                    />
+                                  </div>
+                                )
+                              }
+                              
                               return (
-                                <div className="mt-2">
+                                <div className="sm:mt-1 w-full sm:w-auto">
                                   <PaymentButtonGeniusPay 
                                     orderId={order.id} 
                                     text="Payer ma commande"
@@ -381,8 +434,9 @@ export default function OrdersPage() {
                           variant="outline"
                           size="sm"
                           onClick={() => handleViewOrder(order.id)}
+                          className="w-full sm:w-auto shrink-0 text-xs sm:text-sm"
                         >
-                          <Eye className="h-4 w-4 mr-1" />
+                          <Eye className="h-4 w-4 mr-1 shrink-0" />
                           Voir
                         </Button>
                       </div>
@@ -394,6 +448,20 @@ export default function OrdersPage() {
           )}
         </div>
       </div>
+
+      <Dialog open={showErrorDialog} onOpenChange={setShowErrorDialog}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle className="text-red-600">Le paiement a échoué</DialogTitle>
+            <DialogDescription>
+              Nous n'avons pas pu valider votre paiement ou celui-ci a été refusé par votre opérateur. Veuillez réessayer.
+            </DialogDescription>
+          </DialogHeader>
+          <DialogFooter>
+            <Button onClick={() => setShowErrorDialog(false)}>Réessayer</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </ProtectedRoute>
   )
 }

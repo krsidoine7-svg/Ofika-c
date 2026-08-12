@@ -74,14 +74,80 @@ export async function POST(request: NextRequest) {
         const supabase = createAdminClient()
         const body = await request.json()
 
+        const { slug, name, config, is_active } = body
+
+        if (slug && config) {
+            // Save theme configuration into system_config for platform-wide themes
+            const configKey = `theme_config_${slug}`
+            const { error: sysErr } = await supabase
+                .from('system_config')
+                .upsert({
+                    key: configKey,
+                    value: { slug, name, config, updated_at: new Date().toISOString() },
+                    description: `Configuration du thème ${name} (${slug})`
+                })
+
+            if (sysErr) {
+                console.warn('System config upsert warning:', sysErr)
+            }
+
+            // Check if template_schema exists for this slug
+            const { data: existingTheme } = await supabase
+                .from('template_schemas')
+                .select('id')
+                .eq('slug', slug)
+                .maybeSingle()
+
+            let schemaResult
+            if (existingTheme?.id) {
+                // Update existing record with id
+                const { data: updated, error: updErr } = await supabase
+                    .from('template_schemas')
+                    .update({
+                        name: name || slug,
+                        description: `Thème personnalisé ${name}`,
+                        is_active: is_active ?? true,
+                        schema_definition: config
+                    })
+                    .eq('id', existingTheme.id)
+                    .select()
+                if (updErr) console.warn('template_schemas update warning:', updErr)
+                schemaResult = updated?.[0]
+            } else {
+                // Insert new record with generated UUID
+                const newId = crypto.randomUUID()
+                const { data: inserted, error: insErr } = await supabase
+                    .from('template_schemas')
+                    .insert({
+                        id: newId,
+                        slug,
+                        name: name || slug,
+                        description: `Thème personnalisé ${name}`,
+                        is_active: is_active ?? true,
+                        schema_definition: config
+                    })
+                    .select()
+                if (insErr) console.warn('template_schemas insert warning:', insErr)
+                schemaResult = inserted?.[0]
+            }
+
+            return NextResponse.json({ 
+                success: true, 
+                data: schemaResult || { slug, name, config } 
+            })
+        }
+
+        // Generic template insert
+        const newId = body.id || crypto.randomUUID()
         const { data, error } = await supabase
             .from('template_schemas')
-            .insert([body])
+            .insert([{ ...body, id: newId }])
             .select()
 
         if (error) throw error
         return NextResponse.json({ success: true, data: data[0] })
     } catch (error: any) {
+        console.error('Erreur POST /api/admin/themes:', error)
         return NextResponse.json({ error: error.message }, { status: 500 })
     }
 }

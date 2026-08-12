@@ -204,3 +204,5 @@ coverage/
 # *.pem
 # *.p12
 # *.pfx
+# Sentry Config File
+.env.sentry-build-plugin

@@ -7,9 +7,9 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Stepper, Step } from '@/components/ui/stepper'
-import { ArrowLeft, CheckCircle, Globe, Eye } from 'lucide-react'
+import { ArrowLeft, CheckCircle, Globe, Eye, Palette, Sparkles, LayoutGrid, Leaf, Star, ShoppingBag, Moon, Briefcase, Crown, Users } from 'lucide-react'
 import { TemplateSelectionStep } from '@/components/features/profiles/TemplateSelectionStep'
-import { ProfileForm } from '@/components/features/profiles/ProfileForm'
+import { OnboardingWizard } from '@/components/features/profiles/onboarding/OnboardingWizard'
 import { SignupStep } from '@/components/features/profiles/SignupStep'
 import { PreviewStep } from '@/components/features/profiles/PreviewStep'
 import { createClient } from '@/lib/supabase/client'
@@ -24,8 +24,26 @@ import { LinkInBioDesign7 } from '@/components/features/profiles/LinkInBioDesign
 import { LinkInBioInfluencer } from '@/components/features/profiles/LinkInBioInfluencer'
 import { LinkInBioEcommerce } from '@/components/features/profiles/LinkInBioEcommerce'
 import { LinkInBioFreelance } from '@/components/features/profiles/LinkInBioFreelance'
+import { LinkInBioSocialCreator } from '@/components/features/profiles/LinkInBioSocialCreator'
+import { LinkInBioEmeraude } from '@/components/features/profiles/LinkInBioEmeraude'
+import { LinkInBioCJCD } from '@/components/features/profiles/LinkInBioCJCD'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ScaledSmartphonePreview } from '@/components/ui/scaled-smartphone-preview'
+import { IPhone15Frame } from '@/components/ui/iphone-15-frame'
+
+const availableTemplates = [
+  { id: 'cjcd', label: 'Design CJCD', icon: Crown },
+  { id: 'premium', label: 'Émeraude', icon: Crown },
+  { id: 'social_creator', label: 'Social Creator', icon: Star },
+  { id: 'design1', label: 'Classique', icon: Palette },
+  { id: 'design7', label: 'Dark Elegant', icon: Moon },
+  { id: 'influencer', label: 'Influenceur', icon: Star },
+  { id: 'ecommerce', label: 'E-commerce', icon: ShoppingBag },
+  { id: 'freelance', label: 'Freelance', icon: Briefcase },
+  { id: 'design3', label: 'Créatif', icon: Sparkles },
+  { id: 'design4', label: 'Nature', icon: Leaf },
+  { id: 'design2', label: 'Éléments', icon: LayoutGrid },
+]
 
 type CreationStep = 'form' | 'template' | 'signup' | 'success'
 
@@ -53,6 +71,8 @@ const createPreviewProfile = (formData: any, designChoice: string) => {
     user_id: 'preview-user',
     profile_type: formData?.profile_type || 'professional',
     name: formData?.name || 'Votre Nom',
+    job_title: formData?.job_title || formData?.jobTitle || null,
+    company: formData?.company || null,
     bio: formData?.bio || 'Votre biographie apparaîtra ici...',
     image_url: formData?.image_url || null,
     cover_image_url: formData?.cover_image_url || null,
@@ -118,9 +138,12 @@ export default function PublicPageOnboardingPage() {
       case 'design4': return <LinkInBioDesign4 profile={profile as any} showAddToContacts={true} isPreview={true} />
       case 'influencer': return <LinkInBioInfluencer profile={profile as any} showAddToContacts={true} isPreview={true} />
       case 'ecommerce': return <LinkInBioEcommerce profile={profile as any} showAddToContacts={true} isPreview={true} />
-      case 'design7': return <LinkInBioDesign7 profile={profile as any} showAddToContacts={true} isPreview={true} />
       case 'freelance': return <LinkInBioFreelance profile={profile as any} showAddToContacts={true} isPreview={true} />
-      default: return <LinkInBioDesign1 profile={profile as any} showAddToContacts={true} isPreview={true} />
+      case 'premium': return <LinkInBioEmeraude profile={profile as any} showAddToContacts={true} isPreview={true} />
+      case 'cjcd': return <LinkInBioCJCD profile={profile as any} showAddToContacts={true} isPreview={true} />
+      case 'social_creator': return <LinkInBioSocialCreator profile={profile as any} showAddToContacts={true} isPreview={true} />
+      case 'design7': return <LinkInBioDesign7 profile={profile as any} showAddToContacts={true} isPreview={true} />
+      default: return <LinkInBioSocialCreator profile={profile as any} showAddToContacts={true} isPreview={true} />
     }
   }
 
@@ -321,13 +344,9 @@ export default function PublicPageOnboardingPage() {
         return (
           <Card className="lg:h-full flex flex-col lg:overflow-hidden border-none shadow-none lg:border lg:shadow-sm bg-white">
             <CardContent className="pt-6 flex-1 lg:min-h-0 flex flex-col lg:overflow-hidden">
-              <ProfileForm
-                isEditing={false}
-                requireAuth={false}
-                hideImages={false}
+              <OnboardingWizard
                 initialData={createdProfile}
                 onSuccess={handleFormSuccess}
-                onCancel={() => router.push('/get-started')}
                 onChange={handleProfileFormChange}
               />
             </CardContent>
@@ -431,52 +450,60 @@ export default function PublicPageOnboardingPage() {
   const isSplitScreen = currentStep === 'form' || currentStep === 'signup'
 
   return (
-    <div className="min-h-screen lg:h-[100dvh] w-full lg:overflow-hidden bg-gradient-to-br from-blue-50 via-white to-purple-50 flex flex-col">
-      <div className="flex-1 min-h-0 flex flex-col p-4 sm:p-6 lg:p-8 overflow-y-auto lg:overflow-hidden">
-        <div className={`mx-auto w-full flex-1 lg:min-h-0 flex flex-col ${
+    <div className="min-h-screen lg:h-screen lg:overflow-hidden w-full bg-gradient-to-br from-blue-50 via-white to-purple-50 flex flex-col">
+      <div className="flex-1 flex flex-col p-4 sm:p-6 lg:p-8">
+        <div className={`mx-auto w-full flex-1 flex flex-col ${
           isSplitScreen ? "max-w-6xl" : currentStep === 'template' ? "max-w-5xl" : "max-w-3xl"
         }`}>
-          {/* Header avec bouton retour */}
-          <div className="flex-shrink-0 mb-4">
-            <Button
-              variant="ghost"
-              onClick={() => router.push('/get-started')}
-              className="mb-2 h-8 px-2 text-xs"
-            >
-              <ArrowLeft className="w-3.5 h-3.5 mr-1.5" />
-              Retour
-            </Button>
-            <h1 className="text-xl sm:text-2xl font-bold text-gray-900 leading-tight">
-              Créez votre page publique
-            </h1>
-            <p className="text-gray-500 text-xs mt-0.5">
-              Configurez votre présence en ligne en quelques étapes
-            </p>
-          </div>
 
           {/* Stepper */}
-          <div className="flex-shrink-0 mb-4 sm:mb-6">
+          <div className="flex-shrink-0 mb-4 sm:mb-6 max-w-2xl mx-auto w-full">
             <Stepper steps={steps} currentStep={getCurrentStepNumber()} />
           </div>
 
           {/* Contenu principal */}
-          <div className="flex-1 lg:min-h-0 w-full">
+          <div className="flex-1 w-full">
             {isSplitScreen ? (
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-stretch lg:h-full lg:min-h-0">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start w-full">
                 {/* Colonne gauche : Formulaire */}
-                <div className="col-span-12 lg:col-span-7 flex flex-col lg:min-h-0 lg:h-full">
+                <div className="col-span-12 lg:col-span-7 flex flex-col">
                   {renderStep()}
                 </div>
 
-                {/* Colonne droite : Smartphone Mockup */}
-                <div className="col-span-12 lg:col-span-5 hidden lg:flex flex-col items-center justify-center min-h-0 h-full">
-                  <div className="flex flex-col items-center justify-center h-full w-full max-h-full">
-                    <h3 className="font-semibold text-center text-xs uppercase tracking-wider text-gray-400 mb-3 flex items-center justify-center gap-2 flex-shrink-0">
-                      <Eye className="w-3.5 h-3.5" />
+                {/* Colonne droite : Smartphone Mockup iPhone 15 Posé sur la page */}
+                <div className="col-span-12 lg:col-span-5 hidden lg:flex flex-col items-center justify-start sticky top-2 self-start">
+                  <div className="flex flex-col items-center justify-center w-full max-w-[360px] -mt-8">
+                    <h3 className="font-semibold text-center text-xs uppercase tracking-wider text-gray-400 mb-2 flex items-center justify-center gap-2 flex-shrink-0">
+                      <Eye className="w-3.5 h-3.5 text-orange-500" />
                       Aperçu en temps réel
                     </h3>
 
-                    <div className="w-[360px] h-[720px] max-h-[90vh] rounded-[2rem] overflow-y-auto overflow-x-hidden custom-scrollbar bg-white shadow-2xl border border-gray-100 flex flex-col relative min-h-0">
+                    {/* Rangée de Pilules / Onglets de Choisir le Design (Template) */}
+                    <div className="w-full mb-3 flex flex-col items-center">
+                      <div className="flex items-center gap-1.5 overflow-x-auto max-w-full custom-scrollbar py-1 px-1">
+                        {availableTemplates.map((t) => {
+                          const Icon = t.icon
+                          const isSelected = selectedDesign === t.id
+                          return (
+                            <button
+                              key={t.id}
+                              type="button"
+                              onClick={() => setSelectedDesign(t.id)}
+                              className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 ${
+                                isSelected
+                                  ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md shadow-orange-500/20 scale-105'
+                                  : 'bg-white/90 hover:bg-white text-gray-600 hover:text-gray-900 border border-gray-200/90 hover:border-orange-300'
+                              }`}
+                            >
+                              <Icon className={`w-3.5 h-3.5 ${isSelected ? 'text-white' : 'text-orange-500'}`} />
+                              <span>{t.label}</span>
+                            </button>
+                          )
+                        })}
+                      </div>
+                    </div>
+
+                    <IPhone15Frame showColorPicker={true} scaleClass="scale-[0.60] sm:scale-[0.65] lg:scale-[0.70] xl:scale-[0.75] origin-top">
                       <AnimatePresence mode="wait">
                         <motion.div
                           key={selectedDesign}
@@ -484,24 +511,24 @@ export default function PublicPageOnboardingPage() {
                           animate={{ opacity: 1, y: 0, scale: 1 }}
                           exit={{ opacity: 0, y: -10, scale: 0.98 }}
                           transition={{ duration: 0.3 }}
-                          className="min-h-full animate-in fade-in zoom-in duration-300"
+                          className="w-full h-full min-h-full relative flex flex-col animate-in fade-in zoom-in duration-300"
                         >
                           {renderPreview(selectedDesign)}
                         </motion.div>
                       </AnimatePresence>
-                    </div>
+                    </IPhone15Frame>
 
                     {/* Légende */}
-                    <div className="mt-3 flex-shrink-0">
+                    <div className="mt-2 flex-shrink-0">
                       <p className="text-[10px] text-gray-400 italic text-center max-w-[220px]">
-                        Aperçu interactif : modifiez le formulaire pour voir le rendu en direct.
+                        Aperçu interactif : modifiez le formulaire ou le template pour voir le rendu en direct.
                       </p>
                     </div>
                   </div>
                 </div>
               </div>
             ) : (
-              <div className="lg:h-full lg:min-h-0 lg:overflow-y-auto custom-scrollbar">
+              <div className="w-full">
                 {renderStep()}
               </div>
             )}
@@ -517,16 +544,42 @@ export default function PublicPageOnboardingPage() {
                     Aperçu
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="bottom" className="h-[90vh] rounded-t-[2rem] p-0 overflow-hidden bg-gray-900 border-gray-800">
-                  <SheetHeader className="p-4 border-b border-gray-800 bg-gray-900 flex-row items-center justify-between text-white">
+                <SheetContent side="bottom" className="h-[95vh] rounded-t-[2.5rem] p-4 overflow-y-auto bg-gray-900 border-gray-800 flex flex-col items-center justify-start">
+                  <SheetHeader className="p-2 border-b border-gray-800 bg-gray-900 flex-row items-center justify-between text-white w-full mb-2">
                     <SheetTitle className="text-white flex items-center gap-2">
                       <Eye className="w-5 h-5 text-orange-500" />
                       Aperçu en direct
                     </SheetTitle>
                   </SheetHeader>
-                    <div className="w-[360px] h-[90%] max-h-none rounded-[2rem] overflow-y-auto overflow-x-hidden custom-scrollbar bg-white shadow-2xl border border-gray-100 flex flex-col relative min-h-0">
+
+                  {/* Rangée de Pilules / Onglets de Choisir le Design sur Mobile */}
+                  <div className="w-full my-2 flex items-center gap-1.5 overflow-x-auto custom-scrollbar px-1 py-1">
+                    {availableTemplates.map((t) => {
+                      const Icon = t.icon
+                      const isSelected = selectedDesign === t.id
+                      return (
+                        <button
+                          key={t.id}
+                          type="button"
+                          onClick={() => setSelectedDesign(t.id)}
+                          className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 ${
+                            isSelected
+                              ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md shadow-orange-500/20 scale-105'
+                              : 'bg-gray-800 text-gray-300 border border-gray-700'
+                          }`}
+                        >
+                          <Icon className={`w-3.5 h-3.5 ${isSelected ? 'text-white' : 'text-orange-500'}`} />
+                          <span>{t.label}</span>
+                        </button>
+                      )
+                    })}
+                  </div>
+
+                  <div className="w-full flex justify-center py-2">
+                    <IPhone15Frame showColorPicker={true}>
                       {renderPreview(selectedDesign)}
-                    </div>
+                    </IPhone15Frame>
+                  </div>
                 </SheetContent>
               </Sheet>
             </div>

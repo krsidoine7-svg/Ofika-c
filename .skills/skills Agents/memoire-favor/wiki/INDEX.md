@@ -113,6 +113,9 @@ Date | Décision | Contexte | Raison | Alternative rejetée | Liens
 | `sessions/2026-07-19.md` | Session 004 — Restructuration d'onboarding NFC, corrections DB & RLS, build de production |
 | `sessions/2026-07-20.md` | Sessions 005 & 006 — Onboarding Option A (formulaire en premier), mockup épuré, nettoyage LyGOS/Stripe, et optimisations de performance/SEO |
 | `sessions/2026-07-22.md` | Session 007 — Documentation d'onboarding PWA & Push, amélioration des compétences Mermaid, audit de sécurité et validation du build Next.js 15 |
+| `sessions/2026-08-02_session-009.md` | Session 009 — Optimisation et refonte du tableau de bord admin |
+| `sessions/2026-08-10_session-011.md` | Session 011 — Intégration GeniusPay & Wave Direct, tarification dynamique system_config, refonte canonique des 13 flux MD/DOCX, audit responsive design |
+| `sessions/2026-08-10_session-012.md` | Session 012 — Mockup iPhone 15 Pro, sélecteur de templates dynamique, création du template Social Creator, vCard, WhatsApp & carrousel réseaux sociaux |
 
 **Relations :** Chaque résumé de session pointe vers le fichier fourtour correspondant.
 

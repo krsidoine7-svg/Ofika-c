@@ -46,13 +46,14 @@ sequenceDiagram
     
     alt CAS A : Reçu Valide (Admin valide)
         Admin->>API: 9. Clic sur "Valider le Reçu"
-        API->>DB: 10. PATCH /api/admin/orders (payment_status: 'succeeded', status: 'paid')
-        DB->>DB: Trigger PostgreSQL notifie le client ("Paiement confirmé !")
-        DB-->>Client: 11. Statut passe à "Payée" (Bouton Payer masqué définitivement)
+        API->>DB: 10. UPDATE orders (payment_status: 'succeeded', status: 'paid')
+        API->>DB: 11. INSERT INTO notifications ('payment_success')
+        DB-->>Client: 12. Supabase Realtime intercepte l'ajout, affiche Toast & Incrémente Cloche
     else CAS B : Reçu Invalide (Admin rejette)
         Admin->>API: 9. Clic sur "Marquer comme Échoué"
-        API->>DB: 10. PATCH /api/admin/orders (payment_status: 'failed', status: 'failed')
-        DB-->>Client: 11. Le bouton "Payer / Resoumettre" réapparaît
+        API->>DB: 10. UPDATE orders (payment_status: 'failed', status: 'failed')
+        API->>DB: 11. INSERT INTO notifications ('payment_failed')
+        DB-->>Client: 12. Supabase Realtime intercepte l'ajout, affiche Toast & Incrémente Cloche (Bouton Payer réapparaît)
     end
 ```
 
@@ -80,15 +81,15 @@ Le serveur exécute `UPDATE orders SET payment_status = 'processing'`. Côté cl
 L'administrateur ouvre l'écran de gestion des commandes et aperçoit l'image du reçu téléversé.
 
 Étape B.2 — Validation par l'Admin ("Valider le Reçu")
-L'admin clique sur "Valider le Reçu" (Marquer comme Payé). L'application émet la requête `PATCH /api/admin/orders`. Le serveur applique `payment_status = 'succeeded'` et `status = 'paid'`. Le trigger PostgreSQL notifie automatiquement le client (*"Paiement confirmé !"*). Le statut passe à "Payée" et le bouton Payer est retiré définitivement.
+L'admin clique sur "Valider le Reçu" (Marquer comme Payé). L'application émet la requête `PATCH /api/admin/orders`. Le serveur applique `payment_status = 'succeeded'` et `status = 'paid'`, puis insère obligatoirement une notification de confirmation dans la table `notifications`. Supabase Realtime pousse l'alerte à la cloche du client en instantané. Le statut passe à "Payée" et le bouton Payer est retiré définitivement.
 
 ### BRANCHE C : Rejet du Reçu par l'Administrateur (Cas Reçu Invalide)
 
 Étape C.1 — Rejet par l'Admin ("Marquer comme Échoué")
 Si la preuve de paiement est illisible ou incorrecte, l'admin clique sur "Marquer comme Échoué".
 
-Étape C.2 — Mutation BD & Réaffichage du Bouton Payer
-L'application enregistre `payment_status = 'failed'` et `status = 'failed'`. Le client reçoit une notification d'échec et le bouton "Payer / Réessayer" réapparaît sur son tableau de bord pour lui permettre de soumettre un nouveau reçu ou de passer par GeniusPay.
+Étape C.2 — Mutation BD, Notification Push & Réaffichage du Bouton Payer
+L'application enregistre `payment_status = 'failed'` et `status = 'failed'`, puis insère l'erreur détaillée dans la table `notifications`. Le client reçoit une alerte Push (Toast + Cloche incrémentée) et le bouton "Payer / Réessayer" réapparaît sur son tableau de bord pour lui permettre de soumettre un nouveau reçu ou de passer par GeniusPay.
 
 ## 5. Synthèse des Contrôles de Sécurité & Résilience
 

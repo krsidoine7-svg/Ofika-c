@@ -13,7 +13,7 @@ import { useAuth } from "@/lib/hooks/useAuth"
 import { useProfiles } from "@/lib/hooks/useProfiles"
 import { useUser } from "@/lib/hooks/useUser"
 import { AnnouncementBanner } from '@/components/dashboard/AnnouncementBanner'
-import { UserRealtimeNotifications } from '@/components/features/card-ordering/UserRealtimeNotifications'
+import { OrderNotifications } from '@/components/features/card-ordering/OrderNotifications'
 
 import {
     DropdownMenu,
@@ -236,10 +236,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
                                 {/* Right Section: Notification & User Profile */}
                                 <div className="flex items-center gap-3">
-                                    <Button variant="ghost" size="icon" className="relative h-10 w-10 rounded-full hover:bg-gray-100 hidden md:flex text-gray-600">
-                                        <Bell className="w-5 h-5" />
-                                        <span className="absolute top-2 right-2.5 w-2 h-2 bg-red-500 rounded-full border-2 border-white"></span>
-                                    </Button>
+                                    <div className="hidden md:flex">
+                                        <OrderNotifications />
+                                    </div>
 
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
@@ -317,10 +316,9 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         )}
 
                         {/* Page Content */}
-                        <main className={cn("flex-1 overflow-auto", isAdminPath ? "p-0" : "p-4 md:p-8")}>
+                        <main className={cn("flex-1 overflow-x-hidden max-w-full", isAdminPath ? "p-0" : "p-3 sm:p-6 md:p-8")}>
                             {!isAdminPath && <AnnouncementBanner />}
                             {children}
-                            {user?.id && <UserRealtimeNotifications userId={user.id} />}
                         </main>
                     </div>
                 </div>

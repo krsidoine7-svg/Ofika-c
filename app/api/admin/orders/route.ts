@@ -80,18 +80,26 @@ export async function PATCH(request: NextRequest) {
                 let notifMsg = ''
                 let notifType = ''
 
-                if (payment_status === 'succeeded' || payment_status === 'paid') {
+                if (payment_status === 'succeeded' || payment_status === 'paid' || status === 'paid') {
                     notifType = 'payment_success'
                     notifTitle = 'Paiement confirmé !'
                     notifMsg = 'Votre paiement a été validé. Nous préparons votre carte.'
-                } else if (shipping_status === 'shipped') {
+                } else if (payment_status === 'failed' || status === 'failed') {
+                    notifType = 'payment_failed'
+                    notifTitle = 'Paiement refusé'
+                    notifMsg = "Votre reçu de paiement n'est pas valide. Veuillez en soumettre un nouveau."
+                } else if (status === 'preparing') {
+                    notifType = 'production_started'
+                    notifTitle = 'En production'
+                    notifMsg = 'Votre carte NFC personnalisée est en cours de fabrication.'
+                } else if (shipping_status === 'shipped' || status === 'shipped') {
                     notifType = 'shipped'
                     notifTitle = 'Commande expédiée !'
-                    notifMsg = 'Votre carte Ofika est en route vers l\'adresse indiquée.'
-                } else if (shipping_status === 'delivered') {
+                    notifMsg = 'Bonne nouvelle ! Votre carte est en route vers l\'adresse indiquée.'
+                } else if (shipping_status === 'delivered' || status === 'delivered') {
                     notifType = 'delivered'
                     notifTitle = 'Commande livrée'
-                    notifMsg = 'Votre carte Ofika a été livrée avec succès.'
+                    notifMsg = 'Votre carte Ofika a été livrée. Profitez bien de votre nouveau réseau !'
                 }
 
                 if (notifType) {

@@ -106,7 +106,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                             </DropdownMenu>
                         </header>
 
-                        <main className="flex-1 p-4 md:p-8 max-w-7xl mx-auto w-full relative z-10">
+                        <main className="flex-1 p-3 sm:p-6 md:p-8 max-w-7xl mx-auto w-full relative z-10 overflow-x-hidden">
                             {children}
                         </main>
                     </div>

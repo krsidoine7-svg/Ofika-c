@@ -48,27 +48,27 @@ export function PaymentButtonGeniusPay({ orderId, className = '', text = 'Payer 
   }
 
   return (
-    <div className="flex flex-col gap-2">
+    <div className="flex flex-col gap-1.5 w-full sm:w-auto">
       <Button
         onClick={handlePayment}
         disabled={isLoading}
-        className={`bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-4 rounded shadow ${className}`}
+        className={`w-full sm:w-auto inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-3 sm:px-4 text-xs sm:text-sm rounded-lg shadow-sm hover:shadow transition-all duration-200 whitespace-nowrap active:scale-[0.98] ${className}`}
       >
         {isLoading ? (
           <>
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-            Redirection en cours...
+            <Loader2 className="mr-2 h-4 w-4 shrink-0 animate-spin" />
+            <span className="truncate">Redirection...</span>
           </>
         ) : (
           <>
-            <CreditCard className="mr-2 h-4 w-4" />
-            {text}
+            <CreditCard className="mr-2 h-4 w-4 shrink-0" />
+            <span className="truncate">{text}</span>
           </>
         )}
       </Button>
       
       {error && (
-        <p className="text-sm text-red-500 font-medium">
+        <p className="text-xs text-red-500 font-medium break-words max-w-xs">
           {error}
         </p>
       )}

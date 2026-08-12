@@ -12,8 +12,12 @@ import { LinkInBioDesign7 } from '@/components/features/profiles/LinkInBioDesign
 import { LinkInBioInfluencer } from '@/components/features/profiles/LinkInBioInfluencer'
 import { LinkInBioEcommerce } from '@/components/features/profiles/LinkInBioEcommerce'
 import { LinkInBioFreelance } from '@/components/features/profiles/LinkInBioFreelance'
+import { LinkInBioSocialCreator } from '@/components/features/profiles/LinkInBioSocialCreator'
+import { LinkInBioEmeraude } from '@/components/features/profiles/LinkInBioEmeraude'
+import { LinkInBioCJCD } from '@/components/features/profiles/LinkInBioCJCD'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ScaledSmartphonePreview } from '@/components/ui/scaled-smartphone-preview'
+import { IPhone15Frame } from '@/components/ui/iphone-15-frame'
 import {
   Palette,
   Sparkles,
@@ -84,6 +88,45 @@ const createPreviewProfile = (formData: any, designChoice: string) => {
 
 // Configuration des templates avec priorités
 const templates = [
+  {
+    id: 'premium',
+    name: 'Émeraude',
+    description: 'Design sophistiqué inspiré des instituts haut de gamme',
+    icon: Crown,
+    color: 'teal',
+    priority: 'Nouveau',
+    priorityIcon: Star,
+    priorityColor: 'bg-gradient-to-r from-teal-600 to-emerald-700 text-white font-bold',
+    features: ['Fond asymétrique', 'Cartes arrondies élégantes', 'Couleurs Sarcelle & Sable', 'Boutons flottants exclusifs'],
+    stats: { users: 'Nouveau', satisfaction: '5.0/5', conversion: '+30%' },
+    targetAudience: 'Instituts, Beauté & Premium'
+  },
+  {
+    id: 'social_creator',
+    name: 'Social Creator',
+    description: 'Style Behance / Instagram pro avec stats, onglets et boutons d\'action',
+    icon: Star,
+    color: 'blue',
+    priority: 'Nouveau',
+    priorityIcon: Crown,
+    priorityColor: 'bg-gradient-to-r from-orange-500 to-amber-500 text-white font-bold',
+    features: ['Badge vérifié', 'Cartes de statistiques (Posts, Abonnés, Abonnements)', 'Onglets interactifs (Publications, Galerie, Réseau, Prix)', 'Boutons Suivre & Message'],
+    stats: { users: 'Nouveau', satisfaction: '5.0/5', conversion: '+25%' },
+    targetAudience: 'Créateurs, Photographes, Artistes & Influenceurs'
+  },
+  {
+    id: 'cjcd',
+    name: 'Design CJCD Personnalisable',
+    description: 'Design officiel CJCD (Jeunes Cadres Dynamiques)',
+    icon: Crown,
+    color: 'yellow',
+    priority: 'Nouveau',
+    priorityIcon: Crown,
+    priorityColor: 'bg-gradient-to-r from-yellow-600 to-yellow-400 text-white font-bold',
+    features: ['Thème Noir/Or/Blanc', 'Bannière personnalisable', 'Affichage du Poste', 'Boutons arrondis'],
+    stats: { users: 'Nouveau', satisfaction: '5.0/5', conversion: '+30%' },
+    targetAudience: 'Jeunes Cadres Dynamiques'
+  },
   {
     id: 'design1',
     name: 'Design Classique',
@@ -218,21 +261,24 @@ export function TemplateSelectionStep({
       case 'ecommerce': return <LinkInBioEcommerce profile={profile} showAddToContacts={true} isPreview={true} />
       case 'design7': return <LinkInBioDesign7 profile={profile} showAddToContacts={true} isPreview={true} />
       case 'freelance': return <LinkInBioFreelance profile={profile} showAddToContacts={true} isPreview={true} />
+      case 'premium': return <LinkInBioEmeraude profile={profile} showAddToContacts={true} isPreview={true} />
+      case 'cjcd': return <LinkInBioCJCD profile={profile} showAddToContacts={true} isPreview={true} />
+      case 'social_creator': return <LinkInBioSocialCreator profile={profile} showAddToContacts={true} isPreview={true} />
       default: return null
     }
   }
 
   return (
-    <div className="lg:h-full flex flex-col lg:min-h-0 justify-between lg:overflow-hidden">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-2 flex-1 lg:min-h-0">
+    <div className="flex flex-col justify-between">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-2 flex-1">
         {/* COLONNE SÉLECTION VERTICALE - GAUCHE */}
-        <div className="col-span-12 lg:col-span-7 flex flex-col lg:min-h-0 lg:h-full">
+        <div className="col-span-12 lg:col-span-7 flex flex-col">
           <div className="flex-shrink-0">
             <h2 className="font-semibold text-base sm:text-lg mb-1">Choisissez un design</h2>
             <p className="text-xs text-gray-500 mb-3">Sélectionnez le design qui correspond le mieux à votre personnalité et voyez l'aperçu en temps réel.</p>
           </div>
 
-          <div className="flex-1 lg:overflow-y-auto lg:min-h-0 pr-2 space-y-4 custom-scrollbar py-1">
+          <div className="flex-1 pr-2 space-y-4 py-1">
             {/* --- Select déroulant MOBILE --- */}
             <div className="lg:hidden mb-2">
               <Select value={selectedTemplate} onValueChange={handleTemplateSelect}>
@@ -256,7 +302,7 @@ export function TemplateSelectionStep({
             </div>
 
             {/* --- Liste verticale DESKTOP --- */}
-            <div className="hidden lg:flex flex-col gap-2.5 max-w-sm">
+            <div className="hidden lg:grid grid-cols-2 gap-1.5 w-full pr-2">
               {templates.map(template => {
                 const IconComponent = template.icon
                 const isSelected = selectedTemplate === template.id
@@ -269,84 +315,55 @@ export function TemplateSelectionStep({
                       }`}
                     onClick={() => handleTemplateSelect(template.id)}
                   >
-                    <CardHeader className="flex-row gap-3 items-center py-1.5 px-2">
-                      <IconComponent className={`h-4.5 w-4.5 text-${template.color}-600`} />
-                      <div className="flex-1 font-semibold text-gray-800 text-sm">{template.name}</div>
-                      {isSelected && <Badge className="bg-black text-white ml-auto text-[10px]"><CheckCircle className="w-2.5 h-2.5 mr-1" />Sélectionné</Badge>}
+                    <CardHeader className="flex-row gap-2 items-center py-2 px-2">
+                      <IconComponent className={`h-4 w-4 text-${template.color}-600`} />
+                      <div className="flex-1 font-semibold text-gray-800 text-xs">{template.name}</div>
+                      {isSelected && <CheckCircle className="w-4 h-4 text-gray-900 ml-auto" />}
                     </CardHeader>
-                    <CardContent className="py-1 px-2">
-                      <div className="flex flex-wrap items-center text-xs gap-3">
-                        <span className="text-gray-600 truncate">{template.description}</span>
-                        <Badge className={`capitalize text-[9px] ${template.priorityColor}`}>{template.priority}</Badge>
-                      </div>
-                    </CardContent>
                   </Card>
                 )
               })}
             </div>
 
-            {/* Résumé/template et stats */}
-            <div className="pt-2 max-w-sm">
-              <Card className="border border-gray-100 bg-gradient-to-br from-white to-gray-50/30 shadow-none">
-                <CardHeader className="pb-1.5 pt-3 px-3">
-                  <CardTitle className="flex items-center gap-1.5 text-sm">
-                    <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                    Pourquoi choisir le design {selectedTemplateInfo.name} ?
-                  </CardTitle>
-                </CardHeader>
-                <CardContent className="px-3 pb-3">
-                  <div>
-                    <div className="space-y-1 text-[11px] text-gray-600">
-                      {selectedTemplateInfo.id === 'design1' && (<><p>• <strong>Idéal pour les professionnels</strong> et les entreprises</p><p>• <strong>Design épuré</strong> qui met en valeur vos informations</p><p>• <strong>Facile à lire</strong> sur tous les appareils</p><p>• <strong>Performance optimale</strong> et chargement rapide</p></>)}
-                      {selectedTemplateInfo.id === 'design2' && (<><p>• <strong>Design épuré</strong> et visuellement attractif</p><p>• <strong>Effets interactifs</strong> qui captent l'attention</p><p>• <strong>Grille organisée</strong> pour une navigation claire</p><p>• <strong>Parfait pour les créatifs</strong> et influenceurs</p></>)}
-                      {selectedTemplateInfo.id === 'design3' && (<><p>• <strong>Design unique</strong> qui vous démarque</p><p>• <strong>Effets visuels avancés</strong> et animations</p><p>• <strong>Glassmorphism moderne</strong> très tendance</p><p>• <strong>Impact visuel fort</strong> pour impressionner</p></>)}
-                      {selectedTemplateInfo.id === 'design4' && (<><p>• <strong>Style minimaliste</strong> et élégant</p><p>• <strong>Couleurs naturelles</strong> noir et blanc</p><p>• <strong>Layout moderne</strong> avec photo rectangulaire</p><p>• <strong>Parfait pour les créatifs</strong> et artistes</p></>)}
-                      {selectedTemplateInfo.id === 'influencer' && (<><p>• <strong>Réseaux sociaux en avant</strong> pour maximiser votre audience</p><p>• <strong>Grille visuelle</strong> pour vos contenus photo/vidéo</p><p>• <strong>Boutons d'action</strong> visibles et engageants</p><p>• <strong>Idéal pour influenceurs</strong> et créateurs de contenu</p></>)}
-                      {selectedTemplateInfo.id === 'ecommerce' && (<><p>• <strong>Mise en avant produits</strong> avec catalogue visuel</p><p>• <strong>Boutons d'achat</strong> optimisés pour la conversion</p><p>• <strong>Call-to-action</strong> stratégiquement placés</p><p>• <strong>Parfait pour vendeurs</strong> et boutiques en ligne</p></>)}
-                      {selectedTemplateInfo.id === 'design7' && (<><p>• <strong>Design sombre élégant</strong> avec dégradé sophistiqué</p><p>• <strong>Photo circulaire</strong> mise en valeur au centre</p><p>• <strong>Boutons blancs</strong> minimalistes et élégants</p><p>• <strong>Idéal pour photographes</strong> et créatifs haut de gamme</p></>)}
-                      {selectedTemplateInfo.id === 'freelance' && (<><p>• <strong>Palette chaleureuse</strong> bleu + gris + vert menthe</p><p>• <strong>CTA puissant</strong> pour maximiser les conversions</p><p>• <strong>Social proof intégré</strong> avec stats de confiance</p><p>• <strong>Parfait pour freelances</strong> et entrepreneurs africains</p></>)}
-                    </div>
-                    <div className="mt-3 grid grid-cols-2 gap-2">
-                      <div className="flex items-center justify-between text-[10px]"><span className="text-gray-500">Utilisateurs</span><Badge variant="outline" className="text-[9px] px-1 py-0">{selectedTemplateInfo.stats.users}</Badge></div>
-                      <div className="flex items-center justify-between text-[10px]"><span className="text-gray-500">Satisfaction</span><Badge variant="outline" className="text-[9px] px-1 py-0">{selectedTemplateInfo.stats.satisfaction}</Badge></div>
-                      <div className="flex items-center justify-between text-[10px]"><span className="text-gray-500">Conversion</span><Badge className="bg-green-100 text-green-800 text-[9px] px-1 py-0">{selectedTemplateInfo.stats.conversion}</Badge></div>
-                      <div className="flex items-center justify-between text-[10px]"><span className="text-gray-500">Priorité</span><Badge className={`${selectedTemplateInfo.priorityColor} text-[9px] px-1 py-0`}><selectedTemplateInfo.priorityIcon className="w-2.5 h-2.5 mr-0.5" />{selectedTemplateInfo.priority}</Badge></div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
+              {/* Navigation buttons moved here */}
+              <div className="flex justify-between pt-3 mt-3 border-t border-gray-100 flex-shrink-0 bg-white w-full pr-2">
+                <Button variant="outline" onClick={onPrev} disabled={isLoading}>Précédent</Button>
+                <Button onClick={handleNext} disabled={isLoading} className="bg-orange-500 hover:bg-orange-600 text-white font-bold">{isLoading ? 'Création en cours...' : 'Créer ma page'}</Button>
+              </div>
+
             </div>
           </div>
-        </div>
 
         {/* COLONNE APERÇU + DESCRIPTION - DROITE */}
-        <div className="col-span-12 lg:col-span-5 hidden lg:flex flex-col items-center justify-center min-h-0 h-full">
-          <div className="flex flex-col items-center justify-center h-full w-full max-h-full">
+        <div className="col-span-12 lg:col-span-5 hidden lg:flex flex-col items-center justify-start sticky top-4 self-start pt-4">
+          <div className="flex flex-col items-center justify-start w-full">
             <h3 className="font-semibold text-center text-xs uppercase tracking-wider text-gray-400 mb-2 items-center flex justify-center gap-2 flex-shrink-0">
               <Eye className="w-3.5 h-3.5" />
               Aperçu en temps réel
             </h3>
 
-            <div className="w-[360px] h-[720px] max-h-[90vh] rounded-[2rem] overflow-y-auto overflow-x-hidden custom-scrollbar bg-white shadow-2xl border border-gray-100 flex flex-col relative min-h-0">
-              <AnimatePresence mode="wait">
-                <motion.div
-                  key={selectedTemplate}
-                  initial={{ opacity: 0, y: 10, scale: 0.98 }}
-                  animate={{ opacity: 1, y: 0, scale: 1 }}
-                  exit={{ opacity: 0, y: -10, scale: 0.98 }}
-                  transition={{ duration: 0.3 }}
-                  className="min-h-full animate-in fade-in zoom-in duration-300"
-                >
-                  {renderPreview(selectedTemplate) ?? (
-                    <div className="flex flex-col items-center justify-center h-full text-gray-400 text-center italic p-8 gap-4">
-                      <div className="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center">
-                        <Palette className="w-8 h-8 text-gray-200" />
+            <div className="w-[300px] flex justify-center mt-4">
+              <IPhone15Frame showColorPicker={true} scaleClass="scale-[0.60] sm:scale-[0.65] lg:scale-[0.70] xl:scale-[0.75] origin-top">
+                <AnimatePresence mode="wait">
+                  <motion.div
+                    key={selectedTemplate}
+                    initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                    animate={{ opacity: 1, y: 0, scale: 1 }}
+                    exit={{ opacity: 0, y: -10, scale: 0.98 }}
+                    transition={{ duration: 0.3 }}
+                    className="min-h-full animate-in fade-in zoom-in duration-300 w-full h-full bg-white"
+                  >
+                    {renderPreview(selectedTemplate) ?? (
+                      <div className="flex flex-col items-center justify-center h-full text-gray-400 text-center italic p-8 gap-4">
+                        <div className="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center">
+                          <Palette className="w-8 h-8 text-gray-200" />
+                        </div>
+                        <p>Aucun aperçu disponible pour ce template</p>
                       </div>
-                      <p>Aucun aperçu disponible pour ce template</p>
-                    </div>
-                  )}
-                </motion.div>
-              </AnimatePresence>
+                    )}
+                  </motion.div>
+                </AnimatePresence>
+              </IPhone15Frame>
             </div>
 
             {/* Légende */}
@@ -354,18 +371,9 @@ export function TemplateSelectionStep({
               <Badge className="bg-gray-100 text-gray-900 border-none px-3 py-0.5 text-[10px] font-bold">
                 Design : {selectedTemplateInfo.name}
               </Badge>
-              <p className="text-[9px] text-gray-400 italic text-center max-w-[200px]">
-                Voici exactement ce que verront vos clients sur leur mobile.
-              </p>
             </div>
           </div>
         </div>
-      </div>
-
-      {/* Navigation */}
-      <div className="flex justify-between pt-3 mt-3 border-t border-gray-100 flex-shrink-0 bg-white">
-        <Button variant="outline" onClick={onPrev} disabled={isLoading}>Précédent</Button>
-        <Button onClick={handleNext} disabled={isLoading} className="bg-orange-500 hover:bg-orange-600 text-white font-bold">{isLoading ? 'Création en cours...' : 'Créer ma page'}</Button>
       </div>
     </div>
   )

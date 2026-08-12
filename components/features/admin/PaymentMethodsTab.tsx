@@ -307,12 +307,12 @@ export function PaymentMethodsTab() {
             </Card>
 
             {/* Actions */}
-            <div className="flex justify-between items-center mb-6">
-                <h3 className="text-lg font-black text-gray-900 tracking-tight uppercase">Passerelles de Paiement Actives</h3>
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-6">
+                <h3 className="text-base sm:text-lg font-black text-gray-900 tracking-tight uppercase">Passerelles de Paiement Actives</h3>
                 <Dialog open={isAddOpen} onOpenChange={setIsAddOpen}>
                     <DialogTrigger asChild>
-                        <Button className="bg-orange-600 hover:bg-orange-700 text-white font-bold h-11 px-6 rounded-xl shadow-lg shadow-orange-100 flex items-center">
-                            <Plus className="w-5 h-5 mr-3" />
+                        <Button className="w-full sm:w-auto bg-orange-600 hover:bg-orange-700 text-white font-bold h-10 sm:h-11 px-4 sm:px-6 rounded-xl shadow-lg shadow-orange-100 flex items-center justify-center text-xs sm:text-sm">
+                            <Plus className="w-4 h-4 sm:w-5 sm:h-5 mr-2 sm:mr-3 shrink-0" />
                             Ajouter un Fournisseur
                         </Button>
                     </DialogTrigger>

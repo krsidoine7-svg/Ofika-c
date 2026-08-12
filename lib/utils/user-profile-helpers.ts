@@ -16,7 +16,8 @@ export function populateFormWithUserData(
   console.log('🎨 Populating form with data:', data)
   console.log('📧 User email from Auth:', userEmail)
   
-  setValue('name', data.name || '')
+  setValue('first_name', data.first_name || '')
+  setValue('last_name', data.last_name || '')
   // Priorité à l'email des données utilisateur, puis à l'email de l'utilisateur auth
   setValue('email', data.email || userEmail || '')
   setValue('phone', data.phone || '')
@@ -26,7 +27,8 @@ export function populateFormWithUserData(
   setValue('preferred_language', (data.preferred_language as SupportedLanguage) || DEFAULTS.language)
   
   console.log('✨ Form populated with:', {
-    name: data.name || '',
+    first_name: data.first_name || '',
+    last_name: data.last_name || '',
     email: data.email || userEmail || '',
     phone: data.phone || '',
     city: data.city || '',
@@ -48,7 +50,8 @@ export function getLanguageOptions() {
 export function normalizeUserData(data: any): UserProfileData {
   return {
     id: data.id || '',
-    name: data.name || null,
+    first_name: data.first_name || null,
+    last_name: data.last_name || null,
     email: data.email || null,
     phone: data.phone || null,
     city: data.city || null,

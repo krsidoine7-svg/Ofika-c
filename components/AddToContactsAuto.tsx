@@ -252,17 +252,17 @@ export function AddToContactsAuto({
         onClick={handleAddToContacts}
         disabled={isProcessing}
         size={size}
-        className={`bg-blue-600 hover:bg-blue-700 text-white ${className}`}
+        className={`bg-blue-600 hover:bg-blue-700 text-white min-w-0 max-w-full overflow-hidden text-xs px-1 gap-1 whitespace-normal ${className}`}
       >
         {isProcessing ? (
           <>
-            <Loader2 className="h-4 w-4 mr-2 animate-spin" />
-            Ajout en cours...
+            <Loader2 className="h-3.5 w-3.5 shrink-0 animate-spin" />
+            <span className="truncate">Ajout...</span>
           </>
         ) : (
           <>
-            <UserPlus className="h-4 w-4 mr-2" />
-            Ajouter aux contacts
+            <UserPlus className="h-3.5 w-3.5 shrink-0" />
+            <span className="truncate">Ajouter</span>
           </>
         )}
       </Button>

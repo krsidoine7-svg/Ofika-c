@@ -2,10 +2,17 @@
 
 ## 📋 Vue d'ensemble
 
-Votre projet offre **2 designs principaux** pour les pages Link-in-Bio publiques :
+Votre projet offre **9 designs de templates** pour les pages Link-in-Bio publiques :
 
-1. **Design Classique** (`classic`) - Layout vertical épuré
-2. **Design Créatif** (`creative`) - Effets visuels et animations
+1. **Social Creator** (`social_creator`) - Layout style Behance/Instagram pro avec cartes d'apps défilables, actions *Ajouter aux contacts* (vCard) & *WhatsApp*, et onglets *Galerie, Liens, Prix*.
+2. **Design Classique** (`design1`) - Layout vertical épuré et professionnel
+3. **Design Dark Elegant** (`design7`) - Mode sombre luxueux
+4. **Design Influenceur** (`influencer`) - Spécialisé créateurs de contenu & réseaux
+5. **Design E-commerce** (`ecommerce`) - Présentation de produits & boutique
+6. **Design Freelance** (`freelance`) - Portfolio & services professionnels
+7. **Design Créatif** (`design3`) - Effets visuels & glassmorphism
+8. **Design Nature** (`design4`) - Couleurs éco & minimalistes
+9. **Design Éléments** (`design2`) - Grille de cartes interactives
 
 ---
 

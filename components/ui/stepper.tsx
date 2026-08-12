@@ -31,7 +31,7 @@ export function Stepper({ steps, currentStep, className }: StepperProps) {
               <div className="flex flex-col items-center">
                 <div
                   className={cn(
-                    'flex items-center justify-center w-7 h-7 sm:w-8 sm:h-8 rounded-full border-2 transition-all duration-300',
+                    'flex items-center justify-center w-5 h-5 sm:w-6 sm:h-6 rounded-full border-[1.5px] transition-all duration-300',
                     {
                       'bg-blue-600 border-blue-600 text-white': isCompleted,
                       'bg-blue-600 border-blue-600 text-white ring-2 ring-blue-100': isCurrent,
@@ -40,25 +40,22 @@ export function Stepper({ steps, currentStep, className }: StepperProps) {
                   )}
                 >
                   {isCompleted ? (
-                    <Check className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
+                    <Check className="w-2.5 h-2.5 sm:w-3 sm:h-3" />
                   ) : (
-                    <span className="text-xs sm:text-sm font-semibold">{stepNumber}</span>
+                    <span className="text-[9px] sm:text-[10px] font-semibold">{stepNumber}</span>
                   )}
                 </div>
                 
                 {/* Step Info */}
                 <div className="mt-1 text-center hidden sm:block">
                   <p
-                    className={cn('text-[11px] sm:text-xs font-semibold', {
+                    className={cn('text-[9px] sm:text-[10px] font-semibold', {
                       'text-blue-600': isCurrent || isCompleted,
                       'text-gray-500': isUpcoming,
                     })}
                   >
                     {step.title}
                   </p>
-                  {step.description && (
-                    <p className="text-[9px] sm:text-[10px] text-gray-400 mt-0.5">{step.description}</p>
-                  )}
                 </div>
               </div>
 
@@ -80,15 +77,10 @@ export function Stepper({ steps, currentStep, className }: StepperProps) {
       </div>
 
       {/* Mobile Step Title */}
-      <div className="mt-2 text-center sm:hidden">
-        <p className="text-xs font-semibold text-blue-600">
+      <div className="mt-1 text-center sm:hidden">
+        <p className="text-[10px] font-semibold text-blue-600">
           {steps[currentStep - 1]?.title}
         </p>
-        {steps[currentStep - 1]?.description && (
-          <p className="text-[10px] text-gray-400 mt-0.5">
-            {steps[currentStep - 1]?.description}
-          </p>
-        )}
       </div>
     </div>
   )

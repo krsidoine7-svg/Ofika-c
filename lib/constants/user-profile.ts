@@ -41,7 +41,8 @@ export const DEFAULTS = {
 
 // Placeholders
 export const PLACEHOLDERS = {
-  name: 'Votre nom complet',
+  first_name: 'Votre prénom',
+  last_name: 'Votre nom',
   email: 'votre@email.com',
   phone: `${DEFAULTS.phoneCountryCode} XX XX XX XX`,
   city: 'Abidjan',
@@ -56,7 +57,8 @@ export const LABELS = {
     description: 'Gérez vos informations de profil'
   },
   fields: {
-    name: 'Nom complet',
+    first_name: 'Prénom',
+    last_name: 'Nom',
     email: 'Email',
     phone: 'Téléphone',
     city: 'Ville',

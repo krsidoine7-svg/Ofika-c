@@ -31,7 +31,7 @@ export const GET = withAuth(async (request, authUser, params: { id: string }) =>
   // 1. Chercher dans la table 'users' d'abord (Utilisateurs normaux)
   let { data: user, error } = await supabase
     .from('users')
-    .select('id, name, email, phone, city, address, image, preferred_language, subscription_tier, role, created_at')
+    .select('id, name, first_name, last_name, email, phone, city, address, image, preferred_language, subscription_tier, role, created_at')
     .eq('id', params.id)
     .single()
 
@@ -62,6 +62,8 @@ export const PUT = withAuth(async (request, authUser, params: { id: string }) =>
   // SÉCURITÉ : Validation stricte des entrées (A03: Injection)
   const updateSchema = z.object({
     name: securitySchemas.name.optional(),
+    first_name: securitySchemas.name.optional(),
+    last_name: securitySchemas.name.optional(),
     phone: securitySchemas.phone.optional(),
     city: z.string().max(100).optional(),
     address: z.string().max(500).optional(),
@@ -93,7 +95,7 @@ export const PUT = withAuth(async (request, authUser, params: { id: string }) =>
     .from('users')
     .update(updateData)
     .eq('id', params.id)
-    .select('id, name, email, phone, city, address, image, preferred_language, subscription_tier, updated_at')
+    .select('id, name, first_name, last_name, email, phone, city, address, image, preferred_language, subscription_tier, updated_at')
     .single()
 
   if (error) {

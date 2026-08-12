@@ -14,6 +14,8 @@ export const registerSchema = z.object({
 
 export const profileSchema = z.object({
   name: z.string().min(2, 'Le nom doit contenir au moins 2 caractères').max(100, 'Le nom ne peut pas dépasser 100 caractères'),
+  first_name: z.string().max(100, 'Le prénom ne peut pas dépasser 100 caractères').optional(),
+  last_name: z.string().max(100, 'Le nom de famille ne peut pas dépasser 100 caractères').optional(),
   profile_type: z.enum(['professional', 'personal', 'event']),
   bio: z.string().max(2048, 'La bio ne peut pas dépasser 2048 caractères').optional(),
   company: z.string().max(100, 'Le nom de l\'entreprise ne peut pas dépasser 100 caractères').optional(),

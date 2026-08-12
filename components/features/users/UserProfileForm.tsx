@@ -70,7 +70,8 @@ export function UserProfileForm() {
         setUserData(userData)
 
         console.log('✅ Setting form data:', {
-          name: userData.name,
+          first_name: userData.first_name,
+          last_name: userData.last_name,
           email: userData.email || user?.email,
           phone: userData.phone,
           image: userData.image,
@@ -95,8 +96,11 @@ export function UserProfileForm() {
       // Filtrer seulement les champs qui ont des valeurs significatives
       const filteredData: Partial<UserProfileFormData> = {}
 
-      if (data.name && data.name.trim() !== '') {
-        filteredData.name = data.name.trim()
+      if (data.first_name && data.first_name.trim() !== '') {
+        filteredData.first_name = data.first_name.trim()
+      }
+      if (data.last_name && data.last_name.trim() !== '') {
+        filteredData.last_name = data.last_name.trim()
       }
       if (data.email && data.email.trim() !== '') {
         filteredData.email = data.email.trim()
@@ -130,7 +134,7 @@ export function UserProfileForm() {
         if (response) {
           const updatedData = response.data || response
           setUserData(updatedData)
-          updatedName = updatedData.name || '?'
+          updatedName = updatedData.first_name || '?'
           // Utiliser les données mises à jour directement, pas user?.email
           populateFormWithUserData(updatedData, updatedData.email || user?.email, (field, value) => setValue(field as keyof UserProfileFormData, value))
         }
@@ -173,24 +177,45 @@ export function UserProfileForm() {
           </div>
           )}
 
-          {/* Nom */}
-          <div className="space-y-2">
-            <Label htmlFor="name">
-              {LABELS.fields.name} *
-            </Label>
-            <div className="relative">
-              <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
-              <Input
-                id="name"
-                {...register('name')}
-                placeholder={PLACEHOLDERS.name}
-                className={STYLES.input.withIcon}
-                disabled={isSubmitting}
-              />
+          {/* Prénom et Nom en deux colonnes */}
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            <div className="space-y-2">
+              <Label htmlFor="first_name">
+                {LABELS.fields.first_name} *
+              </Label>
+              <div className="relative">
+                <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  id="first_name"
+                  {...register('first_name')}
+                  placeholder={PLACEHOLDERS.first_name}
+                  className={STYLES.input.withIcon}
+                  disabled={isSubmitting}
+                />
+              </div>
+              {errors.first_name && (
+                <p className="text-sm text-red-500">{errors.first_name.message}</p>
+              )}
             </div>
-            {errors.name && (
-              <p className="text-sm text-red-500">{errors.name.message}</p>
-            )}
+
+            <div className="space-y-2">
+              <Label htmlFor="last_name">
+                {LABELS.fields.last_name} *
+              </Label>
+              <div className="relative">
+                <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+                <Input
+                  id="last_name"
+                  {...register('last_name')}
+                  placeholder={PLACEHOLDERS.last_name}
+                  className={STYLES.input.withIcon}
+                  disabled={isSubmitting}
+                />
+              </div>
+              {errors.last_name && (
+                <p className="text-sm text-red-500">{errors.last_name.message}</p>
+              )}
+            </div>
           </div>
 
           {/* Email */}

@@ -230,39 +230,39 @@ export default function NewOrderPage() {
 
 
   return (
-    <div className="min-h-screen bg-gray-50/50 py-12 font-sans">
-      <div className="container mx-auto px-4">
+    <div className="min-h-screen bg-gray-50/50 py-6 sm:py-12 font-sans">
+      <div className="container mx-auto px-3 sm:px-4">
         <div className="max-w-5xl mx-auto">
-          <div className="mb-10">
-            <h1 className="text-4xl font-extrabold tracking-tight text-gray-900">Finaliser la commande</h1>
-            <p className="text-gray-500 mt-2 text-lg">Complétez vos informations pour recevoir votre carte intelligente.</p>
+          <div className="mb-6 sm:mb-10">
+            <h1 className="text-2xl sm:text-4xl font-extrabold tracking-tight text-gray-900">Finaliser la commande</h1>
+            <p className="text-gray-500 mt-1 sm:mt-2 text-sm sm:text-lg">Complétez vos informations pour recevoir votre carte intelligente.</p>
           </div>
 
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
-            {/* Colonne de Gauche : Formulaire (Prend 7 colonnes sur 12) */}
-            <div className="lg:col-span-7 space-y-10">
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
+            {/* Colonne de Gauche : Formulaire */}
+            <div className="lg:col-span-7 space-y-8 sm:space-y-10">
               
               {/* Informations de livraison */}
               <section>
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="h-8 w-8 rounded-full bg-gray-900 text-white flex items-center justify-center font-bold text-sm">1</div>
-                  <h2 className="text-xl font-bold text-gray-900">Informations de livraison</h2>
+                <div className="flex items-center gap-3 mb-4 sm:mb-6">
+                  <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-gray-900 text-white flex items-center justify-center font-bold text-xs sm:text-sm shrink-0">1</div>
+                  <h2 className="text-lg sm:text-xl font-bold text-gray-900">Informations de livraison</h2>
                 </div>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-5">
-                  <div className="space-y-2">
-                    <Label htmlFor="name" className="text-sm font-semibold text-gray-700">Nom complet</Label>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-x-6 gap-y-4 sm:gap-y-5">
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="name" className="text-xs sm:text-sm font-semibold text-gray-700">Nom complet</Label>
                     <Input
                       id="name"
                       name="name"
                       value={shippingInfo.name}
                       onChange={handleInputChange}
                       placeholder="Jane Doe"
-                      className="h-12 bg-white border-gray-200 focus:border-gray-900 focus:ring-gray-900 rounded-xl transition-all"
+                      className="h-11 sm:h-12 text-sm bg-white border-gray-200 focus:border-gray-900 focus:ring-gray-900 rounded-xl transition-all"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="email" className="text-sm font-semibold text-gray-700">Adresse email</Label>
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="email" className="text-xs sm:text-sm font-semibold text-gray-700">Adresse email</Label>
                     <Input
                       id="email"
                       name="email"
@@ -270,40 +270,40 @@ export default function NewOrderPage() {
                       value={shippingInfo.email}
                       onChange={handleInputChange}
                       placeholder="jane@example.com"
-                      className="h-12 bg-white border-gray-200 focus:border-gray-900 focus:ring-gray-900 rounded-xl transition-all"
+                      className="h-11 sm:h-12 text-sm bg-white border-gray-200 focus:border-gray-900 focus:ring-gray-900 rounded-xl transition-all"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="phone" className="text-sm font-semibold text-gray-700">Numéro de téléphone</Label>
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="phone" className="text-xs sm:text-sm font-semibold text-gray-700">Numéro de téléphone</Label>
                     <Input
                       id="phone"
                       name="phone"
                       value={shippingInfo.phone}
                       onChange={handleInputChange}
                       placeholder="+225..."
-                      className="h-12 bg-white border-gray-200 focus:border-gray-900 focus:ring-gray-900 rounded-xl transition-all"
+                      className="h-11 sm:h-12 text-sm bg-white border-gray-200 focus:border-gray-900 focus:ring-gray-900 rounded-xl transition-all"
                     />
                   </div>
-                  <div className="space-y-2">
-                    <Label htmlFor="city" className="text-sm font-semibold text-gray-700">Ville</Label>
+                  <div className="space-y-1.5 sm:space-y-2">
+                    <Label htmlFor="city" className="text-xs sm:text-sm font-semibold text-gray-700">Ville</Label>
                     <Input
                       id="city"
                       name="city"
                       value={shippingInfo.city}
                       onChange={handleInputChange}
                       placeholder="Abidjan"
-                      className="h-12 bg-white border-gray-200 focus:border-gray-900 focus:ring-gray-900 rounded-xl transition-all"
+                      className="h-11 sm:h-12 text-sm bg-white border-gray-200 focus:border-gray-900 focus:ring-gray-900 rounded-xl transition-all"
                     />
                   </div>
-                  <div className="space-y-2 md:col-span-2">
-                    <Label htmlFor="address" className="text-sm font-semibold text-gray-700">Adresse de livraison détaillée</Label>
+                  <div className="space-y-1.5 sm:space-y-2 md:col-span-2">
+                    <Label htmlFor="address" className="text-xs sm:text-sm font-semibold text-gray-700">Adresse de livraison détaillée</Label>
                     <Input
                       id="address"
                       name="address"
                       value={shippingInfo.address}
                       onChange={handleInputChange}
                       placeholder="Quartier, Rue, Bâtiment..."
-                      className="h-12 bg-white border-gray-200 focus:border-gray-900 focus:ring-gray-900 rounded-xl transition-all"
+                      className="h-11 sm:h-12 text-sm bg-white border-gray-200 focus:border-gray-900 focus:ring-gray-900 rounded-xl transition-all"
                     />
                   </div>
                 </div>
@@ -313,15 +313,15 @@ export default function NewOrderPage() {
 
               {/* Méthodes de paiement */}
               <section>
-                <div className="flex items-center gap-3 mb-6">
-                  <div className="h-8 w-8 rounded-full bg-gray-900 text-white flex items-center justify-center font-bold text-sm">2</div>
-                  <h2 className="text-xl font-bold text-gray-900">Moyen de paiement</h2>
+                <div className="flex items-center gap-3 mb-4 sm:mb-6">
+                  <div className="h-7 w-7 sm:h-8 sm:w-8 rounded-full bg-gray-900 text-white flex items-center justify-center font-bold text-xs sm:text-sm shrink-0">2</div>
+                  <h2 className="text-lg sm:text-xl font-bold text-gray-900">Moyen de paiement</h2>
                 </div>
 
                 {paymentMethodsLoading ? (
                   <div className="flex items-center justify-center py-12 text-gray-400">
                     <Loader2 className="h-6 w-6 animate-spin mr-3" />
-                    <span>Chargement...</span>
+                    <span className="text-sm">Chargement...</span>
                   </div>
                 ) : (
                   <div className="space-y-3">
@@ -332,34 +332,34 @@ export default function NewOrderPage() {
                           setSelectedPaymentMethod(method.id)
                           setSelectedProvider(method.provider as any)
                         }}
-                        className={`group relative flex items-center p-5 rounded-2xl cursor-pointer transition-all duration-300 border-2 ${
+                        className={`group relative flex items-center p-3.5 sm:p-5 rounded-xl sm:rounded-2xl cursor-pointer transition-all duration-300 border-2 ${
                           selectedPaymentMethod === method.id
                             ? 'border-gray-900 bg-gray-900/5 shadow-md'
                             : 'border-gray-200 bg-white hover:border-gray-300 hover:bg-gray-50'
                         }`}
                       >
-                        <div className={`w-12 h-12 rounded-xl flex items-center justify-center shrink-0 mr-4 transition-colors ${
+                        <div className={`w-10 h-10 sm:w-12 sm:h-12 rounded-xl flex items-center justify-center shrink-0 mr-3 sm:mr-4 transition-colors ${
                           selectedPaymentMethod === method.id ? 'bg-gray-900 text-white' : 'bg-gray-100 text-gray-600 group-hover:bg-gray-200'
                         }`}>
-                          {method.provider === 'wave' ? <Wallet className="h-6 w-6" /> : <Smartphone className="h-6 w-6" />}
+                          {method.provider === 'wave' ? <Wallet className="h-5 w-5 sm:h-6 sm:w-6" /> : <Smartphone className="h-5 w-5 sm:h-6 sm:w-6" />}
                         </div>
-                        <div className="flex-1">
-                          <h3 className={`font-bold text-base ${selectedPaymentMethod === method.id ? 'text-gray-900' : 'text-gray-700'}`}>{method.name}</h3>
-                          <p className="text-sm text-gray-500 mt-0.5">{method.description || 'Paiement sécurisé'}</p>
+                        <div className="flex-1 min-w-0">
+                          <h3 className={`font-bold text-sm sm:text-base truncate ${selectedPaymentMethod === method.id ? 'text-gray-900' : 'text-gray-700'}`}>{method.name}</h3>
+                          <p className="text-xs sm:text-sm text-gray-500 mt-0.5 truncate">{method.description || 'Paiement sécurisé'}</p>
                         </div>
                         {/* Radio Check Indicator */}
-                        <div className={`w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
+                        <div className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ml-2 ${
                           selectedPaymentMethod === method.id ? 'border-gray-900 bg-gray-900' : 'border-gray-300'
                         }`}>
-                          {selectedPaymentMethod === method.id && <div className="w-2.5 h-2.5 rounded-full bg-white" />}
+                          {selectedPaymentMethod === method.id && <div className="w-2 h-2 sm:w-2.5 sm:h-2.5 rounded-full bg-white" />}
                         </div>
                       </div>
                     ))}
                     
                     {paymentMethods.filter(m => m.is_active).length === 0 && (
-                      <div className="text-center p-8 bg-gray-50 rounded-2xl border border-dashed border-gray-300">
+                      <div className="text-center p-6 sm:p-8 bg-gray-50 rounded-2xl border border-dashed border-gray-300">
                         <AlertCircle className="w-8 h-8 text-gray-300 mx-auto mb-2" />
-                        <p className="text-sm text-gray-500">Aucun mode de paiement activé.</p>
+                        <p className="text-xs sm:text-sm text-gray-500">Aucun mode de paiement activé.</p>
                       </div>
                     )}
                   </div>
@@ -367,48 +367,48 @@ export default function NewOrderPage() {
               </section>
             </div>
 
-            {/* Colonne de Droite : Résumé de la commande (Prend 5 colonnes sur 12) */}
+            {/* Colonne de Droite : Résumé de la commande */}
             <div className="lg:col-span-5">
-              <div className="sticky top-8 bg-white border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-[2rem] p-8">
-                <h3 className="font-bold text-xl text-gray-900 mb-6">Résumé</h3>
+              <div className="sticky top-8 bg-white border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] rounded-2xl sm:rounded-[2rem] p-5 sm:p-8">
+                <h3 className="font-bold text-lg sm:text-xl text-gray-900 mb-4 sm:mb-6">Résumé</h3>
                 
                 {/* Produit Item */}
-                <div className="flex gap-4 mb-6 pb-6 border-b border-gray-100">
-                  <div className="w-20 h-20 bg-gray-50 rounded-2xl flex items-center justify-center shrink-0 border border-gray-100">
-                     <Smartphone className="h-10 w-10 text-gray-400" />
+                <div className="flex gap-3 sm:gap-4 mb-4 sm:mb-6 pb-4 sm:pb-6 border-b border-gray-100">
+                  <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gray-50 rounded-xl sm:rounded-2xl flex items-center justify-center shrink-0 border border-gray-100">
+                     <Smartphone className="h-8 w-8 sm:h-10 sm:w-10 text-gray-400" />
                   </div>
-                  <div className="flex flex-col justify-center">
-                    <h4 className="font-bold text-gray-900 leading-tight">Carte NFC + QR Code</h4>
-                    <p className="text-sm text-gray-500 mt-1">Édition Standard</p>
-                    <p className="font-bold text-gray-900 mt-2">{productPrice.toLocaleString()} XOF</p>
+                  <div className="flex flex-col justify-center min-w-0">
+                    <h4 className="font-bold text-sm sm:text-base text-gray-900 leading-tight truncate">Carte NFC + QR Code</h4>
+                    <p className="text-xs sm:text-sm text-gray-500 mt-0.5">Édition Standard</p>
+                    <p className="font-bold text-sm sm:text-base text-gray-900 mt-1">{productPrice.toLocaleString()} XOF</p>
                   </div>
                 </div>
 
-                <div className="space-y-4 mb-8">
-                  <div className="flex justify-between text-gray-500 text-sm">
+                <div className="space-y-3 sm:space-y-4 mb-6 sm:mb-8 text-xs sm:text-sm">
+                  <div className="flex justify-between text-gray-500">
                     <span>Sous-total</span>
                     <span className="font-medium text-gray-900">{productPrice.toLocaleString()} XOF</span>
                   </div>
-                  <div className="flex justify-between text-gray-500 text-sm">
+                  <div className="flex justify-between text-gray-500">
                     <span>Livraison (7-14 jours)</span>
-                    <span className="font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full">Offerte</span>
+                    <span className="font-medium text-green-600 bg-green-50 px-2 py-0.5 rounded-full text-xs">Offerte</span>
                   </div>
                 </div>
 
-                <div className="flex justify-between items-end mb-8 pt-6 border-t border-gray-100">
+                <div className="flex justify-between items-end mb-6 sm:mb-8 pt-4 sm:pt-6 border-t border-gray-100">
                   <div>
-                    <span className="block text-sm font-medium text-gray-500 mb-1">Total</span>
-                    <span className="block text-xs text-gray-400">Taxes incluses</span>
+                    <span className="block text-xs sm:text-sm font-medium text-gray-500 mb-0.5">Total</span>
+                    <span className="block text-[10px] sm:text-xs text-gray-400">Taxes incluses</span>
                   </div>
-                  <span className="text-3xl font-extrabold text-gray-900 tracking-tight">
-                    {productPrice.toLocaleString()} <span className="text-xl text-gray-500">XOF</span>
+                  <span className="text-2xl sm:text-3xl font-extrabold text-gray-900 tracking-tight">
+                    {productPrice.toLocaleString()} <span className="text-lg sm:text-xl text-gray-500 font-normal">XOF</span>
                   </span>
                 </div>
 
                 <Button
                   onClick={handleOrder}
                   disabled={!selectedPaymentMethod || isProcessing}
-                  className={`w-full h-14 rounded-2xl text-base font-bold transition-all duration-300 ${!selectedPaymentMethod || isProcessing
+                  className={`w-full h-12 sm:h-14 rounded-xl sm:rounded-2xl text-sm sm:text-base font-bold transition-all duration-300 ${!selectedPaymentMethod || isProcessing
                     ? 'bg-gray-100 text-gray-400 cursor-not-allowed'
                     : 'bg-orange-500 hover:bg-orange-600 text-white shadow-lg hover:shadow-orange-500/25 hover:-translate-y-0.5'
                   }`}
@@ -420,14 +420,14 @@ export default function NewOrderPage() {
                   )}
                 </Button>
 
-                <p className="text-center text-xs text-gray-400 mt-6 flex items-center justify-center gap-1.5">
+                <p className="text-center text-xs text-gray-400 mt-4 sm:mt-6 flex items-center justify-center gap-1.5">
                   <CreditCard className="w-3.5 h-3.5" /> Paiement 100% sécurisé
                 </p>
 
                 {error && (
-                  <div className="mt-6 p-4 rounded-xl bg-red-50 border border-red-100 flex items-start gap-3">
-                    <AlertCircle className="h-5 w-5 text-red-600 shrink-0 mt-0.5" />
-                    <p className="text-sm text-red-800">{error}</p>
+                  <div className="mt-4 sm:mt-6 p-3 sm:p-4 rounded-xl bg-red-50 border border-red-100 flex items-start gap-2.5 sm:gap-3">
+                    <AlertCircle className="h-4 w-4 sm:h-5 sm:w-5 text-red-600 shrink-0 mt-0.5" />
+                    <p className="text-xs sm:text-sm text-red-800 break-words">{error}</p>
                   </div>
                 )}
               </div>

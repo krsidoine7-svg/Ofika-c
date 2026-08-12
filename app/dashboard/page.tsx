@@ -89,10 +89,10 @@ function ProfileRow({ profile, index, onEdit, onView }: ProfileRowProps) {
   }, [profile.id])
 
   return (
-    <div className="flex flex-col lg:flex-row lg:items-center justify-between p-5 bg-white border border-neutral-100 hover:border-neutral-200 hover:shadow-md rounded-2xl transition-all duration-300 gap-4 group/prof">
+    <div className="flex flex-col sm:flex-row sm:items-center justify-between p-4 sm:p-5 bg-white border border-neutral-100 hover:border-neutral-200 hover:shadow-md rounded-2xl transition-all duration-300 gap-4 group/prof">
       {/* 1. Left Column: Avatar + Profile Name & Username */}
-      <div className="flex items-center gap-4 min-w-[240px] shrink-0">
-        <div className="w-12 h-12 rounded-xl border border-neutral-100 bg-neutral-50 overflow-hidden relative shrink-0 shadow-sm flex items-center justify-center">
+      <div className="flex items-center gap-3 sm:gap-4 min-w-0 flex-1">
+        <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl border border-neutral-100 bg-neutral-50 overflow-hidden relative shrink-0 shadow-sm flex items-center justify-center">
           {profile.image_url ? (
             <img 
               src={profile.image_url} 
@@ -100,79 +100,62 @@ function ProfileRow({ profile, index, onEdit, onView }: ProfileRowProps) {
               className="w-full h-full object-cover group-hover/prof:scale-105 transition-transform duration-500"
             />
           ) : (
-            <div className="w-full h-full flex items-center justify-center text-neutral-500 font-bold bg-neutral-100 text-xs">
-              {profile.name?.substring(0, 2).toUpperCase()}
-            </div>
+            <User className="w-5 h-5 sm:w-6 sm:h-6 text-neutral-300" />
           )}
         </div>
-        <div className="space-y-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="text-sm font-bold text-neutral-800 tracking-tight truncate max-w-[160px]">
+        <div className="min-w-0 flex-1">
+          <div className="flex items-center gap-2">
+            <h4 className="font-bold text-sm sm:text-base text-neutral-900 truncate leading-tight group-hover/prof:text-orange-600 transition-colors">
               {profile.name}
-            </span>
-            {index === 0 && (
-              <Badge className="bg-amber-50 text-amber-600 border border-amber-200/50 hover:bg-amber-50 text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0">
-                Principal
+            </h4>
+            {profile.is_public && (
+              <Badge className="bg-emerald-50 text-emerald-700 border-emerald-100 text-[10px] font-bold shrink-0">
+                Public
               </Badge>
             )}
           </div>
-          <span className="text-xs text-neutral-400 font-medium leading-none block truncate">
-            ofika.ci/{profile.username || 'username'}
-          </span>
+          <p className="text-xs text-neutral-400 font-medium truncate mt-0.5">
+            ofika.com/{profile.custom_url || profile.username || profile.id.slice(0, 8)}
+          </p>
         </div>
       </div>
 
-      {/* 2. Middle Column: Real-time Analytics Cards/Pills */}
-      <div className="flex items-center flex-wrap gap-2.5 flex-1 min-w-0 lg:px-6 lg:border-l lg:border-r lg:border-neutral-100">
-        {loading ? (
-          // Premium loading skeleton badges
-          <div className="flex items-center flex-wrap gap-2.5 w-full animate-pulse">
-            <div className="h-8 w-24 bg-neutral-100 rounded-full" />
-            <div className="h-8 w-24 bg-neutral-100 rounded-full" />
-            <div className="h-8 w-32 bg-neutral-100 rounded-full" />
-            <div className="h-8 w-28 bg-neutral-100 rounded-full" />
-          </div>
-        ) : (
+      {/* 2. Middle Column: Inline Mini Analytics Badges */}
+      <div className="flex flex-wrap items-center gap-2">
+        {!loading && (
           <>
-            {/* Vues badge */}
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-blue-50/70 border border-blue-100/80 text-blue-700 text-xs font-semibold shrink-0">
-              <Eye className="w-3.5 h-3.5 text-blue-500" />
-              <span className="font-bold text-[13px]">{analytics.totalViews}</span>
-              <span className="text-blue-600/80 font-medium">Vues</span>
-            </div>
-
-            {/* Clics badge */}
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-emerald-50/70 border border-emerald-100/80 text-emerald-700 text-xs font-semibold shrink-0">
-              <MousePointer className="w-3.5 h-3.5 text-emerald-500" />
-              <span className="font-bold text-[13px]">{analytics.totalClicks}</span>
-              <span className="text-emerald-600/80 font-medium">Clics</span>
+            {/* Total Vues badge */}
+            <div className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-neutral-50 border border-neutral-100 text-neutral-700 text-xs font-semibold shrink-0">
+              <Eye className="w-3.5 h-3.5 text-neutral-400" />
+              <span className="text-neutral-500 font-medium">Vues :</span>
+              <span className="font-bold text-neutral-900">{analytics.totalViews}</span>
             </div>
 
             {/* Cette semaine badge */}
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-amber-50/60 border border-amber-100/60 text-amber-800 text-xs font-semibold shrink-0">
+            <div className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-amber-50/60 border border-amber-100/60 text-amber-800 text-xs font-semibold shrink-0">
               <TrendingUp className="w-3.5 h-3.5 text-amber-500" />
-              <span className="text-neutral-500 font-medium">Semaine :</span>
-              <span className="font-bold text-[13px] text-amber-700">{analytics.last7Days}</span>
+              <span className="text-neutral-500 font-medium">7j :</span>
+              <span className="font-bold text-amber-700">{analytics.last7Days}</span>
             </div>
 
             {/* Ce mois badge */}
-            <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-purple-50/60 border border-purple-100/60 text-purple-800 text-xs font-semibold shrink-0">
+            <div className="flex items-center gap-1.5 px-2.5 sm:px-3 py-1 sm:py-1.5 rounded-full bg-purple-50/60 border border-purple-100/60 text-purple-800 text-xs font-semibold shrink-0">
               <BarChart3 className="w-3.5 h-3.5 text-purple-500" />
-              <span className="text-neutral-500 font-medium">Mois :</span>
-              <span className="font-bold text-[13px] text-purple-700">{analytics.last30Days}</span>
+              <span className="text-neutral-500 font-medium">30j :</span>
+              <span className="font-bold text-purple-700">{analytics.last30Days}</span>
             </div>
           </>
         )}
       </div>
 
       {/* 3. Right Column: Action Buttons & Analytics Link */}
-      <div className="flex flex-col items-end gap-2 shrink-0 justify-center">
+      <div className="flex flex-row sm:flex-col items-center sm:items-end justify-between sm:justify-center gap-2 w-full sm:w-auto pt-3 sm:pt-0 border-t sm:border-t-0 border-neutral-100 shrink-0">
         {/* Top: Primary actions */}
         <div className="flex items-center gap-2">
           <Button
             size="sm"
             variant="ghost"
-            className="text-neutral-500 hover:text-neutral-900 hover:bg-neutral-50 text-xs font-bold rounded-xl h-9 px-4 transition-colors"
+            className="text-neutral-500 hover:text-neutral-900 hover:bg-neutral-50 text-xs font-bold rounded-xl h-8 sm:h-9 px-3 sm:px-4 transition-colors"
             onClick={() => onEdit(profile.id)}
           >
             Gérer
@@ -180,7 +163,7 @@ function ProfileRow({ profile, index, onEdit, onView }: ProfileRowProps) {
           <Button
             size="sm"
             variant="outline"
-            className="border-neutral-200 text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 text-xs font-bold rounded-xl h-9 px-3 flex items-center justify-center gap-1 shadow-sm transition-all"
+            className="border-neutral-200 text-neutral-600 hover:text-neutral-900 hover:bg-neutral-50 text-xs font-bold rounded-xl h-8 sm:h-9 px-3 flex items-center justify-center gap-1 shadow-sm transition-all"
             onClick={() => onView(profile)}
           >
             <Eye className="w-3.5 h-3.5" />
@@ -190,8 +173,8 @@ function ProfileRow({ profile, index, onEdit, onView }: ProfileRowProps) {
 
         {/* Bottom: Secondary action (Tous les analytics) */}
         <Link href="/dashboard/analytics" className="transition-transform hover:scale-[1.02] active:scale-[0.98]">
-          <span className="text-[11px] font-bold bg-orange-50 hover:bg-orange-100 text-orange-600 hover:text-orange-700 px-3.5 py-1.5 rounded-full border border-orange-100 hover:border-orange-200 transition-all duration-300 flex items-center gap-1 cursor-pointer">
-            Tous les analytics
+          <span className="text-[10px] sm:text-[11px] font-bold bg-orange-50 hover:bg-orange-100 text-orange-600 hover:text-orange-700 px-3 py-1 sm:py-1.5 rounded-full border border-orange-100 hover:border-orange-200 transition-all duration-300 flex items-center gap-1 cursor-pointer">
+            Analytics
             <ArrowRight className="w-3 h-3 transition-transform group-hover/prof:translate-x-0.5" />
           </span>
         </Link>
@@ -212,6 +195,18 @@ export default function DashboardPage() {
   const [showWalletHubModal, setShowWalletHubModal] = useState(false)
   const [selectedProfileForWallet, setSelectedProfileForWallet] = useState<Profile | null>(null)
   const [dashboardDate, setDashboardDate] = useState<Date | undefined>(new Date())
+  const [firstName, setFirstName] = useState<string | null>(null)
+
+  useEffect(() => {
+    getUserData().then((res: any) => {
+      const data = res?.data || res
+      if (data?.first_name) {
+        setFirstName(data.first_name)
+      } else if (data?.name) {
+        setFirstName(data.name.split(' ')[0])
+      }
+    })
+  }, [getUserData])
 
   // Reset automatique des stats tous les 40 jours
   useStatsAutoReset()
@@ -243,30 +238,30 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="space-y-8 max-w-7xl mx-auto">
+    <div className="space-y-6 sm:space-y-8 max-w-7xl mx-auto overflow-hidden">
       {/* En-tête de bienvenue moderne et premium */}
-      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-6 pb-8 border-b border-gray-100">
+      <div className="flex flex-col md:flex-row md:items-end md:justify-between gap-4 sm:gap-6 pb-6 sm:pb-8 border-b border-gray-100">
         <div className="space-y-1">
-          <p className="text-sm font-semibold tracking-widest uppercase text-gray-400">Vue d'ensemble</p>
-          <h2 className="text-4xl md:text-5xl font-black text-gray-900 tracking-tighter">
-            Bonjour, {user?.user_metadata?.name?.split(' ')[0] || user?.email?.split('@')[0]}.
+          <p className="text-xs sm:text-sm font-semibold tracking-widest uppercase text-gray-400">Vue d'ensemble</p>
+          <h2 className="text-2xl sm:text-4xl md:text-5xl font-black text-gray-900 tracking-tighter break-words">
+            Bonjour, {firstName || user?.user_metadata?.first_name || user?.user_metadata?.name?.split(' ')[0] || user?.email?.split('@')[0]}.
           </h2>
-          <p className="text-gray-500 text-base md:text-lg font-medium mt-2 max-w-xl">
+          <p className="text-gray-500 text-sm sm:text-base md:text-lg font-medium mt-1 sm:mt-2 max-w-xl">
             Gérez vos profils, analysez vos partages et commandez vos cartes intelligentes NFC.
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <Link href="/dashboard/profiles">
-            <Button variant="outline" className="rounded-full border-gray-200 text-gray-700 hover:bg-gray-50 hover:text-gray-900 font-bold h-12 px-6 shadow-sm transition-all text-sm">
+        <div className="flex items-center gap-2.5 sm:gap-3 w-full md:w-auto">
+          <Link href="/dashboard/profiles" className="flex-1 md:flex-initial">
+            <Button variant="outline" className="w-full md:w-auto rounded-full border-gray-200 text-gray-700 hover:bg-gray-50 hover:text-gray-900 font-bold h-10 sm:h-12 px-4 sm:px-6 shadow-sm transition-all text-xs sm:text-sm">
               Mes Profils
             </Button>
           </Link>
           <Button 
             onClick={handleOrderCard}
-            className="rounded-full bg-gray-950 hover:bg-gray-900 text-white font-bold h-12 px-6 shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-300 flex items-center gap-2 text-sm"
+            className="flex-1 md:flex-initial rounded-full bg-gray-950 hover:bg-gray-900 text-white font-bold h-10 sm:h-12 px-4 sm:px-6 shadow-xl hover:shadow-2xl hover:-translate-y-0.5 transition-all duration-300 flex items-center justify-center gap-2 text-xs sm:text-sm"
           >
-            <CreditCard className="w-4 h-4" />
-            Commander une carte
+            <CreditCard className="w-4 h-4 shrink-0" />
+            <span>Commander</span>
           </Button>
         </div>
       </div>
