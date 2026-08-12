@@ -116,6 +116,8 @@ Date | Décision | Contexte | Raison | Alternative rejetée | Liens
 | `sessions/2026-08-02_session-009.md` | Session 009 — Optimisation et refonte du tableau de bord admin |
 | `sessions/2026-08-10_session-011.md` | Session 011 — Intégration GeniusPay & Wave Direct, tarification dynamique system_config, refonte canonique des 13 flux MD/DOCX, audit responsive design |
 | `sessions/2026-08-10_session-012.md` | Session 012 — Mockup iPhone 15 Pro, sélecteur de templates dynamique, création du template Social Creator, vCard, WhatsApp & carrousel réseaux sociaux |
+| `sessions/2026-08-12_session-014.md` | Session 014 — Paiements Wave/GeniusPay, notifications temps réel, PWA/RGPD, intégration Sentry |
+| `sessions/2026-08-12_session-015.md` | Session 015 — Fix mobile UI, bug deleted_at qr_redirects, refonte page QR Codes (NFC vs Libre), contacts support |
 
 **Relations :** Chaque résumé de session pointe vers le fichier fourtour correspondant.
 

@@ -205,9 +205,10 @@ export async function middleware(request: NextRequest) {
   }
 
   // 5. HEADERS DE SÉCURITÉ OWASP (CSP, HSTS, etc.)
+  const isDev = process.env.NODE_ENV === 'development'
   const cspHeader = `
     default-src 'self';
-    script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://*.supabase.co https://*.vercel-scripts.com https://*.google.com;
+    script-src 'self' blob: https://*.supabase.co https://*.vercel-scripts.com https://*.google.com ${isDev ? "'unsafe-inline' 'unsafe-eval'" : ""};
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
     img-src 'self' blob: data: https://*.supabase.co https://*.googleusercontent.com https://*.lygosapp.com https://api.qrserver.com https://images.unsplash.com;
     font-src 'self' https://fonts.gstatic.com;
@@ -219,7 +220,7 @@ export async function middleware(request: NextRequest) {
     base-uri 'self';
     form-action 'self';
     frame-ancestors 'none';
-    upgrade-insecure-requests;
+    ${isDev ? "" : "upgrade-insecure-requests;"}
   `.replace(/\s{2,}/g, ' ').trim()
 
   const securityHeaders = {

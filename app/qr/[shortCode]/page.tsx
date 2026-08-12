@@ -53,6 +53,7 @@ export default async function QRRedirectPage({ params }: QRRedirectPageProps) {
         <html lang="fr">
           <head>
             <meta charSet="utf-8" />
+            <meta httpEquiv="refresh" content="3;url=/" />
             <title>QR Code introuvable</title>
           </head>
           <body style={{
@@ -62,9 +63,6 @@ export default async function QRRedirectPage({ params }: QRRedirectPageProps) {
           }}>
             <h1>QR Code introuvable</h1>
             <p>Le code "<strong>{shortCode}</strong>" n'existe pas ou a été désactivé.</p>
-            <script dangerouslySetInnerHTML={{
-              __html: `setTimeout(() => window.location.href = '/', 3000);`
-            }} />
           </body>
         </html>
       )
@@ -154,6 +152,7 @@ export default async function QRRedirectPage({ params }: QRRedirectPageProps) {
         <head>
           <meta charSet="utf-8" />
           <meta name="viewport" content="width=device-width, initial-scale=1" />
+          <meta httpEquiv="refresh" content={`0;url=${targetUrl}`} />
           <title>Redirection...</title>
           <meta name="robots" content="noindex, nofollow" />
         </head>
@@ -214,29 +213,6 @@ export default async function QRRedirectPage({ params }: QRRedirectPageProps) {
               Destination: {targetUrl}
             </p>
           </div>
-          <script dangerouslySetInnerHTML={{
-            __html: `
-              (function() {
-                try {
-                  // Marquer ce scan avec un cookie (durée: 30 secondes)
-                  var debounceKey = ${JSON.stringify(debounceKey)};
-                  document.cookie = debounceKey + '=1; path=/; max-age=30; SameSite=Lax';
-                  
-                  console.log('🚀 Redirection vers:', ${JSON.stringify(targetUrl)});
-                  // Tentative de redirection immédiate
-                  window.location.replace(${JSON.stringify(targetUrl)});
-                } catch (e) {
-                  console.error('❌ Erreur de redirection:', e);
-                  // Si erreur, essayer avec href
-                  try {
-                    window.location.href = ${JSON.stringify(targetUrl)};
-                  } catch (e2) {
-                    console.error('❌ Erreur de redirection (fallback):', e2);
-                  }
-                }
-              })();
-            `
-          }} />
         </body>
       </html>
     )
@@ -244,21 +220,19 @@ export default async function QRRedirectPage({ params }: QRRedirectPageProps) {
     console.error('Error in QR redirect:', error)
     return (
       <html lang="fr">
-        <head>
-          <meta charSet="utf-8" />
-          <title>Erreur</title>
-        </head>
-        <body style={{
-          fontFamily: 'system-ui',
-          padding: '20px',
-          textAlign: 'center'
-        }}>
-          <h1>Erreur</h1>
-          <p>Une erreur s'est produite lors de la redirection.</p>
-          <script dangerouslySetInnerHTML={{
-            __html: `setTimeout(() => window.location.href = '/', 3000);`
-          }} />
-        </body>
+          <head>
+            <meta charSet="utf-8" />
+            <meta httpEquiv="refresh" content="3;url=/" />
+            <title>Erreur</title>
+          </head>
+          <body style={{
+            fontFamily: 'system-ui',
+            padding: '20px',
+            textAlign: 'center'
+          }}>
+            <h1>Erreur</h1>
+            <p>Une erreur s'est produite lors de la redirection.</p>
+          </body>
       </html>
     )
   }

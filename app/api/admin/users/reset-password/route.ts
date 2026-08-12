@@ -39,7 +39,10 @@ export async function POST(request: Request) {
 
     const { error: updateError } = await adminClient.auth.admin.updateUserById(
       userId,
-      { password: newPassword }
+      {
+        password: newPassword,
+        user_metadata: { force_password_reset: true }
+      }
     )
 
     if (updateError) {

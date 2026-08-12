@@ -14,6 +14,7 @@ import { useProfiles } from "@/lib/hooks/useProfiles"
 import { useUser } from "@/lib/hooks/useUser"
 import { AnnouncementBanner } from '@/components/dashboard/AnnouncementBanner'
 import { OrderNotifications } from '@/components/features/card-ordering/OrderNotifications'
+import { ForcePasswordChangeModal } from '@/components/core/auth/ForcePasswordChangeModal'
 
 import {
     DropdownMenu,
@@ -123,7 +124,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         { href: '/dashboard/profiles', label: 'Profils', icon: Users },
         { href: '/dashboard/contacts', label: 'Leads', icon: Users },
         { href: '/dashboard/qr-codes', label: 'QR Codes', icon: QrCode },
-        { href: '/dashboard/avis-clients', label: 'Avis Clients', icon: Star },
+        // { href: '/dashboard/avis-clients', label: 'Avis Clients', icon: Star },
         { href: '/dashboard/orders', label: 'Commandes', icon: CreditCard },
         // { href: '/dashboard/analytics', label: 'Analytics', icon: BarChart3 }, // Masqué à la demande de l'utilisateur
         { href: '/dashboard/settings', label: 'Paramètres', icon: Settings },
@@ -215,12 +216,11 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             <header className="bg-white border-b border-gray-100 h-16 flex items-center justify-between sticky top-0 z-30 px-4 md:px-8">
                                 {/* Left Section */}
                                 <div className="flex items-center gap-4">
-                                    {/* Mobile: Hamburger & Logo */}
+                                    {/* Mobile: Hamburger */}
                                     <div className="flex items-center gap-2 md:hidden">
                                         <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
                                             {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
                                         </Button>
-                                        <Logo size="sm" showText={false} />
                                     </div>
 
                                     {/* Desktop: Search Bar */}
@@ -322,6 +322,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         </main>
                     </div>
                 </div>
+                {user && <ForcePasswordChangeModal user={user} />}
             </div>
         </ProtectedRoute>
     )

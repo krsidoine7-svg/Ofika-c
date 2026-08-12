@@ -711,103 +711,6 @@ export default function AdminNFCPage() {
                 </div>
             )}
 
-            {/* User Design Choices - Detailed Table - Moved from Themes */}
-            <div className="space-y-6 pt-8">
-                <div className="flex items-center gap-2">
-                    <Paintbrush className="w-5 h-5 text-gray-400" />
-                    <h2 className="text-xl font-black text-gray-900 tracking-tight">Choix Utilisateurs Détaillés</h2>
-                    <Badge variant="outline" className="ml-2 rounded-lg font-black text-[10px]">{themeData.recentDesigns.length} profils</Badge>
-                </div>
-                {themeData.recentDesigns.length > 0 ? (
-                    <Card className="border-none shadow-sm rounded-3xl overflow-hidden bg-white">
-                        <div className="overflow-x-auto">
-                            <table className="w-full text-sm">
-                                <thead>
-                                    <tr className="border-b border-gray-100 bg-gray-50/50">
-                                        <th className="text-left p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Utilisateur</th>
-                                        <th className="text-left p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Design</th>
-                                        <th className="text-left p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Couleur</th>
-                                        <th className="text-left p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Type</th>
-                                        <th className="text-left p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Date</th>
-                                        <th className="text-left p-4 text-[10px] font-black text-gray-400 uppercase tracking-widest">Voir</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    {themeData.recentDesigns.map((p: any) => (
-                                        <tr key={p.id} className="border-b border-gray-50 hover:bg-gray-50/50 transition-colors">
-                                            <td className="p-4">
-                                                <div className="flex items-center gap-3">
-                                                    {p.image_url ? (
-                                                        <img src={p.image_url} alt="" className="w-9 h-9 rounded-full object-cover border border-gray-200" />
-                                                    ) : (
-                                                        <div className="w-9 h-9 rounded-full bg-gray-100 text-gray-600 font-black text-sm flex items-center justify-center">
-                                                            {p.name?.charAt(0)?.toUpperCase() || '?'}
-                                                        </div>
-                                                    )}
-                                                    <div>
-                                                        <p className="font-bold text-gray-900 text-sm">{p.name || 'Sans nom'}</p>
-                                                        <p className="text-[10px] text-gray-400 font-mono">@{p.username || '—'}</p>
-                                                    </div>
-                                                </div>
-                                            </td>
-                                            <td className="p-4">
-                                                <Badge className={`rounded-lg text-[9px] font-black uppercase tracking-widest ${
-                                                    p.design_choice === 'design1' ? 'bg-blue-50 text-blue-600 border-blue-100' :
-                                                    p.design_choice === 'design2' ? 'bg-indigo-50 text-indigo-600 border-indigo-100' :
-                                                    p.design_choice === 'design3' ? 'bg-purple-50 text-purple-600 border-purple-100' :
-                                                    p.design_choice === 'design4' ? 'bg-green-50 text-green-600 border-green-100' :
-                                                    p.design_choice === 'influencer' ? 'bg-pink-50 text-pink-600 border-pink-100' :
-                                                    p.design_choice === 'ecommerce' ? 'bg-emerald-50 text-emerald-600 border-emerald-100' :
-                                                    p.design_choice === 'design7' ? 'bg-gray-800 text-gray-100 border-gray-700' :
-                                                    p.design_choice === 'freelance' ? 'bg-amber-50 text-amber-600 border-amber-100' :
-                                                    'bg-gray-100 text-gray-500 border-gray-200'
-                                                } border`}>
-                                                    {DESIGN_NAMES[p.design_choice] || p.design_choice || 'Non défini'}
-                                                </Badge>
-                                            </td>
-                                            <td className="p-4">
-                                                <div className="flex items-center gap-2">
-                                                    <div 
-                                                        className="w-6 h-6 rounded-lg border-2 border-gray-200 shadow-inner"
-                                                        style={{ backgroundColor: p.color_theme && p.color_theme !== 'default' ? p.color_theme : '#f3f4f6' }}
-                                                        title={p.color_theme || 'Par défaut'}
-                                                    />
-                                                    <span className="text-[10px] font-mono text-gray-400">{p.color_theme || 'défaut'}</span>
-                                                </div>
-                                            </td>
-                                            <td className="p-4">
-                                                <span className="text-xs text-gray-500 capitalize">{p.profile_type || '—'}</span>
-                                            </td>
-                                            <td className="p-4">
-                                                <span className="text-xs text-gray-400">
-                                                    {p.created_at ? new Date(p.created_at).toLocaleDateString('fr-FR', { day: '2-digit', month: 'short', year: '2-digit' }) : '—'}
-                                                </span>
-                                            </td>
-                                            <td className="p-4">
-                                                {p.username && (
-                                                    <a 
-                                                        href={`/${p.username}`} 
-                                                        target="_blank" 
-                                                        rel="noopener noreferrer"
-                                                        className="text-gray-400 hover:text-gray-900 transition-colors"
-                                                    >
-                                                        <Eye className="w-4 h-4" />
-                                                    </a>
-                                                )}
-                                            </td>
-                                        </tr>
-                                    ))}
-                                </tbody>
-                            </table>
-                        </div>
-                    </Card>
-                ) : (
-                    <div className="py-12 bg-gray-50 rounded-3xl border-2 border-dashed border-gray-200 flex flex-col items-center justify-center text-gray-400 gap-2">
-                        <Paintbrush className="w-8 h-8 opacity-20" />
-                        <p className="font-bold text-sm uppercase tracking-widest">Aucun profil récent</p>
-                    </div>
-                )}
-            </div>
 
             {/* Modal de Mise à Jour de Statut / Logistique */}
             <Dialog open={isStatusDialogOpen} onOpenChange={setIsStatusDialogOpen}>
@@ -971,29 +874,8 @@ function AdminEditCardDialog({ isOpen, onOpenChange, card, onSuccess }: { isOpen
 
             const data = await response.json()
             if (!response.ok || !data.success) throw new Error(data.error || "Erreur lors de la mise à jour")
-            
-            // Si la carte a un QR dynamique associé, on met à jour sa destination aussi pour la synchro
-            const qrRedirectId = card.qr_redirect_id || (card.preview_data as any)?.redirect_id;
-            if (qrRedirectId) {
-                // On nettoie le lien si c'est notre domaine
-                let cleanLink = formData.nfc_link;
-                const appUrl = (process.env.NEXT_PUBLIC_APP_URL || '').replace(/\/$/, '');
-                if (cleanLink.includes(appUrl)) {
-                    const parts = cleanLink.split(appUrl);
-                    if (parts.length > 1) {
-                        cleanLink = parts[1].replace(/^\//, '');
-                    }
-                }
-
-                await supabase
-                    .from('qr_redirects')
-                    .update({ 
-                        nfc_link: cleanLink,
-                        updated_at: new Date().toISOString()
-                    })
-                    .eq('id', qrRedirectId);
-            }
-
+            // La mise à jour de qr_redirects (si applicable) est maintenant gérée par l'API côté serveur 
+            // pour éviter les erreurs de permissions RLS.
             toast.success("Carte et redirection mises à jour")
             onSuccess()
         } catch (error: any) {

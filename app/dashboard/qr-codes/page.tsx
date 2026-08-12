@@ -1,18 +1,13 @@
 'use client'
 
-// =====================================================
-// PAGE DE GESTION DES QR CODES DYNAMIQUES
-// =====================================================
-
 import { useState, useEffect } from 'react'
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Badge } from '@/components/ui/badge'
 import {
   QrCode,
-  Edit,
+  Edit2,
   Trash2,
   Copy,
   ExternalLink,
@@ -20,7 +15,13 @@ import {
   Plus,
   Check,
   Eye,
-  EyeOff
+  EyeOff,
+  CreditCard,
+  Link2,
+  X,
+  Wifi,
+  ChevronDown,
+  Download
 } from 'lucide-react'
 import { toast } from 'sonner'
 import {
@@ -30,8 +31,6 @@ import {
   getRedirectURL
 } from '@/lib/services/qr-redirect-client'
 import type { QRRedirect } from '@/lib/types/qr-redirect'
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
-import { Textarea } from '@/components/ui/textarea'
 import Link from 'next/link'
 import { QRCodeSVG } from 'qrcode.react'
 import { downloadSVGAsFile } from '@/lib/utils/download-qr'
@@ -41,7 +40,7 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
-import { ChevronDown } from 'lucide-react'
+import { useProfiles } from '@/lib/hooks/useProfiles'
 
 export default function QRCodesPage() {
   const [qrCodes, setQRCodes] = useState<QRRedirect[]>([])
@@ -49,9 +48,11 @@ export default function QRCodesPage() {
   const [editingId, setEditingId] = useState<string | null>(null)
   const [editForm, setEditForm] = useState({
     nfc_link: '',
+    target_url: '',
     title: '',
     description: ''
   })
+  const { profiles } = useProfiles()
 
   useEffect(() => {
     loadQRCodes()
@@ -71,16 +72,22 @@ export default function QRCodesPage() {
   const handleEdit = (qr: QRRedirect) => {
     setEditingId(qr.id)
     setEditForm({
-      nfc_link: qr.nfc_link,
+      nfc_link: qr.nfc_link || '',
+      target_url: qr.nfc_link || '',
       title: qr.title || '',
       description: qr.description || ''
     })
   }
 
-  const handleSave = async (id: string) => {
-    const result = await updateQRRedirect(id, editForm)
+  const handleSave = async (id: string, qr: QRRedirect) => {
+    const isNfc = qr.redirect_type === 'nfc_card'
+    const updateData = isNfc
+      ? { nfc_link: editForm.nfc_link, title: editForm.title }
+      : { nfc_link: editForm.target_url, title: editForm.title, description: editForm.description }
+
+    const result = await updateQRRedirect(id, updateData)
     if (result.success) {
-      toast.success('QR code mis à jour')
+      toast.success('QR code mis à jour !')
       setEditingId(null)
       loadQRCodes()
     } else {
@@ -100,7 +107,6 @@ export default function QRCodesPage() {
 
   const handleDelete = async (id: string) => {
     if (!confirm('Êtes-vous sûr de vouloir supprimer ce QR code ?')) return
-
     const result = await deleteQRRedirect(id)
     if (result.success) {
       toast.success('QR code supprimé')
@@ -112,7 +118,7 @@ export default function QRCodesPage() {
 
   const copyToClipboard = (text: string, label: string) => {
     navigator.clipboard.writeText(text)
-    toast.success(`${label} copié`)
+    toast.success(`${label} copié !`)
   }
 
   const downloadQRCode = async (shortCode: string, title: string, id: string, format: 'png' | 'svg') => {
@@ -121,9 +127,19 @@ export default function QRCodesPage() {
       await downloadSVGAsFile(svgId, `qr-${title || shortCode}`, format)
       toast.success(`QR code téléchargé en ${format.toUpperCase()}`)
     } catch (error) {
-      console.error('Erreur lors du téléchargement:', error)
       toast.error('Erreur lors du téléchargement')
     }
+  }
+
+  const isNfcCard = (qr: QRRedirect) => qr.redirect_type === 'nfc_card'
+
+  const nfcQRCodes = qrCodes.filter(isNfcCard)
+  const libreQRCodes = qrCodes.filter(qr => !isNfcCard(qr))
+
+  // Public profile URL builder
+  const getProfilePublicUrl = (profile: any) => {
+    const base = typeof window !== 'undefined' ? window.location.origin : 'https://ofika.app'
+    return `${base}/p/${profile.custom_url || profile.username || profile.id}`
   }
 
   if (loading) {
@@ -132,7 +148,7 @@ export default function QRCodesPage() {
         <div className="flex items-center justify-center min-h-[400px]">
           <div className="text-center">
             <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-orange-500 mx-auto mb-4"></div>
-            <p className="text-gray-600">Chargement...</p>
+            <p className="text-gray-500 font-medium">Chargement des QR codes...</p>
           </div>
         </div>
       </div>
@@ -140,316 +156,396 @@ export default function QRCodesPage() {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
-      {/* Header */}
-      <div className="mb-6 sm:mb-8">
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+    <div className="min-h-screen bg-gray-50">
+      <div className="container mx-auto px-4 py-8 max-w-4xl">
+
+        {/* Header */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-8">
           <div>
-            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 mb-2">QR Codes Dynamiques</h1>
-            <p className="text-sm sm:text-base text-gray-600">
-              Gérez vos QR codes et changez leur destination sans les réimprimer
+            <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">QR Codes Dynamiques</h1>
+            <p className="text-sm text-gray-500 mt-1">
+              Changez la destination de vos QR codes sans les réimprimer
             </p>
           </div>
-          <div className="flex flex-col sm:flex-row gap-2 w-full sm:w-auto">
-            <Link href="/dashboard/qr-codes/new?type=dynamic" className="w-full sm:w-auto">
-              <Button className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600">
+          <Link href="/dashboard/qr-codes/new?type=dynamic">
+            <Button className="bg-orange-500 hover:bg-orange-600 text-white shadow-sm">
+              <Plus className="w-4 h-4 mr-2" />
+              Nouveau QR Code
+            </Button>
+          </Link>
+        </div>
+
+        {/* Stats rapides */}
+        <div className="grid grid-cols-3 gap-3 mb-8">
+          <div className="bg-white rounded-2xl border border-gray-100 p-4 text-center shadow-sm">
+            <div className="text-2xl font-bold text-orange-500">{qrCodes.length}</div>
+            <div className="text-xs text-gray-500 mt-0.5 font-medium">Total</div>
+          </div>
+          <div className="bg-white rounded-2xl border border-gray-100 p-4 text-center shadow-sm">
+            <div className="text-2xl font-bold text-green-500">{qrCodes.filter(qr => qr.is_active).length}</div>
+            <div className="text-xs text-gray-500 mt-0.5 font-medium">Actifs</div>
+          </div>
+          <div className="bg-white rounded-2xl border border-gray-100 p-4 text-center shadow-sm">
+            <div className="text-2xl font-bold text-blue-500">{qrCodes.reduce((sum, qr) => sum + (qr.scan_count || 0), 0)}</div>
+            <div className="text-xs text-gray-500 mt-0.5 font-medium">Scans</div>
+          </div>
+        </div>
+
+        {qrCodes.length === 0 ? (
+          // État vide
+          <div className="bg-white rounded-3xl border border-gray-100 shadow-sm p-12 text-center">
+            <div className="w-20 h-20 bg-orange-50 rounded-full flex items-center justify-center mx-auto mb-4">
+              <QrCode className="w-10 h-10 text-orange-400" />
+            </div>
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Aucun QR code</h3>
+            <p className="text-gray-500 mb-6 text-sm">
+              Vos QR codes liés à vos cartes NFC apparaîtront ici automatiquement.<br />
+              Vous pouvez aussi en créer des libres.
+            </p>
+            <Link href="/dashboard/qr-codes/new?type=dynamic">
+              <Button className="bg-orange-500 hover:bg-orange-600 text-white">
                 <Plus className="w-4 h-4 mr-2" />
-                QR Dynamique
-              </Button>
-            </Link>
-            <Link href="/dashboard/qr-codes/new?type=static" className="w-full sm:w-auto">
-              <Button variant="outline" className="w-full sm:w-auto border-gray-300 text-gray-700 hover:bg-gray-50">
-                <Plus className="w-4 h-4 mr-2" />
-                QR Statique
+                Créer un QR code libre
               </Button>
             </Link>
           </div>
-        </div>
-      </div>
+        ) : (
+          <div className="space-y-8">
 
-      {/* Stats */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3 sm:gap-4 mb-6 sm:mb-8">
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-orange-500">{qrCodes.length}</div>
-              <div className="text-sm text-gray-600 mt-1">QR Codes</div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-green-500">
-                {qrCodes.filter(qr => qr.is_active).length}
-              </div>
-              <div className="text-sm text-gray-600 mt-1">Actifs</div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-blue-500">
-                {qrCodes.reduce((sum, qr) => sum + qr.scan_count, 0)}
-              </div>
-              <div className="text-sm text-gray-600 mt-1">Scans Total</div>
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardContent className="pt-6">
-            <div className="text-center">
-              <div className="text-3xl font-bold text-purple-500">
-                {qrCodes.filter(qr => qr.scan_count > 0).length}
-              </div>
-              <div className="text-sm text-gray-600 mt-1">Utilisés</div>
-            </div>
-          </CardContent>
-        </Card>
-      </div>
+            {/* Section QR Codes Carte NFC */}
+            {nfcQRCodes.length > 0 && (
+              <section>
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-7 h-7 bg-blue-100 rounded-lg flex items-center justify-center">
+                    <CreditCard className="w-4 h-4 text-blue-600" />
+                  </div>
+                  <h2 className="text-base font-bold text-gray-800">Liés à vos Cartes NFC</h2>
+                  <span className="text-xs text-gray-400 font-medium ml-1">({nfcQRCodes.length})</span>
+                </div>
+                <p className="text-xs text-gray-500 mb-4 -mt-2 ml-9">
+                  Ces QR codes sont générés automatiquement. Vous pouvez changer vers quel profil ils pointent.
+                </p>
+                <div className="space-y-3">
+                  {nfcQRCodes.map((qr) => (
+                    <QRCardItem
+                      key={qr.id}
+                      qr={qr}
+                      isNfc={true}
+                      editingId={editingId}
+                      editForm={editForm}
+                      setEditForm={setEditForm}
+                      profiles={profiles}
+                      getProfilePublicUrl={getProfilePublicUrl}
+                      getRedirectURL={getRedirectURL}
+                      onEdit={handleEdit}
+                      onSave={handleSave}
+                      onCancelEdit={() => setEditingId(null)}
+                      onToggleActive={handleToggleActive}
+                      onDelete={handleDelete}
+                      onCopy={copyToClipboard}
+                      onDownload={downloadQRCode}
+                    />
+                  ))}
+                </div>
+              </section>
+            )}
 
-      {/* Liste des QR codes */}
-      {qrCodes.length === 0 ? (
-        <Card>
-          <CardContent className="py-12">
-            <div className="text-center">
-              <QrCode className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">
-                Aucun QR code
-              </h3>
-              <p className="text-gray-600 mb-6">
-                Créez votre premier QR code dynamique
-              </p>
-              <div className="flex flex-col sm:flex-row justify-center gap-3">
-                <Link href="/dashboard/qr-codes/new?type=dynamic">
-                  <Button className="w-full sm:w-auto bg-orange-500 hover:bg-orange-600">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Créer un QR Dynamique
-                  </Button>
-                </Link>
-                <Link href="/dashboard/qr-codes/new?type=static">
-                  <Button variant="outline" className="w-full sm:w-auto border-gray-300 text-gray-700 hover:bg-gray-50">
-                    <Plus className="w-4 h-4 mr-2" />
-                    Créer un QR Statique
-                  </Button>
-                </Link>
-              </div>
+            {/* Section QR Codes Libres */}
+            {libreQRCodes.length > 0 && (
+              <section>
+                <div className="flex items-center gap-2 mb-4">
+                  <div className="w-7 h-7 bg-orange-100 rounded-lg flex items-center justify-center">
+                    <Link2 className="w-4 h-4 text-orange-600" />
+                  </div>
+                  <h2 className="text-base font-bold text-gray-800">QR Codes Libres</h2>
+                  <span className="text-xs text-gray-400 font-medium ml-1">({libreQRCodes.length})</span>
+                </div>
+                <p className="text-xs text-gray-500 mb-4 -mt-2 ml-9">
+                  Créés manuellement. Vous pouvez modifier l'URL de destination et les supprimer.
+                </p>
+                <div className="space-y-3">
+                  {libreQRCodes.map((qr) => (
+                    <QRCardItem
+                      key={qr.id}
+                      qr={qr}
+                      isNfc={false}
+                      editingId={editingId}
+                      editForm={editForm}
+                      setEditForm={setEditForm}
+                      profiles={profiles}
+                      getProfilePublicUrl={getProfilePublicUrl}
+                      getRedirectURL={getRedirectURL}
+                      onEdit={handleEdit}
+                      onSave={handleSave}
+                      onCancelEdit={() => setEditingId(null)}
+                      onToggleActive={handleToggleActive}
+                      onDelete={handleDelete}
+                      onCopy={copyToClipboard}
+                      onDownload={downloadQRCode}
+                    />
+                  ))}
+                </div>
+              </section>
+            )}
+
+          </div>
+        )}
+
+      </div>
+    </div>
+  )
+}
+
+// ─── Composant carte QR ───────────────────────────────────────────────────────
+function QRCardItem({
+  qr, isNfc, editingId, editForm, setEditForm, profiles, getProfilePublicUrl,
+  getRedirectURL, onEdit, onSave, onCancelEdit, onToggleActive, onDelete, onCopy, onDownload
+}: any) {
+  const isEditing = editingId === qr.id
+  const targetUrl = qr.nfc_link || ''
+  const shortUrl = qr.short_code ? getRedirectURL(qr.short_code) : targetUrl
+
+  return (
+    <div className={`bg-white rounded-2xl border shadow-sm overflow-hidden transition-all duration-200 ${
+      !qr.is_active ? 'opacity-60 border-gray-100' : 'border-gray-200 hover:border-orange-200 hover:shadow-md'
+    }`}>
+      {/* Barre colorée en haut selon le type */}
+      <div className={`h-1 w-full ${isNfc ? 'bg-gradient-to-r from-blue-400 to-blue-600' : 'bg-gradient-to-r from-orange-400 to-orange-600'}`} />
+
+      <div className="p-5">
+        {isEditing ? (
+          // ── Mode Édition ──────────────────────────────────────
+          <div className="space-y-4">
+            <div className="flex items-center justify-between mb-2">
+              <h3 className="font-bold text-gray-900">{isNfc ? 'Modifier le profil de destination' : 'Modifier le QR code'}</h3>
+              <button onClick={onCancelEdit} className="text-gray-400 hover:text-gray-600 transition-colors">
+                <X className="w-5 h-5" />
+              </button>
             </div>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="grid grid-cols-1 gap-4">
-          {qrCodes.map((qr) => (
-            <Card key={qr.id} className={!qr.is_active ? 'opacity-60' : ''}>
-              <CardContent className="p-6">
-                {editingId === qr.id ? (
-                  // Mode édition
-                  <div className="space-y-4">
-                    <div>
-                      <Label>URL de destination * {qr.redirect_type === 'nfc_card' && <span className="text-[10px] text-blue-600 font-normal ml-2">(Géré par votre carte NFC)</span>}</Label>
-                      <Input
-                        value={editForm.nfc_link}
-                        onChange={(e) => setEditForm({ ...editForm, nfc_link: e.target.value })}
-                        placeholder="https://exemple.com/profil"
-                        disabled={qr.redirect_type === 'nfc_card'}
-                      />
-                    </div>
-                    <div>
-                      <Label>Titre</Label>
-                      <Input
-                        value={editForm.title}
-                        onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
-                        placeholder="Mon QR Code"
-                      />
-                    </div>
-                    <div>
-                      <Label>Description</Label>
-                      <Textarea
-                        value={editForm.description}
-                        onChange={(e) => setEditForm({ ...editForm, description: e.target.value })}
-                        placeholder="Description optionnelle"
-                        rows={2}
-                      />
-                    </div>
-                    <div className="flex gap-2">
-                      <Button onClick={() => handleSave(qr.id)} className="bg-green-500 hover:bg-green-600">
-                        <Check className="w-4 h-4 mr-2" />
-                        Enregistrer
-                      </Button>
-                      <Button onClick={() => setEditingId(null)} variant="outline">
-                        Annuler
-                      </Button>
-                    </div>
+
+            {isNfc ? (
+              // Sélecteur de profils pour les cartes NFC
+              <div>
+                <Label className="text-sm font-semibold text-gray-700 mb-2 block">
+                  Profil de destination
+                </Label>
+                {profiles.length === 0 ? (
+                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-700">
+                    Vous n'avez aucun profil public. <a href="/dashboard/profiles" className="font-bold underline">Créer un profil</a>
                   </div>
                 ) : (
-                  // Mode affichage
-                  <div className="flex flex-col md:flex-row items-start gap-4 md:gap-6">
-                    {/* QR Code Preview */}
-                    <div className="flex-shrink-0 mx-auto md:mx-0 bg-white p-2 rounded-lg border-2 border-gray-200 shadow-md">
-                      <QRCodeSVG
-                        id={`qr-${qr.id}`}
-                        value={qr.redirect_type === 'static' ? qr.nfc_link : getRedirectURL(qr.short_code)}
-                        size={128}
-                        level={"H"}
-                        includeMargin={false}
-                      />
-                    </div>
-
-                    {/* Informations */}
-                    <div className="flex-1 min-w-0 w-full">
-                      <div className="mb-3">
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-2 mb-2">
-                          <h3 className="text-lg font-semibold text-gray-900">
-                            {qr.title || 'Sans titre'}
-                          </h3>
-                          <div className="flex flex-wrap items-center gap-2">
-                            {/* Badge principal : Statique vs Dynamique */}
-                            {qr.redirect_type === 'static' ? (
-                              <Badge className="bg-gray-100 text-gray-700 border-gray-300 hover:bg-gray-200">
-                                STATIQUE
-                              </Badge>
-                            ) : (
-                              <Badge className="bg-orange-100 text-orange-700 border-orange-300 hover:bg-orange-200">
-                                DYNAMIQUE
-                              </Badge>
-                            )}
-
-                            {/* Badge secondaire : Source (Carte NFC ou autre) */}
-                            {qr.redirect_type === 'nfc_card' && (
-                              <Badge className="bg-blue-100 text-blue-700 border-blue-200 hover:bg-blue-200">
-                                🔒 Lié à une Carte NFC
-                              </Badge>
-                            )}
-
-                            {/* Badge statut actif/inactif (uniquement pour les dynamiques) */}
-                            {qr.redirect_type !== 'static' && (
-                              <Badge
-                                variant={qr.is_active ? 'default' : 'secondary'}
-                                className={qr.is_active ? 'bg-green-100 text-green-700 border-green-200 hover:bg-green-200' : ''}
-                              >
-                                {qr.is_active ? 'Actif' : 'Inactif'}
-                              </Badge>
-                            )}
-                          </div>
-                        </div>
-                        {qr.description && (
-                          <p className="text-sm text-gray-600 mb-2">{qr.description}</p>
-                        )}
-                      </div>
-
-                      {/* URL de destination */}
-                      <div className="mb-4">
-                        <div className="flex flex-col sm:flex-row sm:items-center gap-2">
-                          <span className="text-sm font-medium text-gray-700 sm:w-24 flex-shrink-0">Destination:</span>
-                          <div className="flex items-center gap-2 flex-1 min-w-0">
-                            <code className="text-xs sm:text-sm bg-gray-100 px-2 py-1 rounded flex-1 truncate">
-                              {qr.nfc_link}
-                            </code>
-                            <Button
-                              size="sm"
-                              variant="ghost"
-                              onClick={() => window.open(qr.nfc_link, '_blank')}
-                              className="flex-shrink-0"
-                            >
-                              <ExternalLink className="w-4 h-4" />
-                            </Button>
-                          </div>
-                        </div>
-                      </div>
-
-                      {/* Stats */}
-                      <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-600 mb-4">
-                        <div className="flex items-center gap-1">
-                          <BarChart3 className="w-4 h-4" />
-                          <span>{qr.scan_count} scans</span>
-                        </div>
-                        {qr.last_scanned_at && (
-                          <div>
-                            Dernier: {new Date(qr.last_scanned_at).toLocaleDateString('fr-FR')}
-                          </div>
-                        )}
-                        <div>
-                          Créé: {new Date(qr.created_at).toLocaleDateString('fr-FR')}
-                        </div>
-                      </div>
-
-                      {/* Actions */}
-                      <div className="grid grid-cols-2 sm:flex sm:flex-wrap gap-2">
-                        <Button
-                          size="sm"
-                          variant="outline"
-                          onClick={() => handleEdit(qr)}
+                  <div className="space-y-2">
+                    {profiles.map((profile: any) => {
+                      const profileUrl = getProfilePublicUrl(profile)
+                      const isSelected = editForm.nfc_link === profileUrl
+                      return (
+                        <button
+                          key={profile.id}
+                          onClick={() => setEditForm({ ...editForm, nfc_link: profileUrl })}
+                          className={`w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left ${
+                            isSelected
+                              ? 'border-blue-500 bg-blue-50'
+                              : 'border-gray-200 hover:border-blue-300 hover:bg-gray-50'
+                          }`}
                         >
-                          <Edit className="w-4 h-4 mr-2" />
-                          Modifier
-                        </Button>
-                        {/* Les QR codes statiques ne peuvent pas être activés/désactivés */}
-                        {qr.redirect_type !== 'static' && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            onClick={() => handleToggleActive(qr)}
-                            disabled={qr.redirect_type === 'nfc_card'}
-                            title={qr.redirect_type === 'nfc_card' ? "Les QR codes liés aux cartes NFC ne peuvent pas être désactivés" : ""}
-                          >
-                            {qr.is_active ? (
-                              <>
-                                <EyeOff className="w-4 h-4 mr-2" />
-                                Désactiver
-                              </>
-                            ) : (
-                              <>
-                                <Eye className="w-4 h-4 mr-2" />
-                                Activer
-                              </>
-                            )}
-                          </Button>
-                        )}
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <Button size="sm" variant="outline">
-                              <QrCode className="w-4 h-4 mr-2" />
-                              Télécharger
-                              <ChevronDown className="w-3 h-3 ml-1" />
-                            </Button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent>
-                            <DropdownMenuItem onClick={() => downloadQRCode(qr.short_code, qr.title || '', qr.id, 'png')}>
-                              Format PNG (Image)
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={() => downloadQRCode(qr.short_code, qr.title || '', qr.id, 'svg')}>
-                              Format SVG (Vectoriel)
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                        <Link href={`/dashboard/qr-codes/${qr.id}/stats`}>
-                          <Button size="sm" variant="outline">
-                            <BarChart3 className="w-4 h-4 mr-2" />
-                            Statistiques
-                          </Button>
-                        </Link>
-                        {/* Suppression possible sauf pour les cartes NFC */}
-                        {qr.redirect_type !== 'nfc_card' && (
-                          <Button
-                            size="sm"
-                            variant="outline"
-                            className="text-red-600 hover:text-red-700 hover:bg-red-50"
-                            onClick={() => handleDelete(qr.id)}
-                          >
-                            <Trash2 className="w-4 h-4 mr-2" />
-                            Supprimer
-                          </Button>
-                        )}
-                      </div>
-                    </div>
+                          {profile.image_url ? (
+                            <img src={profile.image_url} alt={profile.name} className="w-9 h-9 rounded-full object-cover flex-shrink-0" />
+                          ) : (
+                            <div className="w-9 h-9 rounded-full bg-orange-100 flex items-center justify-center flex-shrink-0 text-orange-600 font-bold text-sm">
+                              {profile.name?.substring(0, 2).toUpperCase()}
+                            </div>
+                          )}
+                          <div className="flex-1 min-w-0">
+                            <p className="font-semibold text-gray-900 text-sm truncate">{profile.name}</p>
+                            <p className="text-xs text-gray-500 truncate">{profile.job_title || profile.company || 'Profil'}</p>
+                          </div>
+                          {isSelected && <Check className="w-5 h-5 text-blue-500 flex-shrink-0" />}
+                        </button>
+                      )
+                    })}
                   </div>
                 )}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
+              </div>
+            ) : (
+              // Saisie URL libre pour les QR codes libres
+              <div>
+                <Label className="text-sm font-semibold text-gray-700 mb-2 block">
+                  URL de destination
+                </Label>
+                <Input
+                  value={editForm.target_url}
+                  onChange={(e) => setEditForm({ ...editForm, target_url: e.target.value })}
+                  placeholder="https://exemple.com"
+                  className="h-11 rounded-xl border-gray-300 focus:border-orange-400 focus:ring-orange-200"
+                />
+              </div>
+            )}
+
+            <div>
+              <Label className="text-sm font-semibold text-gray-700 mb-2 block">Titre (optionnel)</Label>
+              <Input
+                value={editForm.title}
+                onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
+                placeholder="Mon QR Code"
+                className="h-11 rounded-xl border-gray-300 focus:border-orange-400 focus:ring-orange-200"
+              />
+            </div>
+
+            <div className="flex gap-2 pt-1">
+              <Button
+                onClick={() => onSave(qr.id, qr)}
+                className="flex-1 bg-green-500 hover:bg-green-600 text-white rounded-xl h-10"
+              >
+                <Check className="w-4 h-4 mr-2" />
+                Enregistrer
+              </Button>
+              <Button onClick={onCancelEdit} variant="outline" className="rounded-xl h-10 px-4">
+                Annuler
+              </Button>
+            </div>
+          </div>
+        ) : (
+          // ── Mode Affichage ────────────────────────────────────
+          <div className="flex flex-col sm:flex-row items-start gap-4">
+
+            {/* QR Code */}
+            <div className="flex-shrink-0 mx-auto sm:mx-0">
+              <div className="bg-white p-2 rounded-xl border-2 border-gray-200 shadow-sm">
+                <QRCodeSVG
+                  id={`qr-${qr.id}`}
+                  value={qr.redirect_type === 'static' ? targetUrl : shortUrl}
+                  size={100}
+                  level="H"
+                  includeMargin={false}
+                />
+              </div>
+            </div>
+
+            {/* Infos */}
+            <div className="flex-1 min-w-0 w-full">
+              {/* Titre & Badges */}
+              <div className="flex flex-wrap items-center gap-2 mb-2">
+                <h3 className="text-base font-bold text-gray-900">
+                  {qr.title || (isNfc ? 'Carte NFC' : 'QR Code libre')}
+                </h3>
+                {isNfc && (
+                  <Badge className="bg-blue-100 text-blue-700 border-0 text-[10px] py-0.5 px-2">
+                    <CreditCard className="w-3 h-3 mr-1" />
+                    Carte NFC
+                  </Badge>
+                )}
+                {!isNfc && (
+                  <Badge className="bg-orange-100 text-orange-700 border-0 text-[10px] py-0.5 px-2">
+                    <Link2 className="w-3 h-3 mr-1" />
+                    Libre
+                  </Badge>
+                )}
+                <Badge className={`border-0 text-[10px] py-0.5 px-2 ${qr.is_active ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}`}>
+                  {qr.is_active ? 'Actif' : 'Inactif'}
+                </Badge>
+              </div>
+
+              {/* URL destination */}
+              <div className="flex items-center gap-2 mb-3">
+                <code className="text-xs bg-gray-100 px-2 py-1.5 rounded-lg flex-1 truncate text-gray-600 border border-gray-200">
+                  {targetUrl}
+                </code>
+                <button
+                  onClick={() => window.open(targetUrl, '_blank')}
+                  className="text-gray-400 hover:text-orange-500 transition-colors flex-shrink-0"
+                  title="Ouvrir le lien"
+                >
+                  <ExternalLink className="w-4 h-4" />
+                </button>
+              </div>
+
+              {/* Scans */}
+              <div className="flex items-center gap-1 text-xs text-gray-400 mb-4">
+                <BarChart3 className="w-3.5 h-3.5" />
+                <span>{qr.scan_count || 0} scans</span>
+                {qr.last_scanned_at && (
+                  <span className="ml-2">· Dernier : {new Date(qr.last_scanned_at).toLocaleDateString('fr-FR')}</span>
+                )}
+              </div>
+
+              {/* Actions */}
+              <div className="flex flex-wrap gap-2">
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => onEdit(qr)}
+                  className="h-8 rounded-lg text-xs border-gray-200 hover:border-blue-400 hover:text-blue-600"
+                >
+                  <Edit2 className="w-3.5 h-3.5 mr-1.5" />
+                  Modifier
+                </Button>
+
+                {!isNfc && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => onToggleActive(qr)}
+                    className="h-8 rounded-lg text-xs border-gray-200"
+                  >
+                    {qr.is_active
+                      ? <><EyeOff className="w-3.5 h-3.5 mr-1.5" />Désactiver</>
+                      : <><Eye className="w-3.5 h-3.5 mr-1.5" />Activer</>
+                    }
+                  </Button>
+                )}
+
+                <Button
+                  size="sm"
+                  variant="outline"
+                  onClick={() => onCopy(shortUrl, 'Lien')}
+                  className="h-8 rounded-lg text-xs border-gray-200"
+                >
+                  <Copy className="w-3.5 h-3.5 mr-1.5" />
+                  Copier lien
+                </Button>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button size="sm" variant="outline" className="h-8 rounded-lg text-xs border-gray-200">
+                      <Download className="w-3.5 h-3.5 mr-1.5" />
+                      Télécharger
+                      <ChevronDown className="w-3 h-3 ml-1" />
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent>
+                    <DropdownMenuItem onClick={() => onDownload(qr.short_code, qr.title || '', qr.id, 'png')}>
+                      Format PNG (Image)
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => onDownload(qr.short_code, qr.title || '', qr.id, 'svg')}>
+                      Format SVG (Vectoriel)
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+
+                <Link href={`/dashboard/qr-codes/${qr.id}/stats`}>
+                  <Button size="sm" variant="outline" className="h-8 rounded-lg text-xs border-gray-200">
+                    <BarChart3 className="w-3.5 h-3.5 mr-1.5" />
+                    Stats
+                  </Button>
+                </Link>
+
+                {/* Supprimer uniquement pour les QR libres */}
+                {!isNfc && (
+                  <Button
+                    size="sm"
+                    variant="outline"
+                    onClick={() => onDelete(qr.id)}
+                    className="h-8 rounded-lg text-xs border-red-200 text-red-500 hover:bg-red-50 hover:border-red-400"
+                  >
+                    <Trash2 className="w-3.5 h-3.5 mr-1.5" />
+                    Supprimer
+                  </Button>
+                )}
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
     </div>
   )
 }

@@ -15,7 +15,16 @@ export const createClient = (cookieStore: Awaited<ReturnType<typeof cookies>>) =
         },
         setAll(cookiesToSet) {
           try {
-            cookiesToSet.forEach(({ name, value, options }) => cookieStore.set(name, value, options))
+            cookiesToSet.forEach(({ name, value, options }) => {
+              // SECURITY: Harden cookies settings
+              const secureOptions = {
+                ...options,
+                httpOnly: true,
+                secure: process.env.NODE_ENV === 'production',
+                sameSite: 'lax' as const,
+              }
+              cookieStore.set(name, value, secureOptions)
+            })
           } catch {
             // The `setAll` method was called from a Server Component.
             // This can be ignored if you have middleware refreshing

@@ -58,16 +58,16 @@ export function WalletHubModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-[90vw] md:max-w-2xl rounded-[32px] border border-neutral-100 bg-white p-6 md:p-8 shadow-2xl overflow-y-auto max-h-[95vh] md:max-h-[90vh]">
+      <DialogContent className="w-[95vw] sm:w-[90vw] md:max-w-2xl rounded-2xl md:rounded-[32px] border border-neutral-100 bg-white p-4 md:p-8 shadow-2xl overflow-y-auto max-h-[95vh] md:max-h-[90vh] [&::-webkit-scrollbar]:hidden [-ms-overflow-style:none] [scrollbar-width:none]">
         {/* Ambient background glows */}
         <div className="absolute -top-16 -right-16 w-32 h-32 bg-orange-500/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute -bottom-16 -left-16 w-32 h-32 bg-purple-500/10 rounded-full blur-3xl pointer-events-none" />
 
-        <div className="grid grid-cols-1 md:grid-cols-12 gap-6 items-center">
+        <div className="grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 items-center">
           
           {/* Left Column: Visual Wallet Pass Card Preview (5/12 grid cols) */}
           <div className="col-span-1 md:col-span-5 flex justify-center items-center">
-            <div className="w-[210px] h-[295px] rounded-2xl bg-zinc-950 border border-zinc-800 shadow-2xl p-3 flex flex-col justify-between relative overflow-hidden group select-none text-white font-sans">
+            <div className="w-[180px] h-[252px] md:w-[210px] md:h-[295px] rounded-2xl bg-zinc-950 border border-zinc-800 shadow-2xl p-2.5 md:p-3 flex flex-col justify-between relative overflow-hidden group select-none text-white font-sans mx-auto">
               {/* Glossy overlay effect */}
               <div className="absolute inset-0 bg-gradient-to-tr from-white/0 via-white/5 to-white/0 pointer-events-none" />
               <div className="absolute -bottom-20 -right-20 w-36 h-36 bg-orange-600/10 rounded-full blur-2xl pointer-events-none" />
@@ -117,8 +117,8 @@ export function WalletHubModal({
                 </div>
 
                 {/* QR Code container */}
-                <div className="flex flex-col items-center justify-center bg-white rounded-xl p-2 mx-auto w-[100px] h-[100px] shadow-md relative border border-zinc-900/5">
-                  <QrCode className="w-[85px] h-[85px] text-zinc-900" />
+                <div className="flex flex-col items-center justify-center bg-white rounded-xl p-2 mx-auto w-[85px] h-[85px] md:w-[100px] md:h-[100px] shadow-md relative border border-zinc-900/5">
+                  <QrCode className="w-[70px] h-[70px] md:w-[85px] md:h-[85px] text-zinc-900" />
                   <div className="absolute w-4 h-4 rounded bg-orange-600 border border-white flex items-center justify-center font-bold text-[6px] text-white shadow-sm">
                     O
                   </div>
@@ -144,46 +144,46 @@ export function WalletHubModal({
           <div className="col-span-1 md:col-span-7 space-y-4">
             
             {/* Pass Header Titles */}
-            <div className="space-y-1.5 text-center md:text-left">
+            <div className="space-y-1 md:space-y-1.5 text-center md:text-left">
               <div className="flex items-center gap-2 justify-center md:justify-start">
                 <span className="bg-orange-500/10 text-orange-600 border border-orange-200/50 text-[9px] font-bold px-2 py-0.5 rounded-full uppercase tracking-wider">
                   Nouveau
                 </span>
                 <span className="text-zinc-450 text-[10px] font-bold flex items-center gap-1 select-none">
-                  <Smartphone className="w-3.5 h-3.5 text-orange-600" />
+                  <Smartphone className="w-3 h-3 md:w-3.5 md:h-3.5 text-orange-600" />
                   Cartes Wallet Virtuelles
                 </span>
               </div>
-              <DialogTitle className="text-xl md:text-2xl font-extrabold text-neutral-900 tracking-tight leading-snug">
+              <DialogTitle className="text-lg md:text-2xl font-extrabold text-neutral-900 tracking-tight leading-snug">
                 Vos Cartes de Visite Wallet
               </DialogTitle>
-              <DialogDescription className="text-neutral-500 text-xs font-semibold leading-relaxed block text-center md:text-left">
+              <DialogDescription className="text-neutral-500 text-[11px] md:text-xs font-semibold leading-relaxed block text-center md:text-left px-1 md:px-0">
                 Partagez vos coordonnées professionnelles directement depuis le Wallet de votre téléphone, même hors ligne.
               </DialogDescription>
             </div>
 
             {/* Micro value proposition list */}
-            <div className="bg-neutral-50 border border-neutral-100 rounded-2xl p-3.5 space-y-2">
-              <div className="flex gap-2.5 items-start">
-                <ShieldCheck className="w-4 h-4 text-orange-600 shrink-0 mt-0.5" />
-                <p className="text-[11px] text-neutral-600 font-semibold leading-relaxed">
+            <div className="bg-neutral-50 border border-neutral-100 rounded-xl md:rounded-2xl p-2.5 md:p-3.5 space-y-1.5 md:space-y-2">
+              <div className="flex gap-2 md:gap-2.5 items-start">
+                <ShieldCheck className="w-3.5 h-3.5 md:w-4 md:h-4 text-orange-600 shrink-0 mt-0.5" />
+                <p className="text-[10px] md:text-[11px] text-neutral-600 font-semibold leading-relaxed">
                   <strong>Partage Instantané</strong> : Plus besoin d'application ou de connexion internet, affichez votre carte en un geste.
                 </p>
               </div>
-              <div className="flex gap-2.5 items-start">
-                <Sparkles className="w-4 h-4 text-orange-600 shrink-0 mt-0.5" />
-                <p className="text-[11px] text-neutral-600 font-semibold leading-relaxed">
+              <div className="flex gap-2 md:gap-2.5 items-start">
+                <Sparkles className="w-3.5 h-3.5 md:w-4 md:h-4 text-orange-600 shrink-0 mt-0.5" />
+                <p className="text-[10px] md:text-[11px] text-neutral-600 font-semibold leading-relaxed">
                   <strong>Mise à jour automatique</strong> : Si vous modifiez votre profil, vos cartes Wallet se synchronisent d'elles-mêmes !
                 </p>
               </div>
             </div>
 
             {/* Download Buttons Stack */}
-            <div className="space-y-2.5">
+            <div className="space-y-2 md:space-y-2.5">
               <Button
                 onClick={handleAppleWallet}
                 disabled={downloadingApple || loadingGoogle}
-                className="w-full bg-neutral-950 hover:bg-neutral-900 text-white font-bold rounded-2xl h-11 shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 group text-xs"
+                className="w-full bg-neutral-950 hover:bg-neutral-900 text-white font-bold rounded-xl md:rounded-2xl h-10 md:h-11 shadow-md hover:shadow-lg transition-all flex items-center justify-center gap-2 group text-[11px] md:text-xs"
               >
                 <Download className="w-3.5 h-3.5 text-neutral-400 group-hover:text-white transition-colors" />
                 <span>{downloadingApple ? "Génération..." : "Ajouter à Apple Wallet"}</span>
@@ -193,7 +193,7 @@ export function WalletHubModal({
                 onClick={handleGoogleWallet}
                 disabled={downloadingApple || loadingGoogle}
                 variant="outline"
-                className="w-full border-neutral-200 text-neutral-800 hover:bg-neutral-50 font-bold rounded-2xl h-11 shadow-sm transition-all flex items-center justify-center gap-2 text-xs"
+                className="w-full border-neutral-200 text-neutral-800 hover:bg-neutral-50 font-bold rounded-xl md:rounded-2xl h-10 md:h-11 shadow-sm transition-all flex items-center justify-center gap-2 text-[11px] md:text-xs"
               >
                 <ExternalLink className="w-3.5 h-3.5 text-neutral-400" />
                 <span>{loadingGoogle ? "Préparation..." : "Ajouter à Google Wallet"}</span>

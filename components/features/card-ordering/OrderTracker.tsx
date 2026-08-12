@@ -342,13 +342,15 @@ export function OrderTracker({ order, onRefresh, className }: OrderTrackerProps)
                 <div className="space-y-2">
                   <div className="flex items-center text-gray-600">
                     <Mail className="h-4 w-4 mr-2" />
-                    <a href="mailto:support@ofika.app" className="hover:text-orange-600">
-                      support@ofika.app
+                    <a href="mailto:krsidoine7@gmail.com" className="hover:text-orange-600">
+                      krsidoine7@gmail.com
                     </a>
                   </div>
                   <div className="flex items-center text-gray-600">
                     <Phone className="h-4 w-4 mr-2" />
-                    <span>+221 XX XXX XX XX</span>
+                    <a href="tel:+2250503681588" className="hover:text-orange-600">
+                      +225 05 03 68 15 88
+                    </a>
                   </div>
                 </div>
               </div>

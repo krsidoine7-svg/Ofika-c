@@ -95,16 +95,18 @@ export const NFCCardItem = memo(function NFCCardItem({
                 </div>
               </div>
 
-              <div className="mt-4 space-y-3">
-                <div className="flex items-center text-sm text-gray-600 bg-gray-50 p-2.5 rounded-lg border border-gray-100">
-                  <QrCode className="w-4 h-4 mr-3 text-gray-400" />
-                  <span className="truncate flex-1 font-mono text-xs">{card.nfc_link ? card.nfc_link.replace(/([^:]\/)\/+/g, '$1') : 'Lien non généré'}</span>
+              <div className="mt-4 space-y-3 overflow-hidden">
+                <div className="flex items-center text-sm text-gray-600 bg-gray-50 p-2.5 rounded-lg border border-gray-100 w-full overflow-hidden">
+                  <QrCode className="w-4 h-4 mr-3 text-gray-400 flex-shrink-0" />
+                  <span className="truncate flex-1 font-mono text-xs" title={card.nfc_link || ''}>
+                    {card.nfc_link ? card.nfc_link.replace(/([^:]\/)\/+/g, '$1') : 'Lien non généré'}
+                  </span>
                 </div>
               </div>
             </div>
 
             {/* Actions Footer */}
-            <div className="mt-6 flex items-center justify-end gap-3 pt-6 border-t border-gray-100">
+            <div className="mt-6 flex flex-wrap items-center justify-end gap-2 pt-6 border-t border-gray-100">
               <Button
                 variant="outline"
                 size="sm"

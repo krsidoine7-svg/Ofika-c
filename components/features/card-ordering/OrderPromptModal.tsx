@@ -45,7 +45,7 @@ export function OrderPromptModal({ hasOrders, isLoading }: OrderPromptModalProps
         <Dialog open={isOpen} onOpenChange={setIsOpen}>
             <DialogContent className="sm:max-w-[460px] p-0 overflow-hidden border border-neutral-100 rounded-[2rem] shadow-[0_25px_60px_-15px_rgba(0,0,0,0.15)] bg-white">
                 {/* Injection de styles personnalisés pour les animations haute-fidélité */}
-                <style dangerouslySetInnerHTML={{ __html: `
+                <style>{`
                     @keyframes float {
                         0%, 100% { transform: translateY(0px) rotate(0deg); }
                         50% { transform: translateY(-8px) rotate(1deg); }
@@ -54,7 +54,7 @@ export function OrderPromptModal({ hasOrders, isLoading }: OrderPromptModalProps
                         0% { transform: translateX(-100%); }
                         100% { transform: translateX(100%); }
                     }
-                `}} />
+                `}</style>
 
                 {/* En-tête : Rendu Studio Premium de la Carte NFC */}
                 <div className="relative h-56 bg-gradient-to-b from-[#0a0d14] via-[#121620] to-[#090b10] flex items-center justify-center overflow-hidden border-b border-neutral-900">

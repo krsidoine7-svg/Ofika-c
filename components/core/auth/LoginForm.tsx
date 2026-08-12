@@ -90,8 +90,8 @@ export function LoginForm() {
 
       if (error) throw error
 
-      // Attendre un peu pour que la session se synchronise
-      await new Promise(resolve => setTimeout(resolve, 100))
+      // Sauvegarder temporairement pour la boîte de dialogue de réinitialisation si nécessaire
+      sessionStorage.setItem('temp_current_password', formData.password)
 
       toast.success("Connexion réussie!")
 
@@ -101,8 +101,9 @@ export function LoginForm() {
         redirectUrl = "/dashboard/admin"
       }
 
-      // Forcer un refresh de la page pour synchroniser l'état
-      window.location.href = redirectUrl
+      // Forcer un refresh de la page pour synchroniser l'état et utiliser router.push
+      router.refresh()
+      router.push(redirectUrl)
     } catch (err: any) {
       setError(err.message || "Une erreur s'est produite lors de la connexion")
       toast.error("Erreur de connexion")
@@ -201,17 +202,6 @@ export function LoginForm() {
                 >
                   <GoogleIcon />
                   Google
-                </Button>
-
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full border-orange-200 text-orange-700 hover:bg-orange-50 flex items-center justify-center h-11"
-                  onClick={handleMagicLink}
-                  disabled={isLoading}
-                >
-                  <Mail className="w-4 h-4 mr-2" />
-                  Recevoir un lien magique
                 </Button>
               </div>
 

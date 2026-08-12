@@ -1,7 +1,7 @@
 "use client"
 
 import * as React from "react"
-import { Eye, EyeOff, Mail, Lock, ArrowRight, User } from "lucide-react"
+import { Mail, Lock, ArrowRight, User } from "lucide-react"
 import { Logo } from "@/components/ui/logo"
 import { LAYOUTS } from "@/lib/constants/styles"
 import { Button } from "@/components/ui/button"
@@ -37,7 +37,8 @@ const GoogleIcon = () => (
 )
 
 interface SignupFormData {
-  name: string
+  first_name: string
+  last_name: string
   email: string
   password: string
   acceptTerms: boolean
@@ -45,12 +46,12 @@ interface SignupFormData {
 
 export function SignupForm() {
   const [formData, setFormData] = React.useState<SignupFormData>({
-    name: "",
+    first_name: "",
+    last_name: "",
     email: "",
     password: "",
     acceptTerms: false
   })
-  const [showPassword, setShowPassword] = React.useState(false)
   const [isLoading, setIsLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
 
@@ -83,6 +84,10 @@ export function SignupForm() {
   }
 
   const validateForm = () => {
+    if (!formData.first_name.trim() || !formData.last_name.trim()) {
+      setError("Veuillez renseigner votre prénom et votre nom")
+      return false
+    }
     if (formData.password.length < 6) {
       setError("Le mot de passe doit contenir au moins 6 caractères")
       return false
@@ -108,7 +113,8 @@ export function SignupForm() {
         password: formData.password,
         options: {
           data: {
-            name: formData.name,
+            first_name: formData.first_name,
+            last_name: formData.last_name,
             preferred_language: 'fr'
           }
         }
@@ -200,7 +206,6 @@ export function SignupForm() {
         {/* Signup Card */}
         <Card className="border-0 shadow-xl">
           <CardHeader className="space-y-1 pb-4">
-            <CardTitle className="text-xl font-semibold text-center">Créer un compte</CardTitle>
             <CardDescription className="text-center">
               Remplissez les informations ci-dessous pour créer votre compte
             </CardDescription>
@@ -226,17 +231,6 @@ export function SignupForm() {
                   <GoogleIcon />
                   Google
                 </Button>
-
-                <Button
-                  type="button"
-                  variant="outline"
-                  className="w-full border-orange-200 text-orange-700 hover:bg-orange-50 flex items-center justify-center h-11"
-                  onClick={handleMagicLink}
-                  disabled={isLoading}
-                >
-                  <Mail className="w-4 h-4 mr-2" />
-                  Recevoir un lien magique
-                </Button>
               </div>
 
               <div className="relative py-2">
@@ -250,20 +244,38 @@ export function SignupForm() {
                 </div>
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="name">Nom complet</Label>
-                <div className="relative">
-                  <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
-                  <Input
-                    id="name"
-                    type="text"
-                    placeholder="Votre nom complet"
-                    value={formData.name}
-                    onChange={(e) => handleInputChange("name", e.target.value)}
-                    className="pl-10"
-                    required
-                    disabled={isLoading}
-                  />
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="first_name">Prénom</Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="first_name"
+                      type="text"
+                      placeholder="Prénom"
+                      value={formData.first_name}
+                      onChange={(e) => handleInputChange("first_name", e.target.value)}
+                      className="pl-10"
+                      required
+                      disabled={isLoading}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="last_name">Nom</Label>
+                  <div className="relative">
+                    <User className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
+                    <Input
+                      id="last_name"
+                      type="text"
+                      placeholder="Nom"
+                      value={formData.last_name}
+                      onChange={(e) => handleInputChange("last_name", e.target.value)}
+                      className="pl-10"
+                      required
+                      disabled={isLoading}
+                    />
+                  </div>
                 </div>
               </div>
 
@@ -291,37 +303,25 @@ export function SignupForm() {
                   <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
                   <Input
                     id="password"
-                    type={showPassword ? "text" : "password"}
+                    type="password"
                     placeholder="Votre mot de passe"
                     value={formData.password}
                     onChange={(e) => handleInputChange("password", e.target.value)}
-                    className="pl-10 pr-10"
+                    className="pl-10"
                     required
                     disabled={isLoading}
                   />
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
-                    onClick={() => setShowPassword(!showPassword)}
-                    disabled={isLoading}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4" />
-                    ) : (
-                      <Eye className="h-4 w-4" />
-                    )}
-                  </Button>
                 </div>
               </div>
 
               <div className="flex items-center space-x-2">
-                <Checkbox
+                <input
+                  type="checkbox"
                   id="terms"
                   checked={formData.acceptTerms}
-                  onCheckedChange={(checked) => handleInputChange("acceptTerms", checked as boolean)}
+                  onChange={(e) => handleInputChange("acceptTerms", e.target.checked)}
                   disabled={isLoading}
+                  className="h-4 w-4 rounded border-gray-300 text-orange-600 focus:ring-orange-500 cursor-pointer"
                 />
                 <Label htmlFor="terms" className="text-sm">
                   J'accepte les{" "}
@@ -346,7 +346,7 @@ export function SignupForm() {
               <Button
                 type="submit"
                 className="w-full bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white"
-                disabled={isLoading || !formData.acceptTerms}
+                disabled={isLoading}
               >
                 {isLoading ? (
                   <div className="flex items-center">
@@ -363,12 +363,12 @@ export function SignupForm() {
             </form>
 
             <div className="text-center text-sm text-muted-foreground">
-              Déjà un compte?{" "}
+              Déjà un compte ?{" "}
               <Link
                 href="/auth/login"
                 className="text-orange-600 hover:text-orange-700 font-medium"
               >
-                Se connecter
+                Connectez-vous
               </Link>
             </div>
           </CardContent>

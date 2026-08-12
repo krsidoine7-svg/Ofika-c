@@ -28,12 +28,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
             const { data: { user }, error } = await supabase.auth.getUser()
             if (error) throw error
 
-            setUser(prev => {
-                if (prev?.id === user?.id && prev?.email === user?.email) {
-                    return prev
-                }
-                return user
-            })
+            setUser(user)
             return user
         } catch (err) {
             const authError = err as AuthError
@@ -80,7 +75,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
                 console.log('🔄 Auth event:', event)
 
                 if (session?.user) {
-                    setUser(prev => (prev?.id === session.user.id ? prev : session.user))
+                    setUser(session.user)
                 } else {
                     setUser(null)
                 }

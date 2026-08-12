@@ -53,14 +53,40 @@ export async function PATCH(
         const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
         const table = 'digital_nfc_cards'
 
-        const { error } = await supabaseAdmin
+        const { data: updatedCard, error } = await supabaseAdmin
             .from(table)
             .update(body)
             .eq('id', id)
+            .select()
+            .single()
 
         if (error) {
             console.error('Erreur Supabase lors de la mise à jour NFC:', error)
             return NextResponse.json({ error: error.message }, { status: 500 })
+        }
+
+        // Si la carte a un QR dynamique associé et que le lien a changé, on le met à jour
+        if (body.nfc_link) {
+            const qrRedirectId = updatedCard.qr_redirect_id || (updatedCard.preview_data as any)?.redirect_id;
+            if (qrRedirectId) {
+                // On nettoie le lien si c'est notre domaine
+                let cleanLink = body.nfc_link;
+                const appUrl = (process.env.NEXT_PUBLIC_APP_URL || '').replace(/\/$/, '');
+                if (cleanLink.includes(appUrl)) {
+                    const parts = cleanLink.split(appUrl);
+                    if (parts.length > 1) {
+                        cleanLink = parts[1].replace(/^\//, '');
+                    }
+                }
+
+                await supabaseAdmin
+                    .from('qr_redirects')
+                    .update({ 
+                        nfc_link: cleanLink,
+                        updated_at: new Date().toISOString()
+                    })
+                    .eq('id', qrRedirectId);
+            }
         }
 
         return NextResponse.json({ success: true, message: 'Carte mise à jour avec succès' })
