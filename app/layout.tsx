@@ -9,6 +9,7 @@ import { AuthProvider } from '@/lib/context/AuthContext'
 import { PwaRegister } from '@/components/PwaRegister'
 import { PwaInstallPrompt } from '@/components/PwaInstallPrompt'
 import { CookieBanner } from '@/components/ui/cookie-banner'
+import { OfflineBanner } from '@/components/ui/OfflineBanner'
 import './globals.css'
 
 const inter = Inter({
@@ -79,6 +80,7 @@ export default function RootLayout({
       <body className={`font-sans ${GeistSans.variable} ${GeistMono.variable} ${inter.variable}`} suppressHydrationWarning>
         <QueryProvider>
           <AuthProvider>
+            <OfflineBanner />
             {children}
             <Toaster
               position="top-right"

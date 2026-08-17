@@ -5,15 +5,16 @@
 
 ---
 
-## 📌 Vue d'Ensemble des 5 Catégories de Flux
+## 📌 Vue d'Ensemble des 6 Catégories de Flux
 
-Le dossier `flux-utilisateur/` est structuré en **5 sous-dossiers thématiques** :
+Le dossier `flux-utilisateur/` est structuré en **6 sous-dossiers thématiques** :
 
 1. 📂 **`auth-et-compte/`** : Inscription, Connexion classique & Google OAuth, Réinitialisation de mot de passe.
 2. 📂 **`onboarding/`** : Parcours d'accueil Get-Started, sélection de carte (NFC + QR / Digital), adresse de livraison.
 3. 📂 **`paiement/`** : Gateway GeniusPay (automatique), Wave Direct (virement + reçu), masquage dynamique du bouton Payer.
 4. 📂 **`cartes-et-profils/`** : Activation & liaison de puce NFC, édition du profil Link-in-Bio, scan visiteur et vCard.
 5. 📂 **`administration/`** : Suivi logistique (Préparation, Expédition, Livraison), configuration du prix & passerelles.
+6. 📂 **`pwa-et-offline/`** : Architecture PWA Offline-First, magasin IndexedDB, file d'attente FIFO, synchronisation réactive et notifications Push VAPID.
 
 ---
 
@@ -102,6 +103,25 @@ flowchart TD
         EditPricing --> FetchPrice
         ToggleGateways --> PayGateCheck
     end
+
+    %% ==========================================
+    %% 6. PWA, MODE HORS-LIGNE & PUSH VAPID
+    %% ==========================================
+    subgraph CAT6 ["6. PWA, MODE HORS-LIGNE & PUSH VAPID"]
+        UserSession --> NetCheck{Statut Connexion Réseau}
+        NetCheck -->|Connecté| OnlineApp[Navigation PWA classique]
+        NetCheck -->|Hors-Ligne| OfflineApp[IndexedDB ofika_offline_db + OfflineBanner Ambre]
+        OfflineApp --> OfflineMutations[Modifications & Création Profil en local FIFO]
+        OfflineMutations --> NetReturn[Retour du Réseau Internet]
+        NetReturn --> AutoSync[Hook useOfflineSync ➔ Supabase DB & Storage]
+        AutoSync --> ToastSuccess[Notification Toast : Synchro Réussie !]
+
+        UserSession --> PushOptIn[Activation Push VAPID dans paramètres]
+        PushOptIn --> PushSub[Enregistrement push_subscriptions]
+        AdminPrep --> PushTrigger[Backend envoie Notification Push VAPID]
+        PushTrigger --> ServiceWorker[SW sw.js réveillé en tâche de fond]
+        ServiceWorker --> NativeNotif[Affichage Notification Native Smartphone]
+    end
 ```
 
 ---
@@ -122,3 +142,5 @@ flowchart TD
 | **Cartes & Profils** | 📄 [consultation-visiteur-et-vcard.md](cartes-et-profils/consultation-visiteur-et-vcard.md) | Vue publique par un tiers et téléchargement du vCard .vcf. |
 | **Administration** | 📄 [gestion-logistique-commandes.md](administration/gestion-logistique-commandes.md) | Cycle logistique : Préparation ➔ Expédition ➔ Livraison. |
 | **Administration** | 📄 [configuration-passerelles-systeme.md](administration/configuration-passerelles-systeme.md) | Modification du tarif de base et bascule ON/OFF des passerelles. |
+| **PWA & Offline** | 📄 [pwa-offline-first-et-synchro.md](pwa-et-offline/pwa-offline-first-et-synchro.md) | Mode hors-ligne, stockage local IndexedDB, file d'attente et synchronisation réactive. |
+| **PWA & Offline** | 📄 [notifications-push-et-vapid.md](pwa-et-offline/notifications-push-et-vapid.md) | Souscription aux notifications Push VAPID, gestionnaire Service Worker `sw.js` et alertes natives. |

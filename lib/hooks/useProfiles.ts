@@ -8,6 +8,8 @@ import { BusinessRulesService } from '@/lib/services/business-rules'
 import { ErrorService } from '@/lib/services/error-service'
 import { useAuth } from './useAuth'
 
+import { saveOfflineProfiles, getOfflineProfiles, addPendingMutation } from '@/lib/offline/offlineStore'
+
 export function useProfiles(userId?: string) {
   const [profiles, setProfiles] = useState<ProfileWithLinks[]>([])
   const [loading, setLoading] = useState(true)
@@ -20,6 +22,14 @@ export function useProfiles(userId?: string) {
     try {
       setLoading(true)
       setError(null)
+
+      // En mode hors-ligne, lire immédiatement depuis IndexedDB
+      if (typeof window !== 'undefined' && !navigator.onLine) {
+        const cached = await getOfflineProfiles()
+        setProfiles(cached || [])
+        setLoading(false)
+        return
+      }
       
       // 🔒 SÉCURITÉ : Utiliser l'utilisateur du contexte si disponible
       if (!sharedUser) {
@@ -44,10 +54,21 @@ export function useProfiles(userId?: string) {
         .order('created_at', { ascending: false })
 
       if (error) throw error
-      setProfiles(data || [])
+      
+      const fetchedProfiles = data || []
+      setProfiles(fetchedProfiles)
+      
+      // Mettre en cache localement dans IndexedDB pour le futur mode hors-ligne
+      saveOfflineProfiles(fetchedProfiles)
     } catch (err) {
       console.error('Error fetching profiles:', err)
-      setError(err instanceof Error ? err.message : 'Erreur lors du chargement des profils')
+      // Fallback IndexedDB si échec réseau
+      const cached = await getOfflineProfiles()
+      if (cached && cached.length > 0) {
+        setProfiles(cached)
+      } else {
+        setError(err instanceof Error ? err.message : 'Erreur lors du chargement des profils')
+      }
     } finally {
       setLoading(false)
     }
@@ -76,6 +97,32 @@ export function useCreateProfile() {
       setLoading(true)
       setError(null)
       
+      // MODE HORS-LIGNE : Sauvegarde locale dans IndexedDB + Queue de mutation
+      if (typeof window !== 'undefined' && !navigator.onLine) {
+        const offlineId = `offline-${Date.now()}`
+        const offlineProfile: any = {
+          ...profileData,
+          id: offlineId,
+          user_id: profileData.user_id || 'offline-user',
+          profile_type: profileData.profile_type || 'professional',
+          is_active: true,
+          created_at: new Date().toISOString(),
+          updated_at: new Date().toISOString()
+        }
+
+        await addPendingMutation({
+          type: 'CREATE_PROFILE',
+          entity: 'profiles',
+          data: offlineProfile
+        })
+
+        const existingCached = await getOfflineProfiles()
+        await saveOfflineProfiles([offlineProfile, ...existingCached])
+
+        toast.info('Profil créé en mode hors-ligne. Il sera synchronisé automatiquement dès le retour du réseau.')
+        return offlineProfile
+      }
+
       // Vérifier l'authentification
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) {
