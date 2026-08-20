@@ -208,11 +208,11 @@ export async function middleware(request: NextRequest) {
   const isDev = process.env.NODE_ENV === 'development'
   const cspHeader = `
     default-src 'self';
-    script-src 'self' blob: https://*.supabase.co https://*.vercel-scripts.com https://*.google.com ${isDev ? "'unsafe-inline' 'unsafe-eval'" : ""};
+    script-src 'self' 'unsafe-inline' 'unsafe-eval' blob: https://*.supabase.co https://*.vercel-scripts.com https://*.vercel-insights.com https://*.google.com https://*.sentry.io https://*.ingest.sentry.io https://*.ingest.us.sentry.io;
     style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;
     img-src 'self' blob: data: https://*.supabase.co https://*.googleusercontent.com https://*.lygosapp.com https://api.qrserver.com https://images.unsplash.com;
     font-src 'self' https://fonts.gstatic.com;
-    connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.lygosapp.com https://ipapi.co;
+    connect-src 'self' https://*.supabase.co wss://*.supabase.co https://api.lygosapp.com https://ipapi.co https://*.sentry.io https://*.ingest.sentry.io https://*.ingest.us.sentry.io https://*.vercel-insights.com https://vitals.vercel-insights.com;
     worker-src 'self' blob:;
     child-src 'self' blob:;
     frame-src 'self' https://*.google.com;
