@@ -10,7 +10,9 @@ import { Stepper, Step } from '@/components/ui/stepper'
 import { ArrowLeft, CheckCircle, Globe, Eye, Palette, Sparkles, LayoutGrid, Leaf, Star, ShoppingBag, Moon, Briefcase, Crown, Users } from 'lucide-react'
 import { TemplateSelectionStep } from '@/components/features/profiles/TemplateSelectionStep'
 import { OnboardingWizard } from '@/components/features/profiles/onboarding/OnboardingWizard'
+import { MobileWysiwygEditor } from '@/components/features/onboarding/public-page/MobileWysiwygEditor'
 import { SignupStep } from '@/components/features/profiles/SignupStep'
+import { CelebrationPreviewModal } from '@/components/features/onboarding/public-page/CelebrationPreviewModal'
 import { PreviewStep } from '@/components/features/profiles/PreviewStep'
 import { createClient } from '@/lib/supabase/client'
 import { createNFCCard } from '@/lib/services/nfc-cards'
@@ -50,13 +52,8 @@ type CreationStep = 'form' | 'template' | 'signup' | 'success'
 const steps: Step[] = [
   {
     id: 'form',
-    title: 'Informations',
-    description: 'Vos coordonnées'
-  },
-  {
-    id: 'template',
-    title: 'Design',
-    description: 'Votre style'
+    title: 'Création',
+    description: 'Infos & Design'
   },
   {
     id: 'signup',
@@ -95,8 +92,8 @@ const createPreviewProfile = (formData: any, designChoice: string) => {
     custom_links: formData?.custom_links || [],
     is_public: formData?.is_public !== false,
     display_reviews: formData?.display_reviews || false,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
+    created_at: formData?.created_at || '2026-01-01T00:00:00.000Z',
+    updated_at: formData?.updated_at || '2026-01-01T00:00:00.000Z',
     links: (formData?.custom_links || []).map((link: any, index: number) => ({
       id: `preview-${index}`,
       profile_id: 'preview',
@@ -105,8 +102,8 @@ const createPreviewProfile = (formData: any, designChoice: string) => {
       position: index,
       click_count: 0,
       is_active: true,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+      created_at: '2026-01-01T00:00:00.000Z',
+      updated_at: '2026-01-01T00:00:00.000Z'
     }))
   }
 }
@@ -118,7 +115,12 @@ export default function PublicPageOnboardingPage() {
   const [loading, setLoading] = useState(false)
   const [createdProfile, setCreatedProfile] = useState<any>(null)
   const [selectedDesign, setSelectedDesign] = useState<string>('design1')
+  const [mounted, setMounted] = useState(false)
   const supabase = createClient()
+
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   const handleProfileFormChange = useCallback((data: any) => {
     setCreatedProfile((prev: any) => {
@@ -147,31 +149,36 @@ export default function PublicPageOnboardingPage() {
     }
   }
 
+  const [isCelebrationOpen, setIsCelebrationOpen] = useState(false)
+
   const getCurrentStepNumber = () => {
-    const stepMap = { form: 1, template: 2, signup: 3, success: 3 }
-    return stepMap[currentStep]
+    const stepMap: Record<CreationStep, number> = { form: 1, template: 1, signup: 2, success: 2 }
+    return stepMap[currentStep] || 1
   }
 
   const handleFormSuccess = async (profileData: any) => {
-    setCreatedProfile(profileData)
-    setCurrentStep('template')
+    setCreatedProfile((prev: any) => ({ ...prev, ...profileData }))
+    setIsCelebrationOpen(true)
   }
 
-  const handleTemplateSelection = (templateChoice: string) => {
-    setSelectedDesign(templateChoice)
-    
+  const handleCelebrationConfirm = () => {
+    setIsCelebrationOpen(false)
     if (user) {
       handleFinalPublication()
     } else {
-      // Sauvegarder les données pour pouvoir les récupérer après inscription
       if (createdProfile) {
         localStorage.setItem('pending_profile_creation', JSON.stringify({
           ...createdProfile,
-          design_choice: templateChoice
+          design_choice: selectedDesign
         }))
       }
       setCurrentStep('signup')
     }
+  }
+
+  const handleTemplateSelection = (templateChoice: string) => {
+    setSelectedDesign(templateChoice)
+    handleCelebrationConfirm()
   }
 
 
@@ -342,15 +349,33 @@ export default function PublicPageOnboardingPage() {
     switch (currentStep) {
       case 'form':
         return (
-          <Card className="lg:h-full flex flex-col lg:overflow-hidden border-none shadow-none lg:border lg:shadow-sm bg-white">
-            <CardContent className="pt-6 flex-1 lg:min-h-0 flex flex-col lg:overflow-hidden">
-              <OnboardingWizard
-                initialData={createdProfile}
-                onSuccess={handleFormSuccess}
+          <>
+            {/* Version Mobile : Édition directe WYSIWYG interactive sur la carte */}
+            <div className="lg:hidden w-full" suppressHydrationWarning>
+              <MobileWysiwygEditor
+                formData={createdProfile}
+                selectedDesign={selectedDesign}
+                onDesignChange={setSelectedDesign}
+                renderPreview={renderPreview}
+                availableTemplates={availableTemplates}
                 onChange={handleProfileFormChange}
+                onNext={() => handleFormSuccess(createdProfile)}
               />
-            </CardContent>
-          </Card>
+            </div>
+
+            {/* Version Desktop : Assistant classique à 4 étapes */}
+            <div className="hidden lg:block w-full" suppressHydrationWarning>
+              <Card className="flex flex-col border-none shadow-none lg:border lg:shadow-sm bg-white">
+                <CardContent className="pt-6 flex-1 flex flex-col p-0 sm:p-6">
+                  <OnboardingWizard
+                    initialData={createdProfile}
+                    onSuccess={handleFormSuccess}
+                    onChange={handleProfileFormChange}
+                  />
+                </CardContent>
+              </Card>
+            </div>
+          </>
         )
 
       case 'signup':
@@ -360,21 +385,11 @@ export default function PublicPageOnboardingPage() {
               <SignupStep
                 formData={createdProfile}
                 onSuccess={handleFinalPublication}
-                onPrev={() => setCurrentStep('template')}
+                onPrev={() => setCurrentStep('form')}
                 isLoading={loading}
               />
             </CardContent>
           </Card>
-        )
-
-      case 'template':
-        return (
-          <TemplateSelectionStep
-            onNext={handleTemplateSelection}
-            onPrev={() => setCurrentStep('form')}
-            formData={createdProfile}
-            isLoading={loading}
-          />
         )
 
       case 'success':
@@ -450,14 +465,14 @@ export default function PublicPageOnboardingPage() {
   const isSplitScreen = currentStep === 'form' || currentStep === 'signup'
 
   return (
-    <div className="min-h-screen lg:h-screen lg:overflow-hidden w-full bg-gradient-to-br from-blue-50 via-white to-purple-50 flex flex-col">
+    <div className="min-h-screen w-full bg-gradient-to-br from-blue-50 via-white to-purple-50 flex flex-col overflow-y-auto custom-scrollbar" suppressHydrationWarning>
       <div className="flex-1 flex flex-col p-4 sm:p-6 lg:p-8">
         <div className={`mx-auto w-full flex-1 flex flex-col ${
           isSplitScreen ? "max-w-6xl" : currentStep === 'template' ? "max-w-5xl" : "max-w-3xl"
         }`}>
 
-          {/* Stepper */}
-          <div className="flex-shrink-0 mb-4 sm:mb-6 max-w-2xl mx-auto w-full">
+          {/* Stepper (Desktop uniquement) */}
+          <div className="hidden lg:block flex-shrink-0 mb-4 sm:mb-6 max-w-2xl mx-auto w-full" suppressHydrationWarning>
             <Stepper steps={steps} currentStep={getCurrentStepNumber()} />
           </div>
 
@@ -535,7 +550,7 @@ export default function PublicPageOnboardingPage() {
           </div>
 
           {/* Bouton d'aperçu flottant pour mobile */}
-          {isSplitScreen && (
+          {(isSplitScreen || currentStep === 'template') && (
             <div className="lg:hidden fixed bottom-6 right-6 z-40">
               <Sheet>
                 <SheetTrigger asChild>
@@ -576,7 +591,7 @@ export default function PublicPageOnboardingPage() {
                   </div>
 
                   <div className="w-full flex justify-center py-2">
-                    <IPhone15Frame showColorPicker={true}>
+                    <IPhone15Frame showColorPicker={false}>
                       {renderPreview(selectedDesign)}
                     </IPhone15Frame>
                   </div>
@@ -584,6 +599,15 @@ export default function PublicPageOnboardingPage() {
               </Sheet>
             </div>
           )}
+
+          {/* Modal Popup de Félicitations & Aperçu Final Smartphone */}
+          <CelebrationPreviewModal
+            isOpen={isCelebrationOpen}
+            onClose={() => setIsCelebrationOpen(false)}
+            onConfirm={handleCelebrationConfirm}
+            selectedDesign={selectedDesign}
+            renderPreview={renderPreview}
+          />
         </div>
       </div>
     </div>

@@ -210,7 +210,7 @@ export async function POST(request: NextRequest) {
       const nfcLink = `${appUrl}/card/${nfcCard.id}`
 
       // Générer le QR code dynamique
-      const qrResult = await generateQRCode(nfcLink)
+      const qrResult = await generateQRCode(nfcLink, 200, supabase)
       
       let qrCodeUrl = ''
       let redirectId = ''

@@ -3,7 +3,7 @@
 // =====================================================
 
 import { createClient } from '@/lib/supabase/client'
-import { createQRRedirect, getQRCodeURL, getRedirectURL } from './qr-redirect-client'
+import { getQRCodeURL, getRedirectURL } from './qr-redirect-client'
 
 export interface QRCodeData {
   url: string
@@ -26,29 +26,52 @@ export interface QRCodeResponse {
  * Génère un code QR DYNAMIQUE pour une carte NFC
  * Le QR code pointe vers /qr/[shortCode] qui redirige vers la vraie URL
  */
-export async function generateQRCode(nfcLink: string, size: number = 200): Promise<QRCodeResponse> {
+export async function generateQRCode(
+  nfcLink: string, 
+  size: number = 200, 
+  customSupabaseClient?: any
+): Promise<QRCodeResponse> {
   try {
     // 1. Tenter de créer une redirection dynamique (pour les stats)
     try {
-      const redirectResult = await createQRRedirect({
-        nfc_link: nfcLink,
-        redirect_type: 'nfc_card',
-        title: 'Carte NFC',
-        description: 'Redirection vers le profil NFC'
-      })
+      const supabase = customSupabaseClient || createClient()
+      const { data: { user } } = await supabase.auth.getUser()
+      
+      if (user) {
+        const chars = 'abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789'
+        let shortCode = ''
+        for (let i = 0; i < 8; i++) {
+          shortCode += chars.charAt(Math.floor(Math.random() * chars.length))
+        }
 
-      if (redirectResult.success && redirectResult.data) {
-        const shortCode = redirectResult.data.short_code
-        const redirectUrl = getRedirectURL(shortCode)
-        const qrCodeUrl = getQRCodeURL(shortCode, size)
-
-        return {
-          success: true,
-          data: {
-            qr_code_url: qrCodeUrl,
-            qr_code_data: redirectUrl,
+        const { data: redirectData, error: redirectError } = await supabase
+          .from('qr_redirects')
+          .insert({
+            user_id: user.id,
             short_code: shortCode,
-            redirect_id: redirectResult.data.id
+            target_url: nfcLink,
+            nfc_link: nfcLink,
+            type: 'nfc_card',
+            redirect_type: 'nfc_card',
+            title: 'Carte NFC',
+            description: 'Redirection vers le profil NFC',
+            is_active: true
+          })
+          .select()
+          .single()
+
+        if (!redirectError && redirectData) {
+          const redirectUrl = getRedirectURL(shortCode)
+          const qrCodeUrl = getQRCodeURL(shortCode, size)
+
+          return {
+            success: true,
+            data: {
+              qr_code_url: qrCodeUrl,
+              qr_code_data: redirectUrl,
+              short_code: shortCode,
+              redirect_id: redirectData.id
+            }
           }
         }
       }

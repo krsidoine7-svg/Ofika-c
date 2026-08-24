@@ -414,6 +414,8 @@ export default function ProfilesPage() {
       profile_name: card.profile_name,
       color_theme: card.color_theme || 'ofika',
       nfc_link: card.nfc_link,
+      short_code: (card as any).short_code || (card as any).preview_data?.short_code,
+      preview_data: (card as any).preview_data,
       full_name: card.full_name || profileToPreview?.name || card.profile_name,
       company: card.company || '',
       job_title: card.job_title || '',

@@ -7,7 +7,7 @@ import {
   Users, CreditCard, Settings, BarChart3, TrendingUp, LayoutDashboard,
   UserCheck, Package, ShieldCheck, History, Megaphone, Terminal,
   Contact, Palette, Cpu, Link2, Building, Sparkles, Wallet, ArrowLeft,
-  ChevronRight
+  ChevronRight, QrCode
 } from "lucide-react"
 
 import {
@@ -44,8 +44,7 @@ const navGroups = [
   {
     title: 'NFC & QR Codes',
     items: [
-      { label: 'Cartes NFC', icon: UserCheck, href: '/dashboard/admin/nfc' },
-      { label: 'Redirections QR', icon: Link2, href: '/dashboard/admin/qr-redirects' },
+      { label: 'Gestion NFC & QR', icon: QrCode, href: '/dashboard/admin/nfc' },
     ]
   },
   {

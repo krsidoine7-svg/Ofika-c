@@ -62,11 +62,11 @@ export function validateTargetUrl(url: string): { valid: boolean; error?: string
       return { valid: false, error: `Protocole non autorisé: ${parsedUrl.protocol}` }
     }
 
-    // Interdire les redirections vers localhost ou IPs privées (sécurité)
+    // Interdire les redirections vers localhost ou IPs privées en PRODUCTION (sécurité)
     if (parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:') {
       const hostname = parsedUrl.hostname.toLowerCase()
       
-      if (
+      const isLocalHost = 
         hostname === 'localhost' ||
         hostname === '127.0.0.1' ||
         hostname === '0.0.0.0' ||
@@ -76,7 +76,8 @@ export function validateTargetUrl(url: string): { valid: boolean; error?: string
         hostname.startsWith('169.254.') ||
         hostname === '[::1]' ||
         hostname.endsWith('.local')
-      ) {
+
+      if (isLocalHost && process.env.NODE_ENV === 'production') {
         return { valid: false, error: 'Redirections vers des adresses locales non autorisées' }
       }
     }

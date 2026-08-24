@@ -1,10 +1,7 @@
 import { NextResponse } from 'next/server'
-import { createClient } from '@supabase/supabase-js'
+import { createAdminClient } from '@/lib/supabase/service-role'
 
 export const dynamic = 'force-dynamic'
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
 
 /**
  * Génère un code court unique
@@ -46,7 +43,7 @@ export async function POST(
             return NextResponse.json({ error: 'ID manquant' }, { status: 400 })
         }
 
-        const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
+        const supabaseAdmin = createAdminClient()
         
         // 1. Récupérer la carte NFC
         const { data: card, error: fetchError } = await supabaseAdmin
@@ -59,20 +56,25 @@ export async function POST(
             return NextResponse.json({ error: 'Carte non trouvée' }, { status: 404 })
         }
 
-        let nfcLink = card.nfc_link || (card.preview_data as any)?.nfc_link
-
-        if (!nfcLink) {
-            return NextResponse.json({ error: 'Lien NFC manquant sur la carte' }, { status: 400 })
+        let body: any = {}
+        try {
+            body = await request.json()
+        } catch {
+            // body optionnel
         }
 
-        // SMART STORAGE: Si le lien contient notre domaine, on ne garde que le slug
-        const appUrl = (process.env.NEXT_PUBLIC_APP_URL || '').replace(/\/$/, '')
-        if (nfcLink.includes(appUrl)) {
-            // Extrait ce qui vient après le domaine (ex: "errison")
-            const parts = nfcLink.split(appUrl)
-            if (parts.length > 1) {
-                nfcLink = parts[1].replace(/^\//, '') // retire le slash initial si présent
-                console.log('🔗 Slug extrait de l\'URL interne:', nfcLink)
+        let nfcLink = body.nfc_link || card.nfc_link || (card.preview_data as any)?.nfc_link || `https://ofika.ci/card/${card.id}`
+
+        // SMART STORAGE: Si le lien contient notre domaine (et si APP_URL est défini), on ne garde que le slug
+        const rawAppUrl = process.env.NEXT_PUBLIC_APP_URL
+        if (rawAppUrl) {
+            const appUrl = rawAppUrl.replace(/\/$/, '')
+            if (appUrl && nfcLink.includes(appUrl)) {
+                const parts = nfcLink.split(appUrl)
+                if (parts.length > 1 && parts[1]) {
+                    nfcLink = parts[1].replace(/^\//, '') // retire le slash initial si présent
+                    console.log('🔗 Slug extrait de l\'URL interne:', nfcLink)
+                }
             }
         }
 
@@ -86,15 +88,15 @@ export async function POST(
             const { data: updatedRedirect, error: updateError } = await supabaseAdmin
                 .from('qr_redirects')
                 .update({
-                    nfc_link: nfcLink,
+                    target_url: nfcLink,
                     title: `QR Régénéré - ${card.profile_name || 'Sans titre'}`,
                     updated_at: new Date().toISOString()
                 })
                 .eq('id', redirectId)
                 .select()
-                .single();
+                .maybeSingle();
             
-            if (!updateError) {
+            if (!updateError && updatedRedirect) {
                 redirect = updatedRedirect;
                 shortCode = redirect.short_code;
             }
@@ -104,29 +106,76 @@ export async function POST(
         if (!redirect) {
             console.log('✨ Création d\'une nouvelle redirection QR');
             shortCode = await generateUniqueShortCode(supabaseAdmin);
+
+            // Gérer le user_id pour respecter la contrainte FK (qr_redirects_user_id_users_id_fk)
+            let validUserId: string | null = null
+            if (card.user_id) {
+                const { data: userCheck } = await supabaseAdmin
+                    .from('users')
+                    .select('id')
+                    .eq('id', card.user_id)
+                    .maybeSingle()
+                
+                if (userCheck) {
+                    validUserId = userCheck.id
+                }
+            }
+
+            if (!validUserId && card.email) {
+                const { data: userByEmail } = await supabaseAdmin
+                    .from('users')
+                    .select('id')
+                    .eq('email', card.email)
+                    .maybeSingle()
+                
+                if (userByEmail) {
+                    validUserId = userByEmail.id
+                }
+            }
+
+            if (!validUserId) {
+                const { data: fallbackUser } = await supabaseAdmin
+                    .from('users')
+                    .select('id')
+                    .limit(1)
+                    .maybeSingle()
+                
+                if (fallbackUser) {
+                    validUserId = fallbackUser.id
+                }
+            }
+
+            if (!validUserId) {
+                return NextResponse.json({ error: 'Aucun utilisateur valide trouvé dans la base de données' }, { status: 500 })
+            }
+
+            const insertPayload: Record<string, any> = {
+                user_id: validUserId,
+                short_code: shortCode,
+                target_url: nfcLink,
+                type: 'nfc_card',
+                title: `QR Régénéré - ${card.profile_name || 'Sans titre'}`,
+                is_active: true
+            }
+
             const { data: newRedirect, error: insertError } = await supabaseAdmin
                 .from('qr_redirects')
-                .insert({
-                    user_id: card.user_id,
-                    short_code: shortCode,
-                    nfc_link: nfcLink,
-                    redirect_type: 'nfc_card',
-                    title: `QR Régénéré - ${card.profile_name || 'Sans titre'}`,
-                    is_active: true,
-                    scan_count: 0
-                })
+                .insert(insertPayload)
                 .select()
                 .single();
 
             if (insertError) {
                 console.error('Erreur lors de la création du redirect QR:', insertError);
-                return NextResponse.json({ error: 'Erreur lors de la création de la redirection QR' }, { status: 500 });
+                return NextResponse.json({ 
+                    error: 'Erreur lors de la création de la redirection QR', 
+                    details: insertError.message 
+                }, { status: 500 });
             }
             redirect = newRedirect;
         }
 
         // 4. Mettre à jour la carte avec le nouveau QR
-        const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
+        const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000').replace(/\/$/, '')
         const redirectUrl = `${baseUrl}/qr/${shortCode}`
         const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(redirectUrl)}`
 
@@ -150,7 +199,7 @@ export async function POST(
 
         if (updateError) {
             console.error('Erreur lors de la mise à jour de la carte:', updateError)
-            return NextResponse.json({ error: 'Erreur lors de la mise à jour de la carte' }, { status: 500 })
+            return NextResponse.json({ error: 'Erreur lors de la mise à jour de la carte', details: updateError.message }, { status: 500 })
         }
 
         return NextResponse.json({ 
@@ -164,6 +213,6 @@ export async function POST(
 
     } catch (error: any) {
         console.error('Erreur API régénération QR:', error)
-        return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 })
+        return NextResponse.json({ error: 'Erreur interne du serveur', details: error.message }, { status: 500 })
     }
 }

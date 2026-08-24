@@ -26,6 +26,8 @@ interface NFCCardPreviewProps {
     profile_name: string
     color_theme: string
     nfc_link: string
+    short_code?: string
+    preview_data?: any
     design_choice?: string
     full_name?: string
     company?: string
@@ -65,6 +67,12 @@ export function NFCCardPreview({ card, publicPages = [], onClose, onCardUpdated,
     logo_url: card.logo_url || ''
   })
 
+  const shortCodeToUse = card.short_code || card.preview_data?.short_code
+  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://ofika.ci').replace(/\/$/, '')
+  const qrValueToRender = shortCodeToUse
+    ? `${baseUrl}/qr/${shortCodeToUse}`
+    : (currentNfcLink ? (currentNfcLink.startsWith('http') ? currentNfcLink : `${baseUrl}/${currentNfcLink.replace(/^\//, '')}`) : `${baseUrl}/`)
+
   useEffect(() => {
     if (publicPages.length > 0) {
       const currentPage = publicPages.find(page => {
@@ -88,7 +96,6 @@ export function NFCCardPreview({ card, publicPages = [], onClose, onCardUpdated,
   const handleViewPublicPage = () => {
     if (currentNfcLink) {
       // Utiliser l'URL configurée ou celle du lien tel quel
-      const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'
       const publicUrl = currentNfcLink.startsWith('http')
         ? currentNfcLink
         : `${baseUrl}/${currentNfcLink.replace(/^\//, '')}`
@@ -222,7 +229,7 @@ export function NFCCardPreview({ card, publicPages = [], onClose, onCardUpdated,
                           fullName: cardData.full_name,
                           jobTitle: cardData.job_title,
                           logoUrl: cardData.logo_url,
-                          qrValue: currentNfcLink
+                          qrValue: qrValueToRender
                         }}
                       />
                     </div>
@@ -238,7 +245,7 @@ export function NFCCardPreview({ card, publicPages = [], onClose, onCardUpdated,
                           fullName: cardData.full_name,
                           jobTitle: cardData.job_title,
                           logoUrl: cardData.logo_url,
-                          qrValue: currentNfcLink
+                          qrValue: qrValueToRender
                         }}
                       />
                     </div>

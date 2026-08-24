@@ -70,13 +70,21 @@ export async function createQRRedirect(
     }
 
     const shortCode = await generateUniqueShortCode(supabase)
+    const targetUrl = (input as any).target_url || (input as any).nfc_link || ''
+    const redirectType = (input as any).type || (input as any).redirect_type || 'custom'
 
     const { data, error } = await supabase
       .from('qr_redirects')
       .insert({
         user_id: user.id,
         short_code: shortCode,
-        ...input
+        target_url: targetUrl,
+        nfc_link: targetUrl,
+        type: redirectType,
+        redirect_type: redirectType,
+        title: input.title || null,
+        description: input.description || null,
+        is_active: true
       })
       .select()
       .single()

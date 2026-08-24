@@ -6,8 +6,10 @@ export interface QRRedirect {
   id: string
   user_id: string
   short_code: string
-  nfc_link: string
-  redirect_type: 'nfc_card' | 'profile' | 'custom' | 'static'
+  target_url: string
+  nfc_link?: string
+  type: 'nfc_card' | 'profile' | 'custom' | 'static'
+  redirect_type?: 'nfc_card' | 'profile' | 'custom' | 'static'
   title?: string
   description?: string
   campaign_id?: string
@@ -34,7 +36,9 @@ export interface QRScan {
 }
 
 export interface CreateQRRedirectInput {
-  nfc_link: string
+  target_url?: string
+  nfc_link?: string
+  type?: 'nfc_card' | 'profile' | 'custom' | 'static'
   redirect_type?: 'nfc_card' | 'profile' | 'custom' | 'static'
   title?: string
   description?: string
@@ -42,6 +46,7 @@ export interface CreateQRRedirectInput {
 }
 
 export interface UpdateQRRedirectInput {
+  target_url?: string
   nfc_link?: string
   title?: string
   description?: string

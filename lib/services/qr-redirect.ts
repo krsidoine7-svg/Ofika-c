@@ -83,8 +83,11 @@ export async function createQRRedirect(
       }
     }
 
+    const targetUrl = input.target_url || input.nfc_link || ''
+    const redirectType = input.type || input.redirect_type || 'custom'
+
     // Validation de l'URL cible
-    const urlValidation = validateTargetUrl(input.nfc_link)
+    const urlValidation = validateTargetUrl(targetUrl)
     if (!urlValidation.valid) {
       return { success: false, error: urlValidation.error }
     }
@@ -110,12 +113,11 @@ export async function createQRRedirect(
       .insert({
         user_id: user.id,
         short_code: shortCode,
-        nfc_link: input.nfc_link,
-        redirect_type: input.redirect_type || 'custom',
+        target_url: targetUrl,
+        type: redirectType,
         title: input.title,
         description: input.description,
-        is_active: true,
-        scan_count: 0
+        is_active: true
       })
       .select()
       .single()

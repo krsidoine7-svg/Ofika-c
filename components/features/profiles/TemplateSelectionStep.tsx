@@ -39,6 +39,8 @@ interface TemplateSelectionStepProps {
   onNext: (selectedTemplate: string) => void
   onPrev: () => void
   formData: any
+  selectedTemplate?: string
+  onTemplateChange?: (templateId: string) => void
   isLoading?: boolean
 }
 
@@ -47,32 +49,32 @@ const createPreviewProfile = (formData: any, designChoice: string) => {
   return {
     id: 'preview',
     user_id: 'preview-user',
-    profile_type: formData.profile_type || 'public' as const,
-    name: formData.name || 'Votre Nom',
-    bio: formData.bio || '',
-    image_url: formData.image_url || null,
-    custom_url: formData.custom_url || formData.username || 'votre-url',
-    username: formData.username || formData.custom_url || 'votre-url',
-    email: formData.email || null,
-    phone: formData.phone || null,
-    location: formData.location || null,
-    whatsapp: formData.whatsapp || null,
-    facebook: formData.facebook || null,
-    instagram: formData.instagram || null,
-    twitter: formData.twitter || null,
-    youtube: formData.youtube || null,
-    tiktok: formData.tiktok || null,
-    website: formData.website || null,
+    profile_type: formData?.profile_type || 'public' as const,
+    name: formData?.name || 'Votre Nom',
+    bio: formData?.bio || '',
+    image_url: formData?.image_url || null,
+    custom_url: formData?.custom_url || formData?.username || 'votre-url',
+    username: formData?.username || formData?.custom_url || 'votre-url',
+    email: formData?.email || null,
+    phone: formData?.phone || null,
+    location: formData?.location || null,
+    whatsapp: formData?.whatsapp || null,
+    facebook: formData?.facebook || null,
+    instagram: formData?.instagram || null,
+    twitter: formData?.twitter || null,
+    youtube: formData?.youtube || null,
+    tiktok: formData?.tiktok || null,
+    website: formData?.website || null,
     design_choice: designChoice,
     color_theme: 'default',
     is_active: true,
-    social_links: formData.social_links || [],
-    custom_links: formData.custom_links || [],
-    is_public: formData.is_public !== false,
-    display_reviews: formData.display_reviews || false,
-    created_at: new Date().toISOString(),
-    updated_at: new Date().toISOString(),
-    links: (formData.custom_links || []).map((link: any, index: number) => ({
+    social_links: formData?.social_links || [],
+    custom_links: formData?.custom_links || [],
+    is_public: formData?.is_public !== false,
+    display_reviews: formData?.display_reviews || false,
+    created_at: formData?.created_at || '2026-01-01T00:00:00.000Z',
+    updated_at: formData?.updated_at || '2026-01-01T00:00:00.000Z',
+    links: (formData?.custom_links || []).map((link: any, index: number) => ({
       id: `preview-${index}`,
       profile_id: 'preview',
       title: link.title,
@@ -80,8 +82,8 @@ const createPreviewProfile = (formData: any, designChoice: string) => {
       position: index,
       click_count: 0,
       is_active: true,
-      created_at: new Date().toISOString(),
-      updated_at: new Date().toISOString()
+      created_at: '2026-01-01T00:00:00.000Z',
+      updated_at: '2026-01-01T00:00:00.000Z'
     }))
   }
 }
@@ -237,13 +239,19 @@ export function TemplateSelectionStep({
   onNext,
   onPrev,
   formData,
+  selectedTemplate: initialTemplate,
+  onTemplateChange,
   isLoading = false
 }: TemplateSelectionStepProps) {
-  const [selectedTemplate, setSelectedTemplate] = useState<string>('design1')
-  const previewProfile = createPreviewProfile(formData, selectedTemplate)
+  const [selectedTemplate, setSelectedTemplate] = useState<string>(
+    initialTemplate || formData?.design_choice || 'design1'
+  )
 
   const handleNext = () => { onNext(selectedTemplate) }
-  const handleTemplateSelect = (templateId: string) => { setSelectedTemplate(templateId) }
+  const handleTemplateSelect = (templateId: string) => { 
+    setSelectedTemplate(templateId)
+    onTemplateChange?.(templateId)
+  }
   const getTemplateInfo = (templateId: string) => {
     return templates.find(t => t.id === templateId) || templates[0]
   }
@@ -270,7 +278,7 @@ export function TemplateSelectionStep({
 
   return (
     <div className="flex flex-col justify-between">
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 mt-2 flex-1">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start w-full flex-1">
         {/* COLONNE SÉLECTION VERTICALE - GAUCHE */}
         <div className="col-span-12 lg:col-span-7 flex flex-col">
           <div className="flex-shrink-0">
@@ -325,52 +333,56 @@ export function TemplateSelectionStep({
               })}
             </div>
 
-              {/* Navigation buttons moved here */}
-              <div className="flex justify-between pt-3 mt-3 border-t border-gray-100 flex-shrink-0 bg-white w-full pr-2">
-                <Button variant="outline" onClick={onPrev} disabled={isLoading}>Précédent</Button>
-                <Button onClick={handleNext} disabled={isLoading} className="bg-orange-500 hover:bg-orange-600 text-white font-bold">{isLoading ? 'Création en cours...' : 'Créer ma page'}</Button>
-              </div>
-
+            {/* Navigation buttons moved here */}
+            <div className="flex justify-between pt-3 mt-3 border-t border-gray-100 flex-shrink-0 bg-white w-full pr-2">
+              <Button variant="outline" onClick={onPrev} disabled={isLoading}>Précédent</Button>
+              <Button onClick={handleNext} disabled={isLoading} className="bg-orange-500 hover:bg-orange-600 text-white font-bold">{isLoading ? 'Création en cours...' : 'Créer ma page'}</Button>
             </div>
+
           </div>
+        </div>
 
         {/* COLONNE APERÇU + DESCRIPTION - DROITE */}
-        <div className="col-span-12 lg:col-span-5 hidden lg:flex flex-col items-center justify-start sticky top-4 self-start pt-4">
-          <div className="flex flex-col items-center justify-start w-full">
-            <h3 className="font-semibold text-center text-xs uppercase tracking-wider text-gray-400 mb-2 items-center flex justify-center gap-2 flex-shrink-0">
-              <Eye className="w-3.5 h-3.5" />
+        <div className="col-span-12 lg:col-span-5 hidden lg:flex flex-col items-center justify-start sticky top-2 self-start">
+          <div className="flex flex-col items-center justify-center w-full max-w-[360px] -mt-8">
+            <h3 className="font-semibold text-center text-xs uppercase tracking-wider text-gray-400 mb-2 flex items-center justify-center gap-2 flex-shrink-0">
+              <Eye className="w-3.5 h-3.5 text-orange-500" />
               Aperçu en temps réel
             </h3>
 
-            <div className="w-[300px] flex justify-center mt-4">
-              <IPhone15Frame showColorPicker={true} scaleClass="scale-[0.60] sm:scale-[0.65] lg:scale-[0.70] xl:scale-[0.75] origin-top">
-                <AnimatePresence mode="wait">
-                  <motion.div
-                    key={selectedTemplate}
-                    initial={{ opacity: 0, y: 10, scale: 0.98 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    exit={{ opacity: 0, y: -10, scale: 0.98 }}
-                    transition={{ duration: 0.3 }}
-                    className="min-h-full animate-in fade-in zoom-in duration-300 w-full h-full bg-white"
-                  >
-                    {renderPreview(selectedTemplate) ?? (
-                      <div className="flex flex-col items-center justify-center h-full text-gray-400 text-center italic p-8 gap-4">
-                        <div className="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center">
-                          <Palette className="w-8 h-8 text-gray-200" />
-                        </div>
-                        <p>Aucun aperçu disponible pour ce template</p>
-                      </div>
-                    )}
-                  </motion.div>
-                </AnimatePresence>
-              </IPhone15Frame>
+            {/* Spacer equivalent to the pill bar height in page.tsx for exact vertical alignment */}
+            <div className="w-full mb-3 flex items-center justify-center py-1.5 px-3 rounded-full bg-orange-50 border border-orange-100 text-orange-700 text-xs font-semibold shadow-xs">
+              <Sparkles className="w-3.5 h-3.5 text-orange-500 mr-1.5" />
+              <span>Design sélectionné : {selectedTemplateInfo.name}</span>
             </div>
 
+            <IPhone15Frame showColorPicker={true} scaleClass="scale-[0.60] sm:scale-[0.65] lg:scale-[0.70] xl:scale-[0.75] origin-top">
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={selectedTemplate}
+                  initial={{ opacity: 0, y: 10, scale: 0.98 }}
+                  animate={{ opacity: 1, y: 0, scale: 1 }}
+                  exit={{ opacity: 0, y: -10, scale: 0.98 }}
+                  transition={{ duration: 0.3 }}
+                  className="w-full h-full min-h-full relative flex flex-col animate-in fade-in zoom-in duration-300 bg-white"
+                >
+                  {renderPreview(selectedTemplate) ?? (
+                    <div className="flex flex-col items-center justify-center h-full text-gray-400 text-center italic p-8 gap-4">
+                      <div className="w-16 h-16 rounded-full bg-gray-50 flex items-center justify-center">
+                        <Palette className="w-8 h-8 text-gray-200" />
+                      </div>
+                      <p>Aucun aperçu disponible pour ce template</p>
+                    </div>
+                  )}
+                </motion.div>
+              </AnimatePresence>
+            </IPhone15Frame>
+
             {/* Légende */}
-            <div className="mt-2 flex-shrink-0 flex flex-col items-center gap-1">
-              <Badge className="bg-gray-100 text-gray-900 border-none px-3 py-0.5 text-[10px] font-bold">
-                Design : {selectedTemplateInfo.name}
-              </Badge>
+            <div className="mt-2 flex-shrink-0">
+              <p className="text-[10px] text-gray-400 italic text-center max-w-[220px]">
+                Aperçu interactif : modifiez le template pour voir le rendu en direct.
+              </p>
             </div>
           </div>
         </div>
@@ -378,3 +390,4 @@ export function TemplateSelectionStep({
     </div>
   )
 }
+

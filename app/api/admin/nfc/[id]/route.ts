@@ -71,18 +71,21 @@ export async function PATCH(
             if (qrRedirectId) {
                 // On nettoie le lien si c'est notre domaine
                 let cleanLink = body.nfc_link;
-                const appUrl = (process.env.NEXT_PUBLIC_APP_URL || '').replace(/\/$/, '');
-                if (cleanLink.includes(appUrl)) {
-                    const parts = cleanLink.split(appUrl);
-                    if (parts.length > 1) {
-                        cleanLink = parts[1].replace(/^\//, '');
+                const rawAppUrl = process.env.NEXT_PUBLIC_APP_URL
+                if (rawAppUrl) {
+                    const appUrl = rawAppUrl.replace(/\/$/, '')
+                    if (appUrl && cleanLink.includes(appUrl)) {
+                        const parts = cleanLink.split(appUrl);
+                        if (parts.length > 1 && parts[1]) {
+                            cleanLink = parts[1].replace(/^\//, '');
+                        }
                     }
                 }
 
                 await supabaseAdmin
                     .from('qr_redirects')
                     .update({ 
-                        nfc_link: cleanLink,
+                        target_url: cleanLink,
                         updated_at: new Date().toISOString()
                     })
                     .eq('id', qrRedirectId);

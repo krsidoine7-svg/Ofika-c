@@ -95,12 +95,29 @@ export default async function QRRedirectPage({ params }: QRRedirectPageProps) {
       console.log('⏭️ Scan ignoré (debounce actif)')
     }
 
-    let targetUrl = qrRedirect.nfc_link
+    let targetUrl = qrRedirect.target_url || qrRedirect.nfc_link
+
+    if (!targetUrl) {
+      console.warn(`⚠️ [QR] Aucun lien de destination trouvé pour "${shortCode}"`)
+      return (
+        <html lang="fr">
+          <head>
+            <meta charSet="utf-8" />
+            <title>Lien de destination manquant</title>
+          </head>
+          <body style={{ fontFamily: 'system-ui', padding: '20px', textAlign: 'center' }}>
+            <h1>Lien non configuré</h1>
+            <p>Ce QR Code n'a pas encore de lien de destination configuré.</p>
+            <a href="/">Retour à l'accueil</a>
+          </body>
+        </html>
+      )
+    }
 
     // SMART REDIRECT: Si c'est juste un slug (ex: "errison"), on construit l'URL complète dynamiquement
     // ET on force le paramètre source=qr pour les trackers clients
     if (targetUrl && !targetUrl.startsWith('http')) {
-      const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || '').replace(/\/$/, '')
+      const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://ofika.ci').replace(/\/$/, '')
       const cleanSlug = targetUrl.replace(/^\//, '')
       targetUrl = `${baseUrl}/${cleanSlug}`
     } else if (targetUrl) {
