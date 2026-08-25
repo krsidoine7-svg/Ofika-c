@@ -5,6 +5,7 @@
 
 import { createClient } from '@/lib/supabase/client'
 import type { QRRedirect, CreateQRRedirectInput } from '@/lib/types/qr-redirect'
+import { normalizeToFullUrl } from '@/lib/utils/qr-validation'
 
 /**
  * Génère un code court unique
@@ -70,7 +71,8 @@ export async function createQRRedirect(
     }
 
     const shortCode = await generateUniqueShortCode(supabase)
-    const targetUrl = (input as any).target_url || (input as any).nfc_link || ''
+    const rawTargetUrl = (input as any).target_url || (input as any).nfc_link || ''
+    const targetUrl = normalizeToFullUrl(rawTargetUrl)
     const redirectType = (input as any).type || (input as any).redirect_type || 'custom'
 
     const { data, error } = await supabase
@@ -79,9 +81,7 @@ export async function createQRRedirect(
         user_id: user.id,
         short_code: shortCode,
         target_url: targetUrl,
-        nfc_link: targetUrl,
         type: redirectType,
-        redirect_type: redirectType,
         title: input.title || null,
         description: input.description || null,
         is_active: true
@@ -164,13 +164,23 @@ export async function updateQRRedirect(
       }
     }
 
+    const payload: any = { ...updates }
+    if (payload.nfc_link) {
+      payload.target_url = normalizeToFullUrl(payload.nfc_link)
+      delete payload.nfc_link
+    }
+    if (payload.target_url) {
+      payload.target_url = normalizeToFullUrl(payload.target_url)
+    }
+    delete payload.redirect_type
+
     const { data, error } = await supabase
       .from('qr_redirects')
-      .update(updates)
+      .update(payload)
       .eq('id', id)
       .eq('user_id', user.id)
       .select()
-      .single()
+      .maybeSingle()
 
     if (error) {
       console.error('Error updating QR redirect:', error)

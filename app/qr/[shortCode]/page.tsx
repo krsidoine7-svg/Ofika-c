@@ -2,7 +2,7 @@
 // PAGE DE REDIRECTION QR CODE DYNAMIQUE
 // =====================================================
 
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/service-role'
 import { trackQRScan } from '@/lib/services/qr-redirect'
 import { headers } from 'next/headers'
 import { getClientIp, validateTargetUrl } from '@/lib/utils/qr-validation'
@@ -15,7 +15,7 @@ interface QRRedirectPageProps {
 
 export default async function QRRedirectPage({ params }: QRRedirectPageProps) {
   const { shortCode } = await params
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   try {
     // Récupérer la redirection
@@ -114,33 +114,55 @@ export default async function QRRedirectPage({ params }: QRRedirectPageProps) {
       )
     }
 
-    // SMART REDIRECT: Si c'est juste un slug (ex: "errison"), on construit l'URL complète dynamiquement
-    // ET on force le paramètre source=qr pour les trackers clients
-    if (targetUrl && !targetUrl.startsWith('http')) {
-      const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://ofika.ci').replace(/\/$/, '')
-      const cleanSlug = targetUrl.replace(/^\//, '')
-      targetUrl = `${baseUrl}/${cleanSlug}`
-    } else if (targetUrl) {
-      // Nettoyage des doubles slashes accidentels dans les URLs complètes
-      targetUrl = targetUrl.replace(/([^:]\/)\/+/g, "$1")
+    // 1. Validation préalable du lien brut
+    const preValidation = validateTargetUrl(targetUrl)
+    if (!preValidation.valid) {
+      console.warn(`🛑 Lien de destination invalide/dangereux (${targetUrl}): ${preValidation.error}`)
+      return (
+        <html lang="fr">
+          <head>
+            <meta charSet="utf-8" />
+            <title>Lien non autorisé</title>
+          </head>
+          <body style={{ fontFamily: 'system-ui', padding: '20px', textAlign: 'center' }}>
+            <h1>Lien non autorisé</h1>
+            <p>Le lien de destination n'est pas autorisé pour des raisons de sécurité.</p>
+            <a href="/">Retour à l'accueil</a>
+          </body>
+        </html>
+      )
     }
 
-    // Ajouter le paramètre de tracking si absent
-    if (targetUrl) {
-      const urlObj = new URL(targetUrl.includes('://') ? targetUrl : `https://${targetUrl}`)
-      if (!urlObj.searchParams.has('source') && !urlObj.searchParams.has('src')) {
-        urlObj.searchParams.set('source', 'qr')
-        targetUrl = urlObj.toString().replace('https://', '').includes('://') ? urlObj.toString() : urlObj.toString().split('//')[1]
-        // Fix for local absolute URLs
-        if (targetUrl.startsWith('localhost')) targetUrl = 'http://' + targetUrl
-        else if (!targetUrl.startsWith('http')) targetUrl = 'https://' + targetUrl
+    // 2. Traitement et normalisation de l'URL cible
+    const appUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://ofika.ci').replace(/\/$/, '')
+    
+    if (!targetUrl.startsWith('http://') && 
+        !targetUrl.startsWith('https://') && 
+        !targetUrl.startsWith('tel:') && 
+        !targetUrl.startsWith('mailto:') && 
+        !targetUrl.startsWith('data:')) {
+      // Slug ou chemin relatif (ex: "kevsuccessmainone" ou "/trtr")
+      const cleanPath = targetUrl.startsWith('/') ? targetUrl : `/${targetUrl}`
+      targetUrl = `${appUrl}${cleanPath}`
+    }
+
+    // 3. Ajouter le paramètre source=qr si c'est une URL web HTTP/HTTPS
+    if (targetUrl.startsWith('http://') || targetUrl.startsWith('https://')) {
+      try {
+        const urlObj = new URL(targetUrl)
+        if (!urlObj.searchParams.has('source') && !urlObj.searchParams.has('src')) {
+          urlObj.searchParams.set('source', 'qr')
+        }
+        targetUrl = urlObj.toString()
+      } catch (e) {
+        console.error('Error adding tracking param:', e)
       }
     }
 
-    // VALIDATION DE SÉCURITÉ - Empêcher XSS et protocoles dangereux
-    const validation = validateTargetUrl(targetUrl)
-    if (!validation.valid) {
-      console.warn(`🛑 Tentative de redirection vers une URL non autorisée: ${targetUrl}`)
+    // 4. Validation finale de l'URL construite
+    const finalValidation = validateTargetUrl(targetUrl)
+    if (!finalValidation.valid) {
+      console.warn(`🛑 Redirection finale non autorisée: ${targetUrl}`)
       return (
         <html lang="fr">
           <head>
@@ -258,7 +280,7 @@ export default async function QRRedirectPage({ params }: QRRedirectPageProps) {
 // Metadata pour SEO
 export async function generateMetadata({ params }: QRRedirectPageProps) {
   const { shortCode } = await params
-  const supabase = await createClient()
+  const supabase = createAdminClient()
 
   const { data: qrRedirect } = await supabase
     .from('qr_redirects')

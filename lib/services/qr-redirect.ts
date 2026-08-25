@@ -12,7 +12,8 @@ import type {
 import { 
   validateTargetUrl, 
   validateTitle, 
-  validateDescription 
+  validateDescription,
+  normalizeToFullUrl
 } from '@/lib/utils/qr-validation'
 import { rateLimitQRCreation } from '@/lib/utils/rate-limit'
 import { getLocationFromIP } from './ip-geolocation'
@@ -74,8 +75,8 @@ export async function createQRRedirect(
       return { success: false, error: 'Utilisateur non authentifié' }
     }
 
-    // Rate limiting
-    const rateLimit = rateLimitQRCreation(user.id)
+    // Rate limiting par utilisateur
+    const rateLimit = await rateLimitQRCreation(user.id)
     if (!rateLimit.allowed) {
       return { 
         success: false, 
@@ -83,7 +84,8 @@ export async function createQRRedirect(
       }
     }
 
-    const targetUrl = input.target_url || input.nfc_link || ''
+    const rawTargetUrl = input.target_url || input.nfc_link || ''
+    const targetUrl = normalizeToFullUrl(rawTargetUrl)
     const redirectType = input.type || input.redirect_type || 'custom'
 
     // Validation de l'URL cible
@@ -149,9 +151,20 @@ export async function updateQRRedirect(
       return { success: false, error: 'Utilisateur non authentifié' }
     }
 
-    // Validation de l'URL si elle est fournie
-    if (input.nfc_link) {
-      const urlValidation = validateTargetUrl(input.nfc_link)
+    const updatePayload: any = { ...input }
+
+    // Normalisation et validation de nfc_link / target_url si fournis
+    if (updatePayload.nfc_link) {
+      updatePayload.nfc_link = normalizeToFullUrl(updatePayload.nfc_link)
+      updatePayload.target_url = updatePayload.nfc_link
+      const urlValidation = validateTargetUrl(updatePayload.nfc_link)
+      if (!urlValidation.valid) {
+        return { success: false, error: urlValidation.error }
+      }
+    }
+    if (updatePayload.target_url) {
+      updatePayload.target_url = normalizeToFullUrl(updatePayload.target_url)
+      const urlValidation = validateTargetUrl(updatePayload.target_url)
       if (!urlValidation.valid) {
         return { success: false, error: urlValidation.error }
       }
@@ -300,10 +313,11 @@ export async function trackQRScan(
   }
 ): Promise<{ success: boolean; error?: string }> {
   try {
-    const supabase = await createClient()
+    const { createAdminClient } = await import('@/lib/supabase/service-role')
+    const adminSupabase = createAdminClient()
     
-    // Récupérer la redirection
-    const { data: redirect } = await supabase
+    // Récupérer la redirection via adminSupabase
+    const { data: redirect } = await adminSupabase
       .from('qr_redirects')
       .select('id')
       .eq('short_code', shortCode)
@@ -313,48 +327,25 @@ export async function trackQRScan(
     if (!redirect) {
       return { success: false, error: 'Redirection non trouvée' }
     }
-
-    // Analyser le user agent pour extraire device_type, os, browser
-    const deviceInfo = parseUserAgent(scanData.userAgent || '')
     
-    // Obtenir la géolocalisation depuis l'IP (si disponible)
-    let country, city
-    if (scanData.ipAddress) {
-      const location = await getLocationFromIP(scanData.ipAddress)
-      if (location.success) {
-        country = location.country
-        city = location.city
-      }
-    }
-    
-    // Enregistrer le scan avec géolocalisation
-    const { error: scanError } = await supabase
+    // Enregistrer le scan (en utilisant uniquement les colonnes existantes dans qr_scans)
+    const { error: scanError } = await adminSupabase
       .from('qr_scans')
       .insert({
         qr_redirect_id: redirect.id,
-        user_agent: scanData.userAgent,
-        device_type: deviceInfo.deviceType,
-        os: deviceInfo.os,
-        browser: deviceInfo.browser,
-        ip_address: scanData.ipAddress,
-        country,
-        city,
-        referrer: scanData.referrer
+        user_agent: scanData.userAgent || null,
+        ip_address: scanData.ipAddress || null
       })
 
     if (scanError) {
       console.error('Error tracking scan:', scanError)
     }
 
-    // Incrémenter le compteur de scans de manière atomique via RPC
-    // Utiliser le client administrateur car la fonction a été révoquée pour 'anon'
-    const { createAdminClient } = await import('@/lib/supabase/service-role')
-    const adminSupabase = createAdminClient()
-    const { error: updateError } = await adminSupabase
-      .rpc('increment_scan_count', { qr_id: redirect.id })
-
-    if (updateError) {
-      console.error('Error updating scan count:', updateError)
+    // Tenter l'incrémentation RPC si la fonction existe
+    try {
+      await adminSupabase.rpc('increment_scan_count', { qr_id: redirect.id })
+    } catch (_) {
+      // Ignorer si la colonne scan_count n'existe pas en BDD
     }
 
     return { success: true }

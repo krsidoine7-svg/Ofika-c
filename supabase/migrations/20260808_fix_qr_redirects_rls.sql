@@ -35,11 +35,7 @@ CREATE POLICY "Public can read active redirects for redirection"
   ON public.qr_redirects FOR SELECT
   USING (
     is_active = true 
-    AND (
-      auth.uid()::text = user_id  -- Le propriétaire voit tout
-      OR 
-      (auth.uid() IS NULL)  -- Public voit uniquement pour redirection
-    )
+    AND (deleted_at IS NULL)
   );
 
 -- 4. Nettoyer les anciennes politiques pour qr_scans

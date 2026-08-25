@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
+import { createClient } from '@supabase/supabase-js'
 import { createAdminClient } from '@/lib/supabase/service-role'
+import { normalizeToFullUrl } from '@/lib/utils/qr-validation'
 
 export const dynamic = 'force-dynamic'
 
@@ -63,20 +65,8 @@ export async function POST(
             // body optionnel
         }
 
-        let nfcLink = body.nfc_link || card.nfc_link || (card.preview_data as any)?.nfc_link || `https://ofika.ci/card/${card.id}`
-
-        // SMART STORAGE: Si le lien contient notre domaine (et si APP_URL est défini), on ne garde que le slug
-        const rawAppUrl = process.env.NEXT_PUBLIC_APP_URL
-        if (rawAppUrl) {
-            const appUrl = rawAppUrl.replace(/\/$/, '')
-            if (appUrl && nfcLink.includes(appUrl)) {
-                const parts = nfcLink.split(appUrl)
-                if (parts.length > 1 && parts[1]) {
-                    nfcLink = parts[1].replace(/^\//, '') // retire le slash initial si présent
-                    console.log('🔗 Slug extrait de l\'URL interne:', nfcLink)
-                }
-            }
-        }
+        const rawNfcLink = body.nfc_link || card.nfc_link || (card.preview_data as any)?.nfc_link || `https://ofika.ci/card/${card.id}`
+        const nfcLink = normalizeToFullUrl(rawNfcLink)
 
         // 2 & 3. Gérer la redirection QR (Mise à jour si existe, sinon création)
         let redirectId = card.qr_redirect_id || (card.preview_data as any)?.redirect_id;

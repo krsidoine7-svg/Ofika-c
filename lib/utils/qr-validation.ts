@@ -21,6 +21,37 @@ const ALLOWED_DOMAINS_FOR_PROXY = [
 ]
 
 /**
+ * Normalise une URL de destination pour qu'elle soit stockée sous forme d'URL complète et absolue dans la base de données.
+ */
+export function normalizeToFullUrl(url: string, baseUrl?: string): string {
+  if (!url || typeof url !== 'string') return ''
+  const trimmed = url.trim()
+  if (!trimmed) return ''
+
+  // Protocoles spécifiques non-HTTP (tel:, mailto:, data:, etc.) conservés tels quels
+  if (trimmed.startsWith('tel:') || 
+      trimmed.startsWith('mailto:') || 
+      trimmed.startsWith('data:') || 
+      trimmed.startsWith('sms:') || 
+      trimmed.startsWith('whatsapp:')) {
+    return trimmed
+  }
+
+  // Si c'est déjà une URL web absolue (http:// ou https://)
+  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
+    return trimmed
+  }
+
+  // Domaine de base par défaut (NEXT_PUBLIC_APP_URL ou https://ofika.ci)
+  const defaultBase = (process.env.NEXT_PUBLIC_APP_URL || 'https://ofika.ci').replace(/\/$/, '')
+  const appBase = baseUrl ? baseUrl.replace(/\/$/, '') : defaultBase
+
+  // Slug ou chemin relatif (ex: "kevsuccessmainone" ou "/trtr")
+  const cleanPath = trimmed.startsWith('/') ? trimmed : `/${trimmed}`
+  return `${appBase}${cleanPath}`
+}
+
+/**
  * Valide une URL de destination pour un QR code
  */
 export function validateTargetUrl(url: string): { valid: boolean; error?: string } {
@@ -28,44 +59,74 @@ export function validateTargetUrl(url: string): { valid: boolean; error?: string
     return { valid: false, error: 'URL requise' }
   }
 
+  const trimmedUrl = url.trim()
+
   // Vérifier la longueur
-  if (url.length > 2048) {
+  if (trimmedUrl.length > 2048) {
     return { valid: false, error: 'URL trop longue (max 2048 caractères)' }
   }
 
-  // Vérifier les caractères dangereux
-  if (url.includes('<') || url.includes('>') || url.includes('"') || url.includes("'")) {
+  // Vérifier les caractères dangereux (XSS & scripts)
+  if (trimmedUrl.includes('<') || trimmedUrl.includes('>') || trimmedUrl.includes('"') || trimmedUrl.includes("'") || trimmedUrl.toLowerCase().includes('javascript:')) {
     return { valid: false, error: 'URL contient des caractères non autorisés' }
   }
 
   // Cas spécial pour data: URLs (vCard)
-  if (url.startsWith('data:text/vcard;base64,')) {
-    return validateVCardDataUrl(url)
+  if (trimmedUrl.startsWith('data:text/vcard;base64,')) {
+    return validateVCardDataUrl(trimmedUrl)
   }
 
   // Cas spécial pour tel:
-  if (url.startsWith('tel:')) {
-    return validatePhoneUrl(url)
+  if (trimmedUrl.startsWith('tel:')) {
+    return validatePhoneUrl(trimmedUrl)
   }
 
   // Cas spécial pour mailto:
-  if (url.startsWith('mailto:')) {
-    return validateEmailUrl(url)
+  if (trimmedUrl.startsWith('mailto:')) {
+    return validateEmailUrl(trimmedUrl)
   }
 
-  // Pour les URLs normales
+  // Cas 1: Si c'est un chemin relatif (/profil/123, /trtr, etc.)
+  if (trimmedUrl.startsWith('/')) {
+    if (trimmedUrl.startsWith('//')) {
+      return { valid: false, error: 'Redirection protocole-relative non autorisée' }
+    }
+    return { valid: true }
+  }
+
+  // Cas 2: Si c'est un slug simple (ex: "kevsuccessmainone", "mon-profil")
+  if (/^[a-zA-Z0-9_-]+$/.test(trimmedUrl)) {
+    return { valid: true }
+  }
+
+  // Cas 3: Pour les URLs absolues (http://, https://)
+  let urlToTest = trimmedUrl
+  if (!urlToTest.includes('://')) {
+    urlToTest = `https://${urlToTest}`
+  }
+
   try {
-    const parsedUrl = new URL(url)
+    const parsedUrl = new URL(urlToTest)
     
     // Vérifier le protocole
     if (!ALLOWED_PROTOCOLS.includes(parsedUrl.protocol)) {
       return { valid: false, error: `Protocole non autorisé: ${parsedUrl.protocol}` }
     }
 
-    // Interdire les redirections vers localhost ou IPs privées en PRODUCTION (sécurité)
+    // Interdire les redirections vers localhost ou IPs privées uniquement si ce n'est pas l'hôte de l'application elle-même
     if (parsedUrl.protocol === 'http:' || parsedUrl.protocol === 'https:') {
       const hostname = parsedUrl.hostname.toLowerCase()
       
+      let isAppHostname = false
+      if (process.env.NEXT_PUBLIC_APP_URL) {
+        try {
+          const appHost = new URL(process.env.NEXT_PUBLIC_APP_URL).hostname.toLowerCase()
+          if (hostname === appHost) {
+            isAppHostname = true
+          }
+        } catch (_) {}
+      }
+
       const isLocalHost = 
         hostname === 'localhost' ||
         hostname === '127.0.0.1' ||
@@ -77,7 +138,7 @@ export function validateTargetUrl(url: string): { valid: boolean; error?: string
         hostname === '[::1]' ||
         hostname.endsWith('.local')
 
-      if (isLocalHost && process.env.NODE_ENV === 'production') {
+      if (isLocalHost && !isAppHostname && process.env.NODE_ENV === 'production') {
         return { valid: false, error: 'Redirections vers des adresses locales non autorisées' }
       }
     }

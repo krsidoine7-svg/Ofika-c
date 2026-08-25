@@ -1,6 +1,7 @@
 import { createClient } from '@/lib/supabase/server'
 import { createClient as createAdminClient } from '@supabase/supabase-js'
 import { NextResponse } from 'next/server'
+import { normalizeToFullUrl } from '@/lib/utils/qr-validation'
 
 export const dynamic = 'force-dynamic'
 export const revalidate = 0
@@ -32,7 +33,11 @@ export async function PATCH(request: Request, { params }: { params: Promise<{ id
     const updates: any = {}
     validUpdates.forEach(key => {
         if (body[key] !== undefined) {
-            updates[key] = body[key]
+            if (key === 'target_url') {
+                updates[key] = normalizeToFullUrl(body[key])
+            } else {
+                updates[key] = body[key]
+            }
         }
     })
 

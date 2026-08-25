@@ -1,5 +1,7 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
+import { createAdminClient } from '@/lib/supabase/service-role'
+import { normalizeToFullUrl } from '@/lib/utils/qr-validation'
 
 export const dynamic = 'force-dynamic'
 
@@ -43,25 +45,24 @@ export async function PATCH(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
-        const body = await request.json()
         const { id } = await params
-        
-        if (!id) {
-            return NextResponse.json({ error: 'ID manquant' }, { status: 400 })
-        }
+        const body = await request.json()
 
-        const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
-        const table = 'digital_nfc_cards'
+        const supabaseAdmin = createAdminClient()
 
+        // Mettre à jour la carte
         const { data: updatedCard, error } = await supabaseAdmin
-            .from(table)
-            .update(body)
+            .from('digital_nfc_cards')
+            .update({
+                ...body,
+                updated_at: new Date().toISOString()
+            })
             .eq('id', id)
             .select()
             .single()
 
         if (error) {
-            console.error('Erreur Supabase lors de la mise à jour NFC:', error)
+            console.error('Erreur mise à jour NFC:', error)
             return NextResponse.json({ error: error.message }, { status: 500 })
         }
 
@@ -69,23 +70,12 @@ export async function PATCH(
         if (body.nfc_link) {
             const qrRedirectId = updatedCard.qr_redirect_id || (updatedCard.preview_data as any)?.redirect_id;
             if (qrRedirectId) {
-                // On nettoie le lien si c'est notre domaine
-                let cleanLink = body.nfc_link;
-                const rawAppUrl = process.env.NEXT_PUBLIC_APP_URL
-                if (rawAppUrl) {
-                    const appUrl = rawAppUrl.replace(/\/$/, '')
-                    if (appUrl && cleanLink.includes(appUrl)) {
-                        const parts = cleanLink.split(appUrl);
-                        if (parts.length > 1 && parts[1]) {
-                            cleanLink = parts[1].replace(/^\//, '');
-                        }
-                    }
-                }
+                const fullTargetUrl = normalizeToFullUrl(body.nfc_link);
 
                 await supabaseAdmin
                     .from('qr_redirects')
                     .update({ 
-                        target_url: cleanLink,
+                        target_url: fullTargetUrl,
                         updated_at: new Date().toISOString()
                     })
                     .eq('id', qrRedirectId);
