@@ -145,7 +145,7 @@ Développer et déployer la plateforme Ofika en **3 semaines** avec un MVP fonct
 - Profil créé automatiquement après paiement
 - Interface de gestion intuitive
 - Personnalisation en temps réel
-- Maximum 2 liens sociaux par profil
+- Maximum 4 liens sociaux par profil
 
 ### Jour 11-12 : Module 4 - Cartes
 

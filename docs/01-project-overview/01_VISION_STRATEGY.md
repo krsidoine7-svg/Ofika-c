@@ -21,26 +21,29 @@
 ## 1. Vision & Mission Produit
 
 ### Vision Statement
-**"Ofika permet aux professionnels et entreprises d'Afrique de connecter de manière fluide le réseautage physique et numérique grâce à des cartes NFC/QR intelligentes qui partagent instantanément leurs coordonnées complètes et leur présence sur les réseaux sociaux."**
+**"Le profil professionnel numérique que tu emmènes partout. La carte NFC et le QR deviennent simplement les moyens d'accès à l'identité professionnelle."**
 
 ### Vision à Long Terme (5 ans)
-- **Leader du marché africain** en solutions de networking physique-numérique.
-- **1 million d'utilisateurs actifs** à travers l'Afrique.
-- **Écosystème complet** intégrant événements, CRM, et analytics avancés.
+- **Plateforme N°1 de networking en Côte d'Ivoire** et référence de l'identité numérique professionnelle.
+- **Leader de l'écosystème africain** en solutions de mise en relation et networking physique-numérique.
+- **1 million d'utilisateurs actifs** à travers la Côte d'Ivoire et la sous-région.
+- **Écosystème unifié** intégrant pages web pro, cartes NFC/QR, gestion d'événements, CRM et analytics.
 
 ### Vision à Court Terme (1 an)
-- **10 000 utilisateurs enregistrés** dans les pays pilotes (Sénégal, Côte d'Ivoire, etc.).
-- **5 000 cartes distribuées** avec un taux d'activation >80%.
-- **Partenariats stratégiques** avec les réseaux de paiement mobile locaux.
+- **Positionner Ofika comme la référence de networking en Côte d'Ivoire**.
+- **10 000 profils et pages web pro générés** avec une adoption massive auprès des professionnels, indépendants et entreprises locales.
+- **5 000 cartes NFC/QR distribuées** avec un taux d'activation >85%.
+- **Partenariats stratégiques** avec les réseaux de paiement mobile locaux (Wave, Orange Money, MTN, Moov).
 
 ### Mission
-**"Simplifier et moderniser le networking professionnel en Afrique en connectant le monde physique et numérique pour créer des opportunités de collaboration durables."**
+**"Permettre à chaque professionnel et entreprise en Côte d'Ivoire de créer, personnaliser et partager son identité visuelle pro en 1 clic, toujours à portée de main, pour devenir le réflexe N°1 du réseau professionnel."**
 
 ### Valeurs Fondamentales
-* **🌍 Afrocentricité** : Solutions conçues pour les défis africains, respectant les cultures et intégrant les méthodes de paiement locales.
-* **⚡ Simplicité** : Interface intuitive, mobile-first, processus rapide en 3 étapes.
-* **🔒 Confiance & Sécurité** : Respect de la vie privée et conformité réglementaire.
-* **🌱 Impact Social** : Digitalisation des PME et support de l'écosystème entrepreneurial local.
+* **⚡ Simplicité & Accessibilité** : Un endroit unique, accessible à tous, pour créer sa présence pro en 1 clic sans compétences techniques.
+* **🌍 Ancrage Ivoirien & Africain** : Solution pensée pour le marché local avec intégration native des moyens de paiement Mobile Money (Wave, Orange, MTN, Moov).
+* **📱 Portabilité** : Identité visuelle et carte de visite pro toujours à portée de main (mobile, NFC, QR Code).
+* **🤝 Network & Connexion** : Faciliter les opportunités et les mises en relation professionnelles réelles.
+* **🔒 Confiance & Sécurité** : Respect des données et de la vie privée des utilisateurs.
 
 ---
 
@@ -58,36 +61,68 @@
 
 ## 3. Stratégie de Monétisation & Modèle Économique
 
-Ofika combine un modèle **Freemium SaaS** et la **vente de produits physiques** (Cartes NFC et QR Codes).
+Ofika combine un modèle **Freemium SaaS (BETA)** et la **vente de cartes physiques NFC** intelligentes.
 
-### Modèle Freemium
+> ℹ️ *Note : Seul le plan Gratuit (Essentiel) et l'achat de carte NFC sont actifs actuellement. Les plans Pro et Business sont en cours de développement.*
 
-#### **Plan Gratuit**
-* **Inclus** : Page de profil de base, jusqu'à 5 liens sociaux, statistiques simples de clics.
-* **Limitations** : Logo Ofika obligatoire, thèmes basiques uniquement.
+### Grille Tarifaire & Plans SaaS
 
-#### **Plan Premium** (Environ 6 500 FCFA / 9.99€ par mois selon le pays)
-* **Inclus** : Page entièrement personnalisable, liens illimités, suppression du logo Ofika, statistiques détaillées téléchargeables, et 1 carte NFC standard offerte.
+#### **1. Plan Essentiel (Gratuit à vie)** - `0 FCFA / mois`
+* **Inclus** :
+  * Jusqu'à 3 pages Link-in-Bio publiques
+  * Jusqu'à 3 cartes NFC virtuelles (V-NFC)
+  * 7 QR Codes statiques & 7 QR Codes dynamiques (incluant les 3 pour cartes virtuelles)
+  * **Jusqu'à 4 liens externes par page**
+  * 2 templates de page publique inclus
+  * 1 seul lien de collecte d'avis clients
+  * Sélecteur d'Emojis Émotionnels (40+ emojis)
+  * Notifications Web Push (max 100 / mois)
+  * Rappels de relance automatiques (7 jours)
+  * Zéro commission de vente (100% pour vous)
+  * Statistiques de visites intégrées (30 jours)
+  * Option d'achat de Cartes NFC Physiques disponible
+* **Contrainte** : Logo Ofika obligatoire sur le design final.
 
-#### **Plan Pro / PME** (Environ 13 000 FCFA / 19.99€ par mois)
-* **Inclus** : Gestion de multi-profils (jusqu'à 5), intégrations avancées, white-label complet et support prioritaire.
+#### **2. Plan Pro (BETA / Recommandé)** - `1 000 FCFA / mois` *(En cours de développement)*
+* **Inclus** (Tout du plan Gratuit +) :
+  * Jusqu'à 20 pages Link-in-Bio publiques & 20 cartes NFC virtuelles (V-NFC)
+  * 20 QR Codes statiques & 20 QR Codes dynamiques
+  * **Jusqu'à 10 liens externes par page**
+  * Jusqu'à 20 liens de collecte d'avis clients
+  * 8 templates de page publique premium débloqués
+  * Notifications Web Push (max 1 000 / mois) & Protection Anti-Fake sur avis clients
+  * Statistiques avancées (90 jours) + Géo-scans
+  * 50 SMS et E-mails de relance automatique
 
-### Tarifs des Cartes Physiques (Wave Direct)
-
-* **Carte NFC/QR Individuelle** : 10 000 FCFA (environ 15€) par carte.
-* **Pack Starter** (1 carte personnalisée + 1 mois Premium) : 15 000 FCFA.
-* **Pack Pro** (2 cartes personnalisées + 3 mois Pro) : 45 000 FCFA.
+#### **3. Plan Business / Entreprise (BETA)** - `3 000 FCFA / mois` *(En cours de développement)*
+* **Inclus** (Tout du plan Pro +) :
+  * Pages Link-in-Bio & V-NFC **100% Illimitées**
+  * 100 QR Codes statiques & 100 QR Codes dynamiques
+  * Nombre de liens par page **100% Illimité**
+  * Tous les templates + Personnalisation sur-mesure & création de designs uniques
+  * Liens de collecte d'avis clients **100% Illimités** & Web Push **100% Illimités**
+  * Vente directe (E-commerce / Services) avec checkout & paiement direct
+  * Nom de domaine personnalisé (`.com`, `.ci`) & Marque blanche complète (sans logo Ofika)
+  * Statistiques à vie + Export CSV complet
+  * Support Dédié Prioritaire 24h/24 et 7j/7
 
 ---
 
-## 4. Spécificités du Marché Africain
+### Édition Physique - Carte NFC Ofika
 
-### Intégration des Paiements Locaux (Mobile Money)
-L'Afrique de l'Ouest étant caractérisée par un faible taux de pénétration des cartes bancaires traditionnelles, le paiement mobile est le canal exclusif d'achat d'Ofika.
+* **Prix** : `14 600 FCFA` (Design par défaut • Achat Unique)
+* **Caractéristiques** : Friction-zéro (Bip & Connect), Écologique & Réutilisable à vie, Modifiable en temps réel, Livraison Express 24h.
+* **Personnalisation sur-mesure disponible** : Quel que soit votre plan, concevez une carte physique 100% unique (logo, couleurs, finitions) en contactant l'équipe Ofika (prix ajusté sur demande).
 
-* **Wave** 🌊 : Option de paiement direct de référence au Sénégal et en Côte d'Ivoire avec 1% de frais.
-* **Orange Money** 🧡 & **MTN Moov** 💛 : Les canaux de Mobile Money dominants intégrés localement pour faciliter les paiements.
-* **Virements Directs & Capture de Preuves** : Pour les commandes manuelles avec validation rapide depuis le Dashboard Admin.
+---
+
+## 4. Spécificités du Marché Africain & Paiements
+
+### Intégration des Passerelles de Paiement
+Le paiement s'effectue directement par Mobile Money et cartes locales via les passerelles sécurisées :
+
+* **GeniusPay** 💳 : Passerelle automatisée principale intégrant Mobile Money (Orange Money, MTN Mobile Money, Wave, Moov) et cartes bancaires avec notification par Webhook API.
+* **Wave Merchant Direct** 🌊 : Lien de paiement direct marchand (`https://pay.wave.com/m/...`).
 
 ### Connectivité et Optimisation Technique
 * **Performance Mobile-First** : Optimisation extrême des pages de profils pour un chargement rapide en moins de 1,5 seconde, même sur les réseaux 3G.

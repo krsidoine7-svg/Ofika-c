@@ -85,13 +85,18 @@ export const ModernHero = ({ videoUrl }: ModernHeroProps) => {
                         </div>
 
                         {/* Centered Headline with Tilted Orange Badge */}
-                        <h1 className="text-4xl sm:text-6xl md:text-7xl font-black text-white leading-[1.22] tracking-tight mb-14 max-w-4xl mx-auto">
-                            Tous les liens <br />
+                        <h1 className="text-4xl sm:text-6xl md:text-7xl font-black text-white leading-[1.22] tracking-tight mb-6 max-w-4xl mx-auto">
+                            Le profil professionnel <br />
                             <span className="inline-block px-5 py-1.5 my-2 bg-gradient-to-r from-orange-600 to-ofika-orange text-white rounded-2xl transform -rotate-2 shadow-lg shadow-orange-500/20 font-black">
-                                ensemble
+                                numérique
                             </span> <br />
-                            en un seul <span className="inline-block px-5 py-1.5 my-2 bg-gradient-to-r from-pink-600 to-rose-500 text-white rounded-2xl transform rotate-2 shadow-lg shadow-pink-500/20 font-black">endroit</span>
+                            que tu emmènes <span className="inline-block px-5 py-1.5 my-2 bg-gradient-to-r from-pink-600 to-rose-500 text-white rounded-2xl transform rotate-2 shadow-lg shadow-pink-500/20 font-black">partout</span>
                         </h1>
+
+                        {/* Subtitle / Tagline Identité Visuelle */}
+                        <p className="text-base sm:text-xl text-gray-300 font-medium max-w-3xl mx-auto mb-10 leading-relaxed">
+                            La <span className="text-orange-400 font-semibold">carte NFC</span> et le <span className="text-orange-400 font-semibold">QR code</span> deviennent simplement les moyens d'accès instantanés à votre <span className="text-white font-bold">identité</span>.
+                        </p>
 
                         {/* CTA Button */}
                         <div className="flex justify-center mb-16">

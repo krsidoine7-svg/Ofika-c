@@ -18,6 +18,7 @@ import { LogOut, User as UserIcon } from "lucide-react"
 import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/hooks/useAuth"
+import { OrderNotifications } from '@/components/features/card-ordering/OrderNotifications'
 import Link from 'next/link'
 
 interface AdminLayoutProps {
@@ -69,6 +70,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                             </div>
 
                             <div className="flex-1" />
+
+                            <OrderNotifications className="mr-1" />
 
                             <DropdownMenu>
                                 <DropdownMenuTrigger asChild>

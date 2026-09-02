@@ -216,102 +216,65 @@ export async function createNFCCard(cardData: CreateNFCCardData): Promise<NFCCar
 
     // 🎯 WEBHOOK COMPLET - CARTE NFC CRÉÉE
     if (data) {
-      // Récupérer les informations complètes du profil si disponible
-      let profileDetails = null
-      if (profileId) {
-        const { data: profile } = await getSupabase()
-          .from('profiles')
-          .select('*')
-          .eq('id', profileId)
-          .single()
-        
-        if (profile) {
-          profileDetails = profile
-        }
-      }
+      // Envoyer le webhook en arrière-plan sans bloquer la réponse UI pour une création ultra rapide
+      (async () => {
+        try {
+          let profileDetails = null
+          if (profileId) {
+            const { data: profile } = await getSupabase()
+              .from('profiles')
+              .select('*')
+              .eq('id', profileId)
+              .single()
+            if (profile) profileDetails = profile
+          }
 
-      const webhookResult = await WebhookService.sendSimpleWebhook(
-        'NFC_CARD_CREATED',
-        {
-          // ========================================
-          // 📇 INFORMATIONS DE BASE DE LA CARTE NFC
-          // ========================================
-          carte_id: data.id,
-          nom_profil: data.profile_name,
-          lien_nfc: data.nfc_link,
-          lien_page_publique: data.nfc_link,
-          qr_code_url: data.qr_code_url,
-          choix_design: data.design_choice,
-          theme_couleur: data.color_theme,
-          statut: data.status,
-          date_creation: data.created_at,
-          
-          // ========================================
-          // 👤 INFORMATIONS PERSONNELLES (depuis digital_nfc_cards)
-          // ========================================
-          nom_complet: data.full_name,
-          entreprise: data.company,
-          poste: data.job_title,
-          telephone: data.phone,
-          email: data.email,
-          
-          // ========================================
-          // 🖼️ IMAGES (URLs Supabase Storage permanentes)
-          // ========================================
-          logo_url: data.logo_url || '',
-          
-          // ========================================
-          // 🔗 CONFIGURATION
-          // ========================================
-          url_personnalisee: data.custom_url || '',
-          
-          // ========================================
-          // 📊 INFORMATIONS TECHNIQUES
-          // ========================================
-          profile_id: profileId || null,
-          user_id: user.id,
-          user_email: user.email,
-          
-          // URLs importantes
-          // url_redirection supprimée
-          
-          // ========================================
-          // 🏷️ MÉTADONNÉES
-          // ========================================
-          type_carte: 'NFC_QR',
-          version: '2.0',  // Nouvelle version avec Supabase Storage
-          source: 'onboarding_nfc',
-          
-          // ========================================
-          // 📝 NOTES
-          // ========================================
-          // Les champs suivants ne sont PLUS dans digital_nfc_cards :
-          // - bio, instagram, tiktok, linkedin, location, username, website
-          // Ces données sont stockées dans la table 'profiles' si un profil est associé
-          
-          // PROFIL ASSOCIÉ (optionnel)
-          profil_associe: profileId ? {
-            id: profileDetails?.id,
-            nom: profileDetails?.full_name || undefined,
-            bio: profileDetails?.bio || undefined,
-            localisation: profileDetails?.location || undefined,
-            reseaux_sociaux: {
-              instagram: profileDetails?.instagram || undefined,
-              tiktok: profileDetails?.tiktok || undefined,
-              linkedin: profileDetails?.linkedin || undefined,
-              autres: profileDetails?.other_links || undefined
-            }
-          } : null
-        },
-        user.id,
-        user.email
-      )
-      
-      if (webhookResult.success) {
-        console.log('✅ Webhook carte NFC créée envoyé avec toutes les informations')
-      } else {
-        console.warn('⚠️ Erreur webhook carte NFC:', webhookResult.error)
-      }
+          await WebhookService.sendSimpleWebhook(
+            'NFC_CARD_CREATED',
+            {
+              carte_id: data.id,
+              nom_profil: data.profile_name,
+              lien_nfc: data.nfc_link,
+              lien_page_publique: data.nfc_link,
+              qr_code_url: data.qr_code_url,
+              choix_design: data.design_choice,
+              theme_couleur: data.color_theme,
+              statut: data.status,
+              date_creation: data.created_at,
+              nom_complet: data.full_name,
+              entreprise: data.company,
+              poste: data.job_title,
+              telephone: data.phone,
+              email: data.email,
+              logo_url: data.logo_url || '',
+              url_personnalisee: data.custom_url || '',
+              profile_id: profileId || null,
+              user_id: user.id,
+              user_email: user.email,
+              type_carte: 'NFC_QR',
+              version: '2.0',
+              source: 'onboarding_nfc',
+              profil_associe: profileId ? {
+                id: profileDetails?.id,
+                nom: profileDetails?.full_name || undefined,
+                bio: profileDetails?.bio || undefined,
+                localisation: profileDetails?.location || undefined,
+                reseaux_sociaux: {
+                  instagram: profileDetails?.instagram || undefined,
+                  tiktok: profileDetails?.tiktok || undefined,
+                  linkedin: profileDetails?.linkedin || undefined,
+                  autres: profileDetails?.other_links || undefined
+                }
+              } : null
+            },
+            user.id,
+            user.email
+          )
+          console.log('✅ Webhook carte NFC créée envoyé en arrière-plan')
+        } catch (wbErr) {
+          console.warn('⚠️ Erreur webhook carte NFC (arrière-plan):', wbErr)
+        }
+      })()
     }
 
     return { success: true, data }

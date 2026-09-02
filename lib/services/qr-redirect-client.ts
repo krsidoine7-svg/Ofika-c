@@ -94,7 +94,15 @@ export async function createQRRedirect(
       return { success: false, error: error.message }
     }
 
-    return { success: true, data }
+    const normalizedData = data ? {
+      ...data,
+      redirect_type: data.redirect_type || data.type || redirectType,
+      type: data.type || data.redirect_type || redirectType,
+      nfc_link: data.nfc_link || data.target_url || targetUrl,
+      target_url: data.target_url || data.nfc_link || targetUrl
+    } : data
+
+    return { success: true, data: normalizedData }
   } catch (error: any) {
     console.error('Error in createQRRedirect:', error)
     return { success: false, error: error.message }
@@ -129,7 +137,33 @@ export async function getUserQRRedirects(): Promise<{
       return { success: false, error: error.message }
     }
 
-    return { success: true, data }
+    // Récupérer le nombre réels de scans depuis la table qr_scans
+    const redirectIds = (data || []).map(d => d.id)
+    let scanCountsMap: Record<string, number> = {}
+
+    if (redirectIds.length > 0) {
+      const { data: scansData } = await supabase
+        .from('qr_scans')
+        .select('qr_redirect_id')
+        .in('qr_redirect_id', redirectIds)
+
+      if (scansData) {
+        scansData.forEach(s => {
+          scanCountsMap[s.qr_redirect_id] = (scanCountsMap[s.qr_redirect_id] || 0) + 1
+        })
+      }
+    }
+
+    const normalizedData = (data || []).map(item => ({
+      ...item,
+      scan_count: scanCountsMap[item.id] || item.scan_count || 0,
+      redirect_type: item.redirect_type || item.type || 'custom',
+      type: item.type || item.redirect_type || 'custom',
+      nfc_link: item.nfc_link || item.target_url || '',
+      target_url: item.target_url || item.nfc_link || ''
+    }))
+
+    return { success: true, data: normalizedData }
   } catch (error: any) {
     console.error('Error in getUserQRRedirects:', error)
     return { success: false, error: error.message }
@@ -155,11 +189,12 @@ export async function updateQRRedirect(
     if (updates.is_active !== undefined) {
       const { data: currentQR } = await supabase
         .from('qr_redirects')
-        .select('redirect_type')
+        .select('*')
         .eq('id', id)
         .single()
       
-      if (currentQR?.redirect_type === 'nfc_card') {
+      const qType = currentQR?.redirect_type || currentQR?.type
+      if (qType === 'nfc_card') {
         return { success: false, error: 'Les QR codes NFC ne peuvent pas être désactivés' }
       }
     }
@@ -187,7 +222,15 @@ export async function updateQRRedirect(
       return { success: false, error: error.message }
     }
 
-    return { success: true, data }
+    const normalizedData = data ? {
+      ...data,
+      redirect_type: data.redirect_type || data.type || 'custom',
+      type: data.type || data.redirect_type || 'custom',
+      nfc_link: data.nfc_link || data.target_url || '',
+      target_url: data.target_url || data.nfc_link || ''
+    } : data
+
+    return { success: true, data: normalizedData }
   } catch (error: any) {
     console.error('Error in updateQRRedirect:', error)
     return { success: false, error: error.message }
@@ -208,20 +251,9 @@ export async function deleteQRRedirect(
       return { success: false, error: 'Utilisateur non authentifié' }
     }
 
-    // Protection des QR codes NFC Card
-    const { data: currentQR } = await supabase
-      .from('qr_redirects')
-      .select('redirect_type')
-      .eq('id', id)
-      .single()
-    
-    if (currentQR?.redirect_type === 'nfc_card') {
-      return { success: false, error: 'Les QR codes NFC ne peuvent pas être supprimés' }
-    }
-
     const { error } = await supabase
       .from('qr_redirects')
-      .update({ deleted_at: new Date().toISOString() })
+      .update({ deleted_at: new Date().toISOString(), is_active: false })
       .eq('id', id)
       .eq('user_id', user.id)
 
@@ -296,16 +328,17 @@ export async function getQRRedirectStats(
     const weekAgo = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000)
     const monthAgo = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000)
 
-    const scansToday = scans?.filter(s => new Date(s.scanned_at) >= today).length || 0
-    const scansThisWeek = scans?.filter(s => new Date(s.scanned_at) >= weekAgo).length || 0
-    const scansThisMonth = scans?.filter(s => new Date(s.scanned_at) >= monthAgo).length || 0
+    const getScanDate = (s: any) => new Date(s.scanned_at || s.created_at)
+
+    const scansToday = scans?.filter(s => getScanDate(s) >= today).length || 0
+    const scansThisWeek = scans?.filter(s => getScanDate(s) >= weekAgo).length || 0
+    const scansThisMonth = scans?.filter(s => getScanDate(s) >= monthAgo).length || 0
 
     // Top devices
     const deviceCounts: Record<string, number> = {}
     scans?.forEach(scan => {
-      if (scan.device_type) {
-        deviceCounts[scan.device_type] = (deviceCounts[scan.device_type] || 0) + 1
-      }
+      const dev = scan.device_type || 'Desktop'
+      deviceCounts[dev] = (deviceCounts[dev] || 0) + 1
     })
     const topDevices = Object.entries(deviceCounts)
       .map(([device, count]) => ({ device, count }))
@@ -315,9 +348,8 @@ export async function getQRRedirectStats(
     // Top countries
     const countryCounts: Record<string, number> = {}
     scans?.forEach(scan => {
-      if (scan.country) {
-        countryCounts[scan.country] = (countryCounts[scan.country] || 0) + 1
-      }
+      const country = scan.country || scan.city || "Côte d'Ivoire"
+      countryCounts[country] = (countryCounts[country] || 0) + 1
     })
     const topCountries = Object.entries(countryCounts)
       .map(([country, count]) => ({ country, count }))
@@ -331,20 +363,22 @@ export async function getQRRedirectStats(
       date.setDate(date.getDate() - i)
       const dateStr = date.toISOString().split('T')[0]
       const count = scans?.filter(s => {
-        const scanDate = new Date(s.scanned_at).toISOString().split('T')[0]
+        const scanDate = getScanDate(s).toISOString().split('T')[0]
         return scanDate === dateStr
       }).length || 0
       scansByDay.push({ date: dateStr, count })
     }
 
+    const lastScanDate = scans && scans.length > 0 ? (scans[0].scanned_at || scans[0].created_at) : null
+
     return {
       success: true,
       data: {
-        total_scans: redirect.scan_count,
+        total_scans: scans?.length || 0,
         scans_today: scansToday,
         scans_this_week: scansThisWeek,
         scans_this_month: scansThisMonth,
-        last_scan: redirect.last_scanned_at,
+        last_scan: lastScanDate,
         top_devices: topDevices,
         top_countries: topCountries,
         scans_by_day: scansByDay

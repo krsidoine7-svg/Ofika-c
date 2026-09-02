@@ -9,10 +9,9 @@
 
 **Ofika** est une plateforme SaaS hybride qui combine les fonctionnalités de **Linktree** (pages bio) et **Ovou/Popl** (cartes NFC/QR) pour le marché ivoirien.
 
-### Valeur Proposée
-- **Un seul lien** : Page bio personnalisée
-- **Une seule carte** : NFC/QR physique
-- **Un profil complet** : Contact + réseaux sociaux
+### Positionnement & Valeur Proposée
+- **Le profil professionnel numérique que tu emmènes partout.**
+- **La carte NFC et le QR deviennent simplement les moyens d'accès à l'identité.**
 
 ---
 
@@ -65,10 +64,11 @@
 - **Supabase Storage** : Stockage fichiers
 
 ### Intégrations
-- **Wave** : Paiements africains
+- **GeniusPay & Wave** : Passerelles de paiements mobiles (Orange Money, MTN, Wave, Moov, Carte)
 - **Google/Apple OAuth** : Connexion sociale
-- **Web Share API** : Add to Contacts
-- **Web NFC API** : Cartes NFC
+- **Web Share API & vCard** : Add to Contacts automatique
+- **Web NFC API** : Activation et lecture de cartes NFC
+- **Make.com & Web Push** : Workflows d'automatisation et notifications VAPID
 
 ---
 
@@ -76,17 +76,17 @@
 
 ### **Semaine 1 : Fondations**
 - **Module 1** : Authentification & Gestion utilisateurs
-- **Setup** : Projet Next.js + Supabase
-- **Base** : Dashboard utilisateur
+- **Setup** : Projet Next.js 15 + Supabase + Drizzle ORM
+- **Base** : Dashboard utilisateur & Onboarding
 
 ### **Semaine 2 : Core Features**
-- **Module 2** : Gestion profils & liens
-- **Module 3** : Cartes NFC/QR
-- **Module 4** : Add to Contacts
+- **Module 2** : Gestion profils, 4 liens sociaux/externes max (gratuit), templates & avis clients
+- **Module 3** : Cartes NFC/QR & Cartes Virtuelles V-NFC
+- **Module 4** : Add to Contacts (vCard) & Analytics 30/90j
 
 ### **Semaine 3 : Advanced Features**
-- **Module 5** : Intégration paiements
-- **Module 6** : Analytics & Dashboard
+- **Module 5** : Intégration paiements GeniusPay & Wave Merchant Direct
+- **Module 6** : Notifications Web Push & Rappels automatiques
 - **Module 7** : Déploiement & Production
 
 ---
@@ -94,12 +94,13 @@
 ## 🎯 Objectifs Clés
 
 ### Fonctionnels
-- ✅ Page bio personnalisable (max 2 liens)
-- ✅ Cartes NFC/QR physiques (max 2 par utilisateur)
-- ✅ Add to Contacts automatique
-- ✅ Paiements africains (Orange Money, MTN, Moov, Wave)
-- ✅ Analytics temps réel
-- ✅ Support multilingue (FR/EN)
+- ✅ Plan Gratuit Essentiel (0 FCFA) : 3 pages Link-in-Bio, 3 V-NFC, 4 liens/page, 7 QR statiques & 7 dynamiques, 2 templates, 1 lien d'avis clients
+- ✅ Plans Pro (1 000 FCFA/mois) et Business (3 000 FCFA/mois) en version BETA (Bientôt disponible)
+- ✅ Achat de Carte NFC Physique Officielle (14 600 FCFA) avec option de personnalisation sur-mesure
+- ✅ Add to Contacts (vCard) automatique
+- ✅ Paiements Mobile Money (Orange Money, MTN, Moov, Wave) via GeniusPay & Wave Direct
+- ✅ Analytics de visites et géo-scans
+- ✅ Avis clients avec protection Anti-Fake
 
 ### Techniques
 - ✅ Architecture monolithique optimisée

@@ -24,7 +24,7 @@ interface NFCCardSuccessStepProps {
 export function NFCCardSuccessStep({ nfcProfile, onViewProfiles }: NFCCardSuccessStepProps) {
   const router = useRouter()
   const { isModalOpen, featureName, showBetaModal, closeModal } = useBetaFeature()
-  const [countdown, setCountdown] = useState(10)
+  const [countdown, setCountdown] = useState(2)
 
   useEffect(() => {
     // 🎉 Effet Confettis "Wow"
@@ -35,28 +35,23 @@ export function NFCCardSuccessStep({ nfcProfile, onViewProfiles }: NFCCardSucces
       colors: ['#f97316', '#ec4899', '#3b82f6']
     });
 
-    // Décompte chaque seconde
+    // Décompte chaque seconde et redirection à 0
     const intervalId = setInterval(() => {
       setCountdown((prev) => {
         if (prev <= 1) {
           clearInterval(intervalId)
+          if (onViewProfiles) {
+            onViewProfiles()
+          } else {
+            router.push('/dashboard/profiles')
+          }
           return 0
         }
         return prev - 1
       })
     }, 1000)
 
-    // Redirection automatique après 10 secondes
-    const timer = setTimeout(() => {
-      if (onViewProfiles) {
-        onViewProfiles()
-      } else {
-        router.push('/dashboard/profiles')
-      }
-    }, 10000)
-
     return () => {
-      clearTimeout(timer)
       clearInterval(intervalId)
     }
   }, [onViewProfiles, router])
@@ -260,11 +255,18 @@ export function NFCCardSuccessStep({ nfcProfile, onViewProfiles }: NFCCardSucces
         </CardContent>
       </Card>
 
-      {/* Redirection automatique simplifiée */}
-      <div className="text-center">
+      {/* Redirection automatique et bouton d'action immédiat */}
+      <div className="text-center space-y-3 pt-2">
         <p className="text-sm text-gray-500">
-          Redirection automatique vers vos profils dans <span className="font-medium text-orange-500">{countdown} seconde{countdown > 1 ? 's' : ''}</span>
+          Redirection automatique vers vos profils dans <span className="font-bold text-orange-500">{countdown} seconde{countdown > 1 ? 's' : ''}</span>
         </p>
+        <Button
+          onClick={handleViewProfiles}
+          className="bg-orange-500 hover:bg-orange-600 text-white font-bold text-sm h-12 px-6 rounded-xl shadow-lg shadow-orange-500/20 flex items-center justify-center gap-2 mx-auto transition-transform active:scale-95 cursor-pointer"
+        >
+          <span>Accéder à mes profils maintenant</span>
+          <ArrowRight className="w-4 h-4" />
+        </Button>
       </div>
 
       <BetaFeatureModal

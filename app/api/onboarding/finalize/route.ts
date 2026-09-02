@@ -170,6 +170,15 @@ export async function POST(request: NextRequest) {
         )
       }
 
+      // Générer le QR Code dynamique associé au profil
+      try {
+        const appUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://ofika.ci').replace(/\/$/, '')
+        const profileLink = `${appUrl}/p/${profile.custom_url || profile.username}`
+        await generateQRCode(profileLink, 200, supabase)
+      } catch (qrErr) {
+        console.error('Erreur lors de la génération du QR code de profil:', qrErr)
+      }
+
       result = { type: 'profile', data: profile }
 
     } else if (flow_type === 'nfc_card') {

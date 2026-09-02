@@ -12,6 +12,7 @@ const ALLOWED_PROTOCOLS = [
   'mailto:',
   'sms:',
   'whatsapp:',
+  'text:',
   'data:'  // Pour vCard uniquement
 ]
 
@@ -28,12 +29,13 @@ export function normalizeToFullUrl(url: string, baseUrl?: string): string {
   const trimmed = url.trim()
   if (!trimmed) return ''
 
-  // Protocoles spécifiques non-HTTP (tel:, mailto:, data:, etc.) conservés tels quels
+  // Protocoles spécifiques non-HTTP (tel:, mailto:, data:, text:, etc.) conservés tels quels
   if (trimmed.startsWith('tel:') || 
       trimmed.startsWith('mailto:') || 
       trimmed.startsWith('data:') || 
       trimmed.startsWith('sms:') || 
-      trimmed.startsWith('whatsapp:')) {
+      trimmed.startsWith('whatsapp:') ||
+      trimmed.startsWith('text:')) {
     return trimmed
   }
 
@@ -79,6 +81,11 @@ export function validateTargetUrl(url: string): { valid: boolean; error?: string
   // Cas spécial pour tel:
   if (trimmedUrl.startsWith('tel:')) {
     return validatePhoneUrl(trimmedUrl)
+  }
+
+  // Cas spécial pour text: (texte brut)
+  if (trimmedUrl.startsWith('text:')) {
+    return { valid: true }
   }
 
   // Cas spécial pour mailto:

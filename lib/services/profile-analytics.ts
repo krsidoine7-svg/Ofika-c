@@ -255,7 +255,15 @@ export async function getProfileAnalytics(profileId: string): Promise<{
   error?: string
 }> {
   try {
-    const { data: events, error } = await getSupabase()
+    let supabaseClient = getSupabase()
+    if (typeof window === 'undefined') {
+      try {
+        const { createAdminClient } = await import('@/lib/supabase/service-role')
+        supabaseClient = createAdminClient()
+      } catch (_) {}
+    }
+
+    const { data: events, error } = await supabaseClient
       .from('analytics_events')
       .select('event_type, device_type, created_at, event_data')
       .eq('profile_id', profileId)

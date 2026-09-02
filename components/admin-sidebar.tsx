@@ -7,7 +7,7 @@ import {
   Users, CreditCard, Settings, BarChart3, TrendingUp, LayoutDashboard,
   UserCheck, Package, ShieldCheck, History, Megaphone, Terminal,
   Contact, Palette, Cpu, Link2, Building, Sparkles, Wallet, ArrowLeft,
-  ChevronRight, QrCode
+  ChevronRight, QrCode, LifeBuoy
 } from "lucide-react"
 
 import {
@@ -50,6 +50,7 @@ const navGroups = [
   {
     title: 'Communication & Style',
     items: [
+      { label: 'Tickets & Support', icon: LifeBuoy, href: '/dashboard/admin/tickets' },
       { label: 'Broadcast', icon: Megaphone, href: '/dashboard/admin/broadcast' },
       { label: 'Design & Templates', icon: Palette, href: '/dashboard/admin/themes' },
     ]

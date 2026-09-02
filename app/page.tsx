@@ -32,6 +32,7 @@ const InteractiveBusinessCard = dynamic(() => import("@/components/InteractiveBu
 import { ModernHero } from "@/components/landing/ModernHero"
 import { ScrollStorytelling } from "@/components/landing/ScrollStorytelling"
 import { ScrollReveal } from "@/components/core/ScrollReveal"
+import { VerifiedReviewsSection } from "@/components/landing/VerifiedReviewsSection"
 
 import { NFC_CARD_BASE_PRICE } from "@/lib/config/pricing"
 
@@ -778,6 +779,9 @@ export default function HomePage() {
           })()}
         </div>
       </section>
+
+      {/* Section Avis Clients Vérifiés */}
+      <VerifiedReviewsSection />
 
       {/* Footer Premium — 4 colonnes */}
       <footer className="bg-gray-950 text-gray-400 border-t border-gray-800">

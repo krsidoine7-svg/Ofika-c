@@ -14,6 +14,7 @@ import { useProfiles } from "@/lib/hooks/useProfiles"
 import { useUser } from "@/lib/hooks/useUser"
 import { AnnouncementBanner } from '@/components/dashboard/AnnouncementBanner'
 import { OrderNotifications } from '@/components/features/card-ordering/OrderNotifications'
+import { SupportRealtimeNotifications } from '@/components/features/notifications/SupportRealtimeNotifications'
 import { ForcePasswordChangeModal } from '@/components/core/auth/ForcePasswordChangeModal'
 
 import {
@@ -124,9 +125,8 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         { href: '/dashboard/profiles', label: 'Profils', icon: Users },
         { href: '/dashboard/contacts', label: 'Leads', icon: Users },
         { href: '/dashboard/qr-codes', label: 'QR Codes', icon: QrCode },
-        // { href: '/dashboard/avis-clients', label: 'Avis Clients', icon: Star },
+        { href: '/dashboard/tickets', label: 'Support & Avis', icon: Star },
         { href: '/dashboard/orders', label: 'Commandes', icon: CreditCard },
-        // { href: '/dashboard/analytics', label: 'Analytics', icon: BarChart3 }, // Masqué à la demande de l'utilisateur
         { href: '/dashboard/settings', label: 'Paramètres', icon: Settings },
     ]
 
@@ -236,7 +236,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
                                 {/* Right Section: Notification & User Profile */}
                                 <div className="flex items-center gap-3">
-                                    <div className="hidden md:flex">
+                                    <div className="flex items-center">
                                         <OrderNotifications />
                                     </div>
 
@@ -323,6 +323,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     </div>
                 </div>
                 {user && <ForcePasswordChangeModal user={user} />}
+                <SupportRealtimeNotifications userId={user?.id} isAdmin={isAdminPath} />
             </div>
         </ProtectedRoute>
     )

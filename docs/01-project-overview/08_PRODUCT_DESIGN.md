@@ -18,24 +18,28 @@
 
 ## 🎯 Vision Produit
 
+### Vision d'Écosystème & Ambition
+
+Ofika est un **écosystème d'identité numérique simple, centralisé en un seul endroit et accessible à tout le monde**, avec l'ambition de devenir la **plateforme de networking N°1 en Côte d'Ivoire**.
+
+### Promesse Produit (Parcours Clé)
+
+👉 **"Tu crées ton profil ➔ Tu obtiens ta page web professionnelle ➔ Tu la partages comme une carte de visite numérique avec son identité visuelle pro en 1 clic, toujours à portée de main."**
+
 ### Concept Hybride
 
-Ofika est une **plateforme SaaS centralisée** qui combine :
+Ofika combine :
+- **Page Web Pro & Link-in-Bio** → Identité numérique élégante, personnalisable, accessible par lien unique.
+- **Cartes Physiques NFC & QR Code** → Cartes connectées toujours sur soi pour partager instantanément son profil lors des rencontres physiques.
+- **Plateforme de Networking** → Outil complet de connexion, de gestion de réseau et de statistiques.
 
-- **Linktree/Linkme** → Page bio simple, personnalisable, partageable par lien unique
-- **Ovou/Popl/Linq** → Carte NFC/QR physique + SaaS avancé avec stats et multi-profils
-
-### Valeur Clé
-
-👉�� **"Un seul lien, une seule carte, un profil complet."**
-
-### Objectif Principal
+### Objectifs Principaux
 
 Créer un écosystème où chaque utilisateur peut :
-- Créer sa page bio personnalisée (link-in-bio)
-- Associer sa page à une carte NFC ou QR physique
-- Partager et suivre son impact via analytics
-- Gérer plusieurs profils (pro/perso/événement)
+1. **Créer son profil numérique en 1 clic** et obtenir immédiatement sa page web professionnelle.
+2. **Afficher une identité visuelle pro et soignée** toujours accessible sur mobile.
+3. **Partager sa carte numérique** par QR Code, NFC, vCard ou lien direct.
+4. **Développer son réseau professionnel** et devenir la référence du networking en Côte d'Ivoire.
 
 ---
 
@@ -51,7 +55,7 @@ Créer un écosystème où chaque utilisateur peut :
 5. **Onboarding** : Tour guidé de la plateforme
 
 #### **Options d'Inscription**
-- **Gratuit** : Page bio basique, 5 liens, analytics limités
+- **Gratuit** : Page bio basique, 4 liens, analytics limités
 - **Premium** : Page bio avancée, liens illimités, analytics complets, carte physique
 
 ### 2. Création de Profil
@@ -265,41 +269,56 @@ Créer un écosystème où chaque utilisateur peut :
 
 ---
 
-## 💰 Monétisation
+## 💰 Monétisation & Plans SaaS
 
-### Modèle Freemium
+Ofika propose un modèle Freemium avec 3 niveaux d'abonnements et la vente de cartes physiques NFC.
 
-#### **Plan Gratuit**
-- **Page bio** : Basique
-- **Liens** : 5 liens maximum
-- **Analytics** : Statistiques limitées
-- **Support** : Email uniquement
+> ℹ️ *Note : Seul le plan Gratuit (Essentiel) et l'achat de carte NFC sont actifs pour le moment. Les plans Pro et Business sont en statut BETA / Bientôt disponible.*
 
-#### **Plan Premium** (9.99€/mois)
-- **Page bio** : Avancée avec personnalisation
-- **Liens** : Illimités
-- **Analytics** : Complets avec export
-- **Carte physique** : NFC/QR incluse
-- **Support** : Chat en direct
+### Plans SaaS
 
-#### **Plan Pro** (19.99€/mois)
-- **Multi-profils** : 5 profils maximum
-- **Analytics avancés** : Rapports détaillés
-- **Intégrations** : CRM, e-commerce
-- **Support prioritaire** : Téléphone
+#### 1. **Plan Essentiel (Gratuit à vie)** - `0 FCFA`
+- **Pages Link-in-Bio** : Jusqu'à 3 pages publiques
+- **Cartes V-NFC** : Jusqu'à 3 cartes NFC virtuelles
+- **QR Codes** : 7 statiques & 7 dynamiques (incluant les 3 pour cartes virtuelles)
+- **Liens externes par page** : Jusqu'à 4 liens
+- **Avis clients** : 1 seul lien de collecte d'avis clients
+- **Templates** : 2 templates de page publique inclus
+- **Fonctionnalités** : Sélecteur d'Emojis Émotionnels (40+ emojis), Notifications Web Push (max 100/mois), Rappels automatiques (7 jours), Zéro commission de vente
+- **Analytics** : Statistiques de visites sur 30 jours
+- **Contrainte** : Logo Ofika obligatoire sur le design final
+- **Option** : Achat de Cartes NFC Physiques disponible
 
-### Produits Physiques
+#### 2. **Plan Pro (BETA / Recommandé)** - `1 000 FCFA / mois` *(Bientôt disponible)*
+- **Pages Link-in-Bio** : Jusqu'à 20 pages publiques
+- **Cartes V-NFC** : Jusqu'à 20 cartes NFC virtuelles
+- **QR Codes** : 20 statiques & 20 dynamiques
+- **Liens externes par page** : Jusqu'à 10 liens
+- **Avis clients** : Jusqu'à 20 liens de collecte d'avis clients avec Protection Anti-Fake
+- **Templates** : 8 templates premium débloqués
+- **Notifications & Relances** : Web Push (max 1 000/mois), 50 SMS et E-mails de relance automatique
+- **Analytics** : Statistiques avancées (90j) + Géo-scans
 
-#### **Carte NFC/QR**
-- **Prix** : 15€ pour 1, 25€ pour 2
-- **Matériau** : PVC premium
-- **Personnalisation** : Logo, couleurs, design
-- **Livraison** : 7-14 jours en Afrique
+#### 3. **Plan Business / Entreprise (BETA)** - `3 000 FCFA / mois` *(Bientôt disponible)*
+- **Pages & Cartes V-NFC** : 100% Illimitées
+- **QR Codes** : 100 statiques & 100 dynamiques
+- **Liens externes par page** : 100% Illimité
+- **Avis clients & Web Push** : 100% Illimités
+- **Templates & Customisation** : Tous les templates + Personnalisation & designs uniques sur-mesure
+- **Vente directe** : Module E-commerce / Services avec checkout & paiement direct
+- **Branding** : Nom de domaine personnalisé (`.com`, `.ci`), Marque blanche complète (sans logo Ofika)
+- **Analytics & Support** : Statistiques à vie + Export CSV, Support Dédié Prioritaire 24h/24 et 7j/7
 
-#### **Pack Starter**
-- **Contenu** : 1 carte + 1 mois Premium
-- **Prix** : 19.99€
-- **Économie** : 5€ par rapport à l'achat séparé
+---
+
+### Édition Physique - Carte NFC Ofika
+
+#### **Carte NFC Officielle** - `14 600 FCFA` (Achat unique)
+- **Concept** : Friction-zéro (Bip & Connect) - La carte qui fait tout le travail.
+- **Avantages** : Écologique & Réutilisable à vie, Modifiable en temps réel.
+- **Livraison** : Livraison Express 24h.
+- **Personnalisation sur-mesure** : Quel que soit votre plan, vous pouvez concevoir une carte 100% unique (logo, couleurs, finitions) en contactant l'équipe Ofika (le prix s'ajustera selon votre demande).
+- **Disponibilité** : Disponible à l'achat une fois votre compte créé.
 
 ---
 

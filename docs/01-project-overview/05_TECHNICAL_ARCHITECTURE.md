@@ -72,7 +72,7 @@ erDiagram
         string profile_id FK "Référence profil"
         string title "Titre du lien (max 30 caractères)"
         string url "URL du lien"
-        integer position "Position (1 ou 2, max 2 liens)"
+        integer position "Position (1 à 4, max 4 liens)"
         boolean is_active "Lien actif"
         timestamp created_at "Date de création"
     }
@@ -207,18 +207,23 @@ CREATE TABLE analytics_events (
 * `POST /api/auth/register` : Crée un compte utilisateur.
 * `POST /api/auth/login` : Connecte l'utilisateur.
 
-### 👤 Profils & Liens
+### 👤 Profils, Liens & Avis Clients
 * `GET /api/profiles/:username` : Récupère le profil public d'un utilisateur par son nom unique.
 * `POST /api/profiles` : Crée ou met à jour le profil de l'utilisateur connecté.
-* `POST /api/social-links` : Ajoute ou modifie un lien social (Contrainte : 2 liens actifs maximum).
+* `POST /api/social-links` : Ajoute ou modifie un lien social/externe (Contrainte : 4 liens max en gratuit, 10 en Pro).
+* `GET /api/reviews` & `POST /api/reviews` : Gestion et collecte des avis clients publics (`/avis/[slug]`).
+* `GET /api/templates` : Modèles de design de page publique.
 
-### 🛒 Commandes & Paiements (Flux Wave)
-* `POST /api/payments/wave/create` : Génère le lien de paiement direct Wave ou enregistre les détails de transaction.
-* `POST /api/orders/manual-upload` : Enregistre une commande avec téléversement (upload) de la capture d'écran du reçu de paiement.
-* `POST /api/admin/orders/:id/verify` : (Réservé Admin) Valide un reçu manuel et confirme la commande pour la production.
+### 🛒 Commandes & Paiements (GeniusPay & Wave)
+* `POST /api/payments/geniuspay` : Initialise un paiement sécurisé via l'API GeniusPay (Mobile Money & Carte).
+* `POST /api/webhooks/geniuspay` : Traitement sécurisé des événements de paiement GeniusPay (validation signature HMAC).
+* `POST /api/payments/wave/create` : Génère le lien marchand direct Wave (`https://pay.wave.com/m/...`).
+* `POST /api/nfc-cards` : Activation et association d'une carte NFC physique à un profil.
 
-### 📊 Statistiques (Analytics)
-* `POST /api/analytics/track` : Enregistre anonymement un événement de visite (`profile_view`) ou de clic (`social_click`).
+### 📊 Notifications & Automatisations
+* `POST /api/push` & `/api/notifications` : Envoi de notifications Web Push (VAPID).
+* `POST /api/webhooks/make` : Triggers de webhooks d'automatisation Make.com.
+* `POST /api/analytics/track` : Enregistrement anonyme d'événements de visite (`profile_view`) ou de clics (`social_click`).
 
 ---
 

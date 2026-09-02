@@ -37,7 +37,7 @@ export async function POST(request: Request) {
     // 1. Fetch all redirects for this user
     const { data: redirects, error: fetchError } = await adminClient
       .from('qr_redirects')
-      .select('id, nfc_link, title, description')
+      .select('id, target_url, title, description')
       .eq('user_id', user.id)
 
     if (fetchError) {
@@ -51,7 +51,7 @@ export async function POST(request: Request) {
 
     if (redirects && redirects.length > 0) {
       for (const redir of redirects) {
-        const url = (redir.nfc_link || '').toLowerCase()
+        const url = (redir.target_url || '').toLowerCase()
         
         // Conditions match
         const isOldSlugMatch = oldSlug ? url.endsWith(`/${oldSlug.toLowerCase()}`) : false
@@ -61,13 +61,13 @@ export async function POST(request: Request) {
             (redir.description || '').toLowerCase().includes(name.toLowerCase())
         ) : false
 
-        if ((isOldSlugMatch || isIdMatch || isNameMatch) && redir.nfc_link !== newTargetUrl) {
-          console.log(`[Sync-QR] Updating redirect ${redir.id} from ${redir.nfc_link} to ${newTargetUrl}`)
+        if ((isOldSlugMatch || isIdMatch || isNameMatch) && redir.target_url !== newTargetUrl) {
+          console.log(`[Sync-QR] Updating redirect ${redir.id} from ${redir.target_url} to ${newTargetUrl}`)
           
           const { error: updateError } = await adminClient
             .from('qr_redirects')
             .update({ 
-              nfc_link: newTargetUrl,
+              target_url: newTargetUrl,
               updated_at: new Date().toISOString()
             })
             .eq('id', redir.id)

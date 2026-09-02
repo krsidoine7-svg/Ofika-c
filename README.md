@@ -1,6 +1,7 @@
-# 🚀 Ofika - Cartes de Visite NFC/QR
+# 🚀 Ofika — Le Profil Professionnel Numérique
 
-> **Plateforme de cartes de visite numériques pour le marché africain**
+> **Le profil professionnel numérique que tu emmènes partout.**  
+> *La carte NFC et le QR deviennent simplement les moyens d'accès à l'identité.*
 
 ## 📁 Organisation du Projet
 

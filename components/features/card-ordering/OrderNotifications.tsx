@@ -11,7 +11,9 @@ import {
   AlertCircle,
   X,
   Loader2,
-  ExternalLink
+  ExternalLink,
+  MessageSquare,
+  Star
 } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
@@ -179,8 +181,10 @@ export function OrderNotifications({ className }: OrderNotificationsProps) {
     }
   }
 
-  const getIcon = (type: Notification['type']) => {
+  const getIcon = (type: string) => {
     switch (type) {
+      case 'support_reply': return <MessageSquare className="h-5 w-5 text-emerald-500 shrink-0" />
+      case 'new_ticket': return <Star className="h-5 w-5 text-amber-500 shrink-0" />
       case 'payment_success': return <CheckCircle className="h-5 w-5 text-green-500 shrink-0" />
       case 'production_started': return <Package className="h-5 w-5 text-blue-500 shrink-0" />
       case 'shipped': return <Truck className="h-5 w-5 text-purple-500 shrink-0" />

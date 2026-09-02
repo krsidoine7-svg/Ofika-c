@@ -50,9 +50,7 @@ export async function generateQRCode(
             user_id: user.id,
             short_code: shortCode,
             target_url: nfcLink,
-            nfc_link: nfcLink,
             type: 'nfc_card',
-            redirect_type: 'nfc_card',
             title: 'Carte NFC',
             description: 'Redirection vers le profil NFC',
             is_active: true

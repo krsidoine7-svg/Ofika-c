@@ -19,12 +19,40 @@ export async function DELETE(
             return NextResponse.json({ error: 'ID manquant' }, { status: 400 })
         }
 
-        // On utilise le service role pour bypasser le RLS en tant qu'admin
-        const supabaseAdmin = createClient(supabaseUrl, supabaseServiceKey)
-        const table = 'digital_nfc_cards'
+        const supabaseAdmin = createAdminClient()
 
+        // 1. Récupérer la carte pour obtenir le qr_redirect_id et le lien NFC
+        const { data: card } = await supabaseAdmin
+            .from('digital_nfc_cards')
+            .select('qr_redirect_id, nfc_link, preview_data, user_id')
+            .eq('id', id)
+            .maybeSingle()
+
+        const qrRedirectId = card?.qr_redirect_id || (card?.preview_data as any)?.redirect_id || (card?.preview_data as any)?.qr_redirect_id
+
+        // 2. Supprimer/Désactiver le QR code associé dans qr_redirects
+        if (qrRedirectId) {
+            await supabaseAdmin
+                .from('qr_redirects')
+                .update({ 
+                    deleted_at: new Date().toISOString(),
+                    is_active: false
+                })
+                .eq('id', qrRedirectId)
+        } else if (card?.nfc_link && card?.user_id) {
+            await supabaseAdmin
+                .from('qr_redirects')
+                .update({ 
+                    deleted_at: new Date().toISOString(),
+                    is_active: false
+                })
+                .eq('user_id', card.user_id)
+                .eq('target_url', card.nfc_link)
+        }
+
+        // 3. Supprimer la carte NFC
         const { error } = await supabaseAdmin
-            .from(table)
+            .from('digital_nfc_cards')
             .delete()
             .eq('id', id)
 
@@ -33,7 +61,7 @@ export async function DELETE(
             return NextResponse.json({ error: error.message }, { status: 500 })
         }
 
-        return NextResponse.json({ success: true, message: 'Carte supprimée avec succès' })
+        return NextResponse.json({ success: true, message: 'Carte et QR code associé supprimés avec succès' })
     } catch (error: any) {
         console.error('Erreur API suppression NFC:', error)
         return NextResponse.json({ error: 'Erreur interne du serveur' }, { status: 500 })

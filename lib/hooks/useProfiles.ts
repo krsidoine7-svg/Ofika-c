@@ -231,7 +231,28 @@ export function useDeleteProfile() {
     try {
       setLoading(true)
       setError(null)
-      
+
+      // 1. Récupérer les infos du profil avant suppression
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('custom_url, username, user_id')
+        .eq('id', profileId)
+        .maybeSingle()
+
+      if (profile) {
+        const slug = profile.custom_url || profile.username
+        const appUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://ofika.ci').replace(/\/$/, '')
+        const targetUrl = `${appUrl}/p/${slug}`
+
+        // Supprimer / Désactiver les QR codes associés à ce profil
+        await supabase
+          .from('qr_redirects')
+          .update({ deleted_at: new Date().toISOString(), is_active: false })
+          .eq('user_id', profile.user_id)
+          .ilike('target_url', `%${slug}%`)
+      }
+
+      // 2. Supprimer le profil
       const { error } = await supabase
         .from('profiles')
         .delete()
@@ -239,7 +260,7 @@ export function useDeleteProfile() {
 
       if (error) throw error
       
-      toast.success('Profil supprimé avec succès')
+      toast.success('Profil et QR code associé supprimés avec succès')
     } catch (err) {
       console.error('Error deleting profile:', err)
       const errorMessage = err instanceof Error ? err.message : 'Erreur lors de la suppression du profil'

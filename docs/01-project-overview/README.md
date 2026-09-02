@@ -56,7 +56,7 @@ Documentation complète de la table `orders` et de sa cohérence avec le formula
 
 - **[API_REFERENCE.md](./API_REFERENCE.md)** : Documentation de l'API REST
 - **[WEBHOOK_MAKECOM_REFERENCE.md](./WEBHOOK_MAKECOM_REFERENCE.md)** : Intégration Make.com
-- **[PAYMENT_INTEGRATION.md](./PAYMENT_INTEGRATION.md)** : Intégration Wave et Wave
+- **[PAYMENT_INTEGRATION.md](./PAYMENT_INTEGRATION.md)** : Intégration GeniusPay et Wave Direct Merchant
 
 ### Guides de développement
 

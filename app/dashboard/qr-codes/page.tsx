@@ -31,7 +31,11 @@ import {
   Download,
   Zap,
   ChevronDown,
-  Loader2
+  Loader2,
+  FileText,
+  Globe,
+  Phone,
+  Mail
 } from 'lucide-react'
 import { toast } from 'sonner'
 import {
@@ -73,6 +77,7 @@ export default function QRCodesPage() {
 
   // Formulaire de création statique
   const [staticForm, setStaticForm] = useState({
+    contentType: 'url' as 'url' | 'text' | 'phone' | 'email',
     title: '',
     target_url: '',
     description: ''
@@ -144,29 +149,67 @@ export default function QRCodesPage() {
   // --- Création QR Code Statique (Violet) ---
   const handleCreateStaticQR = async (e: React.FormEvent) => {
     e.preventDefault()
-    if (!staticForm.target_url) {
-      toast.error("Veuillez remplir les informations du QR code statique")
+    const rawVal = staticForm.target_url.trim()
+    if (!rawVal) {
+      toast.error("Veuillez remplir l'information du QR code statique")
       return
+    }
+
+    let finalUrl = rawVal
+
+    if (staticForm.contentType === 'text') {
+      // Texte brut : encoder sous forme text:
+      finalUrl = rawVal.startsWith('text:') ? rawVal : `text:${rawVal}`
+    } else if (staticForm.contentType === 'phone') {
+      // Téléphone : valider et formater tel:
+      const cleanPhone = rawVal.replace(/[^\d+]/g, '')
+      if (cleanPhone.length < 4) {
+        toast.error("Veuillez entrer un numéro de téléphone valide")
+        return
+      }
+      finalUrl = cleanPhone.startsWith('tel:') ? cleanPhone : `tel:${cleanPhone}`
+    } else if (staticForm.contentType === 'email') {
+      // Email : valider et formater mailto:
+      const emailOnly = rawVal.replace(/^mailto:/, '')
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(emailOnly)) {
+        toast.error("Veuillez entrer une adresse email valide")
+        return
+      }
+      finalUrl = rawVal.startsWith('mailto:') ? rawVal : `mailto:${rawVal}`
+    } else {
+      // Lien Web (URL) : Valider strict
+      if (rawVal.startsWith('text:') || rawVal.startsWith('tel:') || rawVal.startsWith('mailto:')) {
+        finalUrl = rawVal
+      } else {
+        const hasSpaces = /\s/.test(rawVal)
+        const hasDomainDot = rawVal.includes('.')
+        const hasProtocol = /^https?:\/\//i.test(rawVal)
+
+        if (hasSpaces || (!hasDomainDot && !hasProtocol && !rawVal.startsWith('/'))) {
+          toast.error("Pour encoder du texte libre, choisissez l'onglet 'Texte brut'. Le type 'Lien Web' nécessite une URL valide.")
+          return
+        }
+
+        if (!hasProtocol) {
+          finalUrl = `https://${rawVal}`
+        }
+      }
     }
 
     try {
       setIsSubmitting(true)
-      let finalUrl = staticForm.target_url.trim()
-      if (!/^https?:\/\//i.test(finalUrl)) {
-        finalUrl = `https://${finalUrl}`
-      }
-
       const res = await createQRRedirect({
         nfc_link: finalUrl,
         redirect_type: 'static',
-        title: staticForm.title || 'QR Code Statique',
+        title: staticForm.title || (staticForm.contentType === 'text' ? 'QR Code Texte' : 'QR Code Statique'),
         description: staticForm.description
       })
 
       if (res.success) {
         toast.success("🟣 QR Code Statique créé avec succès !")
         setIsStaticModalOpen(false)
-        setStaticForm({ title: '', target_url: '', description: '' })
+        setStaticForm({ contentType: 'url', title: '', target_url: '', description: '' })
+        setActiveTab('static')
         loadQRCodes()
       } else {
         toast.error(res.error || "Impossible de créer le QR code statique")
@@ -191,7 +234,7 @@ export default function QRCodesPage() {
   }
 
   const handleSave = async (id: string, qr: QRRedirect) => {
-    const isNfc = qr.redirect_type === 'nfc_card'
+    const isNfc = qr.redirect_type === 'nfc_card' || (qr as any).type === 'nfc_card'
     const updateData = isNfc
       ? { nfc_link: editForm.nfc_link, target_url: editForm.nfc_link, title: editForm.title }
       : { nfc_link: editForm.target_url, target_url: editForm.target_url, title: editForm.title, description: editForm.description }
@@ -248,8 +291,8 @@ export default function QRCodesPage() {
   }
 
   // Filtrage des QR Codes pour Onglet 1 (Dynamiques) & Onglet 2 (Statiques)
-  const dynamicQRCodes = qrCodes.filter(qr => qr.redirect_type !== 'static')
-  const staticQRCodes = qrCodes.filter(qr => qr.redirect_type === 'static')
+  const dynamicQRCodes = qrCodes.filter(qr => (qr.type || qr.redirect_type) !== 'static')
+  const staticQRCodes = qrCodes.filter(qr => (qr.type || qr.redirect_type) === 'static')
 
   if (loading) {
     return (
@@ -549,12 +592,69 @@ export default function QRCodesPage() {
           </DialogHeader>
 
           <form onSubmit={handleCreateStaticQR} className="space-y-4 my-2">
+            {/* SÉLECTEUR DE TYPE DE CONTENU STATIQUE */}
+            <div className="space-y-1.5">
+              <Label className="text-[11px] font-black uppercase text-slate-500 tracking-wider">
+                Type de Contenu Statique
+              </Label>
+              <div className="grid grid-cols-4 gap-1.5 p-1 bg-slate-100/80 rounded-2xl border border-slate-200/60">
+                <button
+                  type="button"
+                  onClick={() => setStaticForm({ ...staticForm, contentType: 'url' })}
+                  className={`py-2 px-1 rounded-xl text-[11px] font-bold flex flex-col items-center gap-1 transition-all ${
+                    staticForm.contentType === 'url'
+                      ? "bg-white text-purple-700 shadow-sm"
+                      : "text-slate-500 hover:text-slate-900"
+                  }`}
+                >
+                  <Globe className="w-3.5 h-3.5" />
+                  <span>Lien Web</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStaticForm({ ...staticForm, contentType: 'text' })}
+                  className={`py-2 px-1 rounded-xl text-[11px] font-bold flex flex-col items-center gap-1 transition-all ${
+                    staticForm.contentType === 'text'
+                      ? "bg-white text-purple-700 shadow-sm"
+                      : "text-slate-500 hover:text-slate-900"
+                  }`}
+                >
+                  <FileText className="w-3.5 h-3.5" />
+                  <span>Texte brut</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStaticForm({ ...staticForm, contentType: 'phone' })}
+                  className={`py-2 px-1 rounded-xl text-[11px] font-bold flex flex-col items-center gap-1 transition-all ${
+                    staticForm.contentType === 'phone'
+                      ? "bg-white text-purple-700 shadow-sm"
+                      : "text-slate-500 hover:text-slate-900"
+                  }`}
+                >
+                  <Phone className="w-3.5 h-3.5" />
+                  <span>Téléphone</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setStaticForm({ ...staticForm, contentType: 'email' })}
+                  className={`py-2 px-1 rounded-xl text-[11px] font-bold flex flex-col items-center gap-1 transition-all ${
+                    staticForm.contentType === 'email'
+                      ? "bg-white text-purple-700 shadow-sm"
+                      : "text-slate-500 hover:text-slate-900"
+                  }`}
+                >
+                  <Mail className="w-3.5 h-3.5" />
+                  <span>Email</span>
+                </button>
+              </div>
+            </div>
+
             <div className="space-y-1.5">
               <Label className="text-[11px] font-black uppercase text-slate-500 tracking-wider">
                 Titre du QR Code Statique
               </Label>
               <Input
-                placeholder="Ex: Mon Site Web, Numéro Urgence..."
+                placeholder="Ex: Mon Site Web, Note Personnelle, Contact..."
                 value={staticForm.title}
                 onChange={(e) => setStaticForm({ ...staticForm, title: e.target.value })}
                 className="h-11 border-slate-200 rounded-xl font-bold text-xs bg-slate-50/50 focus:bg-white"
@@ -564,15 +664,33 @@ export default function QRCodesPage() {
 
             <div className="space-y-1.5">
               <Label className="text-[11px] font-black uppercase text-slate-500 tracking-wider">
-                Information Encodée (URL / Contenu)
+                {staticForm.contentType === 'url' && "URL de Destination"}
+                {staticForm.contentType === 'text' && "Texte Brut à Encoder"}
+                {staticForm.contentType === 'phone' && "Numéro de Téléphone"}
+                {staticForm.contentType === 'email' && "Adresse Email"}
               </Label>
-              <Input
-                placeholder="Ex: https://mon-site.com"
-                value={staticForm.target_url}
-                onChange={(e) => setStaticForm({ ...staticForm, target_url: e.target.value })}
-                className="h-11 border-slate-200 rounded-xl font-mono text-xs bg-slate-50/50 focus:bg-white"
-                required
-              />
+
+              {staticForm.contentType === 'text' ? (
+                <Textarea
+                  placeholder="Saisissez votre texte brut ou message ici..."
+                  value={staticForm.target_url}
+                  onChange={(e) => setStaticForm({ ...staticForm, target_url: e.target.value })}
+                  className="h-24 border-slate-200 rounded-xl font-sans text-xs bg-slate-50/50 focus:bg-white"
+                  required
+                />
+              ) : (
+                <Input
+                  placeholder={
+                    staticForm.contentType === 'url' ? "Ex: https://mon-site.com ou exemple.ci" :
+                    staticForm.contentType === 'phone' ? "Ex: +225 07 00 00 00 00" :
+                    "Ex: contact@entreprise.ci"
+                  }
+                  value={staticForm.target_url}
+                  onChange={(e) => setStaticForm({ ...staticForm, target_url: e.target.value })}
+                  className="h-11 border-slate-200 rounded-xl font-mono text-xs bg-slate-50/50 focus:bg-white"
+                  required
+                />
+              )}
             </div>
 
             <DialogFooter className="pt-2 gap-2">

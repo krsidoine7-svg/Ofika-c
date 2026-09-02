@@ -60,8 +60,16 @@ export async function POST(request: NextRequest) {
       country: geo.country || (geo as any).country_name || 'Inconnu',
     }
 
+    // Récupérer le user_id du profil pour le lier aux RLS de l'utilisateur
+    const { data: profile } = await supabase
+      .from('profiles')
+      .select('user_id')
+      .eq('id', profile_id)
+      .maybeSingle()
+
     const { error } = await supabase.from('analytics_events').insert({
       profile_id,
+      user_id: profile?.user_id || null,
       event_type,
       event_data: finalEventData,
       user_agent: request.headers.get('user-agent') || '',

@@ -2,7 +2,7 @@
 
 import React, { useEffect, useState, useMemo } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
-import { Users, CreditCard, TrendingUp, Package, Loader2, ArrowUpRight, ArrowDownRight, Globe, Shield } from "lucide-react"
+import { Users, CreditCard, TrendingUp, Package, Loader2, ArrowUpRight, ArrowDownRight, Globe, Shield, LifeBuoy } from "lucide-react"
 import { createClient } from '@/lib/supabase/client'
 import { Badge } from "@/components/ui/badge"
 import { Button } from "@/components/ui/button"
@@ -99,6 +99,12 @@ export default function AdminDashboardPage() {
                         <Shield className="w-3 h-3 mr-1.5 text-orange-500" />
                         Accès Complet
                     </Badge>
+                    <Button size="sm" variant="outline" asChild>
+                        <Link href="/dashboard/admin/tickets">
+                            <LifeBuoy className="w-4 h-4 mr-2 text-emerald-600" />
+                            Support & Avis
+                        </Link>
+                    </Button>
                     <Button size="sm" variant="outline" asChild>
                         <Link href="/dashboard/admin/analytics">
                             <TrendingUp className="w-4 h-4 mr-2" />

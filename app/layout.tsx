@@ -27,8 +27,8 @@ export const viewport: Viewport = {
 
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || 'https://ofika.ci'),
-  title: 'Ofika | Le Link in Bio Ultime & Carte de Visite NFC pour Créatifs',
-  description: 'Créez votre mini-site portfolio gratuitement et partagez vos réseaux d\'un simple geste grâce à notre carte de visite NFC. La meilleure alternative locale à Linktree et Beacons en Afrique.',
+  title: 'Ofika | Le profil professionnel numérique que tu emmènes partout',
+  description: 'Le profil professionnel numérique que tu emmènes partout. La carte NFC et le QR deviennent simplement les moyens d\'accès à l\'identité.',
   generator: 'v0.app',
   manifest: '/manifest.json',
   appleWebApp: {
@@ -47,8 +47,8 @@ export const metadata: Metadata = {
     type: 'website',
     locale: 'fr_FR',
     url: 'https://ofika.ci/',
-    title: 'Ofika - Le Link in Bio ultime pour les Créatifs & Carte NFC',
-    description: 'Centralisez votre portfolio, réseaux sociaux et contacts. L\'alternative parfaite à Linktree et Beacons pour booster votre visibilité.',
+    title: 'Ofika - Le profil professionnel numérique que tu emmènes partout',
+    description: 'La carte NFC et le QR deviennent simplement les moyens d\'accès à l\'identité.',
     siteName: 'Ofika',
     images: [
       {
@@ -61,8 +61,8 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Ofika - Le lien en bio des créatifs',
-    description: 'Centralisez vos liens et partagez vos contacts avec la technologie NFC. Ofika est la plateforme des créatifs.',
+    title: 'Ofika - Le profil professionnel numérique que tu emmènes partout',
+    description: 'La carte NFC et le QR deviennent simplement les moyens d\'accès à l\'identité.',
     images: ['/assets/logos/logo-black.svg'],
   },
   alternates: {

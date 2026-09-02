@@ -241,9 +241,36 @@ export async function DELETE(
     }
 
     const { id: cardId } = await params
+
+    // 1. Récupérer la carte pour trouver son qr_redirect_id et nfc_link
+    const { data: card } = await supabase
+      .from('digital_nfc_cards')
+      .select('qr_redirect_id, nfc_link, preview_data')
+      .eq('id', cardId)
+      .eq('user_id', user.id)
+      .maybeSingle()
+
+    const redirectId = card?.qr_redirect_id || (card?.preview_data as any)?.redirect_id || (card?.preview_data as any)?.qr_redirect_id
+
+    // 2. Supprimer / Désactiver le QR code dans qr_redirects
+    if (redirectId) {
+      await supabase
+        .from('qr_redirects')
+        .update({ deleted_at: new Date().toISOString(), is_active: false })
+        .eq('id', redirectId)
+        .eq('user_id', user.id)
+    } else if (card?.nfc_link) {
+      await supabase
+        .from('qr_redirects')
+        .update({ deleted_at: new Date().toISOString(), is_active: false })
+        .eq('user_id', user.id)
+        .eq('target_url', card.nfc_link)
+    }
+
+    // 3. Supprimer la carte de digital_nfc_cards
     const { error } = await supabase
       .from('digital_nfc_cards')
-      .update({ status: 'draft', updated_at: new Date().toISOString() })
+      .update({ status: 'inactive', updated_at: new Date().toISOString() })
       .eq('id', cardId)
       .eq('user_id', user.id)
 
@@ -251,7 +278,6 @@ export async function DELETE(
       return NextResponse.json({ success: false, error: 'Erreur suppression' }, { status: 500 })
     }
 
-    // Revalider tout profil public or nfc card cache
     await revalidateProfile('global')
 
     return NextResponse.json({ success: true })
