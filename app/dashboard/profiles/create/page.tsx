@@ -135,7 +135,7 @@ export default function CreateProfilePage() {
 
       // ✅ CRÉATION SIMULTANÉE DE LA CARTE NUMÉRIQUE (Dashboard Admin & User)
       try {
-        const appUrl = process.env.NEXT_PUBLIC_APP_URL || (typeof window !== 'undefined' ? window.location.origin : '')
+        const appUrl = (process.env.NEXT_PUBLIC_APP_URL || (typeof window !== 'undefined' ? window.location.origin : 'https://ofika.ci')).replace(/\/$/, '')
         const profileSlug = profile.custom_url || profile.username
         const nfcLink = `${appUrl}/${profileSlug}`
 

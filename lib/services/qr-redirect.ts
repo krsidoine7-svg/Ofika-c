@@ -542,7 +542,7 @@ function parseUserAgent(userAgent: string): {
  * Génère l'URL du QR code pour une redirection
  */
 export function getQRCodeURL(shortCode: string, size: number = 300): string {
-  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || '').replace(/\/$/, '')
+  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://ofika.ci').replace(/\/$/, '')
   const redirectUrl = `${baseUrl}/qr/${shortCode}`
   return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(redirectUrl)}`
 }
@@ -551,6 +551,6 @@ export function getQRCodeURL(shortCode: string, size: number = 300): string {
  * Génère l'URL de redirection complète
  */
 export function getRedirectURL(shortCode: string): string {
-  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || '').replace(/\/$/, '')
+  const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://ofika.ci').replace(/\/$/, '')
   return `${baseUrl}/qr/${shortCode}`
 }

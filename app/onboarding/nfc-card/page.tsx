@@ -334,7 +334,7 @@ export default function NFCCardOnboardingPage() {
         .replace(/^-+|-+$/g, '')
         || `nfc-${Date.now()}`;
 
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL || (typeof window !== 'undefined' ? window.location.origin : '');
+      const appUrl = (process.env.NEXT_PUBLIC_APP_URL || (typeof window !== 'undefined' ? window.location.origin : 'https://ofika.ci')).replace(/\/$/, '');
       const nfcLink = `${appUrl}/${safeSlug}`;
 
       // Créer la carte NFC en base de données
