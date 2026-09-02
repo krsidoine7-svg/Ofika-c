@@ -357,7 +357,7 @@ export default function ProfilesPage() {
 
   // Création de carte NFC numérique
   const handleCreateDigitalCard = () => {
-    router.push('/onboarding/nfc-card')
+    router.push('/onboarding/nfc-card?reset=true')
   }
 
   const handleEditProfile = (profile_id: string) => {

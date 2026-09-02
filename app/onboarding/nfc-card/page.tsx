@@ -55,6 +55,17 @@ export default function NFCCardOnboardingPage() {
     }
   }, [error])
 
+  // ✅ Réinitialiser l'onboarding pour une nouvelle carte si reset=true dans l'URL
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search)
+    if (params.get('reset') === 'true') {
+      console.log('🔄 Réinitialisation de l\'onboarding pour une nouvelle création...')
+      reset()
+      setStep(user ? ONBOARDING_STEPS.FORM : ONBOARDING_STEPS.INTRO)
+      window.history.replaceState({}, '', '/onboarding/nfc-card')
+    }
+  }, [reset, setStep, user])
+
   // Récupérer les données après signup
   useEffect(() => {
     const params = new URLSearchParams(window.location.search)

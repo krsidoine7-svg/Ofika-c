@@ -9,6 +9,7 @@ import { toast } from 'sonner'
 import { BetaFeatureModal, useBetaFeature } from "@/components/ui/beta-feature-modal"
 import { Badge } from "@/components/ui/badge"
 import confetti from 'canvas-confetti'
+import { normalizeToFullUrl } from '@/lib/utils/qr-validation'
 
 interface NFCCardSuccessStepProps {
   nfcProfile?: {
@@ -66,11 +67,8 @@ export function NFCCardSuccessStep({ nfcProfile, onViewProfiles }: NFCCardSucces
 
   const handleViewPublicProfile = () => {
     if (nfcProfile?.nfc_link) {
-      // Extraire le username de l'URL complète
-      const urlParts = nfcProfile.nfc_link.split('/')
-      const username = urlParts[urlParts.length - 1]
-      const localUrl = `${window.location.origin}/${username}`
-      window.open(localUrl, '_blank', 'noopener,noreferrer')
+      const fullUrl = normalizeToFullUrl(nfcProfile.nfc_link)
+      window.open(fullUrl, '_blank', 'noopener,noreferrer')
     }
   }
 
@@ -193,7 +191,7 @@ export function NFCCardSuccessStep({ nfcProfile, onViewProfiles }: NFCCardSucces
               <div className="flex flex-col gap-1">
                 <span className="text-blue-700">URL complète :</span>
                 <span className="font-medium text-xs break-all text-blue-600">
-                  {nfcProfile?.nfc_link || 'N/A'}
+                  {normalizeToFullUrl(nfcProfile?.nfc_link || 'N/A')}
                 </span>
               </div>
               <div className="flex justify-between">
