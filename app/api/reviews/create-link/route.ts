@@ -150,7 +150,7 @@ export async function POST(request: NextRequest) {
     // ========================================
     // BUILD PUBLIC URL
     // ========================================
-    const publicUrl = `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/avis/${data.slug}`
+    const publicUrl = `${(process.env.NEXT_PUBLIC_APP_URL || 'https://ofika.ci').replace(/\/$/, '')}/avis/${data.slug}`
     
     // ========================================
     // RESPONSE

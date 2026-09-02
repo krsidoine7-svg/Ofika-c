@@ -1,5 +1,5 @@
 # MEMOIRE_GUIDE.md — Guide du Système de Mémoire Externe
-## Favor Company International
+## Ofika
 
 > **Ce fichier explique comment fonctionne, s'alimente, se met à jour et s'utilise la mémoire externe du projet.**  
 > À lire en premier. Toujours maintenu à jour.
@@ -9,7 +9,7 @@
 ## 🗂️ Structure Générale
 
 ```
-memoire-favor/
+memoire-ofika/
 │
 ├── MEMOIRE_GUIDE.md          ← CE FICHIER (lire en premier)
 │

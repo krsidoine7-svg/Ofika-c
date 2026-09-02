@@ -1,7 +1,7 @@
-<!-- Dernière mise à jour : 19 Juillet 2026 -->
+<!-- Dernière mise à jour : 02 Septembre 2026 -->
 
 # INDEX.md — Table des Matières du Wiki
-## Favor Company International — Mémoire Externe
+## Ofika — Mémoire Externe
 
 > Point d'entrée unique du wiki. Tous les fichiers sont listés ici avec leur description.  
 > Mettre à jour à chaque ajout d'un nouveau fichier.
@@ -118,6 +118,7 @@ Date | Décision | Contexte | Raison | Alternative rejetée | Liens
 | `sessions/2026-08-10_session-012.md` | Session 012 — Mockup iPhone 15 Pro, sélecteur de templates dynamique, création du template Social Creator, vCard, WhatsApp & carrousel réseaux sociaux |
 | `sessions/2026-08-12_session-014.md` | Session 014 — Paiements Wave/GeniusPay, notifications temps réel, PWA/RGPD, intégration Sentry |
 | `sessions/2026-08-12_session-015.md` | Session 015 — Fix mobile UI, bug deleted_at qr_redirects, refonte page QR Codes (NFC vs Libre), contacts support |
+| `sessions/2026-09-02_session-016.md` | Session 016 — Module Support & Avis, Section Avis Émeraude Landing Page, Cloche 🔔 Universelle, Notifications Push & Realtime, Exports Excel/JSON |
 
 **Relations :** Chaque résumé de session pointe vers le fichier fourtour correspondant.
 

@@ -165,7 +165,7 @@ export async function POST(
         }
 
         // 4. Mettre à jour la carte avec le nouveau QR
-        const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000').replace(/\/$/, '')
+        const baseUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://ofika.ci').replace(/\/$/, '')
         const redirectUrl = `${baseUrl}/qr/${shortCode}`
         const qrCodeUrl = `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${encodeURIComponent(redirectUrl)}`
 

@@ -275,7 +275,7 @@ export async function deleteQRRedirect(
 export function getQRCodeURL(shortCode: string, size: number = 300): string {
   const baseUrl = typeof window !== 'undefined' 
     ? window.location.origin 
-    : (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000')
+    : (process.env.NEXT_PUBLIC_APP_URL || 'https://ofika.ci').replace(/\/$/, '')
   const redirectUrl = `${baseUrl}/qr/${shortCode}`
   return `https://api.qrserver.com/v1/create-qr-code/?size=${size}x${size}&data=${encodeURIComponent(redirectUrl)}`
 }
@@ -286,7 +286,7 @@ export function getQRCodeURL(shortCode: string, size: number = 300): string {
 export function getRedirectURL(shortCode: string): string {
   const baseUrl = typeof window !== 'undefined' 
     ? window.location.origin 
-    : (process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000')
+    : (process.env.NEXT_PUBLIC_APP_URL || 'https://ofika.ci').replace(/\/$/, '')
   return `${baseUrl}/qr/${shortCode}`
 }
 

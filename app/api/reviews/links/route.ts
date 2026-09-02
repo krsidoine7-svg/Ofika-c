@@ -82,14 +82,14 @@ export async function GET(request: NextRequest) {
               positive_rate: 0,
               latest_review_at: null,
             },
-            public_url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/avis/${link.slug}`,
+            public_url: `${(process.env.NEXT_PUBLIC_APP_URL || 'https://ofika.ci').replace(/\/$/, '')}/avis/${link.slug}`,
           }
         }
         
         return {
           ...link,
           stats,
-          public_url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/avis/${link.slug}`,
+          public_url: `${(process.env.NEXT_PUBLIC_APP_URL || 'https://ofika.ci').replace(/\/$/, '')}/avis/${link.slug}`,
         }
       })
     )

@@ -22,3 +22,11 @@
 ## 4. 🗄️ Schéma `public.qr_redirects`
 Ne jamais passer de champs inexistants dans l'INSERT/UPDATE sur `qr_redirects` (ex: `nfc_link`, `redirect_type`, `scan_count`).
 - **Colonnes valides** : `id`, `user_id`, `short_code`, `target_url`, `title`, `type`, `is_active`, `created_at`, `updated_at`, `deleted_at`.
+
+---
+
+## 5. 🛟 Module Support, Suggestions & Avis Clients Ofika
+- **Landing Page** : Conserver la section des Avis Clients Vérifiés émeraude juste avant le Footer ([`app/page.tsx`](file:///c:/Users/Toto.ADMINISTRATOR/Desktop/Ofika-c-main/app/page.tsx#L782)).
+- **Admin Dashboard** : Toujours utiliser `/api/admin/tickets` pour l'accès aux tickets/messages par le rôle service.
+- **Cloche & Push Notifications** : Maintenir `<OrderNotifications />` et `<SupportRealtimeNotifications />` dans les layouts Client et Admin.
+- **Exportation** : Fichiers CSV avec BOM UTF-8 (`\uFEFF`) et JSON via [`lib/utils/export-tickets.ts`](file:///c:/Users/Toto.ADMINISTRATOR/Desktop/Ofika-c-main/lib/utils/export-tickets.ts).

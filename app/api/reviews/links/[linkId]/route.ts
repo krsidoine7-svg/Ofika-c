@@ -71,7 +71,7 @@ export async function GET(
       data: {
         ...link,
         stats: stats || {},
-        public_url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/avis/${link.slug}`,
+        public_url: `${(process.env.NEXT_PUBLIC_APP_URL || 'https://ofika.ci').replace(/\/$/, '')}/avis/${link.slug}`,
       },
     })
     
@@ -150,7 +150,7 @@ export async function PATCH(
       success: true,
       data: {
         ...data,
-        public_url: `${process.env.NEXT_PUBLIC_APP_URL || 'http://localhost:3000'}/avis/${data.slug}`,
+        public_url: `${(process.env.NEXT_PUBLIC_APP_URL || 'https://ofika.ci').replace(/\/$/, '')}/avis/${data.slug}`,
       },
     })
     

@@ -41,7 +41,7 @@ flowchart TD
 1. **Cartographie d'Impact (étape 2)** — Identifier si un diagramme clarifie le flux, les acteurs, les impacts ou le parcours avant toute implémentation.
 2. **Délégation directe** — ChefsOfika **ne dessine jamais** lui-même : il charge `skill-mermaidH` avec un brief conforme au manifeste.
 3. **Supervision** — Valider le type de diagramme, la cohérence avec `PROMPT/STACK.md` et l'alignement avec le code existant.
-4. **Assemblage** — Intégrer le diagramme dans `schemas-mermaid/` (sous-dossier thématique), mettre à jour le README du dossier, journaliser via `memoire-favor/` si décision structurante, et demander l'accord explicite de l'utilisateur.
+4. **Assemblage** — Intégrer le diagramme dans `schemas-mermaid/` (sous-dossier thématique), mettre à jour le README du dossier, journaliser via `memoire-ofika/` si décision structurante, et demander l'accord explicite de l'utilisateur.
 
 ## Dépôt officiel — `schemas-mermaid/`
 
@@ -132,7 +132,7 @@ flowchart LR
 | 2 — Choisir le type | Étape 2 : Cartographie d'Impact |
 | 3 — Rédiger | Étape 4 : Délégation (skill-mermaidH exécute) |
 | 4 — Valider | Étape 5 : Revue & Garde (preview MCP ou `render.mjs`) |
-| 5 — Livrer | Étape 6 : Accord utilisateur + archivage `memoire-favor` si décision structurante |
+| 5 — Livrer | Étape 6 : Accord utilisateur + archivage `memoire-ofika` si décision structurante |
 
 ## Maintenance des diagrammes
 
@@ -141,7 +141,7 @@ flowchart LR
 - Régénérer les SVG : `.\schemas-mermaid\render-all.ps1`.
 - **Mettre à jour** le diagramme à chaque création, modification ou suppression de feature.
 - **Supprimer** les fichiers obsolètes quand une feature est retirée.
-- Après livraison significative, journaliser via `memoire-favor`.
+- Après livraison significative, journaliser via `memoire-ofika`.
 
 ## Skills complémentaires (co-délégation)
 
@@ -151,4 +151,4 @@ flowchart LR
 | Schéma Supabase / RLS | `supabase`, `supabase-postgres-best-practices` |
 | UI / maquettes | `frontend-design` |
 | Sécurité du flux | `securite-ofika` |
-| Archivage décision | `memoire-favor` |
+| Archivage décision | `memoire-ofika` |

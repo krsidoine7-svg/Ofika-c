@@ -39,7 +39,7 @@ flowchart TD
 1. **Cartographie d'Impact** — Avant toute action, identifier si un diagramme clarifie le flux, les acteurs ou les impacts.
 2. **Délégation** — Invoquer `mermaid-diagram-specialist` avec le skill `skill-mermaidH` et un brief conforme au manifeste global.
 3. **Supervision** — Aucun sous-agent ne sollicite un autre sans validation du manager.
-4. **Assemblage** — Intégrer le diagramme dans la livraison (PR, doc, mémoire `memoire-favor/`).
+4. **Assemblage** — Intégrer le diagramme dans la livraison (PR, doc, mémoire `memoire-ofika/`).
 
 ### Format de brief (extrait)
 

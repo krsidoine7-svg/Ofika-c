@@ -1,7 +1,7 @@
 ---
-name: memoire-favor
+name: memoire-ofika
 description: >
-  Mémoire externe automatique pour le projet Favor Company International. Active ce skill
+  Mémoire externe automatique pour le projet Ofika. Active ce skill
   dès qu'une session de travail commence ou se termine, quand l'utilisateur dit "enregistre",
   "mémorise", "note ça", "résume la session", "qu'est-ce qu'on a fait", "reprends où on en était",
   ou quand il faut retrouver une information passée. Ce skill gère deux dossiers : fourtour/
@@ -11,10 +11,10 @@ description: >
   stocker de données réelles sensibles.
 ---
 
-# Mémoire Externe — Favor Company International
+# Mémoire Externe — Ofika
 
 ## Rôle
-Tu gères la mémoire persistante du projet Favor Company entre les sessions.  
+Tu gères la mémoire persistante du projet Ofika entre les sessions.  
 Tu enregistres tout dans `fourtour/` (journal brut) et tu organises dans `wiki/` (mémoire propre).  
 Tu masques automatiquement toutes les données sensibles AVANT d'écrire quoi que ce soit.
 
@@ -23,7 +23,7 @@ Tu masques automatiquement toutes les données sensibles AVANT d'écrire quoi qu
 ## Structure
 
 ```
-memoire-favor/
+memoire-ofika/
 ├── MEMOIRE_GUIDE.md          ← Guide d'utilisation (lire en premier)
 ├── fourtour/                 ← Journal brut chronologique (TOUT, sans exception)
 │   └── AAAA-MM-JJ_session-NNN.md

@@ -8,7 +8,7 @@ Ce document liste de manière exhaustive toutes les compétences (skills) à dis
 
 | Skill | Emplacement | Rôle principal | Déclencheurs / Mots-clés |
 |---|---|---|---|
-| **memoire-favor** | `memoire-favor/` | Journal de session, décisions techniques, wiki et roadmap | *enregistre, note ça, résume la session, reprends où on en était* |
+| **memoire-ofika** | `memoire-ofika/` | Journal de session, décisions techniques, wiki et roadmap | *enregistre, note ça, résume la session, reprends où on en était* |
 | **securite-ofika** | `securite-ofika/` | Audit de failles (OWASP), surveillance des CVE récentes (2 semaines), conformité RGPD/CNIL et logs | *sécurité, CVE, vulnérabilité, RGPD, CNIL, RLS Supabase* |
 | **seo-audit** | `seo-audit/` | Audit de référencement naturel, balises, vitesse et indexation | *audit SEO, technique SEO, pourquoi je ne suis pas indexé* |
 | **copywriting** | `copywriting/` | Rédaction éditoriale, articles de blog, pages de capture | *écris un article, copywriting, texte marketing* |
@@ -58,7 +58,7 @@ Ce document liste de manière exhaustive toutes les compétences (skills) à dis
 2. **Cartographie & Visualisation (Ofika)** : Pour toute cartographie de processus, parcours utilisateur, onboarding client, ou visualisation / création / modification / mise à jour / suppression de feature — déléguer à **`skill-mermaidH`** lors de l'étape *Cartographie d'Impact*. Voir [chefsOfika-integration.md](../skill-mermaidH/references/chefsOfika-integration.md).
 3. **Skills Supabase Officiels** : Pour toute tâche touchant à la DB, l'auth ou l'infrastructure Supabase, consulter en priorité `.agents/skills/supabase/` et `.agents/skills/supabase-postgres-best-practices/`.
 4. **Support Outil** : Utiliser les Skills Génériques (`skills-main/`) pour les manipulations de formats (PDF, Excel, Word) ou les phases de design technique.
-5. **Journalisation** : Après chaque utilisation de compétence, mettre à jour la mémoire via `memoire-favor`.
+5. **Journalisation** : Après chaque utilisation de compétence, mettre à jour la mémoire via `memoire-ofika`.
 
 ---
 

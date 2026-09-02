@@ -39,7 +39,7 @@ function getBaseUrl() {
     if (typeof window !== 'undefined') {
         return window.location.origin
     }
-    return 'http://localhost:3000'
+    return 'https://ofika.ci'
 }
 
 interface QRRedirect {
@@ -611,7 +611,7 @@ export default function AdminNFCPage() {
         if (typeof window !== 'undefined') {
             return window.location.origin
         }
-        return 'http://localhost:3000'
+        return 'https://ofika.ci'
     }
 
     if (loading) {
