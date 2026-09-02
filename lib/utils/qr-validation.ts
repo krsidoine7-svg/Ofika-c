@@ -39,17 +39,21 @@ export function normalizeToFullUrl(url: string, baseUrl?: string): string {
     return trimmed
   }
 
-  // Si c'est déjà une URL web absolue (http:// ou https://)
-  if (trimmed.startsWith('http://') || trimmed.startsWith('https://')) {
-    return trimmed
-  }
-
   // Domaine de base par défaut (NEXT_PUBLIC_APP_URL ou https://ofika.ci)
   const defaultBase = (process.env.NEXT_PUBLIC_APP_URL || 'https://ofika.ci').replace(/\/$/, '')
+
+  // Remplacer localhost (3000 / 5000) par le domaine de production
+  let cleaned = trimmed.replace(/^https?:\/\/localhost:(3000|5000)/i, defaultBase)
+
+  // Si c'est déjà une URL web absolue (http:// ou https://)
+  if (cleaned.startsWith('http://') || cleaned.startsWith('https://')) {
+    return cleaned
+  }
+
   const appBase = baseUrl ? baseUrl.replace(/\/$/, '') : defaultBase
 
   // Slug ou chemin relatif (ex: "kevsuccessmainone" ou "/trtr")
-  const cleanPath = trimmed.startsWith('/') ? trimmed : `/${trimmed}`
+  const cleanPath = cleaned.startsWith('/') ? cleaned : `/${cleaned}`
   return `${appBase}${cleanPath}`
 }
 

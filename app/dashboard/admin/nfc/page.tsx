@@ -26,6 +26,7 @@ import {
 import { Label } from "@/components/ui/label"
 import { Switch } from "@/components/ui/switch"
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import { normalizeToFullUrl } from '@/lib/utils/qr-validation'
 
 const DESIGN_NAMES: Record<string, string> = {
     design1: 'Classique', design2: 'Design', design3: 'Créatif', design4: 'Nature',
@@ -35,10 +36,6 @@ const DESIGN_NAMES: Record<string, string> = {
 function getBaseUrl() {
     const envUrl = process.env.NEXT_PUBLIC_APP_URL
     if (envUrl) return envUrl.replace(/\/$/, '')
-    
-    if (typeof window !== 'undefined') {
-        return window.location.origin
-    }
     return 'https://ofika.ci'
 }
 
@@ -608,9 +605,6 @@ export default function AdminNFCPage() {
         const envUrl = process.env.NEXT_PUBLIC_APP_URL
         if (envUrl) return envUrl.replace(/\/$/, '')
 
-        if (typeof window !== 'undefined') {
-            return window.location.origin
-        }
         return 'https://ofika.ci'
     }
 
@@ -1167,8 +1161,8 @@ export default function AdminNFCPage() {
                                                             </div>
                                                             <div className="flex items-center gap-1 text-[11px]">
                                                                 <span className="text-slate-400">Pointe vers :</span>
-                                                                <a href={redirect.target_url} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline font-medium truncate max-w-xs">
-                                                                    {redirect.target_url}
+                                                                <a href={normalizeToFullUrl(redirect.target_url)} target="_blank" rel="noreferrer" className="text-blue-600 hover:underline font-medium truncate max-w-xs">
+                                                                    {normalizeToFullUrl(redirect.target_url)}
                                                                 </a>
                                                             </div>
                                                         </div>
@@ -1770,16 +1764,17 @@ function AdminCreateCardDialog({
 
         setLoading(true)
         try {
+            const domainBase = (process.env.NEXT_PUBLIC_APP_URL || 'https://ofika.ci').replace(/\/$/, '')
             const nfc_link = selectedProfile
-                ? `${window.location.origin}/p/${selectedProfile}`
-                : `${window.location.origin}/user-${selectedUser.substring(0, 6)}`
+                ? `${domainBase}/p/${selectedProfile}`
+                : `${domainBase}/user-${selectedUser.substring(0, 6)}`
 
             const insertData = {
                 user_id: selectedUser,
                 profile_id: selectedProfile || null,
                 profile_name: formData.profile_name || 'Sans nom',
                 nfc_link: type === 'digital'
-                    ? `${window.location.origin}/${formData.custom_url || 'card-' + Date.now()}`
+                    ? `${domainBase}/${formData.custom_url || 'card-' + Date.now()}`
                     : nfc_link,
                 design_choice: formData.design_choice,
                 color_theme: formData.color_theme,
