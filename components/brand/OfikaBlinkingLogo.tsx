@@ -22,7 +22,7 @@ export const OfikaBlinkingLogo = ({
   const handleClick = (e: React.MouseEvent) => {
     e.preventDefault()
     e.stopPropagation()
-    window.open('https://ofika.co', '_blank')
+    window.open('/onboarding/public-page', '_blank')
   }
 
   return (
