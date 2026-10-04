@@ -21,7 +21,7 @@ export function SignupStep({
     onPrev,
     isLoading: externalLoading
 }: SignupStepProps) {
-    const { signUp } = useAuth()
+    const { signUp, signIn } = useAuth()
     const [password, setPassword] = useState('')
     const [showPassword, setShowPassword] = useState(false)
     const [internalLoading, setInternalLoading] = useState(false)
@@ -39,15 +39,25 @@ export function SignupStep({
         setInternalLoading(true)
         try {
             // Pour une page publique, on utilise les clés attendues par le schéma profiles
-            const { success, error } = await signUp(formData.email || formData.email_contact, password, {
+            const { success, data, error } = await signUp(formData.email || formData.email_contact, password, {
                 full_name: formData.name,
                 company: formData.company,
                 job_title: formData.job_title
             })
 
             if (success) {
+                console.log('Signup success data:', data)
+                // If there's no session, try to sign in explicitly
+                if (data && !data.session) {
+                    await signIn(formData.email || formData.email_contact, password)
+                }
+                
                 toast.success('Compte créé avec succès !')
-                onSuccess()
+                
+                // On attend un peu pour que le state Auth ait le temps de se propager
+                setTimeout(() => {
+                    onSuccess()
+                }, 1500)
             } else {
                 toast.error(error?.message || 'Erreur lors de la création du compte')
             }

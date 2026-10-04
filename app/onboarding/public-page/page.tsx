@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Stepper, Step } from '@/components/ui/stepper'
-import { ArrowLeft, CheckCircle, Globe, Eye, Palette, Sparkles, LayoutGrid, Leaf, Star, ShoppingBag, Moon, Briefcase, Crown, Users } from 'lucide-react'
+import { ArrowLeft, CheckCircle, Globe, Eye, Palette, Sparkles, LayoutGrid, Leaf, Star, ShoppingBag, Moon, Briefcase, Crown, Users, Copy } from 'lucide-react'
 import { TemplateSelectionStep } from '@/components/features/profiles/TemplateSelectionStep'
 import { OnboardingWizard } from '@/components/features/profiles/onboarding/OnboardingWizard'
 import { MobileWysiwygEditor } from '@/components/features/onboarding/public-page/MobileWysiwygEditor'
@@ -206,13 +206,13 @@ export default function PublicPageOnboardingPage() {
         .from('profiles')
         .select('username')
         .eq('username', username)
-        .single()
+        .maybeSingle()
 
       if (existingProfile) {
         let counter = 1
         let uniqueUsername = `${username}-${counter}`
         while (true) {
-          const { data: checkProfile } = await supabase.from('profiles').select('username').eq('username', uniqueUsername).single()
+          const { data: checkProfile } = await supabase.from('profiles').select('username').eq('username', uniqueUsername).maybeSingle()
           if (!checkProfile) break
           counter++
           uniqueUsername = `${username}-${counter}`
@@ -220,19 +220,42 @@ export default function PublicPageOnboardingPage() {
         username = uniqueUsername
       }
 
+      // Nettoyer l'objet pour l'insertion afin d'éviter les erreurs 400 (Bad Request)
+      // Les réseaux sociaux individuels (facebook, whatsapp, etc.) ne sont pas des colonnes valides
+      // dans la table profiles. Ils doivent être stockés dans le champ JSONB 'social_links'.
+      const profileToInsert = {
+        user_id: user.id,
+        username: username,
+        custom_url: username,
+        profile_type: createdProfile.profile_type || 'professional',
+        name: createdProfile.name || 'Votre Nom',
+        job_title: createdProfile.job_title || createdProfile.jobTitle || null,
+        company: createdProfile.company || null,
+        bio: createdProfile.bio || null,
+        image_url: createdProfile.image_url || null,
+        cover_image_url: createdProfile.cover_image_url || null,
+        email: createdProfile.email || createdProfile.email_contact || null,
+        phone: createdProfile.phone || null,
+        location: createdProfile.location || null,
+        design_choice: selectedDesign,
+        color_theme: createdProfile.color_theme || 'default',
+        is_active: true,
+        social_links: createdProfile.social_links || [],
+        custom_links: createdProfile.custom_links || [],
+        is_public: true,
+        display_reviews: createdProfile.display_reviews || false
+      }
+
       const { data: profile, error } = await supabase
         .from('profiles')
-        .insert({
-          ...createdProfile,
-          user_id: user.id,
-          username: username,
-          design_choice: selectedDesign,
-          is_active: true
-        })
+        .insert(profileToInsert)
         .select()
         .single()
 
-      if (error) throw error
+      if (error) {
+        console.error('Erreur Supabase insert profiles:', error)
+        throw error
+      }
       setCreatedProfile(profile)
 
       // NFC creation
@@ -344,6 +367,15 @@ export default function PublicPageOnboardingPage() {
     }
   }
 
+  const handleCopyLink = () => {
+    if (createdProfile) {
+      const url = createdProfile.custom_url || createdProfile.username
+      const fullUrl = `${window.location.origin}/${url}`
+      navigator.clipboard.writeText(fullUrl)
+      toast.success('Lien copié dans le presse-papiers !')
+    }
+  }
+
   // Handler pour mettre à jour les données locales
   const renderStep = () => {
     switch (currentStep) {
@@ -394,42 +426,47 @@ export default function PublicPageOnboardingPage() {
 
       case 'success':
         return (
-          <Card className="max-w-xl mx-auto">
+          <Card className="max-w-xl mx-auto border-none lg:border shadow-none lg:shadow-sm">
             <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-green-600">
-                <CheckCircle className="w-6 h-6" />
+              <CardTitle className="flex items-center gap-2 text-green-600 justify-center">
+                <CheckCircle className="w-8 h-8" />
                 Page publique créée avec succès !
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="space-y-6">
-                <div className="text-center">
-                  <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                    <CheckCircle className="w-8 h-8 text-green-600" />
+              <div className="space-y-8 mt-4">
+                <div className="text-center space-y-4">
+                  <div className="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6 ring-8 ring-green-50/50">
+                    <CheckCircle className="w-12 h-12 text-green-500" />
                   </div>
-                  <h3 className="text-xl font-semibold text-gray-900 mb-2">
+                  <h3 className="text-2xl font-bold text-gray-900">
                     Votre page est maintenant en ligne !
                   </h3>
-                  <p className="text-gray-600">
+                  <p className="text-gray-500 text-lg">
                     Votre page publique est accessible via l'URL personnalisée
                   </p>
                 </div>
 
                 {createdProfile && (
-                  <div className="bg-gray-50 p-4 rounded-lg">
-                    <h4 className="font-semibold text-gray-900 mb-2">Informations de la page</h4>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Nom :</span>
-                        <span className="font-medium">{createdProfile.name}</span>
+                  <div className="bg-white border border-gray-100 shadow-sm p-6 rounded-2xl">
+                    <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
+                      <Globe className="w-4 h-4 text-blue-500" />
+                      Informations de la page
+                    </h4>
+                    <div className="space-y-4 text-sm">
+                      <div className="flex justify-between items-center py-2 border-b border-gray-50">
+                        <span className="text-gray-500">Nom</span>
+                        <span className="font-semibold text-gray-900">{createdProfile.name}</span>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">URL :</span>
-                        <span className="font-medium">/{createdProfile.custom_url || createdProfile.username}</span>
+                      <div className="flex justify-between items-center py-2 border-b border-gray-50">
+                        <span className="text-gray-500">URL</span>
+                        <div className="flex items-center gap-2">
+                          <span className="font-semibold text-blue-600 bg-blue-50 px-3 py-1 rounded-full">/{createdProfile.custom_url || createdProfile.username}</span>
+                        </div>
                       </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Design :</span>
-                        <Badge className="bg-blue-500 text-white">
+                      <div className="flex justify-between items-center py-2">
+                        <span className="text-gray-500">Design</span>
+                        <Badge variant="secondary" className="bg-gradient-to-r from-orange-500 to-amber-500 text-white border-none shadow-sm">
                           {selectedDesign === 'design1' ? 'Classique' :
                             selectedDesign === 'design2' ? 'Design' :
                               selectedDesign === 'design3' ? 'Créatif' :
@@ -444,13 +481,22 @@ export default function PublicPageOnboardingPage() {
                   </div>
                 )}
 
-                <div className="flex gap-4">
-                  <Button onClick={handleViewProfile} className="flex-1">
-                    Voir ma page
+                <div className="flex flex-col gap-3 pt-4">
+                  <Button 
+                    onClick={handleCopyLink} 
+                    className="w-full bg-black text-white hover:bg-gray-800 h-12 text-base font-semibold shadow-md flex items-center justify-center gap-2"
+                  >
+                    <Copy className="w-5 h-5" />
+                    Copier le lien de ma page
                   </Button>
-                  <Button variant="outline" onClick={handleGoToDashboard} className="flex-1">
-                    Aller au dashboard
-                  </Button>
+                  <div className="flex gap-3">
+                    <Button onClick={handleViewProfile} variant="outline" className="flex-1 h-12 font-medium bg-white hover:bg-gray-50 text-gray-700 border-gray-200">
+                      Voir ma page
+                    </Button>
+                    <Button variant="outline" onClick={handleGoToDashboard} className="flex-1 h-12 font-medium bg-white hover:bg-gray-50 text-gray-700 border-gray-200">
+                      Aller au dashboard
+                    </Button>
+                  </div>
                 </div>
               </div>
             </CardContent>
