@@ -25,6 +25,7 @@ import { ProtectedRoute } from '@/components/core/auth/ProtectedRoute'
 import { createClient } from "@/lib/supabase/client"
 import { getTemplateLabel } from "@/lib/templates/registry"
 import { toast } from "sonner"
+import { refreshPublicProfile } from '@/lib/services/refresh-public-profile'
 
 
 export default function ChangeDesignPage() {
@@ -119,6 +120,7 @@ export default function ChangeDesignPage() {
       if (error) throw error
 
       toast.success('Design modifié avec succès !')
+      refreshPublicProfile(profileId) // page publique à jour tout de suite
 
       // Toujours rediriger vers le dashboard après changement
       setTimeout(() => {

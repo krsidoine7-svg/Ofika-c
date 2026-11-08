@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { requireStaff } from '@/lib/auth/require-staff'
 import { createAdminClient } from '@/lib/supabase/service-role'
 
 export const dynamic = 'force-dynamic'
@@ -6,6 +7,10 @@ export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
     try {
+        // Réservé à l'équipe Ofika (ADMIN / TECH)
+        const staff = await requireStaff()
+        if (!staff.ok) return staff.response
+
         const supabase = createAdminClient()
         const { searchParams } = new URL(request.url)
         const query = (searchParams.get('q') || '').toLowerCase()

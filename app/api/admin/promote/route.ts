@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/service-role'
+import { createClient } from '@/lib/supabase/server'
 
 export const dynamic = 'force-dynamic'
 
@@ -12,6 +13,16 @@ export async function POST(request: NextRequest) {
   try {
     const supabase = createAdminClient()
     const { userId } = await request.json()
+
+    // Il faut être connecté, et on ne peut promouvoir que son propre compte
+    const sessionClient = await createClient()
+    const { data: { user: caller } } = await sessionClient.auth.getUser()
+    if (!caller) {
+      return NextResponse.json({ success: false, error: 'Non authentifié' }, { status: 401 })
+    }
+    if (userId && userId !== caller.id) {
+      return NextResponse.json({ success: false, error: 'Non autorisé' }, { status: 403 })
+    }
 
     if (!userId) {
       return NextResponse.json(

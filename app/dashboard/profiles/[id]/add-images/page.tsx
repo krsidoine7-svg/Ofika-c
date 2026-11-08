@@ -12,6 +12,7 @@ import { ImageUploadFixed as ImageUpload } from '@/components/ui/image-upload-fi
 import { ProtectedRoute } from '@/components/core/auth/ProtectedRoute'
 import { ArrowLeft, CheckCircle, Image as ImageIcon, Upload } from 'lucide-react'
 import { toast } from 'sonner'
+import { refreshPublicProfile } from '@/lib/services/refresh-public-profile'
 
 export default function AddImagesPage() {
   const router = useRouter()
@@ -56,6 +57,7 @@ export default function AddImagesPage() {
       if (error) throw error
 
       toast.success('Images mises à jour avec succès !')
+      refreshPublicProfile(profileId) // page publique à jour tout de suite
       router.push('/dashboard/profiles')
     } catch (error: any) {
       console.error('Error updating images:', error)

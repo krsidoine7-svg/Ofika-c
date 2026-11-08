@@ -29,6 +29,7 @@ import { UrlAvailabilityChecker } from "@/components/ui/url-availability-checker
 
 // Import du schéma unifié depuis lib/validations.ts
 import { profileSchema } from '@/lib/validations'
+import { refreshPublicProfile } from '@/lib/services/refresh-public-profile'
 
 type ProfileFormData = z.infer<typeof profileSchema>
 
@@ -551,6 +552,7 @@ export function ProfileForm({ profile_id, isEditing = false, onSuccess, onCancel
 
         console.log('✅ Profil mis à jour avec succès')
         toast.success('Profil mis à jour avec succès')
+        refreshPublicProfile(profile_id) // page publique à jour tout de suite
         if (onSuccess) {
           onSuccess()
         }

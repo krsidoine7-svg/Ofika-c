@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { requireStaff } from '@/lib/auth/require-staff'
 import webPush from 'web-push'
 import { createClient } from '@/lib/supabase/server'
 
@@ -23,6 +24,10 @@ if (vapidPublicKey && vapidPrivateKey) {
 
 export async function POST(request: NextRequest) {
   try {
+    // Réservé à l'équipe Ofika (ADMIN / TECH)
+    const staff = await requireStaff()
+    if (!staff.ok) return staff.response
+
     const { title, body, icon, url } = await request.json()
 
     if (!title || !body) {

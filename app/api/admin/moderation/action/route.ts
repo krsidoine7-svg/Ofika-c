@@ -1,12 +1,18 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/service-role'
 import { AuditService } from '@/lib/services/audit-service'
+import { requireStaff } from '@/lib/auth/require-staff'
+import { revalidateProfile } from '@/lib/services/public-profile'
 
 export const dynamic = 'force-dynamic'
 
 
 export async function POST(request: NextRequest) {
     try {
+        // Réservé à l'équipe Ofika (ADMIN / TECH)
+        const staff = await requireStaff()
+        if (!staff.ok) return staff.response
+
         const supabase = createAdminClient()
         const { action, id, table, value, profile_id } = await request.json()
 
@@ -75,6 +81,7 @@ export async function POST(request: NextRequest) {
                 details: { table }
             })
 
+            await revalidateProfile('global')
             return NextResponse.json({ success: true })
         }
 
@@ -123,6 +130,8 @@ export async function POST(request: NextRequest) {
                 })
             }
 
+            // La page publique reflète la suspension immédiatement
+            await revalidateProfile('global')
             return NextResponse.json({ success: true })
         }
 

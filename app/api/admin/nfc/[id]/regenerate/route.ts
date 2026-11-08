@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { requireStaff } from '@/lib/auth/require-staff'
 import { createClient } from '@supabase/supabase-js'
 import { createAdminClient } from '@/lib/supabase/service-role'
 import { normalizeToFullUrl } from '@/lib/utils/qr-validation'
@@ -40,6 +41,10 @@ export async function POST(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        // Réservé à l'équipe Ofika (ADMIN / TECH)
+        const staff = await requireStaff()
+        if (!staff.ok) return staff.response
+
         const { id } = await params
         if (!id) {
             return NextResponse.json({ error: 'ID manquant' }, { status: 400 })

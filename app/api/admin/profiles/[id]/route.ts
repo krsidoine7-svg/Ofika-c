@@ -1,6 +1,8 @@
 import { NextResponse } from 'next/server'
 import { createClient } from '@supabase/supabase-js'
 import { AuditService } from '@/lib/services/audit-service'
+import { requireStaff } from '@/lib/auth/require-staff'
+import { revalidateProfile } from '@/lib/services/public-profile'
 
 export const dynamic = 'force-dynamic'
 
@@ -13,6 +15,10 @@ export async function PATCH(
     { params }: { params: Promise<{ id: string }> }
 ) {
     try {
+        // Réservé à l'équipe Ofika (ADMIN / TECH)
+        const staff = await requireStaff()
+        if (!staff.ok) return staff.response
+
         const { id } = await params
         if (!id) {
             return NextResponse.json({ error: 'ID manquant' }, { status: 400 })
@@ -46,6 +52,9 @@ export async function PATCH(
                 reason: body.suspension_reason || 'N/A'
             }
         }).catch(err => console.error('Erreur log audit:', err))
+
+        // La page publique reflète la suspension immédiatement
+        await revalidateProfile('global')
 
         return NextResponse.json({ success: true, message: 'Profil mis à jour avec succès' })
     } catch (error: any) {

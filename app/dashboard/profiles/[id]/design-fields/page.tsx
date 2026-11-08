@@ -42,6 +42,7 @@ import { ArrowLeft, Plus, X, Save, Info, MessageCircle, Facebook, Instagram, Twi
 import { ProtectedRoute } from '@/components/core/auth/ProtectedRoute'
 import { createClient } from "@/lib/supabase/client"
 import { toast } from "sonner"
+import { refreshPublicProfile } from '@/lib/services/refresh-public-profile'
 
 // ============================================
 // CONFIGURATION DES CHAMPS PAR DESIGN
@@ -256,6 +257,7 @@ export default function DesignFieldsPage() {
       if (error) throw error
 
       toast.success('Informations mises à jour avec succès !')
+      refreshPublicProfile(profileId) // page publique à jour tout de suite
       router.push('/dashboard/profiles')
 
     } catch (error: any) {

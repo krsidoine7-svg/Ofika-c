@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/service-role'
+import { createClient } from '@/lib/supabase/server'
+import { requireStaff } from '@/lib/auth/require-staff'
 
 export const dynamic = 'force-dynamic'
 
@@ -13,7 +15,24 @@ export async function GET(request: NextRequest) {
     const featured = searchParams.get('is_featured')
     const ticketId = searchParams.get('ticket_id')
 
+    // Équipe Ofika : accès complet. Client : uniquement les messages de SES tickets.
+    const staff = await requireStaff()
+
     if (ticketId) {
+      if (!staff.ok) {
+        const supabase = await createClient()
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+        const { data: ticket } = await adminSupabase
+          .from('support_tickets')
+          .select('user_id')
+          .eq('id', ticketId)
+          .single()
+        if (!ticket || ticket.user_id !== user.id) {
+          return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
+        }
+      }
+
       const { data: messages, error: msgErr } = await adminSupabase
         .from('ticket_messages')
         .select('*')
@@ -26,6 +45,9 @@ export async function GET(request: NextRequest) {
       }
       return NextResponse.json({ success: true, data: messages || [] })
     }
+
+    // La liste complète des tickets est réservée à l'équipe
+    if (!staff.ok) return staff.response
 
     let query = adminSupabase
       .from('support_tickets')
@@ -60,6 +82,9 @@ export async function GET(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
   try {
+    const staff = await requireStaff()
+    if (!staff.ok) return staff.response
+
     const adminSupabase = createAdminClient()
     const body = await request.json()
     const { id, is_featured, status } = body
@@ -91,6 +116,10 @@ export async function PATCH(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    // Réponse signée "équipe Ofika" : réservée à l'équipe
+    const staff = await requireStaff()
+    if (!staff.ok) return staff.response
+
     const adminSupabase = createAdminClient()
     const body = await request.json()
     const { ticket_id, message } = body

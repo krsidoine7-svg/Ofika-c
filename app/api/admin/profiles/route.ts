@@ -1,4 +1,5 @@
 import { NextResponse } from 'next/server'
+import { requireStaff } from '@/lib/auth/require-staff'
 import { createClient } from '@supabase/supabase-js'
 
 export const dynamic = 'force-dynamic'
@@ -9,6 +10,10 @@ const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!
 
 export async function GET(request: Request) {
     try {
+        // Réservé à l'équipe Ofika (ADMIN / TECH)
+        const staff = await requireStaff()
+        if (!staff.ok) return staff.response
+
         const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
         // 1. Récupérer tous les profils

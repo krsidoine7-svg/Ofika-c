@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
+import { requireStaff } from '@/lib/auth/require-staff'
 import { createAdminClient } from '@/lib/supabase/service-role'
 
 export const dynamic = 'force-dynamic'
@@ -6,6 +7,10 @@ export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
     try {
+        // Réservé à l'équipe Ofika (ADMIN / TECH)
+        const staff = await requireStaff()
+        if (!staff.ok) return staff.response
+
         const supabase = createAdminClient()
         
         const { data: templates, error: tError } = await supabase
@@ -71,6 +76,10 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
     try {
+        // Réservé à l'équipe Ofika (ADMIN / TECH)
+        const staff = await requireStaff()
+        if (!staff.ok) return staff.response
+
         const supabase = createAdminClient()
         const body = await request.json()
 
@@ -154,6 +163,10 @@ export async function POST(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
     try {
+        // Réservé à l'équipe Ofika (ADMIN / TECH)
+        const staff = await requireStaff()
+        if (!staff.ok) return staff.response
+
         const supabase = createAdminClient()
         const { id, ...updates } = await request.json()
 
@@ -174,6 +187,10 @@ export async function PATCH(request: NextRequest) {
 
 export async function DELETE(request: NextRequest) {
     try {
+        // Réservé à l'équipe Ofika (ADMIN / TECH)
+        const staff = await requireStaff()
+        if (!staff.ok) return staff.response
+
         const supabase = createAdminClient()
         const { searchParams } = new URL(request.url)
         const id = searchParams.get('id')
