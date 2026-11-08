@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/service-role'
 import { WaveApiConfig } from '@/lib/services/wave-api'
+import { requireStaff } from '@/lib/auth/require-staff'
 
 export const dynamic = 'force-dynamic'
 
@@ -76,6 +77,10 @@ export async function GET(request: NextRequest) {
  */
 export async function PATCH(request: NextRequest) {
   try {
+    // Modifier les moyens de paiement (lien Wave, identifiant marchand…) : réservé à l'équipe
+    const staff = await requireStaff()
+    if (!staff.ok) return staff.response
+
     const supabase = createAdminClient()
     const body = await request.json()
     const { id = 'wave', is_active, fees, currency, base_price, wave_merchant_id, wave_payment_link, whatsapp_number } = body

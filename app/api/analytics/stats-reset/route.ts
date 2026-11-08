@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/service-role'
+import { createClient } from '@/lib/supabase/server'
 
 export async function POST(request: NextRequest) {
   try {
@@ -7,6 +8,16 @@ export async function POST(request: NextRequest) {
 
     if (!userId || !action) {
       return NextResponse.json({ error: 'Paramètres manquants' }, { status: 400 })
+    }
+
+    // Uniquement ses propres statistiques
+    const sessionClient = await createClient()
+    const { data: { user } } = await sessionClient.auth.getUser()
+    if (!user) {
+      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+    }
+    if (user.id !== userId) {
+      return NextResponse.json({ error: 'Non autorisé' }, { status: 403 })
     }
 
     const adminSupabase = createAdminClient()
