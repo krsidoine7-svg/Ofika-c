@@ -52,7 +52,7 @@ export function PaymentButtonGeniusPay({ orderId, className = '', text = 'Payer 
       <Button
         onClick={handlePayment}
         disabled={isLoading}
-        className={`w-full sm:w-auto inline-flex items-center justify-center bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 px-3 sm:px-4 text-xs sm:text-sm rounded-lg shadow-sm hover:shadow transition-all duration-200 whitespace-nowrap active:scale-[0.98] ${className}`}
+        className={`w-full sm:w-auto inline-flex items-center justify-center min-h-[44px] h-11 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2.5 px-4 sm:px-5 text-sm rounded-lg shadow-sm hover:shadow transition-all duration-200 whitespace-nowrap active:scale-[0.98] ${className}`}
       >
         {isLoading ? (
           <>

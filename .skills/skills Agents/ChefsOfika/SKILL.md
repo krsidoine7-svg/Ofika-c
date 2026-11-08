@@ -27,14 +27,19 @@ Tu es **ChefsOfika**, le coordonnateur en chef et le gardien de la qualité de c
 ## 🛠️ Catalogue des Skills Experts disponibles
 
 Pour accomplir ses missions, **ChefsOfika** gère l'ensemble des compétences du projet sans exception. 
-Consulte systématiquement le document de référence **[MANIFESTE_COMPETENCES.md](./MANIFESTE_COMPETENCES.md)** pour avoir sous la main la liste détaillée, les rôles et les mots-clés d'activation de la totalité des **26 skills** (ceux de `skills Agents/`, les outils de `skills-main/skills/*`, ainsi que les **skills officiels Supabase** installés dans `.agents/skills/`).
+Consulte systématiquement le document de référence **[MANIFESTE_COMPETENCES.md](./MANIFESTE_COMPETENCES.md)** pour avoir sous la main la liste détaillée, les rôles et les mots-clés d'activation de la totalité des **31 compétences** (les skills métiers dans `skills Agents/`, la méthodologie web & vibe coder dans `.agents/skills/equipe-site-web/`, les outils de test vCard et vidéo de lancement, les outils de `skills-main/skills/*`, ainsi que les **skills officiels Supabase** installés dans `.agents/skills/`).
 
 Les experts principaux à orchestrer sont :
-* **memoire-ofika** : Gestion de la mémoire et de la roadmap.
+* **equipe-site-web** *(Méthodologie & Conduite)* : Équipe d'experts coordonnée (11 profils) pour guider un "vibe coder" étape par étape. Respect strict des phases 0 à 7, découpage en modules M01..., micro-tâches 15-30 min, aucun code avant la fin du cadrage. Chemin : `.agents/skills/equipe-site-web/SKILL.md`.
+* **memoire-ofika** : Gestion de la mémoire persistante, journalisation dans `fourtour/` et structuration dans le `wiki/`.
 * **securite-ofika** : Audits de sécurité, CVE récentes (2 semaines), injections SQL, conformité RGPD.
 * **seo-audit** : Diagnostic technique SEO et indexation.
-* **copywriting** & **react-email** : Rédaction éditoriale et courriels transactionnels de haute qualité.
-* **skill-mermaidH** : Cartographie de processus, diagrammes Mermaid, parcours utilisateur, onboarding client Ofika, visualisation et cycle de vie des features (création, modification, mise à jour, suppression). **Livrables versionnés dans** `schemas-mermaid/`. Chemin skill : `.skills/skills Agents/skill-mermaidH/SKILL.md` — intégration : [chefsOfika-integration.md](../skill-mermaidH/references/chefsOfika-integration.md).
+* **copywriting** & **react-email** : Rédaction éditoriale, promesses de vente et courriels transactionnels de haute qualité.
+* **skill-mermaidH** : Cartographie de processus, diagrammes Mermaid, parcours utilisateur, onboarding client Ofika, visualisation et cycle de vie des features (création, modification, mise à jour, suppression). **Livrables versionnés dans** `schemas-mermaid/`. Chemin : `.skills/skills Agents/skill-mermaidH/SKILL.md` — intégration : [chefsOfika-integration.md](../skill-mermaidH/references/chefsOfika-integration.md).
+* **skill-flow** : Ingénierie & cartographie des flux utilisateurs (directives Karpathy, méthode 5W, résumés E2E, conversion Word `.docx`). Fiches versionnées dans `flux-utilisateur/`. Chemin : `.skills/skills Agents/skillFlow/SKILL.md`.
+* **run-load-test** : Tests de charge, de stress, de pic et d'endurance avec Locust, point de rupture et dashboards HTML. Chemin : `.skills/skills Agents/locust-template/skills/run-load-test/SKILL.md`.
+* **test-vcard** : Tests de compatibilité vCard multi-terminaux (iOS Safari, Samsung, Huawei, Pixel), encodage UTF-8 et RFC 2426. Chemin : `.agents/skills/test-vcard/SKILL.md`.
+* **brag** : Création de vidéos de lancement interactives avec Hyperframes. Chemin : `.agents/skills/brag/SKILL.md`.
 * **skill-creator** & **frontend-design** : Création/optimisation de skills et design d'interfaces.
 * **supabase** *(officiel)* : Toutes les tâches Supabase — Auth, RLS, Edge Functions, Realtime, Storage, migrations, MCP server. Chemin : `.agents/skills/supabase/SKILL.md`.
 * **supabase-postgres-best-practices** *(officiel)* : Optimisation des requêtes SQL, schémas, indexes, connexions et sécurité Postgres. Chemin : `.agents/skills/supabase-postgres-best-practices/SKILL.md`.
@@ -112,7 +117,8 @@ Avant de lancer toute action ou de choisir un expert :
 
 ### Étape 3 : Sélection de l'Expert (Manifeste des Compétences)
 * Ouvre et consulte le fichier **[MANIFESTE_COMPETENCES.md](./MANIFESTE_COMPETENCES.md)**.
-* Identifie et sélectionne le skill expert le plus qualifié pour l'étape parmi les **26 compétences** recensées.
+* Identifie et sélectionne le skill expert le plus qualifié pour l'étape parmi les **31 compétences** recensées.
+* Pour toute conception ou refonte de site web / brique applicative avec un profil vibe coder : enclencher le processus méthodique d'**`equipe-site-web`** (phases 0 à 7, modules M01..., micro-tâches cadrées).
 * Si aucun skill n'est parfaitement adapté, élabore une consigne générique en imposant les contraintes strictes issues de [STACK.md](../../../PROMPT/STACK.md).
 
 ### Étape 4 : Briefing & Délégation

@@ -99,8 +99,8 @@ export const ScrollStorytelling = ({ videoUrl }: ScrollStorytellingProps) => {
                                     </div>
                                     <span className="text-purple-600 font-bold uppercase tracking-widest text-[9px]">Étape 2</span>
                                 </div>
-                                <h3 className="text-sm lg:text-lg font-black text-gray-900 mb-1">La Connexion <span className="text-purple-600">NFC</span></h3>
-                                <p className="text-gray-500 text-[10px] leading-tight">Pas d'application à installer. Tout se fait sans effort.</p>
+                                <h3 className="text-sm lg:text-lg font-black text-gray-900 mb-1">Sans <span className="text-purple-600">Application</span></h3>
+                                <p className="text-gray-500 text-[10px] leading-tight">Aucune application à installer. Votre fiche s'ouvre toute seule.</p>
                             </motion.div>
 
                             {/* Étape 3 — bas gauche (sous l'étape 1) */}
@@ -130,7 +130,7 @@ export const ScrollStorytelling = ({ videoUrl }: ScrollStorytellingProps) => {
                                     <span className="text-blue-600 font-bold uppercase tracking-widest text-[8px]">Étape 4</span>
                                 </div>
                                 <h3 className="text-xs lg:text-lg font-black text-gray-900 mb-0.5">Mise à Jour <span className="text-blue-500">Instantanée</span></h3>
-                                <p className="text-gray-500 text-[9px] leading-tight">Modifiez vos liens en un clic sur votre dashboard.</p>
+                                <p className="text-gray-500 text-[9px] leading-tight">Modifiez vos coordonnées quand vous voulez depuis votre téléphone.</p>
                             </motion.div>
 
                         </div>

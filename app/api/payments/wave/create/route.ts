@@ -111,7 +111,7 @@ export async function POST(request: NextRequest) {
       .update({
         payment_provider: 'wave',
         checkout_url: paymentLink,
-        wave_payment_url: paymentLink, // Ex lygos_payment_url, migré vers wave
+        wave_payment_url: paymentLink,
         payment_status: 'pending',
         updated_at: new Date().toISOString()
       })

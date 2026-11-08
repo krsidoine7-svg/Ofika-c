@@ -1,0 +1,12 @@
+{
+  "title": "Cahier de Recette",
+  "platform": "Ofika",
+  "environment": "Staging / Pre-production",
+  "url": "https://ofika.ci",
+  "version": "1.0",
+  "date": "25/10/2026",
+  "author": "Equipe Qualite & Recette Ofika",
+  "logo": "public/apple-touch-icon.png",
+  "primary_color": "#F97316",
+  "accent_color": "#111111"
+}

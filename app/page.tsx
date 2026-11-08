@@ -40,66 +40,6 @@ export default function HomePage() {
   // États pour le menu mobile
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
-  // État du carrousel de comparaison
-  const [currentSlide, setCurrentSlide] = useState(0)
-  const alternatives = [
-    {
-      name: 'Linktree',
-      tagline: 'Liens statiques standard VS Carte NFC connectée physique',
-      competitorPoint: 'Linktree limite votre partage à un simple lien numérique dans votre bio Instagram.',
-      ofikaPoint: 'Partagez instantanément par simple contact NFC lors de vos rencontres réelles, en plus du QR code dynamique.',
-      valueAdded: 'Zéro friction en face-à-face, taux de conversion des prospects multiplié par 5.',
-      href: '/onboarding/public-page'
-    },
-    {
-      name: 'Beacons',
-      tagline: 'Complexité e-commerce VS Focus Impact & Networking',
-      competitorPoint: 'Beacons surcharge votre interface avec des outils de vente e-book complexes.',
-      ofikaPoint: 'Design premium ultra-rapide axé sur votre portfolio et le networking physique pro.',
-      valueAdded: 'Idéal pour les designers, réalisateurs et professionnels B2B.',
-      href: '/onboarding/public-page'
-    },
-    {
-      name: 'Dot.me',
-      tagline: 'Carte simple VS Mini-site personnalisé complet',
-      competitorPoint: 'Dot propose un profil basique limité en design et en personnalisation.',
-      ofikaPoint: 'Votre véritable mini-site dynamique, avec redirection instantanée en un clic.',
-      valueAdded: 'Changez la destination du lien physique à tout moment, sans réimprimer.',
-      href: '/onboarding/public-page'
-    },
-    {
-      name: 'Koji',
-      tagline: 'Apps complexes VS Clarté et Vitesse d\'exécution',
-      competitorPoint: 'Koji propose des mini-apps complexes et lourdes à charger sur mobile.',
-      ofikaPoint: 'Une structure légère, ultra-rapide, optimisée pour le réseau mobile d\'Afrique de l\'Ouest.',
-      valueAdded: 'Chargement en moins de 1 seconde pour vos prospects.',
-      href: '/onboarding/public-page'
-    },
-    {
-      name: 'Lnk.Bio',
-      tagline: 'Abonnements récurrents VS Solution Locale Wave Direct',
-      competitorPoint: 'Lnk.Bio requiert des abonnements mensuels récurrents en devises étrangères.',
-      ofikaPoint: 'Paiement unique via Wave Direct sans abonnement obligatoire, 100% adapté localement.',
-      valueAdded: 'Intégration locale parfaite et facturation transparente.',
-      href: '/onboarding/public-page'
-    },
-    {
-      name: 'Milkshake',
-      tagline: 'Simple page mobile VS Écosystème Connecté Premium',
-      competitorPoint: 'Milkshake se limite à une application de création de page mobile basique.',
-      ofikaPoint: 'Un profil professionnel interconnecté à des cartes NFC premium et tag QR Ofika.',
-      valueAdded: 'Synergie totale entre le physique et le numérique.',
-      href: '/onboarding/public-page'
-    }
-  ]
-
-  useEffect(() => {
-    const timer = setInterval(() => {
-      setCurrentSlide((prev) => (prev + 1) % alternatives.length)
-    }, 5500)
-    return () => clearInterval(timer)
-  }, [])
-
   // Authentification
   const { user, loading } = useAuth()
   const router = useRouter()
@@ -273,7 +213,7 @@ export default function HomePage() {
         <div className="container mx-auto px-4 text-center">
           <ScrollReveal>
             <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-12">
-              La solution ultime pour ceux qui veulent <br className="hidden md:block" /> <span className="text-ofika-orange">monétiser leur audience</span> et <span className="text-purple-600">marquer les esprits</span>.
+              Pensé pour tous ceux qui rencontrent <br className="hidden md:block" /> <span className="text-ofika-orange">des clients et des partenaires</span> au quotidien.
             </h2>
           </ScrollReveal>
 
@@ -282,10 +222,10 @@ export default function HomePage() {
               <Card className="border-0 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 bg-gray-50 hover:bg-orange-50/50 group h-full">
                 <CardContent className="p-6 text-center pt-10">
                   <div className="w-16 h-16 bg-gradient-to-br from-orange-500/10 to-orange-500/5 border border-orange-500/20 rounded-2xl flex items-center justify-center mx-auto mb-6 text-orange-600 shadow-[0_8px_30px_rgba(249,115,22,0.1)] group-hover:scale-110 group-hover:shadow-[0_12px_40px_rgba(249,115,22,0.2)] transition-all duration-300">
-                    <Video className="w-8 h-8 text-orange-600" />
+                    <Building className="w-8 h-8 text-orange-600" />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">Créateurs & Vidéastes</h3>
-                  <p className="text-gray-600 text-sm leading-relaxed">Centralisez tout votre univers (TikTok, YT, Shop) sur un lien unique. Ne laissez plus un abonné se perdre en chemin.</p>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">Commerces & Boutiques</h3>
+                  <p className="text-gray-600 text-sm leading-relaxed">Partagez votre catalogue, vos prix et votre WhatsApp d'un simple geste. Ne perdez plus un client qui passe devant chez vous.</p>
                 </CardContent>
               </Card>
             </ScrollReveal>
@@ -294,10 +234,10 @@ export default function HomePage() {
               <Card className="border-0 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 bg-gray-50 hover:bg-orange-50/50 group h-full">
                 <CardContent className="p-6 text-center pt-10">
                   <div className="w-16 h-16 bg-gradient-to-br from-purple-500/10 to-purple-500/5 border border-purple-500/20 rounded-2xl flex items-center justify-center mx-auto mb-6 text-purple-600 shadow-[0_8px_30px_rgba(168,85,247,0.1)] group-hover:scale-110 group-hover:shadow-[0_12px_40px_rgba(168,85,247,0.2)] transition-all duration-300">
-                    <Sparkles className="w-8 h-8 text-purple-600 fill-purple-500/20" />
+                    <Briefcase className="w-8 h-8 text-purple-600" />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">Influenceurs</h3>
-                  <p className="text-gray-600 text-sm leading-relaxed">Collabore avec des marques ? Affiche ton kit média, tes promos et ton contact pro en un clic. Professionnalisme = Gros contrats.</p>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">Entrepreneurs & Cadres</h3>
+                  <p className="text-gray-600 text-sm leading-relaxed">En réunion ou déjeuner d'affaires, transmettez vos coordonnées complètes sans jamais manquer de cartes de visite.</p>
                 </CardContent>
               </Card>
             </ScrollReveal>
@@ -306,10 +246,10 @@ export default function HomePage() {
               <Card className="border-0 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 bg-gray-50 hover:bg-orange-50/50 group h-full">
                 <CardContent className="p-6 text-center pt-10">
                   <div className="w-16 h-16 bg-gradient-to-br from-pink-500/10 to-pink-500/5 border border-pink-500/20 rounded-2xl flex items-center justify-center mx-auto mb-6 text-pink-600 shadow-[0_8px_30px_rgba(236,72,153,0.1)] group-hover:scale-110 group-hover:shadow-[0_12px_40px_rgba(236,72,153,0.2)] transition-all duration-300">
-                    <Palette className="w-8 h-8 text-pink-600" />
+                    <User className="w-8 h-8 text-pink-600" />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">Tous les Créatifs</h3>
-                  <p className="text-gray-600 text-sm leading-relaxed">Sublimez votre présence. Regroupez vos portfolios, projets récents et liens de contact pour faire briller votre identité visuelle.</p>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">Freelances & Experts</h3>
+                  <p className="text-gray-600 text-sm leading-relaxed">Montrez vos réalisations et vos tarifs en direct. Votre prospect enregistre votre fiche contact en un tap.</p>
                 </CardContent>
               </Card>
             </ScrollReveal>
@@ -318,10 +258,10 @@ export default function HomePage() {
               <Card className="border-0 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 bg-gray-50 hover:bg-orange-50/50 group h-full">
                 <CardContent className="p-6 text-center pt-10">
                   <div className="w-16 h-16 bg-gradient-to-br from-blue-500/10 to-blue-500/5 border border-blue-500/20 rounded-2xl flex items-center justify-center mx-auto mb-6 text-blue-600 shadow-[0_8px_30px_rgba(59,130,246,0.1)] group-hover:scale-110 group-hover:shadow-[0_12px_40px_rgba(59,130,246,0.2)] transition-all duration-300">
-                    <Briefcase className="w-8 h-8 text-blue-600" />
+                    <Video className="w-8 h-8 text-blue-600" />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">Freelances</h3>
-                  <p className="text-gray-600 text-sm leading-relaxed">En networking physique, sors ta carte NFC. "Bip", tes infos sont chez ton prospect. Effet "Wow" garanti et contrat signé.</p>
+                  <h3 className="text-xl font-bold text-gray-900 mb-2">Créateurs & Médias</h3>
+                  <p className="text-gray-600 text-sm leading-relaxed">Centralisez vos vidéos, vos réseaux sociaux et vos collaborations sur un seul lien clair et élégant.</p>
                 </CardContent>
               </Card>
             </ScrollReveal>
@@ -334,10 +274,10 @@ export default function HomePage() {
         <div className="container mx-auto px-4">
           <ScrollReveal direction="down" className="text-center mb-16">
             <h2 className="text-3xl sm:text-5xl font-bold text-gray-900 mb-6">
-              La solution <span className="ofika-text-gradient">Anti-Friction</span>
+              Fini les cartes de visite papier <span className="text-ofika-orange">oubliées ou jetées</span>
             </h2>
             <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Ofika transforme ton profil en autoroute vers la vente. Un seul lien, zéro effort pour tes clients.
+              88% des cartes en papier finissent à la poubelle en moins d'une semaine. Avec Ofika, vous restez enregistré dans le téléphone de votre client pour toujours.
             </p>
           </ScrollReveal>
 
@@ -348,9 +288,9 @@ export default function HomePage() {
                   <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
                     <LinkIcon className="w-8 h-8 text-blue-600" />
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-4">Un Hub de Croissance</h3>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-4">Votre vitrine toujours à jour</h3>
                   <p className="text-gray-600 leading-relaxed">
-                    Ne donnez plus d'excuses à vos clients. WhatsApp, boutique, réseaux sociaux... <strong className="text-gray-900">tout votre univers est à portée d'un seul clic.</strong>
+                    Un numéro qui change ? Une nouvelle offre ? Vous modifiez vos informations en quelques secondes depuis votre tableau de bord, sans jamais réimprimer de cartes.
                   </p>
                 </CardContent>
               </Card>
@@ -360,11 +300,11 @@ export default function HomePage() {
               <Card className="shadow-md hover:shadow-[0_30px_60px_-15px_rgba(168,85,247,0.3)] transition-all duration-500 group h-full flex flex-col bg-white overflow-hidden rounded-2xl border-2 border-gray-100 hover:border-purple-500 hover:-translate-y-2">
                 <CardContent className="p-8 text-center flex-1 flex flex-col justify-center">
                   <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <QrCode className="w-8 h-8 text-purple-600" />
+                    <Wifi className="w-8 h-8 text-purple-600" />
                   </div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-4">Carte de Visite Numérique</h3>
+                  <h3 className="text-2xl font-bold text-gray-900 mb-4">Un geste, zéro effort</h3>
                   <p className="text-gray-600 leading-relaxed">
-                    Le duo gagnant <strong className="text-gray-900">QR Code + Carte NFC</strong>. Partagez votre profil instantanément en ligne ou en personne. <strong className="text-gray-900">Plus professionnelle, plus écologique, plus efficace.</strong>
+                    Approchez simplement votre carte du smartphone de votre client. Vos coordonnées complètes s'affichent sans qu'il ait besoin d'installer d'application.
                   </p>
                 </CardContent>
               </Card>
@@ -379,23 +319,23 @@ export default function HomePage() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
             <ScrollReveal direction="right" className="space-y-6">
               <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 leading-tight">
-                Le QR Code pour <span className="text-ofika-orange">l'écran</span>.<br />
-                La Carte NFC pour <span className="text-purple-600">la main</span>.
+                Le QR Code pour <span className="text-ofika-orange">vos supports</span>.<br />
+                La Carte Sans Contact pour <span className="text-purple-600">vos rencontres</span>.
               </h2>
-              <p className="text-lg text-gray-600 leading-relaxed">Pourquoi choisir ? Ofika vous donne le meilleur des deux technologies pour ne rater aucune opportunité de connexion.</p>
+              <p className="text-lg text-gray-600 leading-relaxed">Vous êtes paré pour toutes les situations, que votre prospect soit en face de vous ou à distance.</p>
               <div className="space-y-4 pt-4">
                 <div className="flex gap-4 p-4 rounded-xl border border-gray-100 hover:border-orange-100 hover:bg-orange-50/30 transition-all">
                   <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0"><QrCode className="w-6 h-6 text-ofika-orange" /></div>
                   <div>
-                    <h4 className="font-bold text-gray-900">QR Code Téléchargeable</h4>
-                    <p className="text-sm text-gray-600">Imprimez-le sur vos packagings, vitrines ou flyers. Un scan et vos clients sont sur votre profil.</p>
+                    <h4 className="font-bold text-gray-900">Le QR Code Express</h4>
+                    <p className="text-sm text-gray-600">À afficher sur vos emballages, votre vitrine ou vos factures. Vos clients scannent et découvrent vos services en 2 secondes.</p>
                   </div>
                 </div>
                 <div className="flex gap-4 p-4 rounded-xl border border-gray-100 hover:border-purple-100 hover:bg-purple-50/30 transition-all">
                   <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0"><Wifi className="w-6 h-6 text-purple-600" /></div>
                   <div>
-                    <h4 className="font-bold text-gray-900">Carte NFC Professionnelle</h4>
-                    <p className="text-sm text-gray-600">Posez votre carte sur le téléphone de votre prospect. Vos infos s'enregistrent en 1 seconde. Effet garanti.</p>
+                    <h4 className="font-bold text-gray-900">La Carte Sans Contact (NFC)</h4>
+                    <p className="text-sm text-gray-600">Posez votre carte sur le smartphone de votre interlocuteur. Votre fiche contact s'ouvre toute seule sur son écran.</p>
                   </div>
                 </div>
               </div>
@@ -477,23 +417,17 @@ export default function HomePage() {
                     <div className="flex items-end gap-2"><span className="text-4xl font-black text-white">0 <span className="text-lg font-bold">FCFA</span></span></div>
                   </div>
                   <ul className="space-y-3 mb-8 flex-1 text-sm">
-                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Jusqu'à 3 pages Link-in-Bio publiques</span></li>
-                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Jusqu'à 3 cartes NFC virtuelles (V-NFC)</span></li>
-                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" /><span>7 QR Codes statiques & 7 QR Codes dynamiques (y compris les 3 pour vos cartes virtuelles)</span></li>
-                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Jusqu'à 4 liens externes par page</span></li>
-                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" /><span>2 templates de page public inclus</span></li>
-                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" /><span>1 seul lien de collecte d'avis clients</span></li>
-                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Achat de Cartes NFC Physiques disponible</span></li>
-                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" /><span className="text-orange-300 font-medium">Logo Ofika obligatoire sur le design final</span></li>
-                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Sélecteur d'Emojis Émotionnels (40+ emojis)</span></li>
-                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Notifications Web Push (max 100 / mois)</span></li>
-                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Rappels de relance automatiques (7 jours)</span></li>
-                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Zéro commission de vente (100% pour vous)</span></li>
-                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Statistiques de visites intégrées (30 jours)</span></li>
+                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Votre page de profil en ligne personnalisée</span></li>
+                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Bouton "Ajouter aux contacts" pour vos clients</span></li>
+                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Liens vers votre WhatsApp, téléphone et réseaux</span></li>
+                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" /><span>QR Code prêt à être scanné ou imprimé</span></li>
+                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Modifiable en temps réel à tout moment</span></li>
+                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Compatible tous smartphones (iPhone & Android)</span></li>
+                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Sans engagement, 100% gratuit à vie</span></li>
                   </ul>
                   <Link href="/onboarding/public-page" className="block w-full">
                     <Button size="lg" className="w-full bg-black text-white hover:bg-gray-900 border border-gray-700/60 font-bold h-12 rounded-xl transition-all shadow-md">
-                      Essayer maintenant
+                      Créer mon profil gratuit
                     </Button>
                   </Link>
                 </CardContent>
@@ -512,21 +446,15 @@ export default function HomePage() {
                     </div>
                     <h3 className="text-2xl font-bold text-white mb-2">Pro</h3>
                     <div className="flex items-end gap-2 mb-2"><span className="text-4xl font-black text-white">1.000 <span className="text-lg font-bold">FCFA</span></span><span className="text-gray-400 text-xs mb-1">/ mois</span></div>
-                    <p className="text-[10px] text-orange-200/60 leading-tight italic bg-orange-500/5 p-2 rounded-lg border border-orange-500/10">En cours de développement. Seul le plan Gratuit et l'achat de carte NFC sont actifs pour le moment.</p>
+                    <p className="text-[10px] text-orange-200/60 leading-tight italic bg-orange-500/5 p-2 rounded-lg border border-orange-500/10">En cours de finalisation. Le profil Gratuit et la carte NFC physique sont actifs.</p>
                   </div>
                   <ul className="space-y-2.5 mb-8 flex-1 text-[13px]">
                     <li className="flex items-center gap-3 text-white font-bold mb-2"><CheckCircle className="w-4 h-4 text-ofika-orange flex-shrink-0" /><span>Tout du plan Gratuit +</span></li>
-                    <li className="flex items-center gap-3 text-white/90"><CheckCircle className="w-4 h-4 text-ofika-orange flex-shrink-0" /><span>Jusqu'à 20 pages Link-in-Bio publiques</span></li>
-                    <li className="flex items-center gap-3 text-white/90"><CheckCircle className="w-4 h-4 text-ofika-orange flex-shrink-0" /><span>Jusqu'à 20 cartes NFC virtuelles (V-NFC)</span></li>
-                    <li className="flex items-center gap-3 text-white/90"><CheckCircle className="w-4 h-4 text-ofika-orange flex-shrink-0" /><span>Jusqu'à 10 liens externes par page</span></li>
-                    <li className="flex items-center gap-3 text-white/90"><CheckCircle className="w-4 h-4 text-ofika-orange flex-shrink-0" /><span>Jusqu'à 20 liens de collecte d'avis clients</span></li>
-                    <li className="flex items-center gap-3 text-white/90"><CheckCircle className="w-4 h-4 text-ofika-orange flex-shrink-0" /><span>Achat de Cartes NFC Physiques disponible</span></li>
-                    <li className="flex items-center gap-3 text-white/90"><CheckCircle className="w-4 h-4 text-ofika-orange flex-shrink-0" /><span>20 QR Codes statiques & 20 QR Codes dynamiques (y compris les 20 pour vos cartes virtuelles)</span></li>
-                    <li className="flex items-center gap-3 text-white/90"><CheckCircle className="w-4 h-4 text-ofika-orange flex-shrink-0" /><span>8 templates de page public premium débloqués</span></li>
-                    <li className="flex items-center gap-3 text-white/90"><CheckCircle className="w-4 h-4 text-ofika-orange flex-shrink-0" /><span>Notifications Web Push (max 1 000 / mois)</span></li>
-                    <li className="flex items-center gap-3 text-white/90"><CheckCircle className="w-4 h-4 text-ofika-orange flex-shrink-0" /><span>Protection Anti-Fake sur vos avis clients</span></li>
-                    <li className="flex items-center gap-3 text-white/90"><CheckCircle className="w-4 h-4 text-ofika-orange flex-shrink-0" /><span>Statistiques avancées (90j) + Géo-scans</span></li>
-                    <li className="flex items-center gap-3 text-white/90"><CheckCircle className="w-4 h-4 text-ofika-orange flex-shrink-0" /><span>50 SMS et E-mails de relance automatique</span></li>
+                    <li className="flex items-center gap-3 text-white/90"><CheckCircle className="w-4 h-4 text-ofika-orange flex-shrink-0" /><span>Plusieurs profils pour séparer pro et perso</span></li>
+                    <li className="flex items-center gap-3 text-white/90"><CheckCircle className="w-4 h-4 text-ofika-orange flex-shrink-0" /><span>Designs et thèmes visuels exclusifs</span></li>
+                    <li className="flex items-center gap-3 text-white/90"><CheckCircle className="w-4 h-4 text-ofika-orange flex-shrink-0" /><span>Collecte d'avis clients pour rassurer vos acheteurs</span></li>
+                    <li className="flex items-center gap-3 text-white/90"><CheckCircle className="w-4 h-4 text-ofika-orange flex-shrink-0" /><span>Statistiques des visites et des scans reçus</span></li>
+                    <li className="flex items-center gap-3 text-white/90"><CheckCircle className="w-4 h-4 text-ofika-orange flex-shrink-0" /><span>Liens et catalogues produits enrichis</span></li>
                   </ul>
                   <Button disabled size="lg" className="w-full bg-gray-700 text-gray-400 font-black h-12 rounded-xl cursor-not-allowed">
                     Bientôt Disponible
@@ -546,24 +474,14 @@ export default function HomePage() {
                     </div>
                     <h3 className="text-2xl font-bold mb-2">Business</h3>
                     <div className="flex items-end gap-2 mb-2"><span className="text-4xl font-black text-white">3.000 <span className="text-lg font-bold">FCFA</span></span><span className="text-gray-400 text-xs mb-1">/ mois</span></div>
-                    <p className="text-[10px] text-purple-300/60 leading-tight italic bg-purple-500/5 p-2 rounded-lg border border-purple-500/10">En cours de développement. Seul le plan Gratuit et l'achat de carte NFC sont actifs pour le moment.</p>
+                    <p className="text-[10px] text-purple-300/60 leading-tight italic bg-purple-500/5 p-2 rounded-lg border border-purple-500/10">En cours de finalisation. Le profil Gratuit et la carte NFC physique sont actifs.</p>
                   </div>
                   <ul className="space-y-2.5 mb-8 flex-1 text-[13px]">
                     <li className="flex items-center gap-3 text-gray-200 font-bold mb-2"><CheckCircle className="w-4 h-4 text-purple-500 flex-shrink-0" /><span>Tout du plan Pro +</span></li>
-                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-purple-500 flex-shrink-0" /><span>Pages Link-in-Bio & V-NFC 100% Illimitées</span></li>
-                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-purple-500 flex-shrink-0" /><span>100 QR Codes statiques & 100 QR Codes dynamiques (y compris pour vos cartes virtuelles)</span></li>
-                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-purple-500 flex-shrink-0" /><span>Nombre de liens par page 100% Illimité</span></li>
-                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-purple-500 flex-shrink-0" /><span>Tous les templates + Personnalisation sur-mesure</span></li>
-                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-purple-500 flex-shrink-0" /><span>Création de designs uniques & sur-mesure</span></li>
-                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-purple-500 flex-shrink-0" /><span>Liens de collecte d'avis clients 100% Illimités</span></li>
-                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-purple-500 flex-shrink-0" /><span>Achat de Cartes NFC Physiques disponible</span></li>
-                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-purple-500 flex-shrink-0" /><span>Notifications Web Push 100% Illimitées</span></li>
-                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-purple-500 flex-shrink-0" /><span>Vente directe (E-commerce / Services)</span></li>
-                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-purple-500 flex-shrink-0" /><span>Intégration checkout & Paiement direct</span></li>
-                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-purple-500 flex-shrink-0" /><span>Nom de domaine personnalisé (.com, .ci)</span></li>
-                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-purple-500 flex-shrink-0" /><span>Marque blanche complète (sans logo Ofika)</span></li>
-                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-purple-500 flex-shrink-0" /><span>Statistiques à vie + Export CSV complet</span></li>
-                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-purple-500 flex-shrink-0" /><span>Support Dédié Prioritaire 24h/24 et 7j/7</span></li>
+                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-purple-500 flex-shrink-0" /><span>Gestion centralisée pour vos collaborateurs</span></li>
+                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-purple-500 flex-shrink-0" /><span>Votre propre nom de domaine personnalisé</span></li>
+                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-purple-500 flex-shrink-0" /><span>Sans aucune mention Ofika (100% à votre marque)</span></li>
+                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-purple-500 flex-shrink-0" /><span>Accompagnement et support prioritaire 7j/7</span></li>
                   </ul>
                   <Button disabled size="lg" className="w-full bg-gray-700 text-gray-400 font-black h-12 rounded-xl cursor-not-allowed">
                     Bientôt Disponible
@@ -585,19 +503,19 @@ export default function HomePage() {
                     <Badge className="bg-white text-orange-600 mb-2 font-bold tracking-tighter">ÉDITION PHYSIQUE</Badge>
                     <h3 className="text-2xl font-black mb-1">Carte NFC Ofika</h3>
                     <div className="text-3xl font-black text-white/95">{NFC_CARD_BASE_PRICE.toLocaleString('fr-FR')} FCFA</div>
-                    <p className="text-[9px] text-orange-100 font-bold uppercase tracking-wider mt-1.5 leading-tight">Design par défaut • Achat Unique</p>
+                    <p className="text-[9px] text-orange-100 font-bold uppercase tracking-wider mt-1.5 leading-tight">Achat Unique • Valable à vie</p>
                   </div>
                   <div className="p-8 md:w-2/3 flex flex-col">
-                    <h3 className="text-2xl font-bold mb-4">La carte qui fait tout le travail</h3>
+                    <h3 className="text-2xl font-bold mb-4">La carte physique qui fait la différence</h3>
                     <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-                      <li className="flex items-center gap-3 text-gray-600"><CheckCircle className="w-4 h-4 text-ofika-orange flex-shrink-0" /><span>Friction-zéro (Bip & Connect)</span></li>
-                      <li className="flex items-center gap-3 text-gray-600"><CheckCircle className="w-4 h-4 text-ofika-orange flex-shrink-0" /><span>Écologique & Réutilisable à vie</span></li>
-                      <li className="flex items-center gap-3 text-gray-600"><CheckCircle className="w-4 h-4 text-ofika-orange flex-shrink-0" /><span>Modifiable en temps réel</span></li>
-                      <li className="flex items-center gap-3 text-gray-600"><CheckCircle className="w-4 h-4 text-ofika-orange flex-shrink-0" /><span>Livraison Express 24h</span></li>
+                      <li className="flex items-center gap-3 text-gray-600"><CheckCircle className="w-4 h-4 text-ofika-orange flex-shrink-0" /><span>Sans contact : posez sur le téléphone et c'est partagé</span></li>
+                      <li className="flex items-center gap-3 text-gray-600"><CheckCircle className="w-4 h-4 text-ofika-orange flex-shrink-0" /><span>Carte rigide et étanche, utilisable à vie</span></li>
+                      <li className="flex items-center gap-3 text-gray-600"><CheckCircle className="w-4 h-4 text-ofika-orange flex-shrink-0" /><span>Modifiable en direct sans réimpression</span></li>
+                      <li className="flex items-center gap-3 text-gray-600"><CheckCircle className="w-4 h-4 text-ofika-orange flex-shrink-0" /><span>Livraison rapide à Abidjan et en Côte d'Ivoire</span></li>
                       <li className="flex items-start gap-3 sm:col-span-2 bg-orange-50/70 p-3 rounded-xl border border-orange-100/60 mt-1">
                         <CheckCircle className="w-4 h-4 text-ofika-orange flex-shrink-0 mt-0.5" />
                         <span className="text-[11px] sm:text-xs font-semibold text-gray-700 leading-relaxed">
-                          <strong>Personnalisation sur-mesure disponible :</strong> Quel que soit votre plan, concevez une carte physique 100% unique (logo, couleurs, finitions) en contactant l'équipe Ofika (le prix s'ajustera selon votre demande).
+                          <strong>Personnalisation sur-mesure pour entreprises :</strong> Commandez des cartes physiques avec votre logo officiel et vos couleurs d'entreprise pour équiper vos équipes.
                         </span>
                       </li>
                     </ul>
@@ -624,10 +542,10 @@ export default function HomePage() {
       <section className="py-20 bg-white border-t border-gray-100">
         <div className="container mx-auto px-4">
           <div className="max-w-4xl mx-auto text-center">
-            <Badge className="bg-blue-100 text-blue-700 hover:bg-blue-100 mb-6 px-4 py-1.5 text-sm uppercase tracking-wide font-bold">Notre Mission</Badge>
-            <h2 className="text-3xl font-bold text-gray-900 mb-8">Digitaliser le commerce en Afrique,<br /> une connexion à la fois.</h2>
-            <p className="text-lg text-gray-600 leading-relaxed mb-6">Ofika est né d'un constat simple à Abidjan : trop de ventes se perdent parce que partager ses contacts est compliqué. Nous sommes une équipe de passionnés (développeurs, designers, marketeurs) déterminés à donner aux entrepreneurs africains les outils "No-Code" les plus puissants du monde.</p>
-            <p className="text-lg text-gray-600 leading-relaxed font-medium">Notre but ? Que chaque vendeur, du grand magasin au freelance, puisse avoir une présence professionnelle en 2 minutes chrono.</p>
+            <Badge className="bg-orange-100 text-orange-700 hover:bg-orange-100 mb-6 px-4 py-1.5 text-sm uppercase tracking-wide font-bold">Notre Mission</Badge>
+            <h2 className="text-3xl font-bold text-gray-900 mb-8">Rendre chaque entrepreneur inoubliable dès la première rencontre.</h2>
+            <p className="text-lg text-gray-600 leading-relaxed mb-6">Ofika est né d'un constat à Abidjan : combien d'opportunités et de ventes sont perdues simplement parce qu'échanger ses coordonnées prend trop de temps ou que la carte en papier finit égarée ?</p>
+            <p className="text-lg text-gray-600 leading-relaxed font-medium">Notre mission est simple : offrir à chaque commerçant, dirigeant et indépendant une présence connectée, durable et sans papier, accessible à tous.</p>
           </div>
         </div>
       </section>
@@ -638,147 +556,31 @@ export default function HomePage() {
       <section className="py-12 bg-white overflow-hidden">
         <div className="container mx-auto px-4 sm:px-6 relative z-10">
           <div className="relative w-full max-w-[1186px] mx-auto rounded-[20px] bg-[#09090b] border border-white/[0.08] shadow-[0_24px_80px_rgba(0,0,0,0.4)] py-16 px-6 sm:px-12 md:py-24 text-center overflow-hidden">
-            {/* Ambient glow */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,rgba(249,115,22,0.15)_0%,transparent_65%)] pointer-events-none" />
-            
             <div className="relative z-10">
               <h2 className="text-4xl sm:text-6xl font-black mb-8 max-w-4xl mx-auto leading-[1.1] tracking-tighter text-white">
-                Rejoignez la révolution du <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-pink-500 to-rose-500">networking ivoirien.</span>
+                Rejoignez les entrepreneurs qui ont <br />
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-pink-500">abandonné le papier.</span>
               </h2>
               <p className="text-lg sm:text-xl text-gray-400 mb-10 max-w-2xl mx-auto font-medium">
-                Vos concurrents sont déjà en train de digitaliser leur carnet d'adresses. Arrêtez de passer pour un amateur avec des cartons papier.
+                Faites forte impression à chaque rencontre d'affaires. Votre profil est prêt en 2 minutes.
               </p>
               <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
                 <Link href="/onboarding/public-page">
                   <Button size="lg" style={{ borderRadius: '20px' }} className="h-[66px] px-10 bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-white rounded-[20px] text-base sm:text-lg font-bold shadow-lg shadow-orange-500/20 transition-all group flex items-center gap-2">
-                    Je veux mon profil gratuit
+                    Créer mon profil gratuit
                     <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
                   </Button>
                 </Link>
               </div>
               <p className="mt-8 text-sm text-gray-500 font-bold flex items-center justify-center gap-2">
-                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" /> Sans carte bancaire • 2 minutes chrono
+                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" /> Sans carte bancaire • 100% gratuit • 2 minutes chrono
               </p>
             </div>
           </div>
         </div>
       </section>
 
-      {/* Section Alternatives / Comparatifs */}
-      <section className="py-20 bg-white border-t border-gray-100 relative overflow-hidden">
-        <div className="absolute top-0 left-1/4 w-80 h-80 bg-orange-500/5 blur-[120px] pointer-events-none rounded-full" />
-        <div className="container mx-auto px-4 max-w-6xl relative z-10">
-          <div className="text-center max-w-3xl mx-auto mb-16 space-y-4">
-            <Badge variant="outline" className="border-orange-500/30 text-orange-600 bg-orange-500/10 px-4 py-1.5 rounded-full text-xs font-bold uppercase tracking-wider">
-              Comparatifs
-            </Badge>
-            <h2 className="text-3xl md:text-5xl font-black text-gray-900 tracking-tight">
-              Ofika vs Les Alternatives
-            </h2>
-            <p className="text-gray-600 font-medium">
-              Découvrez en une seconde pourquoi Ofika est le choix privilégié des professionnels pour se démarquer en ligne et dans le monde physique.
-            </p>
-          </div>
 
-          {/* Carrousel de Comparatif Animé */}
-          {(() => {
-            const activeAlt = alternatives[currentSlide]
-            return (
-              <div className="relative max-w-4xl mx-auto overflow-hidden bg-white rounded-3xl border border-gray-100 p-8 md:p-12 shadow-[0_10px_50px_rgba(0,0,0,0.05)]">
-                <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/5 blur-[50px] pointer-events-none rounded-full" />
-                
-                {/* Slide Wrapper avec transition */}
-                <div className="transition-all duration-700 ease-in-out transform min-h-[300px] flex flex-col justify-between">
-                  <div className="space-y-6">
-                    <div className="flex items-center justify-between">
-                      <span className="text-sm font-black tracking-widest text-orange-600 uppercase">
-                        CONFRONTATION DIRECTE
-                      </span>
-                      <Badge variant="outline" className="border-orange-500/20 text-orange-600 bg-orange-500/5 font-black uppercase text-[10px]">
-                        Ofika vs {activeAlt.name}
-                      </Badge>
-                    </div>
-
-                    <div className="space-y-2">
-                      <h3 className="text-xl md:text-3xl font-black text-gray-900 leading-tight">
-                        {activeAlt.tagline}
-                      </h3>
-                      <p className="text-[10px] text-gray-400 font-black uppercase tracking-wider">
-                        CE QUI VOUS REND UNIQUE EN 1 SECONDE
-                      </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4 border-t border-gray-100">
-                      {/* Point Concurrent */}
-                      <div className="bg-red-500/5 border border-red-500/10 rounded-2xl p-5 space-y-2">
-                        <span className="text-xs font-black tracking-wider uppercase text-red-500 block">
-                          Chez {activeAlt.name}
-                        </span>
-                        <p className="text-base md:text-lg text-gray-700 leading-relaxed font-semibold">
-                          {activeAlt.competitorPoint}
-                        </p>
-                      </div>
-
-                      {/* Point Ofika */}
-                      <div className="bg-green-500/5 border border-green-500/10 rounded-2xl p-5 space-y-2 relative overflow-hidden">
-                        <div className="absolute top-0 right-0 w-24 h-24 bg-green-500/5 blur-2xl rounded-full" />
-                        <span className="text-xs font-black tracking-wider uppercase text-green-600 block">
-                          Avec Ofika (Point Fort)
-                        </span>
-                        <p className="text-base md:text-lg text-gray-900 leading-relaxed font-black">
-                          {activeAlt.ofikaPoint}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="bg-orange-500/5 border border-orange-500/10 rounded-2xl p-5">
-                      <div className="space-y-1">
-                        <span className="text-xs font-black tracking-wider uppercase text-orange-600 block">
-                          Valeur Ajoutée Unique
-                        </span>
-                        <p className="text-sm md:text-base text-gray-800 font-bold leading-relaxed">
-                          {activeAlt.valueAdded}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
-
-                {/* Navigation du Carrousel */}
-                <div className="flex items-center justify-between mt-8 pt-6 border-t border-gray-100">
-                  <div className="flex gap-1.5">
-                    {alternatives.map((_, idx) => (
-                      <button
-                        key={idx}
-                        onClick={() => setCurrentSlide(idx)}
-                        className={`h-1.5 rounded-full transition-all duration-300 ${
-                          currentSlide === idx ? 'w-8 bg-orange-500' : 'w-2 bg-gray-200 hover:bg-gray-300'
-                        }`}
-                      />
-                    ))}
-                  </div>
-
-                  <div className="flex gap-3">
-                    <button 
-                      onClick={() => setCurrentSlide((prev) => (prev - 1 + alternatives.length) % alternatives.length)}
-                      className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:text-gray-900 hover:border-orange-500/40 transition-all font-bold shadow-sm"
-                    >
-                      ←
-                    </button>
-                    <button 
-                      onClick={() => setCurrentSlide((prev) => (prev + 1) % alternatives.length)}
-                      className="w-10 h-10 rounded-xl bg-white border border-gray-200 flex items-center justify-center text-gray-500 hover:text-gray-900 hover:border-orange-500/40 transition-all font-bold shadow-sm"
-                    >
-                      →
-                    </button>
-                  </div>
-                </div>
-              </div>
-            )
-          })()}
-        </div>
-      </section>
 
       {/* Section Avis Clients Vérifiés */}
       <VerifiedReviewsSection />

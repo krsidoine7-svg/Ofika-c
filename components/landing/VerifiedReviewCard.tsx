@@ -28,12 +28,12 @@ export function VerifiedReviewCard({ review, isFeaturedCard = false }: VerifiedR
     <div className={`
       relative bg-white rounded-3xl p-6 sm:p-8 flex flex-col justify-between h-full transition-all duration-300
       ${isFeaturedCard 
-        ? 'border-2 border-emerald-400/80 shadow-2xl shadow-emerald-500/10 ring-4 ring-emerald-400/10' 
-        : 'border border-emerald-100/80 shadow-xl shadow-emerald-900/5 hover:border-emerald-300 hover:shadow-2xl hover:shadow-emerald-900/10'
+        ? 'border-2 border-orange-500/80 shadow-2xl shadow-orange-500/10 ring-4 ring-orange-400/10' 
+        : 'border border-gray-100 shadow-xl shadow-gray-900/5 hover:border-orange-300 hover:shadow-2xl hover:shadow-orange-500/10'
       }
     `}>
-      {/* Filigrane discret de guillemet */}
-      <Quote className="w-12 h-12 text-emerald-100/50 absolute top-4 right-4 pointer-events-none stroke-1" />
+      {/* Filigrane discret de guillemet aux couleurs Ofika */}
+      <Quote className="w-12 h-12 text-orange-100/60 absolute top-4 right-4 pointer-events-none stroke-1" />
 
       <div>
         {/* En-tête : Étoiles et Badge Pilule "Client Vérifié" */}
@@ -44,15 +44,15 @@ export function VerifiedReviewCard({ review, isFeaturedCard = false }: VerifiedR
                 key={i}
                 className={`w-4 h-4 sm:w-5 sm:h-5 ${
                   i < rating
-                    ? 'text-emerald-500 fill-emerald-500'
+                    ? 'text-amber-400 fill-amber-400'
                     : 'text-gray-200 fill-gray-100'
                 }`}
               />
             ))}
           </div>
 
-          <div className="bg-emerald-50 text-emerald-700 border border-emerald-200/80 rounded-full px-3 py-1 text-[11px] sm:text-xs font-semibold flex items-center gap-1.5 shadow-sm">
-            <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+          <div className="bg-orange-50 text-orange-700 border border-orange-200/80 rounded-full px-3 py-1 text-[11px] sm:text-xs font-semibold flex items-center gap-1.5 shadow-xs">
+            <CheckCircle2 className="w-3.5 h-3.5 text-orange-500 shrink-0" />
             <span>Client Vérifié</span>
           </div>
         </div>
@@ -70,14 +70,14 @@ export function VerifiedReviewCard({ review, isFeaturedCard = false }: VerifiedR
         {/* Pied de Carte : Auteur + Badge incrusté */}
         <div className="flex items-center gap-3.5">
           <div className="relative shrink-0">
-            <Avatar className="w-11 h-11 border-2 border-emerald-100 shadow-sm">
+            <Avatar className="w-11 h-11 border-2 border-orange-100 shadow-sm">
               <AvatarImage src={avatarUrl} alt={name} />
-              <AvatarFallback className="bg-emerald-100 text-emerald-800 font-bold text-sm">
+              <AvatarFallback className="bg-orange-100 text-orange-800 font-bold text-sm">
                 {name.substring(0, 2).toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            {/* Petit badge vert d'approbation au coin inférieur droit de l'avatar */}
-            <div className="absolute -bottom-0.5 -right-0.5 bg-emerald-500 text-white rounded-full p-0.5 w-4 h-4 flex items-center justify-center border border-white shadow-sm">
+            {/* Petit badge orange d'approbation au coin inférieur droit de l'avatar */}
+            <div className="absolute -bottom-0.5 -right-0.5 bg-orange-500 text-white rounded-full p-0.5 w-4 h-4 flex items-center justify-center border border-white shadow-sm">
               <CheckCircle2 className="w-3 h-3 stroke-[3]" />
             </div>
           </div>
@@ -86,7 +86,7 @@ export function VerifiedReviewCard({ review, isFeaturedCard = false }: VerifiedR
             <h4 className="font-bold text-gray-900 text-sm sm:text-base leading-snug truncate">
               {name}
             </h4>
-            <p className="text-xs text-emerald-800 font-medium truncate opacity-90">
+            <p className="text-xs text-orange-800/80 font-medium truncate">
               {role} {location ? `• ${location}` : ''}
             </p>
           </div>

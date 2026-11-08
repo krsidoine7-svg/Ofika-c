@@ -1,4 +1,5 @@
 import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/service-role'
 import { NextRequest, NextResponse } from 'next/server'
 import { withAuth } from '@/lib/middleware/auth'
 import { apiHandler, apiError, apiSuccess } from '@/lib/utils/api-handler'
@@ -11,32 +12,78 @@ export const dynamic = 'force-dynamic'
 
 // GET - Récupérer les informations d'un utilisateur
 export const GET = withAuth(async (request, authUser, params: { id: string }) => {
-  // Debug logging
-  console.log(`[API GET USER] Searching for ID: ${params.id}`)
+  const adminSupabase = createAdminClient()
 
-  const supabase = await createClient()
+  // Autoriser si c'est soi-même OU si c'est un administrateur
+  if (authUser.id !== params.id) {
+    const { data: adminRecord } = await adminSupabase
+      .from('users')
+      .select('role')
+      .eq('id', authUser.id)
+      .maybeSingle()
 
-  // Vérifier si l'utilisateur est un administrateur
-  const { data: isAdmin } = await supabase
-    .from('users')
-    .select('role')
-    .eq('id', authUser.id)
-    .single()
-
-  // Autoriser si c'est soi-même OU si c'est un admin
-  if (authUser.id !== params.id && (!isAdmin || (isAdmin.role !== 'admin' && isAdmin.role !== 'super_admin'))) {
-    return apiError.forbidden('Vous ne pouvez consulter que vos propres données')
+    const role = adminRecord?.role || (authUser.app_metadata as any)?.role
+    if (role !== 'admin' && role !== 'super_admin') {
+      return apiError.forbidden('Vous ne pouvez consulter que vos propres données')
+    }
   }
   
-  // 1. Chercher dans la table 'users' d'abord (Utilisateurs normaux)
-  let { data: user, error } = await supabase
+  // 1. Chercher dans la table 'users'
+  let { data: user, error } = await adminSupabase
     .from('users')
     .select('id, name, first_name, last_name, email, phone, city, address, image, preferred_language, subscription_tier, role, created_at')
     .eq('id', params.id)
-    .single()
+    .maybeSingle()
 
-  if (error || !user) {
-    console.error(`[API GET USER] Error fetching user ${params.id}:`, error)
+  // 2. Si l'utilisateur n'existe pas encore dans public.users et qu'il consulte son propre compte, on l'initialise automatiquement
+  if (!user && authUser.id === params.id) {
+    const fullName = authUser.user_metadata?.full_name || authUser.user_metadata?.name || authUser.email?.split('@')[0] || 'Utilisateur'
+    const firstName = authUser.user_metadata?.first_name || fullName.split(' ')[0] || ''
+    const lastName = authUser.user_metadata?.last_name || ''
+    const avatar = authUser.user_metadata?.avatar_url || authUser.user_metadata?.picture || ''
+
+    try {
+      const { data: createdUser, error: insertError } = await adminSupabase
+        .from('users')
+        .upsert({
+          id: params.id,
+          email: authUser.email,
+          name: fullName,
+          first_name: firstName,
+          last_name: lastName,
+          image: avatar,
+          subscription_tier: 'free',
+          role: 'client',
+          updated_at: new Date().toISOString()
+        })
+        .select('id, name, first_name, last_name, email, phone, city, address, image, preferred_language, subscription_tier, role, created_at')
+        .maybeSingle()
+
+      if (!insertError && createdUser) {
+        user = createdUser
+      } else {
+        user = {
+          id: authUser.id,
+          email: authUser.email,
+          name: fullName,
+          first_name: firstName,
+          last_name: lastName,
+          phone: null,
+          city: null,
+          address: null,
+          image: avatar,
+          preferred_language: 'fr',
+          subscription_tier: 'free',
+          role: 'client',
+          created_at: authUser.created_at
+        } as any
+      }
+    } catch (e) {
+      console.warn('[API GET USER] Erreur auto-provisioning user:', e)
+    }
+  }
+
+  if (!user) {
     return apiError.notFound('Compte utilisateur non trouvé')
   }
 
@@ -91,7 +138,8 @@ export const PUT = withAuth(async (request, authUser, params: { id: string }) =>
   logger.info('Mise à jour utilisateur', { userId: params.id, fields: Object.keys(updateData) })
 
   // Mettre à jour dans la base de données users
-  const { data, error } = await supabase
+  const adminSupabase = createAdminClient()
+  const { data, error } = await adminSupabase
     .from('users')
     .update(updateData)
     .eq('id', params.id)

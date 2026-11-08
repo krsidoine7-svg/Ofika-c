@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { toast } from 'sonner'
 import { Logo } from '@/components/ui/logo'
+import { normalizeRole, sanitizeRedirectUrl } from '@/lib/roles'
 
 export default function AuthCallbackPage() {
   const router = useRouter()
@@ -15,7 +16,7 @@ export default function AuthCallbackPage() {
       try {
         const params = new URLSearchParams(window.location.search)
         const code = params.get('code')
-        const next = params.get('next') || '/dashboard'
+        const rawNext = params.get('next') || params.get('callbackUrl')
 
         if (code) {
           console.log('🔄 Échange du code d\'authentification...')
@@ -27,28 +28,29 @@ export default function AuthCallbackPage() {
         if (error) {
           console.error('Auth callback error:', error)
           toast.error('Erreur lors de la connexion')
-          router.push('/auth/login')
+          router.push('/login')
           return
         }
 
         if (session) {
           toast.success('Connexion réussie!')
-          let finalNext = next
-          if (next === '/dashboard') {
-            const { data: userData } = await supabase.from('users').select('role').eq('id', session.user.id).single()
-            if (userData && (userData.role === 'admin' || userData.role === 'super_admin')) {
-              finalNext = '/dashboard/admin'
-            }
-          }
-          router.push(finalNext)
+          const { data: userData } = await supabase
+            .from('users')
+            .select('role')
+            .eq('id', session.user.id)
+            .single()
+
+          const role = normalizeRole(userData?.role)
+          const destination = sanitizeRedirectUrl(rawNext, role)
+          router.push(destination)
         } else {
           console.warn('Aucune session trouvée après callback')
-          router.push('/auth/login')
+          router.push('/login')
         }
       } catch (err) {
         console.error('Auth callback error:', err)
         toast.error('Erreur lors de la connexion')
-        router.push('/auth/login')
+        router.push('/login')
       }
     }
 

@@ -2,6 +2,9 @@ import { Metadata } from 'next'
 import { getPublicProfile } from '@/lib/services/public-profile'
 import ProfileClient from './ProfileClient'
 
+// Mise en cache intelligente de 60 secondes pour chargement ultra-rapide (<50ms)
+export const revalidate = 60
+
 type Props = {
   params: Promise<{ username: string }>
   searchParams: Promise<{ [key: string]: string | string[] | undefined }>

@@ -215,6 +215,7 @@ export function LinkInBioBoutique({ profile, showAddToContacts = true, isPreview
         profileName={shopName}
         isOpen={isExchangeOpen}
         onClose={() => setIsExchangeOpen(false)}
+        accentColor={brand}
         onSuccess={() => toast.success('Coordonnées envoyées avec succès')}
       />
     </TemplateShell>

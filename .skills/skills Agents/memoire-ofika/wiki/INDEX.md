@@ -1,4 +1,4 @@
-<!-- Dernière mise à jour : 02 Septembre 2026 -->
+<!-- Dernière mise à jour : 08 Novembre 2026 -->
 
 # INDEX.md — Table des Matières du Wiki
 ## Ofika — Mémoire Externe
@@ -39,6 +39,8 @@
 | `projet/roadmap.md` | MVP_1 → MVP_4, features et statuts | Mai 2026 |
 | `projet/rbac.md` | Rôles, permissions, RBAC granulaire | Mai 2026 |
 | `projet/services.md` | Services proposés par Favor Company | Mai 2026 |
+| `../../EXPORTS_CONVERSATIONS/CADRAGE_PACK_EVENEMENTS_OFIKA.md` | Cadrage officiel Pack Événements & Invitations (Mariage/Gala, NFC, RSVP) | 11 Octobre 2026 |
+| `../../EXPORTS_CONVERSATIONS/HISTORIQUE_BRUT_CARTES_INVITATION.md` | Historique brut chronologique complet des discussions du 11 octobre | 11 Octobre 2026 |
 
 **Relations :** Ces fichiers sont la source de vérité du projet. Ils sont liés aux decisions/ et à la roadmap dans TASKS.md.
 
@@ -119,6 +121,8 @@ Date | Décision | Contexte | Raison | Alternative rejetée | Liens
 | `sessions/2026-08-12_session-014.md` | Session 014 — Paiements Wave/GeniusPay, notifications temps réel, PWA/RGPD, intégration Sentry |
 | `sessions/2026-08-12_session-015.md` | Session 015 — Fix mobile UI, bug deleted_at qr_redirects, refonte page QR Codes (NFC vs Libre), contacts support |
 | `sessions/2026-09-02_session-016.md` | Session 016 — Module Support & Avis, Section Avis Émeraude Landing Page, Cloche 🔔 Universelle, Notifications Push & Realtime, Exports Excel/JSON |
+| `sessions/2026-10-11_session-017.md` | Session 017 — Intégration méthode Équipe d'Experts Web (11 profils, vibe coder), enrichissement ChefsOfika et refonte MANIFESTE_COMPETENCES (31 skills) |
+| `sessions/2026-11-08_session-018.md` | Session 018 — Personnalisation design pages publiques (couleurs + ordre des liens, page dashboard « Personnaliser »), CJCD → template générique Prestige, fix lecture theme_settings/poste/entreprise/ville |
 
 **Relations :** Chaque résumé de session pointe vers le fichier fourtour correspondant.
 

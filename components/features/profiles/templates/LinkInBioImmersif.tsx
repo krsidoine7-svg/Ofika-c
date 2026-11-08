@@ -170,6 +170,7 @@ export function LinkInBioImmersif({ profile, showAddToContacts = true, isPreview
         profileName={d.name}
         isOpen={isExchangeOpen}
         onClose={() => setIsExchangeOpen(false)}
+        accentColor={accent}
         onSuccess={() => toast.success('Coordonnées envoyées avec succès')}
       />
     </TemplateShell>

@@ -1,21 +1,22 @@
 "use client"
 
 import { useRouter } from 'next/navigation'
-import { memo, useState, useMemo } from 'react'
+import { memo, useState, useMemo, useCallback } from 'react'
 import { toast } from "sonner"
 import { ProfileWithLinks } from '@/lib/types/database'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Plus, Edit, Eye, Trash2, ExternalLink, Loader2, Copy, Share2, Smartphone, User, QrCode, ShoppingCart, CreditCard, AlertCircle, CheckCircle, Info, Palette, Settings } from "lucide-react"
+import { Plus, Edit, Eye, Trash2, ExternalLink, Loader2, Copy, Share2, Smartphone, User, QrCode, ShoppingCart, CreditCard, AlertCircle, CheckCircle, Info, Palette, Settings, Camera, Sparkles, ArrowRight } from "lucide-react"
 import { ProtectedRoute } from "@/components/core/auth/ProtectedRoute"
 import { useProfiles, useDeleteProfile } from '@/lib/hooks/useProfiles'
-import { useNFCCards, useCardLogic } from '@/lib/hooks/useNFCCards'
+import { useNFCCards } from '@/lib/hooks/useNFCCards'
 import { useOrderStats, usePaymentMethods } from '@/lib/hooks/usePayments'
 import { NFCCardItem } from '@/components/features/profiles/NFCCardItem'
 import { NFCCard } from '@/lib/types/nfc-cards'
 import { NFCCardPreview } from '@/components/features/card-creator/NFCCardPreview'
+import { ProfileVisualsBanner } from '@/components/features/dashboard/ProfileVisualsBanner'
 
 // Composant de profil optimisé avec memo
 const ProfileCard = memo(function ProfileCard({
@@ -24,7 +25,9 @@ const ProfileCard = memo(function ProfileCard({
   onDelete,
   onView,
   onChangeDesign,
+  onPersonalize,
   onManageFields,
+  onAddImages,
   nfcCards
 }: {
   profile: ProfileWithLinks
@@ -32,7 +35,9 @@ const ProfileCard = memo(function ProfileCard({
   onDelete: (id: string) => void
   onView: (profile: ProfileWithLinks) => void
   onChangeDesign: (id: string) => void
+  onPersonalize: (id: string) => void
   onManageFields: (id: string) => void
+  onAddImages?: (id: string) => void
   nfcCards?: NFCCard[]
 }) {
   const [isCopied, setIsCopied] = useState(false)
@@ -140,20 +145,31 @@ const ProfileCard = memo(function ProfileCard({
       <CardHeader>
         <div className="flex items-start justify-between">
           <div className="flex items-center space-x-3">
-            {profile.image_url ? (
-              <img
-                src={profile.image_url}
-                alt={profile.name}
-                className="w-12 h-12 rounded-full object-cover"
-                loading="lazy"
-              />
-            ) : (
-              <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-                <span className="text-orange-600 font-bold text-lg">
-                  {profile.name.charAt(0).toUpperCase()}
-                </span>
-              </div>
-            )}
+            <div
+              onClick={() => onAddImages && onAddImages(profile.id)}
+              className="relative cursor-pointer group shrink-0"
+              title="Modifier la photo et la couverture"
+            >
+              {profile.image_url ? (
+                <img
+                  src={profile.image_url}
+                  alt={profile.name}
+                  className="w-12 h-12 rounded-full object-cover group-hover:opacity-85 transition-opacity"
+                  loading="lazy"
+                />
+              ) : (
+                <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center group-hover:bg-orange-200 transition-colors">
+                  <span className="text-orange-600 font-bold text-lg">
+                    {profile.name.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+              )}
+              {(!profile.image_url || !profile.cover_image_url) && (
+                <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-md">
+                  <Camera className="w-3 h-3" />
+                </div>
+              )}
+            </div>
             <div className="flex-1 min-w-0 overflow-hidden">
               <CardTitle className="text-lg truncate">{profile.name}</CardTitle>
               <p className="text-sm text-gray-600 line-clamp-2">
@@ -192,6 +208,43 @@ const ProfileCard = memo(function ProfileCard({
       </CardHeader>
       <CardContent>
         <div className="space-y-4">
+          {/* Alerte incitative pour photos manquantes */}
+          {(!profile.image_url || !profile.cover_image_url) && (
+            <div
+              onClick={() => onAddImages && onAddImages(profile.id)}
+              className="p-3 rounded-2xl bg-gradient-to-r from-blue-50/90 to-indigo-50/70 border border-blue-200/80 hover:border-blue-400/80 hover:shadow-sm flex items-center justify-between cursor-pointer transition-all group"
+            >
+              <div className="flex items-center gap-2.5 min-w-0">
+                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center shrink-0 shadow-sm">
+                  <Camera className="w-4 h-4" />
+                </div>
+                <div className="min-w-0">
+                  <div className="flex items-center gap-1.5 flex-wrap">
+                    <p className="text-xs font-bold text-neutral-900">Photos à compléter</p>
+                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/80 px-1.5 py-0.2 rounded-full">
+                      +300% d'impact
+                    </span>
+                  </div>
+                  <p className="text-[10px] text-blue-700 font-medium truncate">
+                    {!profile.image_url && !profile.cover_image_url
+                      ? "Ajoutez votre photo et couverture"
+                      : !profile.image_url
+                      ? "Ajoutez votre photo de profil"
+                      : "Ajoutez votre photo de couverture"}
+                  </p>
+                </div>
+              </div>
+              <Button
+                size="sm"
+                variant="ghost"
+                className="h-7 px-2 text-xs font-bold text-blue-600 hover:text-blue-700 hover:bg-blue-100/50 flex items-center gap-1 shrink-0 group-hover:translate-x-0.5 transition-transform"
+              >
+                <span>Ajouter</span>
+                <ArrowRight className="w-3.5 h-3.5" />
+              </Button>
+            </div>
+          )}
+
           {/* Boutons d'action principaux */}
           <div className="grid grid-cols-2 gap-2">
             <Button
@@ -236,16 +289,27 @@ const ProfileCard = memo(function ProfileCard({
             </Button>
           </div>
 
-          {/* Bouton changer le design */}
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onChangeDesign(profile.id)}
-            className="w-full"
-          >
-            <Palette className="h-4 w-4 mr-1" />
-            Changer le design
-          </Button>
+          {/* Design : changer de template / personnaliser couleurs & liens */}
+          <div className="grid grid-cols-2 gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onChangeDesign(profile.id)}
+              className="flex-1"
+            >
+              <Palette className="h-4 w-4 mr-1" />
+              Template
+            </Button>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onPersonalize(profile.id)}
+              className="flex-1 border-orange-200 text-orange-700 hover:bg-orange-50"
+            >
+              <Settings className="h-4 w-4 mr-1" />
+              Personnaliser
+            </Button>
+          </div>
 
           {/* Bouton de suppression */}
           <Button
@@ -270,10 +334,56 @@ export default function ProfilesPage() {
   const { cards: nfcCards, loading: nfcLoading, error: nfcError, refreshCards } = useNFCCards()
   const { stats: orderStats, loading: orderStatsLoading } = useOrderStats()
   const { basePrice } = usePaymentMethods()
-  const { status: cardLogicStatus, loading: cardLogicLoading, actions, helpers } = useCardLogic()
+
+  // Calcul local intelligent du statut (évite 3 hooks et requêtes DB dupliquées)
+  const cardLogicStatus = useMemo(() => {
+    const hasProfile = profiles && profiles.length > 0
+    const hasDigitalCards = nfcCards && nfcCards.length > 0
+    const digitalCardsCount = nfcCards?.length || 0
+    const physicalOrdersCount = orderStats?.paid_orders || 0
+
+    const canCreateDigital = digitalCardsCount < 2
+    const canOrderPhysical = hasProfile && hasDigitalCards && physicalOrdersCount < 2
+
+    let nextRequiredAction: 'create_profile' | 'create_digital_card' | 'can_order_physical' | 'all_complete' = 'all_complete'
+
+    if (!hasProfile && !hasDigitalCards) {
+      nextRequiredAction = 'create_profile'
+    } else if (!hasProfile && hasDigitalCards) {
+      nextRequiredAction = 'create_profile'
+    } else if (hasProfile && !hasDigitalCards) {
+      nextRequiredAction = 'create_digital_card'
+    } else if (canOrderPhysical) {
+      nextRequiredAction = 'can_order_physical'
+    }
+
+    return {
+      hasProfile,
+      hasDigitalCards,
+      canCreateDigital,
+      canOrderPhysical,
+      digitalCardsCount,
+      physicalOrdersCount,
+      nextRequiredAction
+    }
+  }, [profiles, nfcCards, orderStats])
+
+  const cardLogicLoading = isLoading || nfcLoading || orderStatsLoading
   const [previewCardData, setPreviewCardData] = useState<any | null>(null)
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
   const [startInEditMode, setStartInEditMode] = useState(false)
+
+  // Profils nécessitant l'ajout de visuels (photo ou bannière manquante)
+  const incompleteProfiles = useMemo(() => {
+    return profiles.filter(p => !p.image_url || !p.cover_image_url)
+  }, [profiles])
+
+  const handleCompleteVisuals = useCallback((profileId?: string) => {
+    const targetId = profileId || incompleteProfiles[0]?.id
+    if (targetId) {
+      router.push(`/dashboard/profiles/${targetId}/add-images`)
+    }
+  }, [incompleteProfiles, router])
 
   // Handler pour la mise à jour d'une carte NFC
   const handleCardUpdated = (updatedCard: any) => {
@@ -337,42 +447,45 @@ export default function ProfilesPage() {
     return pages
   }, [profiles, nfcCards])
 
-  const handleDeleteProfile = async (profile_id: string) => {
+  const handleDeleteProfile = useCallback(async (profile_id: string) => {
     if (confirm('Êtes-vous sûr de vouloir supprimer définitivement ce profil ? Cette action est irréversible.')) {
       try {
         await deleteProfile(profile_id)
         toast.success('Profil supprimé avec succès')
-        // Le hook useProfiles se mettra à jour automatiquement
       } catch (error) {
         console.error('Error deleting profile:', error)
         toast.error('Erreur lors de la suppression du profil')
       }
     }
-  }
+  }, [deleteProfile])
 
   // Commande de carte physique
-  const handleOrderCard = () => {
+  const handleOrderCard = useCallback(() => {
     router.push('/dashboard/orders/new')
-  }
+  }, [router])
 
   // Création de carte NFC numérique
-  const handleCreateDigitalCard = () => {
+  const handleCreateDigitalCard = useCallback(() => {
     router.push('/onboarding/nfc-card?reset=true')
-  }
+  }, [router])
 
-  const handleEditProfile = (profile_id: string) => {
+  const handleEditProfile = useCallback((profile_id: string) => {
     router.push(`/dashboard/profiles/${profile_id}/edit`)
-  }
+  }, [router])
 
-  const handleEditNFCCard = (card: NFCCard) => {
+  const handleAddImages = useCallback((profile_id: string) => {
+    router.push(`/dashboard/profiles/${profile_id}/add-images`)
+  }, [router])
+
+  const handleEditNFCCard = useCallback((card: NFCCard) => {
     if (card.profile_id) {
       router.push(`/dashboard/profiles/${card.profile_id}/edit`)
     } else {
       toast.error("Cette carte ne peut pas être modifiée car elle n'a pas de profil associé.")
     }
-  }
+  }, [router])
 
-  const handleViewProfile = (profile: ProfileWithLinks) => {
+  const handleViewProfile = useCallback((profile: ProfileWithLinks) => {
     // Chercher une carte NFC associée à ce profil
     const associatedCard = nfcCards?.find(card =>
       (card.profile_id && card.profile_id === profile.id) ||
@@ -402,9 +515,9 @@ export default function ProfilesPage() {
     } else {
       toast.error('Ce profil n\'a pas d\'URL personnalisée')
     }
-  }
+  }, [nfcCards])
 
-  const handlePreviewCard = (card: NFCCard, editMode: boolean = false) => {
+  const handlePreviewCard = useCallback((card: NFCCard, editMode: boolean = false) => {
     // 1. Essayer de trouver le profil par profile_id
     let profileToPreview = profiles.find(p => p.id === card.profile_id)
 
@@ -425,8 +538,6 @@ export default function ProfilesPage() {
       location: card.location || '',
       logo_url: card.logo_url,
       profile_photo_url: card.profile_photo_url || profileToPreview?.image_url,
-      // Réseaux sociaux - on prendrait ceux du profil si nécessaire, 
-      // mais NFCCardPreview semble attendre des champs plats pour l'instant
       instagram: profileToPreview?.social_links?.find(l => l.platform === 'instagram')?.url || '',
       linkedin: profileToPreview?.social_links?.find(l => l.platform === 'linkedin')?.url || '',
     }
@@ -434,18 +545,24 @@ export default function ProfilesPage() {
     setPreviewCardData(previewData)
     setStartInEditMode(editMode)
     setIsPreviewOpen(true)
-  }
+  }, [profiles])
 
-  const handleChangeDesign = (profile_id: string) => {
+  const handleChangeDesign = useCallback((profile_id: string) => {
     router.push(`/dashboard/profiles/${profile_id}/change-design`)
-  }
+  }, [router])
 
-  const handleManageFields = (profile_id: string) => {
+  const handlePersonalize = useCallback((profile_id: string) => {
+    router.push(`/dashboard/profiles/${profile_id}/personnaliser`)
+  }, [router])
+
+  const handleManageFields = useCallback((profile_id: string) => {
     router.push(`/dashboard/profiles/${profile_id}/design-fields`)
-  }
+  }, [router])
 
+  // N'afficher le loader plein écran QUE lors du tout premier chargement à vide
+  const isInitialLoading = (isLoading && profiles.length === 0) && (nfcLoading && nfcCards.length === 0)
 
-  if (isLoading) {
+  if (isInitialLoading) {
     return (
       <ProtectedRoute>
         <div className="min-h-screen bg-gray-50">
@@ -499,6 +616,12 @@ export default function ProfilesPage() {
       <div className="min-h-screen bg-gray-50 overflow-x-hidden">
         <div className="container mx-auto px-4 py-8">
           <div className="max-w-7xl mx-auto">
+            {/* 🌟 Bannière incitative visuels Signature Ofika tout en haut */}
+            <ProfileVisualsBanner
+              incompleteProfiles={incompleteProfiles}
+              onComplete={handleCompleteVisuals}
+            />
+
             {/* Header principal */}
             <div className="flex justify-between items-center mb-8">
               <div>
@@ -694,7 +817,9 @@ export default function ProfilesPage() {
                           onDelete={handleDeleteProfile}
                           onView={handleViewProfile}
                           onChangeDesign={handleChangeDesign}
+                          onPersonalize={handlePersonalize}
                           onManageFields={handleManageFields}
+                          onAddImages={handleAddImages}
                           nfcCards={nfcCards}
                         />
                       ))}

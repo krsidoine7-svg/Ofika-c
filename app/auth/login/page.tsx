@@ -1,5 +1,5 @@
-import { LoginForm } from "@/components/core/auth/LoginForm"
+import { redirect } from "next/navigation"
 
-export default function LoginPage() {
-  return <LoginForm />
+export default function OldLoginPage() {
+  redirect("/login")
 }

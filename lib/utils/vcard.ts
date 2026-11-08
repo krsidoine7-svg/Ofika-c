@@ -4,6 +4,11 @@ export interface SimpleLink {
   url: string
 }
 
+export interface VCardPhoto {
+  base64: string
+  type: string
+}
+
 /**
  * Échappe les caractères spéciaux pour éviter les injections de commandes vCard
  */
@@ -15,7 +20,7 @@ export function escapeVCard(text: string | null | undefined): string {
 /**
  * Génère un fichier vCard complet avec toutes les informations du profil
  */
-export function generateCompleteVCard(profile: any, baseUrl: string): string {
+export function generateCompleteVCard(profile: any, baseUrl: string, photoData?: VCardPhoto | null): string {
   const lines: string[] = [
     'BEGIN:VCARD',
     'VERSION:3.0'
@@ -40,9 +45,15 @@ export function generateCompleteVCard(profile: any, baseUrl: string): string {
     lines.push(`TEL;TYPE=CELL:${profile.phone}`)
   }
 
-  const photo = profile.image_url || profile.profile_photo_url || profile.logo_url
-  if (photo) {
-    lines.push(`PHOTO;VALUE=URL:${photo}`)
+  // Intégration de la photo : base64 en priorité pour affichage dans le répertoire mobile
+  if (photoData?.base64) {
+    const photoType = photoData.type?.toUpperCase().includes('PNG') ? 'PNG' : 'JPEG'
+    lines.push(`PHOTO;ENCODING=b;TYPE=${photoType}:${photoData.base64}`)
+  } else {
+    const photo = profile.image_url || profile.profile_photo_url || profile.logo_url
+    if (photo) {
+      lines.push(`PHOTO;VALUE=URL:${photo}`)
+    }
   }
 
   if (profile.location) {

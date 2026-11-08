@@ -12,6 +12,7 @@ import { relations } from "drizzle-orm";
 
 export const profileTypeEnum = pgEnum('profile_type', ['professional', 'personal', 'event']);
 export const subscriptionTierEnum = pgEnum('subscription_tier', ['free', 'pro', 'enterprise', 'admin']);
+export const roleEnum = pgEnum('role', ['client', 'admin', 'tech', 'super_admin']);
 
 // =====================================================
 // TABLES PRINCIPALES
@@ -26,6 +27,7 @@ export const users = pgTable("users", {
   image: text("image"),
   preferredLanguage: varchar("preferred_language", { length: 5 }).default("fr"),
   subscriptionTier: varchar("subscription_tier", { length: 20 }).default("free"),
+  role: varchar("role", { length: 20 }).default("client").notNull(),
   cardsOrdered: integer("cards_ordered").default(0),
   isActive: boolean("is_active").default(true),
   lastLogin: timestamp("last_login", { withTimezone: true }),

@@ -141,7 +141,6 @@ export interface Order {
   net_amount?: number
   metadata?: any
   paid_at?: string
-  lygos_payment_id?: string
   wave_payment_url?: string
   created_at: string
   updated_at: string
@@ -252,6 +251,23 @@ export interface Database {
         Insert: Omit<DashboardWidget, 'id' | 'created_at'>
         Update: Partial<Omit<DashboardWidget, 'id' | 'created_at'>>
       }
+      push_subscriptions: {
+        Row: PushSubscriptionRecord
+        Insert: Omit<PushSubscriptionRecord, 'id' | 'created_at' | 'updated_at'>
+        Update: Partial<Omit<PushSubscriptionRecord, 'id' | 'created_at' | 'updated_at'>>
+      }
     }
   }
+}
+
+export interface PushSubscriptionRecord {
+  id?: string
+  user_id?: string | null
+  endpoint: string
+  p256dh: string
+  auth: string
+  user_agent?: string | null
+  target_profile_id?: string | null
+  created_at?: string
+  updated_at?: string
 }

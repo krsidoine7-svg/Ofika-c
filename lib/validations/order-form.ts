@@ -1,5 +1,13 @@
 // =====================================================
-// VALIDATIONS POUR LE FORMULAIRE DE COMMANDE
+// VALIDATIONS UNIFIÉES POUR LE TUNNEL DE COMMANDE (ZOD)
+// Source unique de vérité partagée entre Client et API
+// =====================================================
+
+import { z } from 'zod'
+import { ORDER_LIMITS } from '@/lib/types/payments'
+
+// =====================================================
+// TYPES ET INTERFACES CLIENT
 // =====================================================
 
 export interface ValidationResult {
@@ -16,231 +24,6 @@ export interface CustomerDetails {
   postalCode: string
 }
 
-// =====================================================
-// VALIDATIONS INDIVIDUELLES
-// =====================================================
-
-/**
- * Valide un nom complet (lettres, espaces, tirets, apostrophes)
- */
-export function validateName(name: string): ValidationResult {
-  if (!name || name.trim().length === 0) {
-    return { isValid: false, error: 'Le nom est requis' }
-  }
-
-  if (name.trim().length < 2) {
-    return { isValid: false, error: 'Le nom doit contenir au moins 2 caractères' }
-  }
-
-  if (name.trim().length > 50) {
-    return { isValid: false, error: 'Le nom ne peut pas dépasser 50 caractères' }
-  }
-
-  // Pattern: lettres, espaces, tirets, apostrophes, accents
-  const namePattern = /^[a-zA-ZÀ-ÿ\s\-']+$/
-  if (!namePattern.test(name.trim())) {
-    return { isValid: false, error: 'Le nom ne peut contenir que des lettres, espaces, tirets et apostrophes' }
-  }
-
-  return { isValid: true }
-}
-
-/**
- * Valide une adresse email
- */
-export function validateEmail(email: string): ValidationResult {
-  if (!email || email.trim().length === 0) {
-    return { isValid: false, error: 'L\'email est requis' }
-  }
-
-  if (email.trim().length > 100) {
-    return { isValid: false, error: 'L\'email ne peut pas dépasser 100 caractères' }
-  }
-
-  // Pattern email robuste
-  const emailPattern = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/
-  if (!emailPattern.test(email.trim())) {
-    return { isValid: false, error: 'Format d\'email invalide' }
-  }
-
-  return { isValid: true }
-}
-
-/**
- * Valide un numéro de téléphone international
- */
-export function validatePhone(phone: string): ValidationResult {
-  if (!phone || phone.trim().length === 0) {
-    return { isValid: true } // Le téléphone est optionnel
-  }
-
-  // Nettoyer le numéro (supprimer espaces, tirets, parenthèses)
-  const cleanPhone = phone.replace(/[\s\-\(\)]/g, '')
-
-  // Pattern pour numéro international: + suivi de 7-15 chiffres
-  const phonePattern = /^\+[1-9]\d{6,14}$/
-  if (!phonePattern.test(cleanPhone)) {
-    return { 
-      isValid: false, 
-      error: 'Format invalide. Utilisez le format international: +221 XX XXX XX XX' 
-    }
-  }
-
-  // Vérifier les indicatifs pays africains et internationaux courants
-  const validCountryCodes = [
-    // Codes africains
-    '+221', // Sénégal
-    '+225', // Côte d'Ivoire
-    '+226', // Burkina Faso
-    '+227', // Niger
-    '+228', // Togo
-    '+229', // Bénin
-    '+230', // Maurice
-    '+231', // Liberia
-    '+232', // Sierra Leone
-    '+233', // Ghana
-    '+234', // Nigeria
-    '+235', // Tchad
-    '+236', // Centrafrique
-    '+237', // Cameroun
-    '+238', // Cap-Vert
-    '+239', // São Tomé
-    '+240', // Guinée équatoriale
-    '+241', // Gabon
-    '+242', // Congo
-    '+243', // RDC
-    '+244', // Angola
-    '+245', // Guinée-Bissau
-    '+246', // Diego Garcia
-    '+247', // Ascension
-    '+248', // Seychelles
-    '+249', // Soudan
-    '+250', // Rwanda
-    '+251', // Éthiopie
-    '+252', // Somalie
-    '+253', // Djibouti
-    '+254', // Kenya
-    '+255', // Tanzanie
-    '+256', // Ouganda
-    '+257', // Burundi
-    '+258', // Mozambique
-    '+260', // Zambie
-    '+261', // Madagascar
-    '+262', // Réunion
-    '+263', // Zimbabwe
-    '+264', // Namibie
-    '+265', // Malawi
-    '+266', // Lesotho
-    '+267', // Botswana
-    '+268', // Eswatini
-    '+269', // Comores
-    '+290', // Sainte-Hélène
-    '+291', // Érythrée
-    '+297', // Aruba
-    '+298', // Îles Féroé
-    '+299', // Groenland
-    // Codes internationaux courants
-    '+1',   // États-Unis/Canada
-    '+33',  // France
-    '+44',  // Royaume-Uni
-    '+49',  // Allemagne
-    '+86',  // Chine
-    '+91',  // Inde
-    '+55',  // Brésil
-    '+7',   // Russie
-    '+81',  // Japon
-    '+82',  // Corée du Sud
-    '+61',  // Australie
-    '+27',  // Afrique du Sud
-  ]
-
-  const countryCode = cleanPhone.substring(0, 4)
-  const shortCountryCode = cleanPhone.substring(0, 2)
-  
-  // Vérifier d'abord les codes à 4 chiffres, puis les codes à 2 chiffres
-  if (!validCountryCodes.includes(countryCode) && !validCountryCodes.includes(shortCountryCode)) {
-    return { 
-      isValid: false, 
-      error: 'Indicatif pays non reconnu. Utilisez un indicatif international valide.' 
-    }
-  }
-
-  return { isValid: true }
-}
-
-/**
- * Valide une adresse
- */
-export function validateAddress(address: string): ValidationResult {
-  if (!address || address.trim().length === 0) {
-    return { isValid: false, error: 'L\'adresse est requise pour la livraison' }
-  }
-
-  if (address.trim().length < 5) {
-    return { isValid: false, error: 'L\'adresse doit contenir au moins 5 caractères' }
-  }
-
-  if (address.trim().length > 200) {
-    return { isValid: false, error: 'L\'adresse ne peut pas dépasser 200 caractères' }
-  }
-
-  // Pattern: lettres, chiffres, espaces, tirets, virgules, points
-  const addressPattern = /^[a-zA-ZÀ-ÿ0-9\s\-,\.]+$/
-  if (!addressPattern.test(address.trim())) {
-    return { isValid: false, error: 'L\'adresse contient des caractères non autorisés' }
-  }
-
-  return { isValid: true }
-}
-
-/**
- * Valide une ville
- */
-export function validateCity(city: string): ValidationResult {
-  if (!city || city.trim().length === 0) {
-    return { isValid: false, error: 'La ville est requise pour la livraison' }
-  }
-
-  if (city.trim().length < 2) {
-    return { isValid: false, error: 'La ville doit contenir au moins 2 caractères' }
-  }
-
-  if (city.trim().length > 50) {
-    return { isValid: false, error: 'La ville ne peut pas dépasser 50 caractères' }
-  }
-
-  // Pattern: lettres, espaces, tirets, apostrophes
-  const cityPattern = /^[a-zA-ZÀ-ÿ\s\-']+$/
-  if (!cityPattern.test(city.trim())) {
-    return { isValid: false, error: 'La ville ne peut contenir que des lettres, espaces, tirets et apostrophes' }
-  }
-
-  return { isValid: true }
-}
-
-/**
- * Valide un code postal
- */
-export function validatePostalCode(postalCode: string): ValidationResult {
-  if (!postalCode || postalCode.trim().length === 0) {
-    return { isValid: true } // Le code postal est optionnel
-  }
-
-  const cleanPostalCode = postalCode.trim()
-
-  // Pattern: 3-10 caractères alphanumériques
-  const postalCodePattern = /^[a-zA-Z0-9]{3,10}$/
-  if (!postalCodePattern.test(cleanPostalCode)) {
-    return { isValid: false, error: 'Le code postal doit contenir entre 3 et 10 caractères alphanumériques' }
-  }
-
-  return { isValid: true }
-}
-
-// =====================================================
-// VALIDATION COMPLÈTE
-// =====================================================
-
 export interface ValidationErrors {
   name?: string
   email?: string
@@ -255,91 +38,139 @@ export interface CompleteValidationResult {
   errors: ValidationErrors
 }
 
-/**
- * Valide tous les champs du formulaire
- */
+// =====================================================
+// SCHÉMAS ZOD PARTAGÉS
+// =====================================================
+
+export const shippingAddressSchema = z.object({
+  name: z
+    .string({ required_error: 'Le nom est requis' })
+    .trim()
+    .min(2, 'Le nom doit contenir au moins 2 caractères')
+    .max(100, 'Le nom ne peut pas dépasser 100 caractères'),
+  email: z
+    .union([
+      z.string().trim().email('Format d\'email invalide').max(100, 'L\'email ne peut pas dépasser 100 caractères'),
+      z.literal('')
+    ])
+    .optional(),
+  phone: z
+    .string({ required_error: 'Le numéro de téléphone est requis' })
+    .trim()
+    .min(8, 'Numéro de téléphone requis (minimum 8 chiffres)')
+    .max(20, 'Numéro de téléphone trop long'),
+  address: z
+    .string({ required_error: 'L\'adresse de livraison est requise' })
+    .trim()
+    .min(2, 'L\'adresse doit contenir au moins 2 caractères')
+    .max(255, 'L\'adresse ne peut pas dépasser 255 caractères'),
+  city: z
+    .string({ required_error: 'La ville est requise' })
+    .trim()
+    .min(2, 'La ville doit contenir au moins 2 caractères')
+    .max(100, 'Le nom de ville ne peut pas dépasser 100 caractères'),
+  postalCode: z
+    .union([z.string().trim().max(10, 'Code postal trop long'), z.literal('')])
+    .optional(),
+})
+
+export const orderCreateSchema = z.object({
+  profile_id: z.string().uuid('ID de profil invalide').optional(),
+  card_type: z.enum(['nfc_qr', 'qr_only', 'premium_subscription', 'custom']).default('nfc_qr'),
+  quantity: z
+    .union([z.number(), z.string()])
+    .transform((val) => (typeof val === 'string' ? parseInt(val, 10) : val))
+    .refine(
+      (val) => Number.isInteger(val) && val >= 1 && val <= ORDER_LIMITS.MAX_CARDS_PER_USER,
+      `Quantité doit être un entier entre 1 et ${ORDER_LIMITS.MAX_CARDS_PER_USER}`
+    ),
+  payment_method: z.enum(['wave', 'orange_money', 'mtn_money', 'geniuspay']).default('geniuspay'),
+  shipping_address: shippingAddressSchema,
+  metadata: z.record(z.any()).optional(),
+})
+
+export type OrderCreateData = z.infer<typeof orderCreateSchema>
+export type ShippingAddress = z.infer<typeof shippingAddressSchema>
+
+// =====================================================
+// FONCTIONS DE VALIDATION CLIENT (COMPATIBILITÉ)
+// =====================================================
+
 export function validateCustomerDetails(details: CustomerDetails): CompleteValidationResult {
+  const result = shippingAddressSchema.safeParse(details)
+  if (result.success) {
+    return { isValid: true, errors: {} }
+  }
+
   const errors: ValidationErrors = {}
-
-  // Valider chaque champ
-  const nameValidation = validateName(details.name)
-  if (!nameValidation.isValid) {
-    errors.name = nameValidation.error
-  }
-
-  const emailValidation = validateEmail(details.email)
-  if (!emailValidation.isValid) {
-    errors.email = emailValidation.error
-  }
-
-  const phoneValidation = validatePhone(details.phone)
-  if (!phoneValidation.isValid) {
-    errors.phone = phoneValidation.error
-  }
-
-  const addressValidation = validateAddress(details.address)
-  if (!addressValidation.isValid) {
-    errors.address = addressValidation.error
-  }
-
-  const cityValidation = validateCity(details.city)
-  if (!cityValidation.isValid) {
-    errors.city = cityValidation.error
-  }
-
-  const postalCodeValidation = validatePostalCode(details.postalCode)
-  if (!postalCodeValidation.isValid) {
-    errors.postalCode = postalCodeValidation.error
-  }
-
-  const isValid = Object.keys(errors).length === 0
+  result.error.issues.forEach((issue) => {
+    const field = issue.path[0] as keyof ValidationErrors
+    if (field && !errors[field]) {
+      errors[field] = issue.message
+    }
+  })
 
   return {
-    isValid,
-    errors
+    isValid: false,
+    errors,
   }
+}
+
+export function validateName(name: string): ValidationResult {
+  const result = shippingAddressSchema.shape.name.safeParse(name)
+  return result.success ? { isValid: true } : { isValid: false, error: result.error.issues[0]?.message }
+}
+
+export function validateEmail(email: string): ValidationResult {
+  const result = shippingAddressSchema.shape.email.safeParse(email)
+  return result.success ? { isValid: true } : { isValid: false, error: result.error.issues[0]?.message }
+}
+
+export function validatePhone(phone: string): ValidationResult {
+  const result = shippingAddressSchema.shape.phone.safeParse(phone)
+  return result.success ? { isValid: true } : { isValid: false, error: result.error.issues[0]?.message }
+}
+
+export function validateAddress(address: string): ValidationResult {
+  const result = shippingAddressSchema.shape.address.safeParse(address)
+  return result.success ? { isValid: true } : { isValid: false, error: result.error.issues[0]?.message }
+}
+
+export function validateCity(city: string): ValidationResult {
+  const result = shippingAddressSchema.shape.city.safeParse(city)
+  return result.success ? { isValid: true } : { isValid: false, error: result.error.issues[0]?.message }
+}
+
+export function validatePostalCode(postalCode?: string): ValidationResult {
+  const result = shippingAddressSchema.shape.postalCode.safeParse(postalCode)
+  return result.success ? { isValid: true } : { isValid: false, error: result.error.issues[0]?.message }
 }
 
 // =====================================================
 // UTILITAIRES DE FORMATAGE
 // =====================================================
 
-/**
- * Formate un numéro de téléphone pendant la saisie
- */
 export function formatPhoneInput(value: string): string {
-  // Supprimer tous les caractères non numériques sauf le +
   let cleaned = value.replace(/[^\d+]/g, '')
-  
-  // S'assurer qu'il commence par +
   if (!cleaned.startsWith('+')) {
     cleaned = '+' + cleaned.replace(/^\+/, '')
   }
-  
-  // Limiter à 15 caractères (standard international)
-  if (cleaned.length > 16) { // + suivi de 15 chiffres max
+  if (cleaned.length > 16) {
     cleaned = cleaned.substring(0, 16)
   }
-  
   return cleaned
 }
 
-/**
- * Formate un nom (première lettre en majuscule)
- */
 export function formatNameInput(value: string): string {
   return value
     .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ')
 }
 
-/**
- * Formate une ville (première lettre en majuscule)
- */
 export function formatCityInput(value: string): string {
   return value
     .split(' ')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+    .map((word) => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
     .join(' ')
 }

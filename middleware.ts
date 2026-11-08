@@ -3,6 +3,7 @@ import type { NextRequest } from 'next/server'
 import { createServerClient } from '@supabase/ssr'
 import { logger } from '@/lib/logger'
 import { getSupabaseAnonKey, getSupabaseUrl } from '@/lib/supabase/env'
+import { getHomeRouteForRole, isRouteAllowedForRole, normalizeRole } from '@/lib/roles'
 
 // =====================================================
 // CONFIGURATION SÉCURISÉE DU MIDDLEWARE
@@ -155,8 +156,15 @@ export async function middleware(request: NextRequest) {
     },
   })
 
+  // Redirection des anciennes routes de connexion vers la page unique /login
+  if (path === '/auth/login' || path === '/admin' || path.startsWith('/admin/auth')) {
+    const loginUrl = request.nextUrl.clone()
+    loginUrl.pathname = '/login'
+    return NextResponse.redirect(loginUrl)
+  }
+
   // Optimisation de performance : n'appeler l'API Supabase Auth que pour les routes protégées ou gérant l'auth
-  const needsAuthCheck = path.startsWith('/dashboard') || path.startsWith('/auth/login') || path.startsWith('/auth/signup')
+  const needsAuthCheck = path.startsWith('/dashboard') || path === '/login' || path.startsWith('/auth/signup')
 
   if (needsAuthCheck) {
     const supabase = createServerClient(
@@ -182,25 +190,37 @@ export async function middleware(request: NextRequest) {
     // 4. PROTECTION DES ROUTES (RBAC / Auth Enforcement)
     if (!user && path.startsWith('/dashboard')) {
       const redirectUrl = request.nextUrl.clone()
-      redirectUrl.pathname = '/auth/login'
+      redirectUrl.pathname = '/login'
       redirectUrl.searchParams.set('redirectedFrom', path)
       return NextResponse.redirect(redirectUrl)
     }
 
-    // Redirection stricte des administrateurs vers le dashboard admin (sauf pour les paramètres de profil)
-    if (user && path.startsWith('/dashboard') && !path.startsWith('/dashboard/admin')) {
-      const role = user.app_metadata?.role
-      if (role === 'admin' || role === 'super_admin') {
-        // Autoriser l'accès aux paramètres de profil pour l'admin
-        if (path !== '/dashboard/settings' && !path.startsWith('/dashboard/settings/')) {
-          return NextResponse.redirect(new URL('/dashboard/admin', request.url))
+    if (user) {
+      // Déterminer le rôle normalisé de l'utilisateur
+      let role = normalizeRole(user.app_metadata?.role || (user.user_metadata as any)?.role)
+
+      // Si le rôle n'est pas encore présent dans le token JWT, vérifier directement en base
+      if (!user.app_metadata?.role) {
+        try {
+          const { data: dbUser } = await supabase.from('users').select('role').eq('id', user.id).single()
+          if (dbUser?.role) {
+            role = normalizeRole(dbUser.role)
+          }
+        } catch {}
+      }
+
+      // Redirection stricte si déjà connecté lorsqu'on visite /login ou /auth/signup
+      if (path === '/login' || path.startsWith('/auth/signup')) {
+        return NextResponse.redirect(new URL(getHomeRouteForRole(role), request.url))
+      }
+
+      // Contrôle d'accès strict sur toutes les routes du dashboard
+      if (path.startsWith('/dashboard')) {
+        if (!isRouteAllowedForRole(path, role)) {
+          const homeRoute = getHomeRouteForRole(role)
+          return NextResponse.redirect(new URL(homeRoute, request.url))
         }
       }
-    }
-
-    // Redirection si déjà connecté
-    if (user && (path.startsWith('/auth/login') || path.startsWith('/auth/signup'))) {
-      return NextResponse.redirect(new URL('/dashboard', request.url))
     }
   }
 
@@ -230,12 +250,21 @@ export async function middleware(request: NextRequest) {
     'Referrer-Policy': 'strict-origin-when-cross-origin',
     'X-XSS-Protection': '1; mode=block',
     'Permissions-Policy': 'camera=(), microphone=(), geolocation=(), payment=(), usb=()',
-    'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload'
+    'Strict-Transport-Security': 'max-age=31536000; includeSubDomains; preload',
+    'Cross-Origin-Opener-Policy': 'same-origin-allow-popups',
+    'Cross-Origin-Resource-Policy': 'cross-origin',
   }
 
   Object.entries(securityHeaders).forEach(([key, value]) => {
     response.headers.set(key, value)
   })
+
+  // Protection anti-mise en cache pour les espaces privés et sensibles (CWE-525)
+  if (path.startsWith('/dashboard') || path.startsWith('/api') || path === '/login' || path.startsWith('/auth')) {
+    response.headers.set('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate')
+    response.headers.set('Pragma', 'no-cache')
+    response.headers.set('Expires', '0')
+  }
 
   // CORS sécurisé
   const origin = request.headers.get('origin')

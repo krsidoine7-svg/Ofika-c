@@ -35,16 +35,44 @@ export function WaveReceiptUploadButton({ orderId, paymentStatus, onUploadComple
     const file = e.target.files?.[0]
     if (!file) return
 
+    // SÉCURITÉ 1 : Validation du type MIME
+    const allowedMimeTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp']
+    if (!allowedMimeTypes.includes(file.type.toLowerCase())) {
+      toast.error('Format de fichier non autorisé. Utilisez uniquement une image JPG, PNG ou WebP.')
+      if (fileInputRef.current) fileInputRef.current.value = ''
+      return
+    }
+
+    // SÉCURITÉ 2 : Validation de l'extension
+    const fileExt = file.name.split('.').pop()?.toLowerCase() || ''
+    const allowedExtensions = ['jpg', 'jpeg', 'png', 'webp']
+    if (!allowedExtensions.includes(fileExt)) {
+      toast.error('Extension de fichier invalide. Seuls les formats .jpg, .jpeg, .png et .webp sont acceptés.')
+      if (fileInputRef.current) fileInputRef.current.value = ''
+      return
+    }
+
+    // SÉCURITÉ 3 : Limitation de taille (5 Mo max)
+    const MAX_FILE_SIZE = 5 * 1024 * 1024 // 5 Mo
+    if (file.size > MAX_FILE_SIZE) {
+      toast.error('Le fichier est trop volumineux. La taille maximale autorisée est de 5 Mo.')
+      if (fileInputRef.current) fileInputRef.current.value = ''
+      return
+    }
+
     setIsUploading(true)
     
     try {
-      const fileExt = file.name.split('.').pop()
-      const fileName = `${orderId}-${Math.random()}.${fileExt}`
+      const uniqueId = typeof crypto !== 'undefined' && crypto.randomUUID ? crypto.randomUUID() : Math.random().toString(36).substring(2, 10)
+      const fileName = `${orderId}-${uniqueId}.${fileExt}`
       const filePath = `receipts/${fileName}`
 
       const { error: uploadError } = await supabase.storage
         .from('order_receipts')
-        .upload(filePath, file)
+        .upload(filePath, file, {
+          contentType: file.type,
+          upsert: false
+        })
 
       if (uploadError) throw uploadError
 
@@ -111,7 +139,7 @@ export function WaveReceiptUploadButton({ orderId, paymentStatus, onUploadComple
       {/* Hidden file input for direct upload (pending status) */}
       <input 
         type="file" 
-        accept="image/*" 
+        accept="image/jpeg,image/png,image/webp" 
         className="hidden" 
         ref={fileInputRef} 
         onChange={handleFileSelect} 
@@ -140,7 +168,7 @@ export function WaveReceiptUploadButton({ orderId, paymentStatus, onUploadComple
               <span className="text-xs text-gray-400 mt-1 block">Galerie ou Appareil photo</span>
               <input 
                 type="file" 
-                accept="image/*" 
+                accept="image/jpeg,image/png,image/webp" 
                 className="hidden" 
                 onChange={handleFileSelect}
                 disabled={isUploading}

@@ -12,87 +12,33 @@ export const dynamic = 'force-dynamic'
 
 
 // =====================================================
-// TYPES ET SCHÉMAS
+// TYPES ET SCHÉMAS (Source Unique: lib/validations/order-form)
 // =====================================================
 
-const shippingAddressSchema = z.object({
-  name: z.string().min(2, 'Nom complet requis (minimum 2 caractères)').max(100, 'Nom trop long'),
-  email: z.union([z.string().email('Email valide requis'), z.literal('')]).optional(),
-  phone: z.string().min(8, 'Numéro de téléphone requis (minimum 8 caractères)').max(20, 'Numéro trop long'),
-  address: z.string().min(2, 'Adresse requise (minimum 2 caractères)').max(255, 'Adresse trop longue'),
-  city: z.string().min(2, 'Ville requise (minimum 2 caractères)').max(100, 'Ville trop longue'),
-  postalCode: z.union([z.string().min(2, 'Code postal requis').max(10, 'Code postal trop long'), z.literal('')]).optional(),
-})
-
-const orderCreateSchema = z.object({
-  profile_id: z.string().uuid('ID de profil invalide').optional(),
-  card_type: z.enum(['nfc_qr', 'qr_only', 'premium_subscription', 'custom']).default('nfc_qr'),
-  quantity: z.union([z.number(), z.string()])
-    .transform(val => typeof val === 'string' ? parseInt(val, 10) : val)
-    .refine(val => Number.isInteger(val) && val >= 1 && val <= ORDER_LIMITS.MAX_CARDS_PER_USER,
-      `Quantité doit être un entier entre 1 et ${ORDER_LIMITS.MAX_CARDS_PER_USER}`),
-  unit_price: z.union([z.number(), z.string()])
-    .transform(val => typeof val === 'string' ? parseFloat(val) : val)
-    .refine(val => val >= 0, 'Prix unitaire doit être positif')
-    .optional(),
-  payment_method: z.enum(['lygos', 'wave', 'orange_money', 'mtn_money', 'geniuspay']).default('geniuspay'),
-  shipping_address: shippingAddressSchema,
-  metadata: z.record(z.any()).optional(),
-})
-
-// Types TypeScript inférés
-type OrderCreateData = z.infer<typeof orderCreateSchema>
-type ShippingAddress = z.infer<typeof shippingAddressSchema>
+import {
+  orderCreateSchema,
+  shippingAddressSchema,
+  type OrderCreateData,
+  type ShippingAddress
+} from '@/lib/validations/order-form'
+import { checkRateLimit, getClientIP } from '@/lib/security/rate-limiting'
 
 // =====================================================
 // UTILITAIRES SÉCURISÉS
 // =====================================================
 
-// Rate limiting thread-safe (utilise un Map local à la fonction)
-function createRateLimiter(windowMs = 60000, maxRequests = 5) {
-  const requests = new Map<string, { count: number; resetAt: number }>()
-
-  return function checkRateLimit(identifier: string): boolean {
-    const now = Date.now()
-    const userLimit = requests.get(identifier)
-
-    if (!userLimit || now > userLimit.resetAt) {
-      requests.set(identifier, { count: 1, resetAt: now + windowMs })
-      return true
-    }
-
-    if (userLimit.count >= maxRequests) {
-      return false
-    }
-
-    userLimit.count++
-    return true
-  }
-}
-
-const checkRateLimit = createRateLimiter()
-
-// Calcul sécurisé du prix avec validation
-function calculatePrice(dbPrice: number, quantity: number, unitPrice?: number): number {
-  // Validation des entrées
+// Calcul sécurisé et strict du prix côté serveur
+function calculatePrice(unitPrice: number, quantity: number): number {
   if (quantity < 1 || quantity > ORDER_LIMITS.MAX_CARDS_PER_USER) {
     throw new Error(`Quantité invalide: ${quantity}`)
   }
 
-  if (unitPrice !== undefined && unitPrice < 0) {
+  if (unitPrice <= 0) {
     throw new Error(`Prix unitaire invalide: ${unitPrice}`)
   }
 
-  // Le prix doit être d'au moins 200 XOF pour satisfaire aux exigences des passerelles (GeniusPay)
-  const MIN_PRICE_XOF = 200
-
-  // Si un prix unitaire est fourni, l'utiliser avec validation du minimum de 200 XOF
-  if (unitPrice !== undefined && unitPrice >= MIN_PRICE_XOF) {
-    return Math.round(unitPrice * quantity * 100) / 100
-  }
-
-  const effectivePrice = Math.max(dbPrice || 14600, MIN_PRICE_XOF)
-  return Math.round(effectivePrice * quantity * 100) / 100
+  const total = unitPrice * quantity
+  return Math.round(total * 100) / 100
 }
 
 // Génération sécurisée de numéro de commande (avec retry en cas de collision)
@@ -160,23 +106,27 @@ export async function POST(request: NextRequest) {
       has_supabase_key: !!process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY
     })
 
-    // 1. Rate limiting par IP (sécurisé)
-    const clientIP = request.headers.get('x-forwarded-for')?.split(',')[0]?.trim() ||
-                    request.headers.get('x-real-ip') ||
-                    request.headers.get('x-client-ip') ||
-                    'unknown'
-
+    // 1. Rate limiting par IP (centralisé et sécurisé)
+    const clientIP = getClientIP(request)
     log(`📍 IP client: ${clientIP}`)
 
-    if (!checkRateLimit(clientIP)) {
-      log('⚠️ Rate limit dépassé', { clientIP })
+    const rateLimitCheck = checkRateLimit(request, 'orders')
+    if (!rateLimitCheck.allowed) {
+      log('⚠️ Rate limit dépassé', { clientIP, retryAfter: rateLimitCheck.retryAfter })
       return NextResponse.json(
         {
           success: false,
-          error: 'Trop de requêtes. Veuillez réessayer dans une minute.',
+          error: 'Trop de commandes en peu de temps. Veuillez patienter avant de réessayer.',
+          retryAfter: rateLimitCheck.retryAfter,
           code: 'RATE_LIMIT_EXCEEDED'
         },
-        { status: 429 }
+        {
+          status: 429,
+          headers: {
+            'Retry-After': (rateLimitCheck.retryAfter || 60).toString(),
+            'X-RateLimit-Remaining': rateLimitCheck.remaining.toString()
+          }
+        }
       )
     }
 
@@ -344,9 +294,9 @@ export async function POST(request: NextRequest) {
     */
     log('⚠️ Validation limites utilisateur désactivée')
 
-    // 6.5. Récupération du prix depuis la base de données (system_config)
-    log('💵 Récupération du prix du produit')
-    let dbPrice = 14600 // fallback secours
+    // 6.5. Résolution stricte du prix officiel côté serveur
+    log('💵 Récupération du prix officiel du produit côté serveur')
+    let officialUnitPrice: number = CARD_PRICING[orderData.card_type as keyof typeof CARD_PRICING] || 14600
 
     try {
       const { data: pricingDb } = await supabase
@@ -363,32 +313,37 @@ export async function POST(request: NextRequest) {
 
       const resolvedPrice = pricingDb?.value?.nfc_card_base_price || dbConfig?.value?.geniuspay?.base_price || dbConfig?.value?.wave?.base_price
 
-      if (resolvedPrice && resolvedPrice >= 200) {
-        dbPrice = resolvedPrice
+      if (resolvedPrice && typeof resolvedPrice === 'number' && resolvedPrice >= 200) {
+        officialUnitPrice = resolvedPrice
       } else {
-        // Fallback sur la table products si présent
+        // Fallback sur la table products si configuré
         const { data: productData } = await supabase
           .from('products')
           .select('price')
           .eq('type', orderData.card_type)
           .maybeSingle()
-        if (productData?.price && productData.price >= 200) {
-          dbPrice = productData.price
+        if (productData?.price && typeof productData.price === 'number' && productData.price >= 200) {
+          officialUnitPrice = productData.price
         }
       }
     } catch (e) {
-      log('⚠️ Erreur fetch pricing config', { e })
+      log('⚠️ Erreur fetch pricing config, conservation du prix catalogue officiel', { e })
     }
 
-    // 7. Calcul sécurisé du prix
-    log('💰 Calcul du prix')
+    // 7. Calcul strict du prix (100% côté serveur)
+    log('💰 Calcul strict du prix côté serveur')
     let unitPrice: number
     let totalAmount: number
 
     try {
-      unitPrice = calculatePrice(dbPrice, 1, orderData.unit_price)
-      totalAmount = calculatePrice(dbPrice, orderData.quantity, orderData.unit_price)
-      log('✅ Prix calculé', { unitPrice, totalAmount, cardType: orderData.card_type })
+      unitPrice = officialUnitPrice
+      totalAmount = calculatePrice(officialUnitPrice, orderData.quantity)
+      log('✅ Prix calculé avec succès côté serveur', { 
+        unitPrice, 
+        totalAmount, 
+        cardType: orderData.card_type, 
+        quantity: orderData.quantity 
+      })
     } catch (priceError) {
       log('❌ Erreur calcul prix', {
         error: priceError instanceof Error ? priceError.message : 'Unknown',

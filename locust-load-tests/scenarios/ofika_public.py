@@ -46,15 +46,6 @@ class OfikaPublicUser(HttpUser):
                 response.failure(f"Get-started — code : {response.status_code}")
 
     @task(2)
-    def alternatives_page(self):
-        """Page alternatives concurrentielles"""
-        with self.client.get("/alternatives", catch_response=True, name="/alternatives") as response:
-            if response.status_code in (200, 301, 302, 307, 308, 429):
-                response.success()
-            else:
-                response.failure(f"Alternatives — code : {response.status_code}")
-
-    @task(2)
     def avis_page(self):
         """Page des avis clients publics"""
         with self.client.get("/avis", catch_response=True, name="/avis") as response:

@@ -112,11 +112,25 @@ function OrderCreateForm() {
                 `${process.env.NEXT_PUBLIC_APP_URL || window.location.origin}/payment/cancelled?type=${cardType}`
             )
 
-            const redirectPage = formData.paymentMethod === 'wave' ? 'wave-redirect' : 'lygos-redirect'
-
-            router.push(
-                `/payment/${redirectPage}?order_id=${data.order.id}&type=${cardType}&amount=${amount}&success_url=${successUrl}&failure_url=${failureUrl}`
-            )
+            if (formData.paymentMethod === 'wave') {
+                router.push(
+                    `/payment/wave-redirect?order_id=${data.order.id}&type=${cardType}&amount=${amount}&success_url=${successUrl}&failure_url=${failureUrl}`
+                )
+            } else {
+                // Paiement automatique GeniusPay
+                const gpResponse = await fetch('/api/payments/geniuspay/initiate', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ order_id: data.order.id })
+                })
+                const gpData = await gpResponse.json()
+                if (gpData.success && gpData.checkout_url) {
+                    window.location.href = gpData.checkout_url
+                    return
+                } else {
+                    router.push(`/dashboard/orders?created=${data.order.id}`)
+                }
+            }
 
         } catch (error) {
             console.error('❌ Erreur:', error)
@@ -275,12 +289,12 @@ function OrderCreateForm() {
                                                             "p-2 rounded-lg",
                                                             formData.paymentMethod === method.id ? "bg-orange-500 text-white" : "bg-gray-100 text-gray-500"
                                                         )}>
-                                                            {method.id === 'lygos' ? <Smartphone className="h-5 w-5" /> : <Wallet className="h-5 w-5" />}
+                                                            {method.id === 'geniuspay' ? <Smartphone className="h-5 w-5" /> : <Wallet className="h-5 w-5" />}
                                                         </div>
                                                         <div>
                                                             <p className="font-bold text-sm">{method.name}</p>
                                                             <p className="text-[10px] text-gray-400 font-medium leading-none">
-                                                                {method.id === 'lygos' ? 'Mobile Money (OM, Moov, Wave)' : 'Wave Direct Link'}
+                                                                {method.id === 'geniuspay' ? 'Mobile Money (OM, MTN, Moov, Wave)' : 'Wave Direct Link'}
                                                             </p>
                                                         </div>
                                                     </div>

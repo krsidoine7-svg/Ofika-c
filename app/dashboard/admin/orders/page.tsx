@@ -209,58 +209,71 @@ export default function AdminOrdersPage() {
 
     const getPaymentBadge = (status: string) => {
         switch (status) {
-            case 'succeeded': return <Badge className="bg-green-100 text-green-700 border-none font-bold text-[10px] uppercase">Payé</Badge>
-            case 'pending': return <Badge className="bg-yellow-100 text-yellow-700 border-none font-bold text-[10px] uppercase">En attente</Badge>
-            case 'processing': return <Badge className="bg-blue-100 text-blue-700 border-none font-bold text-[10px] uppercase animate-pulse">Reçu à valider</Badge>
-            case 'failed': return <Badge className="bg-red-100 text-red-700 border-none font-bold text-[10px] uppercase">Échoué</Badge>
-            case 'cancelled': return <Badge className="bg-gray-100 text-gray-700 border-none font-bold text-[10px] uppercase">Annulé</Badge>
-            default: return <Badge variant="secondary" className="text-[10px] uppercase">{status}</Badge>
+            case 'succeeded':
+            case 'paid':
+                return <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium uppercase tracking-wider bg-emerald-50 text-emerald-700 border border-emerald-100">Payé</span>
+            case 'pending':
+                return <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium uppercase tracking-wider bg-amber-50 text-amber-700 border border-amber-100">En attente</span>
+            case 'processing':
+                return <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-100 animate-pulse">Reçu à valider</span>
+            case 'failed':
+                return <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium uppercase tracking-wider bg-rose-50 text-rose-700 border border-rose-100">Échoué</span>
+            case 'cancelled':
+                return <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium uppercase tracking-wider bg-gray-50 text-gray-600 border border-gray-200">Annulé</span>
+            default:
+                return <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium uppercase tracking-wider bg-gray-50 text-gray-600 border border-gray-100">{status}</span>
         }
     }
 
     const getShippingBadge = (status: string) => {
         switch (status) {
-            case 'delivered': return <Badge className="bg-blue-100 text-blue-700 border-none font-bold text-[10px] uppercase">Livré</Badge>
-            case 'shipped': return <Badge className="bg-indigo-100 text-indigo-700 border-none font-bold text-[10px] uppercase">Expédié</Badge>
-            case 'preparing': return <Badge className="bg-purple-100 text-purple-700 border-none font-bold text-[10px] uppercase">Préparation</Badge>
-            case 'pending': return <Badge className="bg-gray-100 text-gray-600 border-none font-bold text-[10px] uppercase">En attente</Badge>
-            default: return <Badge variant="secondary" className="text-[10px] uppercase">{status}</Badge>
+            case 'delivered':
+                return <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium uppercase tracking-wider bg-slate-100 text-slate-800 border border-slate-200">Livré</span>
+            case 'shipped':
+                return <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium uppercase tracking-wider bg-blue-50 text-blue-700 border border-blue-100">Expédié</span>
+            case 'preparing':
+                return <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium uppercase tracking-wider bg-purple-50 text-purple-700 border border-purple-100">Préparation</span>
+            case 'pending':
+                return <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium uppercase tracking-wider bg-gray-50 text-gray-500 border border-gray-200">Non expédié</span>
+            default:
+                return <span className="inline-flex items-center px-2 py-0.5 rounded text-[10px] font-medium uppercase tracking-wider bg-gray-50 text-gray-600 border border-gray-100">{status}</span>
         }
     }
 
     const formatCurrency = (cents: number, currency: string) => {
         const amount = cents / (currency === 'XOF' ? 1 : 100)
-        return amount.toLocaleString() + ' ' + currency
+        return amount.toLocaleString('fr-FR') + ' ' + currency
     }
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-[400px]">
-                <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
+            <div className="flex flex-col items-center justify-center min-h-[400px] gap-3">
+                <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+                <p className="text-xs text-gray-400 font-medium">Chargement des commandes...</p>
             </div>
         )
     }
 
     return (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <div className="space-y-6 bg-white pb-12">
             {/* Header & Filters */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-                <div className="flex-1 space-y-2">
-                    <h1 className="text-3xl font-black text-gray-900 tracking-tight">Commandes</h1>
-                    <p className="text-gray-500 font-medium">Suivi des ventes et de la logistique ({orders.length})</p>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-gray-100">
+                <div>
+                    <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-950">Commandes NFC</h1>
+                    <p className="text-sm text-gray-500 mt-1">Suivi des ventes, des paiements et de la logistique ({orders.length})</p>
                 </div>
-                <div className="flex flex-col sm:flex-row items-center gap-3 w-full md:w-auto">
+                <div className="flex flex-col sm:flex-row items-center gap-2.5 w-full md:w-auto">
                     <div className="relative w-full sm:w-64">
                         <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
                         <Input
                             placeholder="N° commande, email..."
-                            className="pl-10 h-11 border-gray-200 focus:ring-orange-500 rounded-xl"
+                            className="pl-9 h-9 border-gray-200 bg-white rounded-lg text-sm text-gray-900 focus-visible:ring-1 focus-visible:ring-orange-500"
                             value={search}
                             onChange={(e) => setSearch(e.target.value)}
                         />
                     </div>
                     <select
-                        className="h-11 px-4 border border-gray-200 rounded-xl bg-white text-sm font-medium focus:ring-orange-500 outline-none w-full sm:w-auto shadow-sm"
+                        className="h-9 px-3 border border-gray-200 rounded-lg bg-white text-xs font-medium text-gray-700 outline-none focus:ring-1 focus:ring-orange-500 w-full sm:w-auto"
                         value={statusFilter}
                         onChange={(e) => setStatusFilter(e.target.value)}
                     >
@@ -275,27 +288,27 @@ export default function AdminOrdersPage() {
             </div>
 
             {/* Orders List Card */}
-            <Card className="border-none shadow-sm overflow-hidden rounded-2xl">
+            <Card className="border border-gray-100 shadow-none overflow-hidden rounded-xl bg-white">
                 <CardContent className="p-0">
                     <div className="overflow-x-auto">
                         <table className="w-full text-left border-collapse">
                             <thead>
-                                <tr className="border-b border-gray-100 bg-gray-50/50">
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest">N° & Date</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest">Client</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-center">Paiement</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-center">Livraison</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-right">Total</th>
-                                    <th className="px-6 py-4 text-xs font-bold text-gray-400 uppercase tracking-widest text-right">Action</th>
+                                <tr className="border-b border-gray-100 bg-white">
+                                    <th className="px-5 py-3.5 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">N° & Date</th>
+                                    <th className="px-5 py-3.5 text-[11px] font-semibold text-gray-400 uppercase tracking-wider">Client</th>
+                                    <th className="px-5 py-3.5 text-[11px] font-semibold text-gray-400 uppercase tracking-wider text-center">Paiement</th>
+                                    <th className="px-5 py-3.5 text-[11px] font-semibold text-gray-400 uppercase tracking-wider text-center">Livraison</th>
+                                    <th className="px-5 py-3.5 text-[11px] font-semibold text-gray-400 uppercase tracking-wider text-right">Total</th>
+                                    <th className="px-5 py-3.5 text-[11px] font-semibold text-gray-400 uppercase tracking-wider text-right">Action</th>
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-50">
                                 {filteredOrders.length > 0 ? filteredOrders.map((order) => (
-                                    <tr key={order.id} className="hover:bg-gray-50 transition-colors group">
-                                        <td className="px-6 py-4">
+                                    <tr key={order.id} className="hover:bg-gray-50/70 transition-colors group">
+                                        <td className="px-5 py-3.5">
                                             <div className="flex flex-col">
-                                                <span className="text-sm font-black text-gray-900 group-hover:text-orange-600 transition-colors">#{order.order_number}</span>
-                                                <span className="text-[10px] text-gray-400 flex items-center mt-1 font-medium">
+                                                <span className="text-xs font-semibold text-gray-900 group-hover:text-orange-600 transition-colors">#{order.order_number}</span>
+                                                <span className="text-[10px] text-gray-400 flex items-center mt-0.5">
                                                     <Clock className="w-3 h-3 mr-1 opacity-60" />
                                                     {new Date(order.created_at).toLocaleDateString()}
                                                 </span>

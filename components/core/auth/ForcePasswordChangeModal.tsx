@@ -20,20 +20,11 @@ export function ForcePasswordChangeModal({ user }: { user: any }) {
 
   const isOpen = user?.user_metadata?.force_password_reset === true || user?.user_metadata?.force_password_reset === 'true'
 
-  useEffect(() => {
-    if (isOpen) {
-      const saved = sessionStorage.getItem('temp_current_password')
-      if (saved) {
-        setCurrentPassword(saved)
-      }
-    }
-  }, [isOpen])
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
     
-    if (newPassword.length < 6) {
-      toast.error("Le nouveau mot de passe doit faire au moins 6 caractères")
+    if (newPassword.length < 8) {
+      toast.error("Le nouveau mot de passe doit faire au moins 8 caractères")
       return
     }
 
@@ -63,7 +54,6 @@ export function ForcePasswordChangeModal({ user }: { user: any }) {
         throw updateError
       }
 
-      sessionStorage.removeItem('temp_current_password')
       toast.success("Votre mot de passe a été mis à jour avec succès !")
       
       // Rafraîchir la page pour appliquer les changements (le layout relira la session)
@@ -88,18 +78,18 @@ export function ForcePasswordChangeModal({ user }: { user: any }) {
 
         <form onSubmit={handleSubmit} className="space-y-4 mt-4">
           <div className="space-y-2">
-            <Label htmlFor="current">Mot de passe actuel</Label>
+            <Label htmlFor="current">Mot de passe temporaire actuel</Label>
             <div className="relative">
               <Lock className="absolute left-3 top-3 h-4 w-4 text-muted-foreground" />
               <Input
                 id="current"
                 type="password"
-                placeholder="Mot de passe actuel"
+                placeholder="Entrez votre mot de passe actuel"
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
-                className="pl-10 bg-gray-100 text-gray-500 cursor-not-allowed select-none opacity-100"
+                className="pl-10"
                 required
-                disabled
+                disabled={isLoading}
               />
             </div>
           </div>

@@ -134,7 +134,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     return (
         <ProtectedRoute>
-            <div className="min-h-screen bg-gray-50 flex flex-col">
+            <div className="min-h-screen bg-white flex flex-col">
                 {/* Masquerade Banner - Enhanced UI */}
                 {impersonatedId && (
                     <div className="bg-gradient-to-r from-orange-600 via-orange-500 to-amber-600 text-white px-4 py-3 flex items-center justify-between sticky top-0 z-[100] shadow-lg animate-in slide-in-from-top duration-500 border-b border-orange-400/30">
@@ -175,61 +175,79 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     </div>
                 )}
 
-                <div className="flex flex-1">
+                <div className="flex flex-1 bg-white">
                     {/* Desktop Sidebar - Hidden on Admin paths to avoid double sidebar */}
                     {!isAdminPath && (
                         <aside className={cn(
-                            "hidden md:flex flex-col w-64 bg-white border-r border-gray-200 h-screen fixed left-0 top-0 z-40 transition-all duration-300",
+                            "hidden md:flex flex-col w-64 bg-white border-r border-gray-100 h-screen fixed left-0 top-0 z-40 transition-all duration-300",
                             impersonatedId ? "top-[64px] h-[calc(100vh-64px)]" : "top-0 h-screen"
                         )}>
-                            <div className="p-4 border-b border-gray-100 flex items-center justify-center">
+                            <div className="p-4 border-b border-gray-100 flex items-center justify-start px-5">
                                 <Logo size="sm" showText />
                             </div>
 
-                            <nav className="flex-1 p-4 space-y-1 overflow-y-auto custom-scrollbar">
+                            <nav className="flex-1 p-3 space-y-1 overflow-y-auto">
+                                <div className="px-2 py-1 mb-2">
+                                    <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">Espace Client</span>
+                                </div>
                                 {navItems.map((item) => {
                                     const isActive = pathname === item.href
                                     return (
-                                        <Link key={item.href} href={item.href}>
-                                            <Button
-                                                variant={isActive ? "secondary" : "ghost"}
-                                                className={`w-full justify-start ${isActive ? 'bg-orange-50 text-orange-600' : 'text-gray-600'}`}
+                                        <Link key={item.href} href={item.href} className="block">
+                                            <div
+                                                className={cn(
+                                                    "flex items-center gap-3 px-3 py-2 rounded-lg text-[13px] transition-all duration-150",
+                                                    isActive
+                                                        ? "bg-gray-100 text-gray-950 font-medium"
+                                                        : "text-gray-600 hover:text-gray-950 hover:bg-gray-50 font-normal"
+                                                )}
                                             >
-                                                <item.icon className={`mr-2 h-4 w-4 ${isActive ? 'text-orange-600' : 'text-gray-500'}`} />
-                                                {item.label}
-                                            </Button>
+                                                <item.icon className={cn("w-4 h-4 shrink-0 transition-colors", isActive ? "text-orange-600" : "text-gray-400")} strokeWidth={isActive ? 2 : 1.75} />
+                                                <span>{item.label}</span>
+                                            </div>
                                         </Link>
                                     )
                                 })}
                             </nav>
 
+                            <div className="p-3 border-t border-gray-100">
+                                <div className="p-2.5 rounded-lg bg-gray-50/80 border border-gray-100/80 flex items-center justify-between">
+                                    <div className="min-w-0 flex-1 mr-2">
+                                        <p className="text-xs font-semibold text-gray-900 truncate">{displayName}</p>
+                                        <p className="text-[10px] text-gray-400 truncate">{subscriptionLabel}</p>
+                                    </div>
+                                    <Badge variant="outline" className="text-[9px] uppercase font-bold px-1.5 py-0 border-gray-200 bg-white text-gray-600">
+                                        {userData?.subscription_tier || 'Free'}
+                                    </Badge>
+                                </div>
+                            </div>
                         </aside>
                     )}
 
                     {/* Content Area */}
                     <div className={cn(
-                        "flex-1 flex flex-col min-w-0 transition-all duration-300",
+                        "flex-1 flex flex-col min-w-0 transition-all duration-300 bg-white",
                         !isAdminPath && "md:ml-64"
                     )}>
                         {/* Global Header - Hidden on Admin paths */}
                         {!isAdminPath && (
-                            <header className="bg-white border-b border-gray-100 h-16 flex items-center justify-between sticky top-0 z-30 px-4 md:px-8">
+                            <header className="bg-white border-b border-gray-100 h-14 flex items-center justify-between sticky top-0 z-30 px-4 md:px-8">
                                 {/* Left Section */}
                                 <div className="flex items-center gap-4">
                                     {/* Mobile: Hamburger */}
                                     <div className="flex items-center gap-2 md:hidden">
                                         <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}>
-                                            {isMobileMenuOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+                                            {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
                                         </Button>
                                     </div>
 
                                     {/* Desktop: Search Bar */}
                                     <div className="hidden md:flex items-center relative">
-                                        <Search className="w-4 h-4 text-gray-400 absolute left-3" />
+                                        <Search className="w-3.5 h-3.5 text-gray-400 absolute left-3" />
                                         <input 
                                             type="text" 
-                                            placeholder="Rechercher..." 
-                                            className="h-10 pl-10 pr-4 rounded-xl bg-gray-50 border border-transparent focus:bg-white focus:border-orange-500 focus:ring-2 focus:ring-orange-200 transition-all text-sm w-64 outline-none"
+                                            placeholder="Rechercher un profil, un lien..." 
+                                            className="h-9 pl-9 pr-3 rounded-lg bg-gray-50/70 border border-gray-200/60 focus:bg-white focus:border-orange-500 focus:ring-1 focus:ring-orange-500 transition-all text-xs w-64 text-gray-900 placeholder:text-gray-400 outline-none"
                                         />
                                     </div>
                                 </div>
@@ -242,10 +260,10 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
                                     <DropdownMenu>
                                         <DropdownMenuTrigger asChild>
-                                            <Button variant="ghost" className="relative h-10 w-10 md:w-auto md:px-2 rounded-full md:rounded-xl overflow-hidden p-0 md:p-1.5 border border-gray-200 hover:bg-gray-50 flex items-center gap-2 transition-all">
-                                                <Avatar className="h-8 w-8 md:h-7 md:w-7 border border-gray-200">
+                                            <Button variant="ghost" className="relative h-9 px-2 rounded-lg border border-gray-200/80 hover:bg-gray-50 flex items-center gap-2 transition-all">
+                                                <Avatar className="h-6 w-6 border border-gray-100">
                                                     <AvatarImage src={avatarUrl} alt={displayName} />
-                                                    <AvatarFallback className="bg-orange-100 text-orange-700 text-xs">
+                                                    <AvatarFallback className="bg-orange-100 text-orange-700 text-[10px] font-bold">
                                                         {displayName?.substring(0, 2).toUpperCase()}
                                                     </AvatarFallback>
                                                 </Avatar>
@@ -254,23 +272,23 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                                                 </div>
                                             </Button>
                                         </DropdownMenuTrigger>
-                                        <DropdownMenuContent className="w-56" align="end" forceMount>
+                                        <DropdownMenuContent className="w-56 bg-white border-gray-100" align="end" forceMount>
                                             <DropdownMenuLabel className="font-normal">
                                                 <div className="flex flex-col space-y-1">
-                                                    <p className="text-sm font-medium leading-none">{displayName}</p>
-                                                    <p className="text-xs leading-none text-muted-foreground">
+                                                    <p className="text-sm font-medium leading-none text-gray-900">{displayName}</p>
+                                                    <p className="text-xs leading-none text-gray-400">
                                                         {user?.email}
                                                     </p>
                                                 </div>
                                             </DropdownMenuLabel>
-                                            <DropdownMenuSeparator />
+                                            <DropdownMenuSeparator className="bg-gray-100" />
                                             <Link href="/dashboard/settings">
-                                                <DropdownMenuItem className="cursor-pointer">
+                                                <DropdownMenuItem className="cursor-pointer text-gray-700 focus:text-gray-900 focus:bg-gray-50">
                                                     <Settings className="mr-2 h-4 w-4" />
                                                     <span>Paramètres</span>
                                                 </DropdownMenuItem>
                                             </Link>
-                                            <DropdownMenuSeparator />
+                                            <DropdownMenuSeparator className="bg-gray-100" />
                                             <DropdownMenuItem
                                                 className="text-red-600 cursor-pointer focus:text-red-600 focus:bg-red-50"
                                                 onClick={handleLogout}
@@ -289,19 +307,18 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                             <div className="md:hidden fixed inset-0 z-40 bg-white p-4">
                                 <div className="flex justify-end mb-4">
                                     <Button variant="ghost" size="icon" onClick={() => setIsMobileMenuOpen(false)}>
-                                        <X className="h-7 w-7 text-gray-500" />
+                                        <X className="h-6 w-6 text-gray-500" />
                                     </Button>
                                 </div>
-                                <nav className="space-y-2">
+                                <nav className="space-y-1">
                                     {navItems.map((item) => (
                                         <Link key={item.href} href={item.href} onClick={() => setIsMobileMenuOpen(false)}>
-                                            <Button
-                                                variant="ghost"
-                                                className={`w-full justify-start text-lg h-12 ${pathname === item.href ? 'bg-orange-50 text-orange-600' : ''}`}
+                                            <div
+                                                className={`flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm font-medium ${pathname === item.href ? 'bg-orange-50 text-orange-600' : 'text-gray-700'}`}
                                             >
-                                                <item.icon className="mr-3 h-5 w-5" />
+                                                <item.icon className="h-4 w-4" />
                                                 {item.label}
-                                            </Button>
+                                            </div>
                                         </Link>
                                     ))}
                                     <div className="pt-4 mt-4 border-t border-gray-100">
@@ -316,7 +333,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                         )}
 
                         {/* Page Content */}
-                        <main className={cn("flex-1 overflow-x-hidden max-w-full", isAdminPath ? "p-0" : "p-3 sm:p-6 md:p-8")}>
+                        <main className={cn("flex-1 overflow-x-hidden max-w-full bg-white", isAdminPath ? "p-0" : "p-4 sm:p-6 md:p-8 max-w-7xl mx-auto w-full")}>
                             {!isAdminPath && <AnnouncementBanner />}
                             {children}
                         </main>

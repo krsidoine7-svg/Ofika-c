@@ -10,8 +10,6 @@ import {
 import { ProfileWithLinks } from "@/lib/types/database"
 import { toast } from "sonner"
 import { useState, useEffect, type CSSProperties } from "react"
-import { createClient } from "@/lib/supabase/client"
-import { usePushNotifications } from "@/lib/hooks/usePushNotifications"
 import { trackContactAction } from "@/lib/services/profile-analytics"
 import { generateCompleteVCard } from "@/lib/utils/vcard"
 
@@ -45,7 +43,6 @@ export function AddToContactsAuto({
   style,
   onContactAdded
 }: AddToContactsAutoProps) {
-  const { subscribeToPush } = usePushNotifications()
   const [deviceInfo, setDeviceInfo] = useState<DeviceInfo>({
     isIOS: false,
     isAndroid: false,
@@ -88,67 +85,55 @@ export function AddToContactsAuto({
   const downloadVCard = async (): Promise<boolean> => {
     try {
       const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
-      const vcardContent = generateCompleteVCard(profile, baseUrl)
-      const fileName = `${profile.name.replace(/[^a-zA-Z0-9\s-]/g, '').replace(/\s+/g, '_')}.vcf`
+      const identifier = (profile as any).custom_url || (profile as any).username || profile.id
+      const serverUrl = `${baseUrl}/api/contacts/${encodeURIComponent(identifier)}`
+      const isIOS = /iPhone|iPad|iPod/i.test(navigator.userAgent)
 
-      // Créer et déclencher le téléchargement
-      const blob = new Blob([vcardContent], { type: 'text/vcard;charset=utf-8' })
-      const url = URL.createObjectURL(blob)
-
-      // SPÉCIFIQUE iOS : Ouvrir directement l'URL
-      if (/iPhone|iPad|iPod/i.test(navigator.userAgent)) {
-        window.location.href = url
-        setTimeout(() => {
-          URL.revokeObjectURL(url)
-        }, 1000)
+      // 1. Sur iOS (Safari/Chrome iOS) : Redirection directe sur l'URL serveur
+      // Safari détecte le MIME text/vcard inline et ouvre instantanément la fiche Contact native Apple
+      if (isIOS) {
+        window.location.href = serverUrl
         return true
       }
 
-      // Autres appareils (Android, Desktop)
+      // 2. Sur Android et Ordinateur : Téléchargement automatique et propre
+      const fileName = `${(profile.name || 'contact').replace(/[^a-zA-Z0-9\s-]/g, '').replace(/\s+/g, '_')}.vcf`
       const link = document.createElement('a')
-      link.href = url
+      link.href = serverUrl
       link.download = fileName
       link.style.display = 'none'
       document.body.appendChild(link)
       link.click()
 
       setTimeout(() => {
-        document.body.removeChild(link)
-        URL.revokeObjectURL(url)
-      }, 100)
+        if (document.body.contains(link)) {
+          document.body.removeChild(link)
+        }
+      }, 300)
 
       return true
     } catch (error) {
-      console.error('Erreur téléchargement vCard:', error)
-      return false
-    }
-  }
-
-  const shareViaWebShare = async (): Promise<boolean> => {
-    try {
-      const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
-      const vcardContent = generateCompleteVCard(profile, baseUrl)
-      const blob = new Blob([vcardContent], { type: 'text/vcard' })
-      const file = new File([blob], `${profile.name.replace(/[^a-zA-Z0-9\s-]/g, '').replace(/\s+/g, '_')}.vcf`, {
-        type: 'text/vcard'
-      })
-
-      if (navigator.canShare && navigator.canShare({ files: [file] })) {
-        await navigator.share({
-          title: `Contact: ${profile.name}`,
-          text: `Carte de visite de ${profile.name}`,
-          files: [file]
-        })
+      console.warn('Erreur téléchargement serveur, tentative locale:', error)
+      // Fallback local hors-ligne en cas de coupure réseau
+      try {
+        const baseUrl = typeof window !== 'undefined' ? window.location.origin : ''
+        const vcardContent = generateCompleteVCard(profile, baseUrl)
+        const blob = new Blob([vcardContent], { type: 'text/vcard;charset=utf-8' })
+        const url = URL.createObjectURL(blob)
+        const link = document.createElement('a')
+        link.href = url
+        link.download = `${(profile.name || 'contact').replace(/\s+/g, '_')}.vcf`
+        document.body.appendChild(link)
+        link.click()
+        setTimeout(() => {
+          document.body.removeChild(link)
+          URL.revokeObjectURL(url)
+        }, 300)
         return true
+      } catch (fallbackErr) {
+        console.error('Erreur fallback vCard:', fallbackErr)
+        return false
       }
-
-      return false
-    } catch (error: any) {
-      // Ignorer l'erreur si l'utilisateur a annulé ou si ce n'est pas permis
-      if (error.name !== 'NotAllowedError' && error.name !== 'AbortError') {
-        console.error('Erreur Web Share:', error)
-      }
-      return false
     }
   }
 
@@ -156,7 +141,7 @@ export function AddToContactsAuto({
    * Gestionnaire principal d'ajout aux contacts
    */
   const handleAddToContacts = async () => {
-    if (!profile?.id || !profile?.name) {
+    if (!profile?.id && !profile?.name) {
       toast.error('Informations du profil incomplètes')
       return
     }
@@ -164,76 +149,25 @@ export function AddToContactsAuto({
     setIsProcessing(true)
 
     try {
-      let success = false
-
-      // 1. Essayer Web Share API (iOS 12.2+, Android moderne)
-      if (deviceInfo.supportsWebShare && deviceInfo.isMobile) {
-        console.log('Tentative Web Share API...')
-        success = await shareViaWebShare()
-
-        if (success) {
-          toast.success('Contact partagé avec succès ! Ouvrez le fichier pour l\'importer.')
-          setContactAdded(true)
-          onContactAdded?.()
-
-          // Tracking Web Share
-          trackContactAction(profile.id, 'share_clicked').catch(e => console.error('Error tracking contact share:', e))
-          try {
-            const supabase = createClient()
-            const { data: { user } } = await supabase.auth.getUser()
-            if (user) {
-              await fetch('/api/analytics/contact-activity', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                  contactId: profile.id,
-                  activityType: 'share',
-                  metadata: { source: 'web_share' }
-                })
-              })
-            }
-          } catch (e) { }
-          return
-        }
-      }
-
-      // 2. Fallback : Téléchargement automatique
-      console.log('Utilisation du téléchargement automatique...')
-      success = await downloadVCard()
+      const success = await downloadVCard()
 
       if (success) {
         setContactAdded(true)
         onContactAdded?.()
 
-        // --- TRACKING & FEEDBACK UNIFIÉ ---
+        // Tracking d'analyse unifié
         trackContactAction(profile.id, 'vcard_download').catch(e => console.error('Error tracking contact download:', e))
 
-        try {
-          const supabase = createClient()
-            // TOUJOURS MONTRER L'OPTION : Succès + Action Rappel (pour User et Guest)
-            toast.success("Contact sauvegardé !", {
-              description: "Voulez-vous activer les rappels automatiques ?",
-              duration: 8000,
-              action: {
-                label: "🔔 Activer",
-                onClick: async () => {
-                  await subscribeToPush(profile.id)
-                }
-              }
-            })
-
-        } catch (err) {
-          console.error('Erreur tracking:', err)
-          toast.success('Contact enregistré.')
-        }
-
+        toast.success("Fiche contact prête !", {
+          description: "Ajoutée directement à votre carnet d'adresses.",
+          duration: 4000,
+        })
       } else {
         throw new Error('Échec du téléchargement')
       }
-
     } catch (error) {
       console.error('Erreur ajout aux contacts:', error)
-      toast.error('Erreur lors de l\'ajout du contact. Réessayez.')
+      toast.error("Erreur lors de l'ajout du contact. Réessayez.")
     } finally {
       setIsProcessing(false)
     }

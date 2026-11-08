@@ -81,21 +81,21 @@ export const ModernHero = ({ videoUrl }: ModernHeroProps) => {
                         {/* Top Pill Badge */}
                         <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 text-xs sm:text-sm font-semibold text-gray-300 mb-8 sm:mb-10">
                             <span className="w-2 h-2 rounded-full bg-orange-500 animate-pulse" />
-                            DÉCOUVREZ LA NOUVELLE CARTE NFC OFIKA
+                            LA CARTE DE VISITE NOUVELLE GÉNÉRATION
                         </div>
 
                         {/* Centered Headline with Tilted Orange Badge */}
                         <h1 className="text-4xl sm:text-6xl md:text-7xl font-black text-white leading-[1.22] tracking-tight mb-6 max-w-4xl mx-auto">
-                            Le profil professionnel <br />
+                            Partagez vos coordonnées <br />
                             <span className="inline-block px-5 py-1.5 my-2 bg-gradient-to-r from-orange-600 to-ofika-orange text-white rounded-2xl transform -rotate-2 shadow-lg shadow-orange-500/20 font-black">
-                                numérique
+                                d'un simple geste
                             </span> <br />
-                            que tu emmènes <span className="inline-block px-5 py-1.5 my-2 bg-gradient-to-r from-pink-600 to-rose-500 text-white rounded-2xl transform rotate-2 shadow-lg shadow-pink-500/20 font-black">partout</span>
+                            sans carte en <span className="inline-block px-5 py-1.5 my-2 bg-gradient-to-r from-pink-600 to-rose-500 text-white rounded-2xl transform rotate-2 shadow-lg shadow-pink-500/20 font-black">papier</span>
                         </h1>
 
                         {/* Subtitle / Tagline Identité Visuelle */}
                         <p className="text-base sm:text-xl text-gray-300 font-medium max-w-3xl mx-auto mb-10 leading-relaxed">
-                            La <span className="text-orange-400 font-semibold">carte NFC</span> et le <span className="text-orange-400 font-semibold">QR code</span> deviennent simplement les moyens d'accès instantanés à votre <span className="text-white font-bold">identité</span>.
+                            Approchez votre carte d'un smartphone : votre <span className="text-orange-400 font-semibold">numéro</span>, votre <span className="text-orange-400 font-semibold">WhatsApp</span> et vos <span className="text-white font-bold">réseaux</span> s'enregistrent en 1 seconde. <span className="text-white font-semibold">Sans aucune application à installer.</span>
                         </p>
 
                         {/* CTA Button */}
@@ -114,21 +114,21 @@ export const ModernHero = ({ videoUrl }: ModernHeroProps) => {
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 pt-10 border-t border-white/[0.08] max-w-2xl mx-auto">
                             <div className="flex items-center sm:justify-center gap-3">
                                 <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-500 flex-shrink-0">
-                                    <Zap className="w-5 h-5" />
+                                    <Smartphone className="w-5 h-5" />
                                 </div>
                                 <div className="text-left">
-                                    <span className="text-sm font-bold text-white block">Configuration 2 min</span>
-                                    <span className="text-xs text-gray-500">Simple et ultra rapide</span>
+                                    <span className="text-sm font-bold text-white block">iPhone & Android</span>
+                                    <span className="text-xs text-gray-400">100% compatible sans application</span>
                                 </div>
                             </div>
                             
                             <div className="flex items-center sm:justify-center gap-3">
                                 <div className="w-10 h-10 rounded-xl bg-orange-500/10 flex items-center justify-center text-orange-500 flex-shrink-0">
-                                    <Smartphone className="w-5 h-5" />
+                                    <Zap className="w-5 h-5" />
                                 </div>
                                 <div className="text-left">
-                                    <span className="text-sm font-bold text-white block">Zéro Friction</span>
-                                    <span className="text-xs text-gray-500">Un seul tap pour connecter</span>
+                                    <span className="text-sm font-bold text-white block">Valable à vie</span>
+                                    <span className="text-xs text-gray-400">Achat unique, zéro abonnement</span>
                                 </div>
                             </div>
                         </div>

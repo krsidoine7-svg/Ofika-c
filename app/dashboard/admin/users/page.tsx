@@ -251,19 +251,20 @@ export default function AdminUsersPage() {
 
     if (loading) {
         return (
-            <div className="flex items-center justify-center min-h-[400px]">
-                <Loader2 className="w-8 h-8 animate-spin text-gray-900" />
+            <div className="flex flex-col items-center justify-center min-h-[400px] gap-3">
+                <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+                <p className="text-xs text-gray-400 font-medium">Chargement des utilisateurs...</p>
             </div>
         )
     }
 
     return (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {/* Header & Filters (Airtable Style) */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-gray-200 pb-4">
-                <div className="flex-1 space-y-1">
-                    <h1 className="text-2xl font-bold text-gray-900 tracking-tight">Utilisateurs</h1>
-                    <p className="text-sm text-gray-500 font-medium">{users.length} comptes enregistrés</p>
+        <div className="space-y-6 bg-white pb-12">
+            {/* Header & Filters */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-gray-100">
+                <div>
+                    <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-950">Utilisateurs</h1>
+                    <p className="text-sm text-gray-500 mt-1">Gestion des comptes, des rôles et des accès ({users.length} comptes enregistrés)</p>
                 </div>
                 
                 <div className="flex flex-col sm:flex-row items-center gap-2 w-full md:w-auto">

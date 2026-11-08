@@ -611,27 +611,24 @@ export default function AdminNFCPage() {
     if (loading) {
         return (
             <div className="flex flex-col items-center justify-center min-h-[500px] gap-3">
-                <Loader2 className="w-8 h-8 animate-spin text-slate-900" />
-                <p className="text-sm font-medium text-slate-400">Chargement de l'espace administration NFC & QR...</p>
+                <Loader2 className="w-8 h-8 animate-spin text-gray-400" />
+                <p className="text-xs font-medium text-gray-400">Chargement de l'espace NFC & QR...</p>
             </div>
         )
     }
 
     return (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-3 duration-300 max-w-7xl mx-auto">
+        <div className="space-y-6 bg-white pb-12">
             {/* Header principal */}
-            <div className="flex flex-col md:flex-row md:items-center justify-between gap-6 pb-2 border-b border-slate-200/60">
-                <div className="space-y-1">
-                    <div className="flex items-center gap-3">
-                        <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight">Gestion NFC & QR Codes</h1>
-                        <Badge variant="secondary" className="bg-slate-100 text-slate-700 font-mono text-xs px-2.5 py-0.5">Vercel SaaS Edition</Badge>
-                    </div>
-                    <p className="text-sm text-slate-500 font-normal">Supervisez la fabrication des cartes physiques, gérez les profils digitaux et contrôlez les liens dynamiques.</p>
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-6 border-b border-gray-100">
+                <div>
+                    <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-gray-950">Gestion NFC & QR Codes</h1>
+                    <p className="text-sm text-gray-500 mt-1">Supervisez la fabrication des cartes physiques, gérez les profils digitaux et contrôlez les liens dynamiques.</p>
                 </div>
-                <div className="flex items-center gap-3">
+                <div className="flex items-center gap-2">
                     <Button
                         onClick={() => setIsCreateDialogOpen(true)}
-                        className="bg-slate-900 hover:bg-black text-white font-bold text-xs uppercase tracking-wider px-5 py-5 rounded-xl shadow-md flex items-center gap-2 transition-all active:scale-95"
+                        className="bg-orange-600 hover:bg-orange-700 text-white font-medium text-xs h-9 px-4 rounded-lg flex items-center gap-2 transition-all shadow-none"
                     >
                         <PlusCircle className="w-4 h-4" />
                         Nouvelle Carte
@@ -642,17 +639,17 @@ export default function AdminNFCPage() {
             {/* Onglets principaux NFC vs QR */}
             <Tabs value={mainTab} onValueChange={setMainTab} className="w-full space-y-6">
                 <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <TabsList className="bg-slate-100/80 p-1 rounded-xl inline-flex gap-1 border border-slate-200/60">
+                    <TabsList className="bg-gray-50 p-1 rounded-lg inline-flex gap-1 border border-gray-200">
                         <TabsTrigger
                             value="cards"
-                            className="rounded-lg px-5 py-2 font-bold text-xs data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm transition-all flex items-center gap-2"
+                            className="rounded-md px-4 py-1.5 font-medium text-xs data-[state=active]:bg-white data-[state=active]:text-gray-950 data-[state=active]:shadow-2xs transition-all flex items-center gap-2"
                         >
                             <CreditCard className="w-3.5 h-3.5" />
                             Cartes NFC ({cards.length})
                         </TabsTrigger>
                         <TabsTrigger
                             value="qr-redirects"
-                            className="rounded-lg px-5 py-2 font-bold text-xs data-[state=active]:bg-white data-[state=active]:text-slate-900 data-[state=active]:shadow-sm transition-all flex items-center gap-2"
+                            className="rounded-md px-4 py-1.5 font-medium text-xs data-[state=active]:bg-white data-[state=active]:text-gray-950 data-[state=active]:shadow-2xs transition-all flex items-center gap-2"
                         >
                             <QrCode className="w-3.5 h-3.5" />
                             Redirections QR ({redirects.length})

@@ -4,6 +4,7 @@ import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
 import { Loader2 } from 'lucide-react'
+import { isStaffRole, normalizeRole } from '@/lib/roles'
 
 interface AdminGuardProps {
     children: React.ReactNode
@@ -20,7 +21,7 @@ export function AdminGuard({ children }: AdminGuardProps) {
                 const { data: { user } } = await supabase.auth.getUser()
 
                 if (!user) {
-                    router.push('/admin/auth')
+                    router.push('/login?callbackUrl=/dashboard/admin')
                     return
                 }
 
@@ -30,8 +31,10 @@ export function AdminGuard({ children }: AdminGuardProps) {
                     .eq('id', user.id)
                     .single()
 
-                if (adminError || !adminData || (adminData.role !== 'admin' && adminData.role !== 'super_admin')) {
-                    console.error('Accès admin refusé:', adminError || 'Rôle insuffisant')
+                const role = normalizeRole(adminData?.role || user.app_metadata?.role)
+
+                if (adminError || !isStaffRole(role)) {
+                    console.error('Accès staff refusé:', adminError || 'Rôle insuffisant')
                     router.push('/dashboard')
                     return
                 }

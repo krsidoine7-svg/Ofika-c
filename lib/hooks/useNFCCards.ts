@@ -15,29 +15,61 @@ import { useProfiles } from './useProfiles'
 import { useOrderStats } from './usePayments'
 import { useAuth } from './useAuth'
 
+// Cache mémoire pour les cartes NFC (évite les requêtes excessives et le clignotement)
+const nfcCardsCache = new Map<string, { data: NFCCard[]; timestamp: number }>()
+const CARDS_CACHE_TTL = 30000 // 30 secondes
+
+export function invalidateNFCCardsCache(userId?: string) {
+  if (userId) {
+    nfcCardsCache.delete(userId)
+  } else {
+    nfcCardsCache.clear()
+  }
+}
+
 export function useNFCCards(userId?: string) {
   const { user } = useAuth()
-  const [cards, setCards] = useState<NFCCard[]>([])
-  const [loading, setLoading] = useState(true)
+  const targetUserId = userId || user?.id
+
+  // Lecture synchrone du cache si frais
+  const cached = targetUserId ? nfcCardsCache.get(targetUserId) : null
+  const hasFreshCache = !!(cached && (Date.now() - cached.timestamp < CARDS_CACHE_TTL))
+
+  const [cards, setCards] = useState<NFCCard[]>(() => hasFreshCache && cached ? cached.data : [])
+  const [loading, setLoading] = useState(!hasFreshCache)
   const [error, setError] = useState<string | null>(null)
 
   // Charger les cartes NFC
-  const loadCards = useCallback(async () => {
+  const loadCards = useCallback(async (force = false) => {
     // Ne pas charger si l'utilisateur n'est pas encore là
-    if (!user) {
-      setCards([]);
-      setLoading(false);
-      return;
+    if (!targetUserId) {
+      if (!user) {
+        setCards([])
+        setLoading(false)
+      }
+      return
+    }
+
+    // Si le cache est frais et qu'on ne force pas, pas d'appel réseau
+    const currentCached = nfcCardsCache.get(targetUserId)
+    if (!force && currentCached && (Date.now() - currentCached.timestamp < CARDS_CACHE_TTL)) {
+      setCards(currentCached.data)
+      setLoading(false)
+      return
     }
 
     try {
-      setLoading(true)
+      // Ne passer loading à true QUE si aucune carte n'est encore affichée
+      if (cards.length === 0) {
+        setLoading(true)
+      }
       setError(null)
       
       const response = await getNFCCards(userId)
       
       if (response.success && response.data) {
         setCards(response.data)
+        nfcCardsCache.set(targetUserId, { data: response.data, timestamp: Date.now() })
       } else {
         // Ne pas afficher d'erreur si c'est juste une question d'auth pas encore prête
         if (response.error !== 'Utilisateur non authentifié') {
@@ -50,12 +82,14 @@ export function useNFCCards(userId?: string) {
     } finally {
       setLoading(false)
     }
-  }, [user, userId])
+  }, [targetUserId, userId])
 
-  // Charger les cartes au montage du composant et quand l'utilisateur ou l'ID cible change
+  // Charger les cartes au montage ou quand l'ID cible change (primitives stables uniquement)
   useEffect(() => {
-    loadCards()
-  }, [loadCards])
+    if (targetUserId) {
+      loadCards()
+    }
+  }, [targetUserId, loadCards])
 
   // Créer une nouvelle carte NFC
   const createCard = useCallback(async (cardData: CreateNFCCardData): Promise<{ success: boolean; data?: NFCCard; error?: string }> => {
@@ -65,6 +99,7 @@ export function useNFCCards(userId?: string) {
       const response = await createNFCCard(cardData)
       
       if (response.success && response.data) {
+        invalidateNFCCardsCache(targetUserId)
         setCards(prev => [response.data!, ...prev])
         return { success: true, data: response.data }
       } else {
@@ -78,7 +113,7 @@ export function useNFCCards(userId?: string) {
       setError(errorMsg)
       return { success: false, error: errorMsg }
     }
-  }, [])
+  }, [targetUserId])
 
   // Mettre à jour une carte NFC
   const updateCard = useCallback(async (cardId: string, updateData: UpdateNFCCardData): Promise<boolean> => {
@@ -88,6 +123,7 @@ export function useNFCCards(userId?: string) {
       const response = await updateNFCCard(cardId, updateData)
       
       if (response.success && response.data) {
+        invalidateNFCCardsCache(targetUserId)
         setCards(prev => 
           prev.map(card => 
             card.id === cardId ? response.data! : card
@@ -103,7 +139,7 @@ export function useNFCCards(userId?: string) {
       setError('Erreur lors de la mise à jour de la carte NFC')
       return false
     }
-  }, [])
+  }, [targetUserId])
 
   // Supprimer une carte NFC
   const deleteCard = useCallback(async (cardId: string): Promise<boolean> => {
@@ -113,6 +149,7 @@ export function useNFCCards(userId?: string) {
       const response = await deleteNFCCard(cardId)
       
       if (response.success) {
+        invalidateNFCCardsCache(targetUserId)
         setCards(prev => prev.filter(card => card.id !== cardId))
         return true
       } else {
@@ -124,11 +161,11 @@ export function useNFCCards(userId?: string) {
       setError('Erreur lors de la suppression de la carte NFC')
       return false
     }
-  }, [])
+  }, [targetUserId])
 
   // Recharger les cartes
   const refreshCards = useCallback(() => {
-    loadCards()
+    return loadCards(true)
   }, [loadCards])
 
   return {

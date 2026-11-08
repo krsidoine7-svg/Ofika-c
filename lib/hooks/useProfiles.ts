@@ -10,42 +10,71 @@ import { useAuth } from './useAuth'
 
 import { saveOfflineProfiles, getOfflineProfiles, addPendingMutation } from '@/lib/offline/offlineStore'
 
+// Cache mémoire pour éviter les requêtes DB redondantes et les clignotements
+const profilesCache = new Map<string, { data: ProfileWithLinks[]; timestamp: number }>()
+const PROFILES_CACHE_TTL = 30000 // 30 secondes
+
+export function invalidateProfilesCache(userId?: string) {
+  if (userId) {
+    profilesCache.delete(userId)
+  } else {
+    profilesCache.clear()
+  }
+}
+
 export function useProfiles(userId?: string) {
-  const [profiles, setProfiles] = useState<ProfileWithLinks[]>([])
-  const [loading, setLoading] = useState(true)
-  const [error, setError] = useState<string | null>(null)
   const { user: sharedUser } = useAuth()
+  
+  // 🕵️ Détection automatique de l'impersonation via cookie (client-side bypass)
+  let impersonatedId = null
+  if (typeof document !== 'undefined') {
+    const match = document.cookie.match(/x-impersonating-user=([^;]+)/)
+    impersonatedId = match ? match[1] : null
+  }
+  
+  const targetUserId = userId || impersonatedId || sharedUser?.id
+
+  // Lecture synchrone du cache mémoire si frais
+  const cached = targetUserId ? profilesCache.get(targetUserId) : null
+  const hasFreshCache = !!(cached && (Date.now() - cached.timestamp < PROFILES_CACHE_TTL))
+
+  const [profiles, setProfiles] = useState<ProfileWithLinks[]>(() => hasFreshCache && cached ? cached.data : [])
+  const [loading, setLoading] = useState(!hasFreshCache)
+  const [error, setError] = useState<string | null>(null)
   
   const supabase = useMemo(() => createClient(), [])
 
-  const fetchProfiles = async () => {
+  const fetchProfiles = async (force = false) => {
+    if (!targetUserId) {
+      if (!sharedUser) {
+        setProfiles([])
+        setLoading(false)
+      }
+      return
+    }
+
+    // Si le cache est encore valide et qu'on ne force pas, pas d'appel réseau
+    const currentCached = profilesCache.get(targetUserId)
+    if (!force && currentCached && (Date.now() - currentCached.timestamp < PROFILES_CACHE_TTL)) {
+      setProfiles(currentCached.data)
+      setLoading(false)
+      return
+    }
+
     try {
-      setLoading(true)
+      // Ne passer loading à true QUE si on n'a rien à afficher
+      if (profiles.length === 0) {
+        setLoading(true)
+      }
       setError(null)
 
       // En mode hors-ligne, lire immédiatement depuis IndexedDB
       if (typeof window !== 'undefined' && !navigator.onLine) {
-        const cached = await getOfflineProfiles()
-        setProfiles(cached || [])
+        const offlineCached = await getOfflineProfiles()
+        setProfiles(offlineCached || [])
         setLoading(false)
         return
       }
-      
-      // 🔒 SÉCURITÉ : Utiliser l'utilisateur du contexte si disponible
-      if (!sharedUser) {
-        setProfiles([])
-        return
-      }
-
-      // 🕵️ Détection automatique de l'impersonation via cookie (client-side bypass)
-      let impersonatedId = null
-      if (typeof document !== 'undefined') {
-        const match = document.cookie.match(/x-impersonating-user=([^;]+)/)
-        impersonatedId = match ? match[1] : null
-      }
-      
-      // 🔒 SÉCURITÉ : Filtrer uniquement les profils de l'utilisateur connecté (ou cible Mascarade)
-      const targetUserId = userId || impersonatedId || sharedUser.id
       
       const { data, error } = await supabase
         .from('profiles')
@@ -58,14 +87,17 @@ export function useProfiles(userId?: string) {
       const fetchedProfiles = data || []
       setProfiles(fetchedProfiles)
       
+      // Mettre à jour le cache mémoire
+      profilesCache.set(targetUserId, { data: fetchedProfiles, timestamp: Date.now() })
+
       // Mettre en cache localement dans IndexedDB pour le futur mode hors-ligne
       saveOfflineProfiles(fetchedProfiles)
     } catch (err) {
       console.error('Error fetching profiles:', err)
       // Fallback IndexedDB si échec réseau
-      const cached = await getOfflineProfiles()
-      if (cached && cached.length > 0) {
-        setProfiles(cached)
+      const offlineCached = await getOfflineProfiles()
+      if (offlineCached && offlineCached.length > 0) {
+        setProfiles(offlineCached)
       } else {
         setError(err instanceof Error ? err.message : 'Erreur lors du chargement des profils')
       }
@@ -75,14 +107,16 @@ export function useProfiles(userId?: string) {
   }
 
   useEffect(() => {
-    fetchProfiles()
-  }, [supabase, userId, sharedUser?.id])
+    if (targetUserId) {
+      fetchProfiles()
+    }
+  }, [supabase, targetUserId])
 
   return {
     profiles,
     loading,
     error,
-    refetch: fetchProfiles
+    refetch: () => fetchProfiles(true)
   }
 }
 
@@ -194,6 +228,7 @@ export function useCreateProfile() {
 
       if (error) throw error
       
+      invalidateProfilesCache(user.id)
       toast.success('Profil créé avec succès')
       return data
     } catch (err) {
@@ -260,6 +295,7 @@ export function useDeleteProfile() {
 
       if (error) throw error
       
+      invalidateProfilesCache()
       toast.success('Profil et QR code associé supprimés avec succès')
     } catch (err) {
       console.error('Error deleting profile:', err)

@@ -1,11 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createAdminClient } from '@/lib/supabase/service-role'
 import { AuditService } from '@/lib/services/audit-service'
+import { requireStaffAuth } from '@/lib/auth/admin-guard'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
     try {
+        const authCheck = await requireStaffAuth()
+        if (authCheck.error) {
+            return NextResponse.json({ success: false, error: authCheck.error }, { status: authCheck.status })
+        }
+
         const supabase = createAdminClient()
 
         // 1. Récupérer toutes les commandes
@@ -43,6 +49,11 @@ export async function GET(request: NextRequest) {
 
 export async function PATCH(request: NextRequest) {
     try {
+        const authCheck = await requireStaffAuth()
+        if (authCheck.error) {
+            return NextResponse.json({ success: false, error: authCheck.error }, { status: authCheck.status })
+        }
+
         const supabase = createAdminClient()
         const { id, payment_status, shipping_status, status, paid_at, shipped_at, delivered_at } = await request.json()
 
@@ -121,7 +132,13 @@ export async function PATCH(request: NextRequest) {
             action: 'ORDER_STATUS_UPDATE',
             targetType: 'order',
             targetId: id,
-            details: updateData
+            actorId: authCheck.user?.id,
+            actorEmail: authCheck.user?.email,
+            severity: 'info',
+            details: {
+                ...updateData,
+                customerId: updatedOrder?.user_id
+            }
         })
 
         return NextResponse.json({ success: true, order: updatedOrder })

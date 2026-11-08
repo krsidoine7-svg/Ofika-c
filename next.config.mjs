@@ -141,7 +141,7 @@ const nextConfig = {
       // Redirections de sécurité
       {
         source: '/admin',
-        destination: '/dashboard',
+        destination: '/login',
         permanent: false,
       },
       {
@@ -185,7 +185,7 @@ const nextConfig = {
   },
 }
 
-export default withSentryConfig(nextConfig, {
+const sentryOptions = {
   // For all available options, see:
   // https://www.npmjs.com/package/@sentry/webpack-plugin#options
 
@@ -221,4 +221,8 @@ export default withSentryConfig(nextConfig, {
       removeDebugLogging: true,
     },
   },
-});
+};
+
+const isProdWithSentry = process.env.NODE_ENV === 'production' && Boolean(process.env.SENTRY_AUTH_TOKEN);
+
+export default isProdWithSentry ? withSentryConfig(nextConfig, sentryOptions) : nextConfig;

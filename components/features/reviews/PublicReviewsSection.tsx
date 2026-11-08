@@ -15,23 +15,8 @@ export function PublicReviewsSection({ profileId, className }: PublicReviewsSect
     const [loading, setLoading] = useState(true)
 
     useEffect(() => {
-        if (profileId === 'preview') {
-            setReviews([
-                {
-                    id: 'mock-1',
-                    client_name: 'Sophie Koné',
-                    rating: 5,
-                    comment: 'Excellent service ! La carte NFC fonctionne à merveille et le profil est très professionnel.',
-                    created_at: new Date().toISOString()
-                },
-                {
-                    id: 'mock-2',
-                    client_name: 'Marc Kouadio',
-                    rating: 5,
-                    comment: 'Très satisfait de mon achat. Le design Bento est magnifique.',
-                    created_at: new Date().toISOString()
-                }
-            ])
+        if (!profileId || profileId === 'preview') {
+            setReviews([])
             setLoading(false)
             return
         }

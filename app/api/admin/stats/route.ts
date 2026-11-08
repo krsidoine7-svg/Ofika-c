@@ -1,24 +1,17 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
+import { requireStaffAuth } from '@/lib/auth/admin-guard'
 
 export const dynamic = 'force-dynamic'
 
 export async function GET(request: NextRequest) {
   try {
-    const supabase = await createClient()
-    
-    // Vérification admin
-    const { data: { user }, error: authError } = await supabase.auth.getUser()
-    if (authError || !user) {
-      return NextResponse.json({ error: 'Non authentifié' }, { status: 401 })
+    const authCheck = await requireStaffAuth()
+    if (authCheck.error) {
+      return NextResponse.json({ success: false, error: authCheck.error }, { status: authCheck.status })
     }
 
-    // Vérifier le rôle admin (assumé admin pour ce dashboard)
-    const { data: userData } = await supabase
-      .from('users')
-      .select('role')
-      .eq('id', user.id)
-      .single()
+    const supabase = await createClient()
 
     // 1. Statistiques Globales
     const { count: userCount } = await supabase.from('users').select('*', { count: 'exact', head: true })

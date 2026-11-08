@@ -15,14 +15,13 @@ export const API_ENDPOINTS = {
   CREATE_ORDER: '/api/orders/create',
   GET_ORDERS: '/api/orders',
   
-  // Payments LyGOS
-  LYGOS_CREATE: '/api/payments/lygos/create',
-  LYGOS_STATUS: '/api/payments/lygos/status',
-  LYGOS_WEBHOOK: '/api/payments/lygos/webhook',
+  // Payments GeniusPay
+  GENIUSPAY_INITIATE: '/api/payments/geniuspay/initiate',
+  GENIUSPAY_WEBHOOK: '/api/webhooks/geniuspay',
   
   // Auth
   SIGNUP: '/auth/signup',
-  LOGIN: '/auth/login',
+  LOGIN: '/login',
   
   // NFC Cards
   NFC_CARDS: '/api/nfc-cards',
@@ -44,7 +43,7 @@ export const PAGE_URLS = {
   PAYMENT_CANCELLED: `${APP_URL}/payment/cancelled`,
   
   // Auth
-  AUTH_LOGIN: `${APP_URL}/auth/login`,
+  AUTH_LOGIN: `${APP_URL}/login`,
   AUTH_SIGNUP: `${APP_URL}/auth/signup`,
 } as const
 

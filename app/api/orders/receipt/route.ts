@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { AuthGuard } from '@/lib/security/auth-guard'
 import { InputSanitizer } from '@/lib/security/input-sanitizer'
+import { z } from 'zod'
 
 export const dynamic = 'force-dynamic'
 
@@ -35,17 +36,28 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Non authentifié' }, { status: 401 })
     }
 
-    // Récupérer et sanitiser le body
+    // Récupérer et valider le body avec Zod
     const rawData = await request.json()
     const body = InputSanitizer.sanitizeObject(rawData)
 
-    const { order_id, receipt_url } = body
+    const receiptSchema = z.object({
+      order_id: z.string().min(1, 'order_id est requis'),
+      receipt_url: z.string().url('receipt_url doit être une URL valide').refine(url => {
+        const lowerUrl = url.toLowerCase()
+        const isAllowedExtension = ['.jpg', '.jpeg', '.png', '.webp'].some(ext => lowerUrl.endsWith(ext) || lowerUrl.includes(ext + '?'))
+        const isFromStorage = lowerUrl.includes('/order_receipts/')
+        return isAllowedExtension && isFromStorage
+      }, 'Le reçu doit être une image valide (.jpg, .jpeg, .png, .webp) hébergée sur le stockage officiel')
+    })
 
-    if (!order_id || !receipt_url) {
-      return NextResponse.json({ success: false, error: 'order_id et receipt_url sont requis' }, { status: 400 })
+    const validation = receiptSchema.safeParse(body)
+    if (!validation.success) {
+      return NextResponse.json({ success: false, error: validation.error.errors[0].message }, { status: 400 })
     }
 
-    // Vérifier la commande
+    const { order_id, receipt_url } = validation.data
+
+    // Vérifier la commande (IDOR protection : la commande doit appartenir à l'utilisateur connecté)
     const { data: order, error: orderError } = await supabase
       .from('orders')
       .select('id, user_id, metadata')
@@ -73,6 +85,7 @@ export async function POST(request: NextRequest) {
         updated_at: new Date().toISOString()
       })
       .eq('id', order_id)
+      .eq('user_id', user.id)
 
     if (updateError) {
       console.error('❌ Erreur lors de la mise à jour de la commande avec le reçu:', updateError)

@@ -11,7 +11,7 @@ export type Currency = 'XOF' | 'EUR' | 'USD'
 export type CardType = 'nfc_qr' | 'qr_only' | 'premium_subscription' | 'custom'
 export type OrderStatus = 'pending' | 'paid' | 'preparing' | 'failed' | 'cancelled' | 'shipped' | 'delivered'
 export type PaymentStatus = 'pending' | 'paid' | 'succeeded' | 'failed' | 'cancelled' | 'refunded' | 'processing'
-export type PaymentProvider = 'lygos' | 'wave' | 'orange_money' | 'mtn_money'
+export type PaymentProvider = 'geniuspay' | 'wave' | 'orange_money' | 'mtn_money'
 
 // =====================================================
 // INTERFACES PRINCIPALES
@@ -54,7 +54,7 @@ export interface Order {
 
   // Métadonnées et tracking
   metadata?: Record<string, any>
-  lygos_payment_id?: string
+  payment_reference?: string
   wave_payment_url?: string
   tracking_number?: string
   estimated_delivery?: string
@@ -84,13 +84,13 @@ export interface CreateOrderData {
   card_type: CardType
   quantity: number
   unit_price?: number // Optionnel, calculé automatiquement sinon
-  payment_method?: PaymentProvider // Défaut: 'lygos'
+  payment_method?: PaymentProvider // Défaut: 'geniuspay'
   metadata?: Record<string, any>
 }
 
 export interface UpdateOrderData {
   status?: Order['status']
-  lygos_payment_id?: string
+  payment_reference?: string
   wave_payment_url?: string
 }
 
@@ -103,31 +103,6 @@ export interface OrderStats {
   total_spent: number
   can_order_more: boolean
 }
-
-export interface LygosPaymentData {
-  amount: number
-  order_id: string
-  message?: string
-  success_url?: string
-  failure_url?: string
-}
-
-export interface LygosPaymentLink {
-  id: string
-  link: string
-  amount: number
-  currency: string
-  status: 'pending' | 'paid' | 'failed' | 'cancelled'
-  created_at: string
-  order_id?: string
-}
-
-// =====================================================
-// TYPES SUPPRIMÉS - MIGRATION WAVE TERMINÉE
-// =====================================================
-
-// ❌ REMOVED: Types Wave obsolètes après migration vers LyGOS
-// Tous les paiements utilisent maintenant LyGOS uniquement
 
 
 // =====================================================
@@ -317,9 +292,9 @@ export interface PaymentConfig {
   webhook_secret?: string
   success_url: string
   failure_url: string
-  // Configuration spécifique LyGOS
-  lygos_api_key?: string
-  lygos_webhook_secret?: string
+  // Configuration spécifique GeniusPay
+  geniuspay_project_id?: string
+  geniuspay_api_key?: string
 }
 
 export interface OrderConfig {

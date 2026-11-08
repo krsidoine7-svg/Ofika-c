@@ -32,7 +32,7 @@ export default function NewOrderPage() {
   // Un seul produit disponible : NFC + QR Code
   const selectedCardType = 'nfc_qr' as const
   const [selectedPaymentMethod, setSelectedPaymentMethod] = useState<string>('')
-  const [selectedProvider, setSelectedProvider] = useState<'lygos' | 'wave' | 'geniuspay'>('geniuspay')
+  const [selectedProvider, setSelectedProvider] = useState<'wave' | 'geniuspay'>('geniuspay')
   const [error, setError] = useState<string | null>(null)
   const [productPrice, setProductPrice] = useState<number>(14600)
 
@@ -190,8 +190,8 @@ export default function NewOrderPage() {
         // Rediriger vers le checkout GeniusPay
         window.location.href = paymentData.checkout_url
       } else {
-        // Ancienne logique (LyGOS ou Wave)
-        const paymentResponse = await fetch(`/api/payments/${selectedProvider}/create`, {
+        // Paiement Wave Direct
+        const paymentResponse = await fetch('/api/payments/wave/create', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

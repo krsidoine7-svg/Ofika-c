@@ -396,7 +396,7 @@ export function PaymentMethodsTab() {
                             <CardHeader className="flex flex-row items-center justify-between">
                                 <div className="flex items-center">
                                     <div className={cn("p-2 rounded-xl mr-3", method.is_active ? "bg-orange-50 text-orange-600" : "bg-gray-100 text-gray-400")}>
-                                        {method.provider === 'lygos' ? <Smartphone className="w-6 h-6" /> : 
+                                        {method.provider === 'geniuspay' ? <Smartphone className="w-6 h-6" /> : 
                                          method.provider === 'wave' ? <Wallet className="w-6 h-6" /> : 
                                          <CreditCard className="w-6 h-6" />}
                                     </div>

@@ -25,7 +25,7 @@ const designOptions = [
   },
   {
     value: 'design2',
-    label: 'Design',
+    label: 'Design Moderne',
     description: 'Grille de cartes avec effets interactifs',
     priority: 'Populaire',
     color: 'purple'
@@ -43,6 +43,20 @@ const designOptions = [
     description: 'Style minimaliste avec couleurs naturelles',
     priority: 'Nouveau',
     color: 'emerald'
+  },
+  {
+    value: 'design7',
+    label: 'Dark Elegant',
+    description: 'Design sombre premium avec reflets élégants',
+    priority: 'Prestige',
+    color: 'slate'
+  },
+  {
+    value: 'social_creator',
+    label: 'Social Creator',
+    description: 'Optimisé réseaux sociaux avec carrousel et contact direct',
+    priority: 'Tendance',
+    color: 'orange'
   }
 ]
 

@@ -12,9 +12,53 @@ import { Separator } from "@/components/ui/separator"
 import { Checkbox } from "@/components/ui/checkbox"
 import { Alert, AlertDescription } from "@/components/ui/alert"
 import { createClient } from "@/lib/supabase/client"
-import { useRouter } from "next/navigation"
+import { useRouter, useSearchParams } from "next/navigation"
 import { toast } from "sonner"
 import Link from "next/link"
+import { getHomeRouteForRole, isRouteAllowedForRole, normalizeRole, sanitizeRedirectUrl } from "@/lib/roles"
+
+const MAX_LOGIN_ATTEMPTS = 5
+const LOCKOUT_MINUTES = 15
+
+function checkLockout(): { locked: boolean; remainingMinutes: number } {
+  if (typeof window === 'undefined') return { locked: false, remainingMinutes: 0 }
+  try {
+    const lockUntil = localStorage.getItem('ofika_login_lock_until')
+    if (!lockUntil) return { locked: false, remainingMinutes: 0 }
+    const lockTime = parseInt(lockUntil, 10)
+    const now = Date.now()
+    if (now < lockTime) {
+      return { locked: true, remainingMinutes: Math.ceil((lockTime - now) / 60000) }
+    }
+    localStorage.removeItem('ofika_login_lock_until')
+    localStorage.removeItem('ofika_login_fail_count')
+    return { locked: false, remainingMinutes: 0 }
+  } catch {
+    return { locked: false, remainingMinutes: 0 }
+  }
+}
+
+function recordFailedAttempt(): { locked: boolean; remainingMinutes: number } {
+  if (typeof window === 'undefined') return { locked: false, remainingMinutes: 0 }
+  try {
+    const current = parseInt(localStorage.getItem('ofika_login_fail_count') || '0', 10) + 1
+    localStorage.setItem('ofika_login_fail_count', current.toString())
+    if (current >= MAX_LOGIN_ATTEMPTS) {
+      const lockUntil = Date.now() + LOCKOUT_MINUTES * 60 * 1000
+      localStorage.setItem('ofika_login_lock_until', lockUntil.toString())
+      return { locked: true, remainingMinutes: LOCKOUT_MINUTES }
+    }
+  } catch {}
+  return { locked: false, remainingMinutes: 0 }
+}
+
+function clearFailedAttempts(): void {
+  if (typeof window === 'undefined') return
+  try {
+    localStorage.removeItem('ofika_login_fail_count')
+    localStorage.removeItem('ofika_login_lock_until')
+  } catch {}
+}
 
 const GoogleIcon = () => (
   <svg className="w-5 h-5 mr-2" viewBox="0 0 24 24">
@@ -52,21 +96,28 @@ export function LoginForm() {
   const [showPassword, setShowPassword] = React.useState(false)
   const [isLoading, setIsLoading] = React.useState(false)
   const [error, setError] = React.useState<string | null>(null)
+  const [isLockedOut, setIsLockedOut] = React.useState(false)
+  const [lockoutMinutes, setLockoutMinutes] = React.useState(0)
 
   const router = useRouter()
+  const searchParams = useSearchParams()
   const supabase = createClient()
 
-  // Rediriger vers le dashboard si l'utilisateur est déjà connecté
+  // Vérifier le statut de verrouillage au chargement
+  React.useEffect(() => {
+    const status = checkLockout()
+    setIsLockedOut(status.locked)
+    setLockoutMinutes(status.remainingMinutes)
+  }, [])
+
+  // Rediriger vers l'espace approprié si l'utilisateur est déjà connecté
   React.useEffect(() => {
     const checkUser = async () => {
       const { data: { session } } = await supabase.auth.getSession()
       if (session) {
-        let url = '/dashboard'
         const { data: userData } = await supabase.from('users').select('role').eq('id', session.user.id).single()
-        if (userData && (userData.role === 'admin' || userData.role === 'super_admin')) {
-          url = '/dashboard/admin'
-        }
-        router.push(url)
+        const destination = getHomeRouteForRole(userData?.role)
+        router.push(destination)
       }
     }
     checkUser()
@@ -79,34 +130,55 @@ export function LoginForm() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    // 1. Contrôle du rate limiting
+    const status = checkLockout()
+    if (status.locked) {
+      setIsLockedOut(true)
+      setLockoutMinutes(status.remainingMinutes)
+      setError(`Trop de tentatives échouées. Par mesure de sécurité, veuillez patienter ${status.remainingMinutes} minute(s) avant de réessayer.`)
+      return
+    }
+
     setIsLoading(true)
     setError(null)
 
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
+      const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email: formData.email,
         password: formData.password,
       })
 
-      if (error) throw error
+      if (signInError) throw signInError
 
-      // Sauvegarder temporairement pour la boîte de dialogue de réinitialisation si nécessaire
-      sessionStorage.setItem('temp_current_password', formData.password)
+      // Réinitialiser le compteur de tentatives en cas de succès
+      clearFailedAttempts()
+      setIsLockedOut(false)
 
-      toast.success("Connexion réussie!")
+      toast.success("Connexion réussie !")
 
-      let redirectUrl = "/dashboard"
+      // 2. Redirection sécurisée selon le rôle (anti-redirection ouverte)
       const { data: userData } = await supabase.from('users').select('role').eq('id', data.user.id).single()
-      if (userData && (userData.role === 'admin' || userData.role === 'super_admin')) {
-        redirectUrl = "/dashboard/admin"
-      }
+      const role = normalizeRole(userData?.role)
+      const rawCallback = searchParams?.get('callbackUrl') || searchParams?.get('redirectedFrom') || searchParams?.get('next')
+      const redirectUrl = sanitizeRedirectUrl(rawCallback, role)
 
-      // Forcer un refresh de la page pour synchroniser l'état et utiliser router.push
       router.refresh()
       router.push(redirectUrl)
     } catch (err: any) {
-      setError(err.message || "Une erreur s'est produite lors de la connexion")
-      toast.error("Erreur de connexion")
+      console.error('Erreur login:', err)
+
+      // 3. Enregistrement de l'échec et verrouillage progressif
+      const failStatus = recordFailedAttempt()
+      if (failStatus.locked) {
+        setIsLockedOut(true)
+        setLockoutMinutes(failStatus.remainingMinutes)
+        setError(`Compte temporairement verrouillé pour ${failStatus.remainingMinutes} minutes suite à ${MAX_LOGIN_ATTEMPTS} tentatives échouées.`)
+      } else {
+        // Message neutre et générique anti-énumération de comptes
+        setError("Identifiants invalides (adresse email ou mot de passe incorrect).")
+      }
+      toast.error("Échec de la connexion")
     } finally {
       setIsLoading(false)
     }
@@ -291,7 +363,7 @@ export function LoginForm() {
               <Button
                 type="submit"
                 className="w-full bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white"
-                disabled={isLoading}
+                disabled={isLoading || isLockedOut}
               >
                 {isLoading ? (
                   <div className="flex items-center">

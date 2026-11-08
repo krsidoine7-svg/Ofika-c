@@ -102,6 +102,7 @@ export async function createQRRedirect(
       target_url: data.target_url || data.nfc_link || targetUrl
     } : data
 
+    invalidateUserQRCache()
     return { success: true, data: normalizedData }
   } catch (error: any) {
     console.error('Error in createQRRedirect:', error)
@@ -112,7 +113,24 @@ export async function createQRRedirect(
 /**
  * Récupère toutes les redirections QR de l'utilisateur (version client)
  */
-export async function getUserQRRedirects(): Promise<{
+// Cache en mémoire pour éviter de sur-solliciter la table qr_redirects et qr_scans
+let userQRCache: { userId: string; data: QRRedirect[]; timestamp: number } | null = null
+const QR_CACHE_TTL = 30000 // 30 secondes
+
+export function invalidateUserQRCache() {
+  userQRCache = null
+}
+
+export function getCachedUserQRCodes(userId?: string): QRRedirect[] | null {
+  if (userQRCache && (Date.now() - userQRCache.timestamp < QR_CACHE_TTL)) {
+    if (!userId || userQRCache.userId === userId) {
+      return userQRCache.data
+    }
+  }
+  return null
+}
+
+export async function getUserQRRedirects(force = false): Promise<{
   success: boolean
   data?: QRRedirect[]
   error?: string
@@ -123,6 +141,11 @@ export async function getUserQRRedirects(): Promise<{
     
     if (!user) {
       return { success: false, error: 'Utilisateur non authentifié' }
+    }
+
+    // Retourner le cache si valide
+    if (!force && userQRCache && userQRCache.userId === user.id && (Date.now() - userQRCache.timestamp < QR_CACHE_TTL)) {
+      return { success: true, data: userQRCache.data }
     }
 
     const { data, error } = await supabase
@@ -137,7 +160,7 @@ export async function getUserQRRedirects(): Promise<{
       return { success: false, error: error.message }
     }
 
-    // Récupérer le nombre réels de scans depuis la table qr_scans
+    // Récupérer le nombre de scans de façon optimisée
     const redirectIds = (data || []).map(d => d.id)
     let scanCountsMap: Record<string, number> = {}
 
@@ -146,6 +169,7 @@ export async function getUserQRRedirects(): Promise<{
         .from('qr_scans')
         .select('qr_redirect_id')
         .in('qr_redirect_id', redirectIds)
+        .limit(1000)
 
       if (scansData) {
         scansData.forEach(s => {
@@ -162,6 +186,13 @@ export async function getUserQRRedirects(): Promise<{
       nfc_link: item.nfc_link || item.target_url || '',
       target_url: item.target_url || item.nfc_link || ''
     }))
+
+    // Mettre à jour le cache
+    userQRCache = {
+      userId: user.id,
+      data: normalizedData,
+      timestamp: Date.now()
+    }
 
     return { success: true, data: normalizedData }
   } catch (error: any) {
@@ -230,6 +261,7 @@ export async function updateQRRedirect(
       target_url: data.target_url || data.nfc_link || ''
     } : data
 
+    invalidateUserQRCache()
     return { success: true, data: normalizedData }
   } catch (error: any) {
     console.error('Error in updateQRRedirect:', error)
@@ -262,6 +294,7 @@ export async function deleteQRRedirect(
       return { success: false, error: error.message }
     }
 
+    invalidateUserQRCache()
     return { success: true }
   } catch (error: any) {
     console.error('Error in deleteQRRedirect:', error)

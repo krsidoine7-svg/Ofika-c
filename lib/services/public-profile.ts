@@ -36,21 +36,20 @@ export const getPublicProfile = unstable_cache(
       .maybeSingle();
 
     if (profileData && !profileError) {
-      // Vérifier si ce profil est associé à une carte NFC
-      const { data: nfcAssociation } = await supabase
-        .from('digital_nfc_cards')
-        .select('id')
-        .eq('profile_id', profileData.id)
-        .eq('status', 'active')
-        .maybeSingle();
-
-      // Couleurs du thème : lues à part pour que la page reste accessible
-      // même si la colonne theme_settings n'existe pas encore en base.
-      const { data: themeRow } = await supabase
-        .from('profiles')
-        .select('theme_settings')
-        .eq('id', profileData.id)
-        .maybeSingle();
+      // Requêtes parallèles pour accélérer le chargement public
+      const [{ data: nfcAssociation }, { data: themeRow }] = await Promise.all([
+        supabase
+          .from('digital_nfc_cards')
+          .select('id')
+          .eq('profile_id', profileData.id)
+          .eq('status', 'active')
+          .maybeSingle(),
+        supabase
+          .from('profiles')
+          .select('theme_settings')
+          .eq('id', profileData.id)
+          .maybeSingle()
+      ]);
 
       return {
         ...profileData,

@@ -20,7 +20,8 @@ import {
   User,
   Mail,
   Phone,
-  Wallet
+  Wallet,
+  Sparkles
 } from "lucide-react"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
@@ -86,6 +87,28 @@ export function CardOrderingFlow({ onComplete, className }: CardOrderingFlowProp
     }
   }, [paymentMethods, paymentMethodsLoading])
 
+  const defaultFallbackCard = {
+    id: 'default-new-card',
+    profile_id: profiles?.[0]?.id,
+    profile_name: profiles?.[0]?.name || 'Carte Standard Personnalisée',
+    design_choice: '1',
+    color_theme: 'orange',
+    created_at: new Date().toISOString()
+  }
+
+  const effectiveCards = (nfcCards && nfcCards.length > 0) ? nfcCards : [defaultFallbackCard]
+
+  // Auto-sélection de la carte si aucune n'est sélectionnée
+  useEffect(() => {
+    if (!selectedNFCCard) {
+      if (nfcCards && nfcCards.length > 0) {
+        setSelectedNFCCard(nfcCards[0])
+      } else if (!nfcLoading) {
+        setSelectedNFCCard(defaultFallbackCard)
+      }
+    }
+  }, [nfcCards, nfcLoading, profiles, selectedNFCCard])
+
   const steps = [
     { id: 'card_selection', title: 'Sélection carte', icon: QrCode },
     { id: 'details', title: 'Informations', icon: User },
@@ -98,15 +121,8 @@ export function CardOrderingFlow({ onComplete, className }: CardOrderingFlowProp
 
   const handleNext = () => {
     if (currentStep === 'card_selection') {
-      if (!nfcCards || nfcCards.length === 0) {
-        toast.error('Vous devez d\'abord créer une carte NFC avant de commander une version physique')
-        router.push('/onboarding/nfc-card')
-        return
-      }
-
       if (!selectedNFCCard) {
-        toast.error('Veuillez sélectionner une carte à reproduire')
-        return
+        setSelectedNFCCard(effectiveCards[0] || defaultFallbackCard)
       }
       setCurrentStep('details')
     } else if (currentStep === 'details') {
@@ -135,35 +151,24 @@ export function CardOrderingFlow({ onComplete, className }: CardOrderingFlowProp
   }
 
   const handleOrder = async () => {
-    if (!profiles || profiles.length === 0) {
-      toast.error('Vous devez d\'abord créer un profil avant de commander une carte')
-      router.push('/dashboard/profiles/new')
-      return
-    }
+    const profileId = selectedNFCCard?.profile_id || profiles?.[0]?.id || undefined
 
-    // Utiliser la carte NFC sélectionnée
-    if (!selectedNFCCard) {
-      toast.error('Veuillez sélectionner une carte NFC à reproduire')
-      return
-    }
-
-    if (!selectedNFCCard.profile_id) {
-      toast.error('Erreur: La carte sélectionnée n\'a pas de profil associé')
-      return
-    }
-    const orderData = {
-      profile_id: selectedNFCCard.profile_id, // Ajout du profile_id requis
+    const orderData: any = {
       card_type: selectedCardType,
       quantity: 1,
       payment_method: selectedPaymentMethod,
       shipping_address: {
         name: customerDetails.name,
-        email: customerDetails.email || 'user@example.com', // Ajout de l'email requis
+        email: customerDetails.email || 'user@example.com',
         phone: customerDetails.phone,
         address: customerDetails.address,
         city: customerDetails.city,
         postalCode: customerDetails.postalCode
       }
+    }
+
+    if (profileId) {
+      orderData.profile_id = profileId
     }
 
     try {
@@ -187,7 +192,7 @@ export function CardOrderingFlow({ onComplete, className }: CardOrderingFlowProp
     }
   }
 
-  // 🎯 NOUVELLE ÉTAPE : SÉLECTION DE LA CARTE NUMÉRIQUE À REPRODUIRE
+  // 🎯 SÉLECTION DE LA CARTE NUMÉRIQUE À REPRODUIRE OU COMMANDE DIRECTE
   const renderCardSelection = () => (
     <div className="space-y-6">
       <div className="text-center">
@@ -199,59 +204,66 @@ export function CardOrderingFlow({ onComplete, className }: CardOrderingFlowProp
         <div className="flex justify-center py-8">
           <LoadingSpinner size="md" />
         </div>
-      ) : !nfcCards || nfcCards.length === 0 ? (
-        <div className="text-center py-8">
-          <QrCode className="h-16 w-16 text-gray-400 mx-auto mb-4" />
-          <h3 className="text-lg font-medium text-gray-900 mb-2">Aucune carte numérique trouvée</h3>
-          <p className="text-gray-600 mb-4">Vous devez d'abord créer votre carte numérique</p>
-          <Button onClick={() => router.push('/onboarding/nfc-card')}>
-            Créer ma carte numérique
-          </Button>
-        </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          {nfcCards.map((card) => (
-            <div
-              key={card.id}
-              className={`relative p-6 border-2 rounded-lg cursor-pointer transition-all ${selectedNFCCard?.id === card.id
-                  ? 'border-orange-500 bg-orange-50'
-                  : 'border-gray-200 hover:border-orange-300'
-                }`}
-              onClick={() => setSelectedNFCCard(card)}
-            >
-              {selectedNFCCard?.id === card.id && (
-                <div className="absolute top-2 right-2">
-                  <div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center">
-                    <Check className="w-4 h-4 text-white" />
-                  </div>
-                </div>
-              )}
-
-              <div className="flex items-center space-x-4">
-                <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${card.color_theme === 'blue' ? 'bg-blue-100' :
-                    card.color_theme === 'green' ? 'bg-green-100' :
-                      card.color_theme === 'purple' ? 'bg-purple-100' :
-                        'bg-orange-100'
-                  }`}>
-                  <QrCode className={`w-6 h-6 ${card.color_theme === 'blue' ? 'text-blue-600' :
-                      card.color_theme === 'green' ? 'text-green-600' :
-                        card.color_theme === 'purple' ? 'text-purple-600' :
-                          'text-orange-600'
-                    }`} />
-                </div>
-
-                <div className="flex-1">
-                  <h3 className="font-medium text-gray-900">{card.profile_name}</h3>
-                  <p className="text-sm text-gray-600">
-                    Design {card.design_choice} • Thème {card.color_theme}
-                  </p>
-                  <p className="text-xs text-gray-500 mt-1">
-                    Créée le {new Date(card.created_at).toLocaleDateString('fr-FR')}
-                  </p>
-                </div>
+        <div className="space-y-4">
+          {(!nfcCards || nfcCards.length === 0) && (
+            <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 text-sm text-amber-900 flex items-start gap-3">
+              <Sparkles className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+              <div>
+                <p className="font-semibold">Nouvelle commande directe</p>
+                <p className="text-amber-800 text-xs mt-0.5">
+                  {profiles && profiles.length > 0
+                    ? `Votre carte physique sera automatiquement reliée à votre profil "${profiles[0].name}".`
+                    : 'Votre carte physique standard sera créée. Vous pourrez personnaliser votre profil numérique à tout moment après la commande.'}
+                </p>
               </div>
             </div>
-          ))}
+          )}
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {effectiveCards.map((card) => (
+              <div
+                key={card.id}
+                className={`relative p-6 border-2 rounded-lg cursor-pointer transition-all ${selectedNFCCard?.id === card.id
+                    ? 'border-orange-500 bg-orange-50 ring-2 ring-orange-200'
+                    : 'border-gray-200 hover:border-orange-300'
+                  }`}
+                onClick={() => setSelectedNFCCard(card)}
+              >
+                {selectedNFCCard?.id === card.id && (
+                  <div className="absolute top-2 right-2">
+                    <div className="w-6 h-6 bg-orange-500 rounded-full flex items-center justify-center">
+                      <Check className="w-4 h-4 text-white" />
+                    </div>
+                  </div>
+                )}
+
+                <div className="flex items-center space-x-4">
+                  <div className={`w-12 h-12 rounded-lg flex items-center justify-center ${card.color_theme === 'blue' ? 'bg-blue-100' :
+                      card.color_theme === 'green' ? 'bg-green-100' :
+                        card.color_theme === 'purple' ? 'bg-purple-100' :
+                          'bg-orange-100'
+                    }`}>
+                    <QrCode className={`w-6 h-6 ${card.color_theme === 'blue' ? 'text-blue-600' :
+                        card.color_theme === 'green' ? 'text-green-600' :
+                          card.color_theme === 'purple' ? 'text-purple-600' :
+                            'text-orange-600'
+                      }`} />
+                  </div>
+
+                  <div className="flex-1">
+                    <h3 className="font-medium text-gray-900">{card.profile_name}</h3>
+                    <p className="text-sm text-gray-600">
+                      Design {card.design_choice || '1'} • Thème {card.color_theme || 'orange'}
+                    </p>
+                    <p className="text-xs text-gray-500 mt-1">
+                      {card.id === 'default-new-card' ? 'Prête à la commande' : `Créée le ${new Date(card.created_at).toLocaleDateString('fr-FR')}`}
+                    </p>
+                  </div>
+                </div>
+              </div>
+            ))}
+          </div>
         </div>
       )}
     </div>
@@ -438,7 +450,7 @@ export function CardOrderingFlow({ onComplete, className }: CardOrderingFlowProp
               setCustomerDetails(prev => ({ ...prev, phone: value }))
               validateField('phone', value)
             }}
-            required={false}
+            required={true}
           />
         </div>
 

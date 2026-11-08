@@ -66,13 +66,32 @@ const rateLimitConfigs: { [key: string]: RateLimitConfig } = {
     windowMs: 60 * 60 * 1000, // 1 heure
     maxRequests: 50, // 50 requêtes de contact par heure
     keyGenerator: (req) => `contact:${getClientIP(req)}`
+  },
+  
+  // Création de commandes
+  orders: {
+    windowMs: 60 * 1000, // 1 minute
+    maxRequests: 5, // 5 commandes par minute par IP
+    keyGenerator: (req) => `orders:${getClientIP(req)}`
+  },
+
+  // Création et scan de QR Codes
+  qr_creation: {
+    windowMs: 60 * 1000,
+    maxRequests: 10,
+    keyGenerator: (req) => `qr_creation:${getClientIP(req)}`
+  },
+  qr_scan: {
+    windowMs: 60 * 1000,
+    maxRequests: 60,
+    keyGenerator: (req) => `qr_scan:${getClientIP(req)}`
   }
 }
 
 /**
  * Obtient l'IP du client
  */
-function getClientIP(req: NextRequest): string {
+export function getClientIP(req: NextRequest): string {
   const forwarded = req.headers.get('x-forwarded-for')
   const realIP = req.headers.get('x-real-ip')
   const cfConnectingIP = req.headers.get('cf-connecting-ip')

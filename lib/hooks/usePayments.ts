@@ -15,7 +15,7 @@ interface ProcessOrderResult {
 export interface PaymentMethod {
   id: string
   name: string
-  provider: 'lygos' | 'wave'
+  provider: 'geniuspay' | 'wave'
   is_active: boolean
   icon_url?: string
   description?: string
@@ -107,20 +107,26 @@ export function useCreatePayment() {
   const [isProcessing, setIsProcessing] = useState(false)
 
   const createPayment = async (
-    provider: 'lygos' | 'wave',
+    provider: 'geniuspay' | 'wave',
     paymentData: PaymentData
   ): Promise<PaymentResult> => {
     setIsProcessing(true)
 
     try {
-      const endpoint = `/api/payments/${provider}/create`
+      const endpoint = provider === 'geniuspay'
+        ? '/api/payments/geniuspay/initiate'
+        : '/api/payments/wave/create'
+
+      const bodyData = provider === 'geniuspay'
+        ? { order_id: paymentData.order_id }
+        : paymentData
 
       const response = await fetch(endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(paymentData)
+        body: JSON.stringify(bodyData)
       })
 
       const result = await response.json()
@@ -129,9 +135,10 @@ export function useCreatePayment() {
         throw new Error(result.error || 'Erreur lors de la création du paiement')
       }
 
-      if (result.success && result.data?.link) {
+      const redirectUrl = result.checkout_url || result.data?.link
+      if (result.success && redirectUrl) {
         // Rediriger automatiquement vers la page de paiement
-        window.location.href = result.data.link
+        window.location.href = redirectUrl
         return result
       }
 
@@ -173,7 +180,7 @@ export function useCreatePayment() {
 }
 
 // Hook pour vérifier le statut d'un paiement
-export function usePaymentStatus(paymentId: string, provider: 'lygos' | 'wave') {
+export function usePaymentStatus(paymentId: string, provider: 'geniuspay' | 'wave') {
   const [status, setStatus] = useState<string | null>(null)
   const [loading, setLoading] = useState(false)
 
@@ -255,20 +262,39 @@ export function useSubscription() {
   return { subscription, loading, upgradeToPremium }
 }
 
+// Cache mémoire des commandes (évite les requêtes excessives)
+let ordersCache: { data: Order[]; timestamp: number } | null = null
+const ORDERS_CACHE_TTL = 30000 // 30s
+
+export function invalidateOrdersCache() {
+  ordersCache = null
+}
+
 // Hooks pour les commandes
 export function useOrders() {
-  const [orders, setOrders] = useState<Order[]>([])
-  const [loading, setLoading] = useState(true)
+  const hasFreshCache = !!(ordersCache && (Date.now() - ordersCache.timestamp < ORDERS_CACHE_TTL))
+  const [orders, setOrders] = useState<Order[]>(() => hasFreshCache && ordersCache ? ordersCache.data : [])
+  const [loading, setLoading] = useState(!hasFreshCache)
   const [error, setError] = useState<string | null>(null)
 
-  const fetchOrders = async () => {
+  const fetchOrders = async (force = false) => {
+    if (!force && ordersCache && (Date.now() - ordersCache.timestamp < ORDERS_CACHE_TTL)) {
+      setOrders(ordersCache.data)
+      setLoading(false)
+      return
+    }
+
     try {
-      setLoading(true)
+      if (orders.length === 0) {
+        setLoading(true)
+      }
       const response = await fetch('/api/orders/create')
       const data = await response.json()
 
       if (data.success) {
-        setOrders(data.orders || [])
+        const fetchedOrders = data.orders || []
+        setOrders(fetchedOrders)
+        ordersCache = { data: fetchedOrders, timestamp: Date.now() }
       } else {
         throw new Error(data.error || 'Erreur lors du chargement des commandes')
       }
@@ -284,7 +310,7 @@ export function useOrders() {
     fetchOrders()
   }, [])
 
-  return { orders, loading, error, refreshOrders: fetchOrders }
+  return { orders, loading, error, refreshOrders: () => fetchOrders(true) }
 }
 
 export function useOrder(orderId: string) {
@@ -389,33 +415,53 @@ export function useOrderProcess() {
       }
 
       const order = data.order
-      const paymentMethod = orderData.payment_method || 'lygos'
+      const paymentMethod = orderData.payment_method || 'geniuspay'
       
-      // Déterminer le provider (en attendant que l'API le retourne ou gère tout)
-      // Pour l'instant on garde la logique : lygos -> lygos, wave -> wave
-      const provider = paymentMethod === 'wave' ? 'wave' : 'lygos'
+      const provider = paymentMethod === 'wave' ? 'wave' : 'geniuspay'
 
-      // 2. Créer le paiement
-      const paymentResponse = await fetch(`/api/payments/${provider}/create`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          amount: data.order.amount_cents, // Utiliser le montant de la commande
-          order_id: order.id,
-          message: `Commande #${order.order_number}`
+      let url: string | undefined
+
+      if (provider === 'geniuspay') {
+        const paymentResponse = await fetch('/api/payments/geniuspay/initiate', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            order_id: order.id,
+          })
         })
-      })
 
-      const paymentData = await paymentResponse.json()
+        const paymentData = await paymentResponse.json()
 
-      if (!paymentResponse.ok || !paymentData.success) {
-        throw new Error(paymentData.error || 'Erreur lors de la création du paiement')
+        if (!paymentResponse.ok || !paymentData.success) {
+          throw new Error(paymentData.error || 'Erreur lors de la création du paiement GeniusPay')
+        }
+
+        url = paymentData.checkout_url
+      } else {
+        const paymentResponse = await fetch('/api/payments/wave/create', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            amount: data.order.amount_cents,
+            order_id: order.id,
+            message: `Commande #${order.order_number}`
+          })
+        })
+
+        const paymentData = await paymentResponse.json()
+
+        if (!paymentResponse.ok || !paymentData.success) {
+          throw new Error(paymentData.error || 'Erreur lors de la création du paiement Wave')
+        }
+
+        url = paymentData.data?.link
       }
 
-      const url = paymentData.data?.link
-      setPaymentUrl(url)
+      setPaymentUrl(url || null)
 
       return {
         success: true,
