@@ -2,16 +2,7 @@
 
 import { useEffect, useState } from 'react'
 import { useParams, useSearchParams } from 'next/navigation'
-import { LinkInBioDesign1 } from '@/components/features/profiles/LinkInBioDesign1'
-import { LinkInBioDesign2 } from '@/components/features/profiles/LinkInBioDesign2'
-import { LinkInBioDesign3 } from '@/components/features/profiles/LinkInBioDesign3'
-import { LinkInBioDesign4 } from '@/components/features/profiles/LinkInBioDesign4'
-import { LinkInBioDesign7 } from '@/components/features/profiles/LinkInBioDesign7'
-import { LinkInBioInfluencer } from '@/components/features/profiles/LinkInBioInfluencer'
-import { LinkInBioEcommerce } from '@/components/features/profiles/LinkInBioEcommerce'
-import { LinkInBioFreelance } from '@/components/features/profiles/LinkInBioFreelance'
-import { LinkInBioEmeraude } from '@/components/features/profiles/LinkInBioEmeraude'
-import { LinkInBioCJCD } from '@/components/features/profiles/LinkInBioCJCD'
+import { ProfileTemplateRenderer } from '@/components/features/profiles/ProfileTemplateRenderer'
 import { trackProfileView, trackQRScan, trackTimeSpent } from '@/lib/services/profile-analytics'
 import { PublicProfile } from '@/lib/types/public-profile'
 
@@ -162,47 +153,8 @@ export default function ProfileClient({ initialProfile }: ProfileClientProps) {
         )
     }
 
-    // Sélection du template avec injection des données unifiées
-    const renderTemplate = () => {
-        const templateProps = { 
-            profile, 
-            showAddToContacts: true 
-        }
-        
-        switch (profile.design_choice) {
-            case 'design-modern':
-            case 'design1':
-                return <LinkInBioDesign1 {...templateProps as any} />
-            case 'design-glass':
-            case 'design2':
-                return <LinkInBioDesign2 {...templateProps as any} />
-            case 'design-neo':
-            case 'design3':
-                return <LinkInBioDesign3 {...templateProps as any} />
-            case 'design-minimal':
-            case 'design4':
-                return <LinkInBioDesign4 {...templateProps as any} />
-            case 'design-bento':
-            case 'design7':
-                return <LinkInBioDesign7 {...templateProps as any} />
-            case 'design-influencer':
-            case 'influencer':
-                return <LinkInBioInfluencer {...templateProps as any} />
-            case 'design-ecommerce':
-            case 'ecommerce':
-                return <LinkInBioEcommerce {...templateProps as any} />
-            case 'design-freelance':
-            case 'freelance':
-                return <LinkInBioFreelance {...templateProps as any} />
-            case 'design-premium':
-            case 'premium':
-                return <LinkInBioEmeraude {...templateProps as any} />
-            case 'cjcd':
-                return <LinkInBioCJCD {...templateProps as any} />
-            default:
-                return <LinkInBioDesign1 {...templateProps as any} />
-        }
-    }
+    // Sélection du template (les anciens identifiants basculent vers le nouveau template le plus proche)
+    const renderTemplate = () => <ProfileTemplateRenderer profile={profile} showAddToContacts />
 
     return (
         <div className="ofika-profile-container selection:bg-orange-100">

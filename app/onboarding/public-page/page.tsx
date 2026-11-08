@@ -18,33 +18,22 @@ import { createClient } from '@/lib/supabase/client'
 import { createNFCCard } from '@/lib/services/nfc-cards'
 import { toast } from 'sonner'
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
-import { LinkInBioDesign1 } from '@/components/features/profiles/LinkInBioDesign1'
-import { LinkInBioDesign2 } from '@/components/features/profiles/LinkInBioDesign2'
-import { LinkInBioDesign3 } from '@/components/features/profiles/LinkInBioDesign3'
-import { LinkInBioDesign4 } from '@/components/features/profiles/LinkInBioDesign4'
-import { LinkInBioDesign7 } from '@/components/features/profiles/LinkInBioDesign7'
-import { LinkInBioInfluencer } from '@/components/features/profiles/LinkInBioInfluencer'
-import { LinkInBioEcommerce } from '@/components/features/profiles/LinkInBioEcommerce'
-import { LinkInBioFreelance } from '@/components/features/profiles/LinkInBioFreelance'
-import { LinkInBioSocialCreator } from '@/components/features/profiles/LinkInBioSocialCreator'
-import { LinkInBioEmeraude } from '@/components/features/profiles/LinkInBioEmeraude'
-import { LinkInBioCJCD } from '@/components/features/profiles/LinkInBioCJCD'
+import { ProfileTemplateRenderer } from '@/components/features/profiles/ProfileTemplateRenderer'
+import { DEFAULT_TEMPLATE, getTemplateLabel, resolveTemplateId } from '@/lib/templates/registry'
+import { ProfileColorCustomizer } from '@/components/features/profiles/ProfileColorCustomizer'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ScaledSmartphonePreview } from '@/components/ui/scaled-smartphone-preview'
 import { IPhone15Frame } from '@/components/ui/iphone-15-frame'
 
 const availableTemplates = [
-  { id: 'cjcd', label: 'Design CJCD', icon: Crown },
-  { id: 'premium', label: 'Émeraude', icon: Crown },
-  { id: 'social_creator', label: 'Social Creator', icon: Star },
-  { id: 'design1', label: 'Classique', icon: Palette },
-  { id: 'design7', label: 'Dark Elegant', icon: Moon },
-  { id: 'influencer', label: 'Influenceur', icon: Star },
-  { id: 'ecommerce', label: 'E-commerce', icon: ShoppingBag },
-  { id: 'freelance', label: 'Freelance', icon: Briefcase },
-  { id: 'design3', label: 'Créatif', icon: Sparkles },
-  { id: 'design4', label: 'Nature', icon: Leaf },
-  { id: 'design2', label: 'Éléments', icon: LayoutGrid },
+  { id: 'editorial', label: 'Éditorial', icon: Sparkles },
+  { id: 'carte', label: 'Carte de visite', icon: Briefcase },
+  { id: 'bento', label: 'Bento', icon: LayoutGrid },
+  { id: 'noir_luxe', label: 'Noir Luxe', icon: Moon },
+  { id: 'immersif', label: 'Immersif', icon: Star },
+  { id: 'boutique', label: 'Boutique', icon: ShoppingBag },
+  { id: 'organique', label: 'Organique', icon: Leaf },
+  { id: 'suisse', label: 'Suisse', icon: Briefcase },
 ]
 
 type CreationStep = 'form' | 'template' | 'signup' | 'success'
@@ -70,7 +59,7 @@ const createPreviewProfile = (formData: any, designChoice: string) => {
     name: formData?.name || 'Votre Nom',
     job_title: formData?.job_title || formData?.jobTitle || null,
     company: formData?.company || null,
-    bio: formData?.bio || 'Votre biographie apparaîtra ici...',
+    bio: formData?.bio || null,
     image_url: formData?.image_url || null,
     cover_image_url: formData?.cover_image_url || null,
     custom_url: formData?.custom_url || formData?.username || 'votre-url',
@@ -87,6 +76,7 @@ const createPreviewProfile = (formData: any, designChoice: string) => {
     website: formData?.website || null,
     design_choice: designChoice,
     color_theme: 'default',
+    theme_settings: formData?.theme_settings || {},
     is_active: true,
     social_links: formData?.social_links || [],
     custom_links: formData?.custom_links || [],
@@ -114,7 +104,7 @@ export default function PublicPageOnboardingPage() {
   const [currentStep, setCurrentStep] = useState<CreationStep>('form')
   const [loading, setLoading] = useState(false)
   const [createdProfile, setCreatedProfile] = useState<any>(null)
-  const [selectedDesign, setSelectedDesign] = useState<string>('design1')
+  const [selectedDesign, setSelectedDesign] = useState<string>(DEFAULT_TEMPLATE)
   const [mounted, setMounted] = useState(false)
   const supabase = createClient()
 
@@ -133,20 +123,7 @@ export default function PublicPageOnboardingPage() {
   const renderPreview = (designId: string) => {
     const profile = createPreviewProfile(createdProfile, designId)
 
-    switch (designId) {
-      case 'design1': return <LinkInBioDesign1 profile={profile as any} showAddToContacts={true} isPreview={true} />
-      case 'design2': return <LinkInBioDesign2 profile={profile as any} showAddToContacts={true} isPreview={true} />
-      case 'design3': return <LinkInBioDesign3 profile={profile as any} showAddToContacts={true} isPreview={true} />
-      case 'design4': return <LinkInBioDesign4 profile={profile as any} showAddToContacts={true} isPreview={true} />
-      case 'influencer': return <LinkInBioInfluencer profile={profile as any} showAddToContacts={true} isPreview={true} />
-      case 'ecommerce': return <LinkInBioEcommerce profile={profile as any} showAddToContacts={true} isPreview={true} />
-      case 'freelance': return <LinkInBioFreelance profile={profile as any} showAddToContacts={true} isPreview={true} />
-      case 'premium': return <LinkInBioEmeraude profile={profile as any} showAddToContacts={true} isPreview={true} />
-      case 'cjcd': return <LinkInBioCJCD profile={profile as any} showAddToContacts={true} isPreview={true} />
-      case 'social_creator': return <LinkInBioSocialCreator profile={profile as any} showAddToContacts={true} isPreview={true} />
-      case 'design7': return <LinkInBioDesign7 profile={profile as any} showAddToContacts={true} isPreview={true} />
-      default: return <LinkInBioSocialCreator profile={profile as any} showAddToContacts={true} isPreview={true} />
-    }
+    return <ProfileTemplateRenderer profile={profile} designId={designId} isPreview />
   }
 
   const [isCelebrationOpen, setIsCelebrationOpen] = useState(false)
@@ -256,6 +233,21 @@ export default function PublicPageOnboardingPage() {
         console.error('Erreur Supabase insert profiles:', error)
         throw error
       }
+
+      // Couleurs du thème : enregistrées à part pour ne jamais bloquer la publication
+      // (si la colonne theme_settings n'existe pas encore, on ignore simplement l'erreur)
+      const themeSettings = createdProfile.theme_settings
+      if (themeSettings && Object.keys(themeSettings).length > 0) {
+        const { error: themeError } = await supabase
+          .from('profiles')
+          .update({ theme_settings: themeSettings })
+          .eq('id', profile.id)
+        if (themeError) {
+          console.error('Couleurs du thème non enregistrées:', themeError)
+        } else {
+          profile.theme_settings = themeSettings
+        }
+      }
       setCreatedProfile(profile)
 
       // NFC creation
@@ -320,7 +312,7 @@ export default function PublicPageOnboardingPage() {
         console.log('📦 Données récupérées:', profileData)
         setCreatedProfile(profileData)
         if (profileData.design_choice) {
-          setSelectedDesign(profileData.design_choice)
+          setSelectedDesign(resolveTemplateId(profileData.design_choice))
           handleFinalPublication()
         } else {
           setCurrentStep('template')
@@ -467,14 +459,7 @@ export default function PublicPageOnboardingPage() {
                       <div className="flex justify-between items-center py-2">
                         <span className="text-gray-500">Design</span>
                         <Badge variant="secondary" className="bg-gradient-to-r from-orange-500 to-amber-500 text-white border-none shadow-sm">
-                          {selectedDesign === 'design1' ? 'Classique' :
-                            selectedDesign === 'design2' ? 'Design' :
-                              selectedDesign === 'design3' ? 'Créatif' :
-                                selectedDesign === 'design4' ? 'Nature' :
-                                  selectedDesign === 'influencer' ? 'Influenceur' :
-                                    selectedDesign === 'ecommerce' ? 'E-commerce' :
-                                      selectedDesign === 'design7' ? 'Dark Elegant' :
-                                        selectedDesign === 'freelance' ? 'Freelance' : 'Classique'}
+                          {getTemplateLabel(selectedDesign)}
                         </Badge>
                       </div>
                     </div>
@@ -564,7 +549,15 @@ export default function PublicPageOnboardingPage() {
                       </div>
                     </div>
 
-                    <IPhone15Frame showColorPicker={true} scaleClass="scale-[0.60] sm:scale-[0.65] lg:scale-[0.70] xl:scale-[0.75] origin-top">
+                    {/* Personnalisation des couleurs de la page (fond + accent) */}
+                    <ProfileColorCustomizer
+                      className="mb-3"
+                      currentSettings={createdProfile?.theme_settings || {}}
+                      designId={selectedDesign}
+                      onChange={(theme_settings) => handleProfileFormChange({ theme_settings })}
+                    />
+
+                    <IPhone15Frame showColorPicker={false} scaleClass="scale-[0.60] sm:scale-[0.65] lg:scale-[0.70] xl:scale-[0.75] origin-top">
                       <AnimatePresence mode="wait">
                         <motion.div
                           key={selectedDesign}

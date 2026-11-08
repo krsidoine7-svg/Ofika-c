@@ -16,6 +16,7 @@ export const getPublicProfile = unstable_cache(
       .from('profiles')
       .select(`
         id, name, bio, image_url, cover_image_url, custom_url, username, email, phone,
+        job_title, company, location,
         social_links, custom_links, design_choice, color_theme, is_public, is_active,
         suspension_reason, created_at,
         instagram_followers, instagram_posts, instagram_verified,
@@ -43,8 +44,17 @@ export const getPublicProfile = unstable_cache(
         .eq('status', 'active')
         .maybeSingle();
 
+      // Couleurs du thème : lues à part pour que la page reste accessible
+      // même si la colonne theme_settings n'existe pas encore en base.
+      const { data: themeRow } = await supabase
+        .from('profiles')
+        .select('theme_settings')
+        .eq('id', profileData.id)
+        .maybeSingle();
+
       return {
         ...profileData,
+        theme_settings: (themeRow as any)?.theme_settings || {},
         id: profileData.id,
         profile_name: profileData.name,
         nfc_link: `https://ofika.com/${profileData.custom_url || profileData.username}`,

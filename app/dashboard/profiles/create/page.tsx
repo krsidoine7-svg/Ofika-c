@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { DEFAULT_TEMPLATE, getTemplateLabel } from '@/lib/templates/registry'
 import { useRouter } from 'next/navigation'
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
@@ -39,7 +40,7 @@ export default function CreateProfilePage() {
   const [currentStep, setCurrentStep] = useState<CreationStep>('form')
   const [loading, setLoading] = useState(false)
   const [createdProfile, setCreatedProfile] = useState<any>(null)
-  const [selectedDesign, setSelectedDesign] = useState<string>('design1')
+  const [selectedDesign, setSelectedDesign] = useState<string>(DEFAULT_TEMPLATE)
   const supabase = createClient()
 
   const getCurrentStepNumber = () => {
@@ -252,14 +253,7 @@ export default function CreateProfilePage() {
                       <div className="flex justify-between">
                         <span className="text-gray-600">Design :</span>
                         <Badge className="bg-blue-500 text-white">
-                          {selectedDesign === 'design1' ? 'Classique' :
-                            selectedDesign === 'design2' ? 'Design' :
-                              selectedDesign === 'design3' ? 'Créatif' :
-                                selectedDesign === 'design4' ? 'Nature' :
-                                  selectedDesign === 'influencer' ? 'Influenceur' :
-                                    selectedDesign === 'ecommerce' ? 'E-commerce' :
-                                      selectedDesign === 'design7' ? 'Dark Elegant' :
-                                        selectedDesign === 'freelance' ? 'Freelance' : 'Classique'}
+                          {getTemplateLabel(selectedDesign)}
                         </Badge>
                       </div>
                     </div>

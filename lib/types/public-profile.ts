@@ -35,7 +35,14 @@ export interface PublicProfile {
     }>
     is_active: boolean
     suspension_reason?: string
-    
+    /** Personnalisation du design (couleurs) */
+    theme_settings?: {
+        primary_color?: string
+        secondary_color?: string
+        palette_id?: string
+        link_order?: string[]
+    }
+
     // Social specific data
     instagram_followers?: number
     instagram_posts?: number

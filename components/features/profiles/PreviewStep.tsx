@@ -4,14 +4,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { ArrowLeft, CheckCircle, Globe, Layout, User, Link as LinkIcon } from 'lucide-react'
-import { LinkInBioDesign1 } from '@/components/features/profiles/LinkInBioDesign1'
-import { LinkInBioDesign2 } from '@/components/features/profiles/LinkInBioDesign2'
-import { LinkInBioDesign3 } from '@/components/features/profiles/LinkInBioDesign3'
-import { LinkInBioDesign4 } from '@/components/features/profiles/LinkInBioDesign4'
-import { LinkInBioDesign7 } from '@/components/features/profiles/LinkInBioDesign7'
-import { LinkInBioInfluencer } from '@/components/features/profiles/LinkInBioInfluencer'
-import { LinkInBioEcommerce } from '@/components/features/profiles/LinkInBioEcommerce'
-import { LinkInBioFreelance } from '@/components/features/profiles/LinkInBioFreelance'
+import { ProfileTemplateRenderer } from '@/components/features/profiles/ProfileTemplateRenderer'
 
 interface PreviewStepProps {
     formData: any
@@ -31,17 +24,7 @@ export function PreviewStep({ formData, selectedDesign, onNext, onPrev }: Previe
     }
 
     const renderPreview = () => {
-        switch (selectedDesign) {
-            case 'design1': return <LinkInBioDesign1 profile={previewProfile} />
-            case 'design2': return <LinkInBioDesign2 profile={previewProfile} />
-            case 'design3': return <LinkInBioDesign3 profile={previewProfile} />
-            case 'design4': return <LinkInBioDesign4 profile={previewProfile} />
-            case 'influencer': return <LinkInBioInfluencer profile={previewProfile} />
-            case 'ecommerce': return <LinkInBioEcommerce profile={previewProfile} />
-            case 'design7': return <LinkInBioDesign7 profile={previewProfile} />
-            case 'freelance': return <LinkInBioFreelance profile={previewProfile} />
-            default: return <LinkInBioDesign1 profile={previewProfile} />
-        }
+        return <ProfileTemplateRenderer profile={previewProfile} isPreview />
     }
 
     return (

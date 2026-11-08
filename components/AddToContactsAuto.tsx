@@ -9,7 +9,7 @@ import {
 } from "lucide-react"
 import { ProfileWithLinks } from "@/lib/types/database"
 import { toast } from "sonner"
-import { useState, useEffect } from "react"
+import { useState, useEffect, type CSSProperties } from "react"
 import { createClient } from "@/lib/supabase/client"
 import { usePushNotifications } from "@/lib/hooks/usePushNotifications"
 import { trackContactAction } from "@/lib/services/profile-analytics"
@@ -20,6 +20,8 @@ interface AddToContactsAutoProps {
   variant?: 'button' | 'minimal' | 'auto'
   size?: 'sm' | 'default' | 'lg'
   className?: string
+  /** Style en ligne optionnel (ex : couleur d'accent du thème) */
+  style?: CSSProperties
   onContactAdded?: () => void
 }
 
@@ -40,6 +42,7 @@ export function AddToContactsAuto({
   variant = 'auto',
   size = 'default',
   className = "",
+  style,
   onContactAdded
 }: AddToContactsAutoProps) {
   const { subscribeToPush } = usePushNotifications()
@@ -252,6 +255,7 @@ export function AddToContactsAuto({
         onClick={handleAddToContacts}
         disabled={isProcessing}
         size={size}
+        style={style}
         className={`bg-blue-600 hover:bg-blue-700 text-white min-w-0 max-w-full overflow-hidden text-xs px-1 gap-1 whitespace-normal ${className}`}
       >
         {isProcessing ? (

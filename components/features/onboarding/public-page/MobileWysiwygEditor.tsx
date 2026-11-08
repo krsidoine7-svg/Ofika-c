@@ -30,6 +30,7 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
+import { ProfileColorCustomizer } from '@/components/features/profiles/ProfileColorCustomizer'
 
 interface MobileWysiwygEditorProps {
   formData: any
@@ -267,6 +268,14 @@ export function MobileWysiwygEditor({
             )
           })}
         </div>
+
+        {/* Personnalisation des couleurs (fond + accent) */}
+        <ProfileColorCustomizer
+          className="mt-2"
+          currentSettings={formData?.theme_settings || {}}
+          designId={selectedDesign}
+          onChange={(theme_settings) => onChange({ theme_settings })}
+        />
       </div>
 
       {/* 2. LE TEMPLATE REEL RENDU DANS LE VIEWPORT MOBILE AVEC CRAYONS DE MODIFICATION OVERLAY */}

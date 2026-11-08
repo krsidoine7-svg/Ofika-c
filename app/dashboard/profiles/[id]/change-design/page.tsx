@@ -23,18 +23,9 @@ import { ArrowLeft, CheckCircle, AlertCircle } from "lucide-react"
 import { TemplateSelectionStep } from '@/components/features/profiles/TemplateSelectionStep'
 import { ProtectedRoute } from '@/components/core/auth/ProtectedRoute'
 import { createClient } from "@/lib/supabase/client"
+import { getTemplateLabel } from "@/lib/templates/registry"
 import { toast } from "sonner"
 
-const designNames: Record<string, string> = {
-  design1: 'Classique',
-  design2: 'Design',
-  design3: 'Créatif',
-  design4: 'Nature',
-  influencer: 'Influenceur',
-  ecommerce: 'E-commerce',
-  design7: 'Dark Elegant',
-  freelance: 'Freelance'
-}
 
 export default function ChangeDesignPage() {
   const router = useRouter()
@@ -85,7 +76,7 @@ export default function ChangeDesignPage() {
       }
 
       setProfile(profileData)
-      setSelectedDesign(profileData.design_choice || 'design1')
+      setSelectedDesign(profileData.design_choice || 'editorial')
 
     } catch (error: any) {
       console.error('Error loading profile:', error)
@@ -143,7 +134,7 @@ export default function ChangeDesignPage() {
   }
 
   const handleCancelChange = () => {
-    setSelectedDesign(profile?.design_choice || 'design1')
+    setSelectedDesign(profile?.design_choice || 'editorial')
     setShowConfirmation(false)
   }
 
@@ -198,7 +189,7 @@ export default function ChangeDesignPage() {
                 <CardTitle className="flex items-center justify-between">
                   <span>Design actuel</span>
                   <Badge className="bg-blue-500 text-white">
-                    {designNames[profile.design_choice] || 'Classique'}
+                    {getTemplateLabel(profile.design_choice)}
                   </Badge>
                 </CardTitle>
               </CardHeader>
@@ -254,14 +245,14 @@ export default function ChangeDesignPage() {
                       <div className="bg-gray-50 p-4 rounded-lg">
                         <p className="text-sm text-gray-600 mb-2">Design actuel</p>
                         <Badge variant="outline" className="text-base">
-                          {designNames[profile.design_choice]}
+                          {getTemplateLabel(profile.design_choice)}
                         </Badge>
                       </div>
 
                       <div className="bg-green-50 p-4 rounded-lg border-2 border-green-200">
                         <p className="text-sm text-gray-600 mb-2">Nouveau design</p>
                         <Badge className="bg-green-600 text-white text-base">
-                          {designNames[selectedDesign]}
+                          {getTemplateLabel(selectedDesign)}
                         </Badge>
                       </div>
                     </div>

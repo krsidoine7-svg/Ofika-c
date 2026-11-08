@@ -31,14 +31,8 @@ import {
   Link
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { LinkInBioDesign1 } from '@/components/features/profiles/LinkInBioDesign1'
-import { LinkInBioDesign2 } from '@/components/features/profiles/LinkInBioDesign2'
-import { LinkInBioDesign3 } from '@/components/features/profiles/LinkInBioDesign3'
-import { LinkInBioDesign4 } from '@/components/features/profiles/LinkInBioDesign4'
-import { LinkInBioDesign7 } from '@/components/features/profiles/LinkInBioDesign7'
-import { LinkInBioInfluencer } from '@/components/features/profiles/LinkInBioInfluencer'
-import { LinkInBioEcommerce } from '@/components/features/profiles/LinkInBioEcommerce'
-import { LinkInBioFreelance } from '@/components/features/profiles/LinkInBioFreelance'
+import { ProfileTemplateRenderer } from '@/components/features/profiles/ProfileTemplateRenderer'
+import { DEFAULT_TEMPLATE, resolveTemplateId } from '@/lib/templates/registry'
 import { toast } from 'sonner'
 import { useProfiles } from '@/lib/hooks/useProfiles'
 import { NFCCardFormData } from '@/lib/types/nfc-card-onboarding'
@@ -61,19 +55,7 @@ interface ProfileSelectionStepProps {
 
 // Fonction pour créer le profil d'aperçu à partir des données du formulaire
 const createPreviewProfile = (formData: any, designChoice: string) => {
-  // Mapping des designs de l'onboarding vers les IDs de templates
-  const designMapping: Record<string, string> = {
-    'classic': 'design1',
-    'grid': 'design2',
-    'creative': 'design3',
-    'showcase': 'design4',
-    'nature': 'design3', // Fallback
-    'ecommerce': 'ecommerce',
-    'dark': 'design7',
-    'freelance': 'freelance'
-  };
-
-  const actualDesignId = designMapping[designChoice] || designChoice;
+  const actualDesignId = resolveTemplateId(designChoice);
 
   return {
     id: 'preview',
@@ -123,7 +105,7 @@ export function ProfileSelectionStep({
     customUrl: '',
     username: '',
     isPublic: true,
-    designChoice: 'design1'
+    designChoice: DEFAULT_TEMPLATE as string
   })
 
   const [isSlugAvailable, setIsSlugAvailable] = useState<boolean | null>(null)
@@ -313,31 +295,7 @@ export function ProfileSelectionStep({
     // On passe les données du nouveau profil plus les données du formulaire de base
     const profile = createPreviewProfile({ ...newProfileData, profilePhotoUrl: formData?.profilePhotoUrl }, designId)
 
-    // Mapping interne car ProfileSelectionStep utilise des mots au lieu de design1, etc.
-    const designMapping: Record<string, string> = {
-      'classic': 'design1',
-      'grid': 'design2',
-      'creative': 'design3',
-      'showcase': 'design4',
-      'nature': 'design3',
-      'ecommerce': 'ecommerce',
-      'dark': 'design7',
-      'freelance': 'freelance'
-    };
-
-    const actualId = designMapping[designId] || designId;
-
-    switch (actualId) {
-      case 'design1': return <LinkInBioDesign1 profile={profile as any} showAddToContacts={true} isPreview={true} />
-      case 'design2': return <LinkInBioDesign2 profile={profile as any} showAddToContacts={true} isPreview={true} />
-      case 'design3': return <LinkInBioDesign3 profile={profile as any} showAddToContacts={true} isPreview={true} />
-      case 'design4': return <LinkInBioDesign4 profile={profile as any} showAddToContacts={true} isPreview={true} />
-      case 'influencer': return <LinkInBioInfluencer profile={profile as any} showAddToContacts={true} isPreview={true} />
-      case 'ecommerce': return <LinkInBioEcommerce profile={profile as any} showAddToContacts={true} isPreview={true} />
-      case 'design7': return <LinkInBioDesign7 profile={profile as any} showAddToContacts={true} isPreview={true} />
-      case 'freelance': return <LinkInBioFreelance profile={profile as any} showAddToContacts={true} isPreview={true} />
-      default: return null
-    }
+    return <ProfileTemplateRenderer profile={profile} designId={resolveTemplateId(designId)} isPreview />
   }
 
   return (
@@ -702,14 +660,14 @@ export function ProfileSelectionStep({
                 </h4>
                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                   {[
-                    { id: 'classic', name: 'Classique', icon: FileText, color: 'text-indigo-500', bg: 'bg-indigo-50' },
-                    { id: 'grid', name: 'Grille', icon: LayoutGrid, color: 'text-blue-500', bg: 'bg-blue-50' },
-                    { id: 'creative', name: 'Créatif', icon: Sparkles, color: 'text-purple-500', bg: 'bg-purple-50' },
-                    { id: 'showcase', name: 'Showcase', icon: TrendingUp, color: 'text-orange-500', bg: 'bg-orange-50' },
-                    { id: 'nature', name: 'Nature', icon: Leaf, color: 'text-green-500', bg: 'bg-green-50' },
-                    { id: 'ecommerce', name: 'Boutique', icon: ShoppingBag, color: 'text-red-500', bg: 'bg-red-50' },
-                    { id: 'dark', name: 'Élégant Dark', icon: Moon, color: 'text-slate-600', bg: 'bg-slate-100' },
-                    { id: 'freelance', name: 'Freelance', icon: Briefcase, color: 'text-amber-600', bg: 'bg-amber-50' },
+                    { id: 'editorial', name: 'Éditorial', icon: Sparkles, color: 'text-stone-700', bg: 'bg-stone-100' },
+                    { id: 'carte', name: 'Carte de visite', icon: FileText, color: 'text-slate-700', bg: 'bg-slate-100' },
+                    { id: 'bento', name: 'Bento', icon: LayoutGrid, color: 'text-lime-700', bg: 'bg-lime-50' },
+                    { id: 'noir_luxe', name: 'Noir Luxe', icon: Moon, color: 'text-yellow-700', bg: 'bg-yellow-50' },
+                    { id: 'immersif', name: 'Immersif', icon: TrendingUp, color: 'text-pink-600', bg: 'bg-pink-50' },
+                    { id: 'boutique', name: 'Boutique', icon: ShoppingBag, color: 'text-orange-600', bg: 'bg-orange-50' },
+                    { id: 'organique', name: 'Organique', icon: Leaf, color: 'text-amber-700', bg: 'bg-amber-50' },
+                    { id: 'suisse', name: 'Suisse', icon: Briefcase, color: 'text-red-600', bg: 'bg-red-50' },
                   ].map((design) => (
                     <button
                       key={design.id}

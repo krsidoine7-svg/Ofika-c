@@ -27,6 +27,9 @@ import { useState } from "react"
 import { PublicReviewsSection } from "@/components/features/reviews/PublicReviewsSection"
 import { useLinkTracker } from "@/lib/hooks/useLinkTracker"
 import { OfikaBlinkingLogo } from "@/components/brand/OfikaBlinkingLogo"
+import { ProfileShareButton } from "./ProfileShareButton"
+import { ProfileMonogram } from "./ProfileMonogram"
+import { FeaturedLinksList } from "./FeaturedLinksList"
 
 interface LinkInBioDesign4Props {
   profile: ProfileWithLinks
@@ -43,6 +46,10 @@ export function LinkInBioDesign4({
 }: LinkInBioDesign4Props) {
   const [isExchangeFormOpen, setIsExchangeFormOpen] = useState(false)
   const { trackAndOpen } = useLinkTracker(profile.id)
+
+  const themeSettings = profile.theme_settings || {}
+  const primaryBg = themeSettings.primary_color || '#F2F5F3'
+  const accentColor = themeSettings.secondary_color || '#2D5A46'
 
   const getLinkIcon = (link: any) => {
     const iconClass = "w-4 h-4 text-black"
@@ -61,26 +68,35 @@ export function LinkInBioDesign4({
     <div className="flex flex-col items-center w-full font-sans text-black">
       {/* Container Layout Style like Classique */}
       <div className="relative w-[85%] mx-auto -mt-7 mb-6">
-        <div className="bg-white/10 backdrop-blur-sm border border-white/40 rounded-2xl p-3 shadow-md flex flex-row items-center justify-center gap-4">
-          {/* Profile Photo - Grayscale Rectangle like requested */}
-          <div className="flex-shrink-0">
-            {profile.image_url ? (
-              <img
-                src={profile.image_url}
-                alt={profile.name}
-                className="w-10 h-14 rounded-lg object-cover border border-white shadow-sm contrast-[1.1]"
+        <div className="bg-white/90 backdrop-blur-sm border border-emerald-900/10 rounded-2xl p-3 shadow-md flex flex-row items-center justify-between gap-3">
+          {/* Profile Photo / Monogram */}
+          <div className="flex items-center gap-3 min-w-0">
+            <div className="flex-shrink-0">
+              <ProfileMonogram
+                name={profile.name}
+                imageUrl={profile.image_url}
+                size="sm"
+                shape="rounded-xl"
+                theme="light"
+                customBgColor={accentColor}
+                customTextColor="#ffffff"
               />
-            ) : (
-              <div className="w-10 h-14 rounded-lg bg-black flex items-center justify-center text-white text-xs font-bold border border-white shadow-sm">
-                {profile.name.charAt(0).toUpperCase()}
-              </div>
-            )}
+            </div>
+
+            {/* Name */}
+            <h1 className="text-sm font-black text-black uppercase tracking-tight text-left truncate">
+              {profile.name}
+            </h1>
           </div>
 
-          {/* Name */}
-          <h1 className="text-sm font-black text-black uppercase tracking-tight text-left">
-            {profile.name}
-          </h1>
+          {/* Share Button */}
+          <div className="flex-shrink-0">
+            <ProfileShareButton
+              profileName={profile.name}
+              profileSlug={profile.custom_url || profile.username}
+              theme="light"
+            />
+          </div>
         </div>
       </div>
 
@@ -162,25 +178,15 @@ export function LinkInBioDesign4({
           })}
       </div>
 
-      {/* Custom Links - Stark White buttons */}
+      {/* Featured & Custom Links */}
       {profile.custom_links && profile.custom_links.filter((l: any) => l.is_active !== false).length > 0 && (
-        <div className="w-full space-y-3 mb-8 px-4">
-          {profile.custom_links.filter((l: any) => l.is_active !== false).map((link: any, index: number) => (
-            <Button
-              key={index}
-              variant="outline"
-              className="w-full py-7 px-6 rounded-xl border-2 border-black/5 bg-white shadow-sm flex items-center justify-between group hover:border-black transition-all"
-              onClick={() => trackAndOpen(link.title, link.url)}
-            >
-              <div className="flex items-center space-x-3">
-                <div className="w-8 h-8 bg-black/5 rounded-lg flex items-center justify-center">
-                  {getLinkIcon(link)}
-                </div>
-                <span className="font-bold text-black uppercase tracking-tight text-xs">{link.title}</span>
-              </div>
-              <ExternalLink className="w-4 h-4 opacity-20 group-hover:opacity-100" />
-            </Button>
-          ))}
+        <div className="w-full mb-8 px-4">
+          <FeaturedLinksList
+            links={profile.custom_links}
+            onLinkClick={(title, url) => trackAndOpen(title, url)}
+            theme="light"
+            accentColor={accentColor}
+          />
         </div>
       )}
 
@@ -217,19 +223,16 @@ export function LinkInBioDesign4({
   const coverSection = (
     <div className="absolute top-0 left-0 right-0 h-44 sm:h-52 overflow-hidden z-0 bg-gray-200">
       {profile.cover_image_url ? (
-        <>
-          <img src={profile.cover_image_url} alt="Cover" className="w-full h-full object-cover opacity-80" />
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-white/20"></div>
-        </>
+        <img src={profile.cover_image_url} alt="Cover" className="w-full h-full object-cover" />
       ) : (
-        <div className="w-full h-full bg-gray-300"></div>
+        <div className="w-full h-full" style={{ backgroundColor: accentColor, opacity: 0.15 }}></div>
       )}
     </div>
   );
 
   if (isPreview) {
     return (
-      <div className="h-full bg-white relative overflow-y-auto custom-scrollbar">
+      <div className="h-full relative overflow-y-auto custom-scrollbar" style={{ backgroundColor: primaryBg }}>
         {coverSection}
         <div className="relative z-10 p-4 pt-36">{content}</div>
       </div>

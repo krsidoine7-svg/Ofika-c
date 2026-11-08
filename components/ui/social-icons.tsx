@@ -8,8 +8,6 @@ interface SocialIconProps {
 export function SocialIcon({ platform, className = "h-5 w-5" }: SocialIconProps) {
   const iconClass = `${className}`
 
-  // Debug: afficher la valeur de platform
-  console.log('🔍 SocialIcon platform:', platform, 'lowercase:', platform?.toLowerCase())
 
   switch (platform?.toLowerCase()) {
     case 'whatsapp':

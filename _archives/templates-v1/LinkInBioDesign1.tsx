@@ -27,6 +27,9 @@ import { useState } from "react"
 import { PublicReviewsSection } from "@/components/features/reviews/PublicReviewsSection"
 import { useLinkTracker } from "@/lib/hooks/useLinkTracker"
 import { OfikaBlinkingLogo } from "@/components/brand/OfikaBlinkingLogo"
+import { ProfileShareButton } from "@/components/features/profiles/ProfileShareButton"
+import { FeaturedLinksList } from "@/components/features/profiles/FeaturedLinksList"
+import { ProfileMonogram } from "@/components/features/profiles/ProfileMonogram"
 
 interface LinkInBioDesign1Props {
   profile: ProfileWithLinks
@@ -44,6 +47,10 @@ export function LinkInBioDesign1({
   const [isExchangeFormOpen, setIsExchangeFormOpen] = useState(false)
   const { trackAndOpen } = useLinkTracker(profile.id)
 
+  const themeSettings = profile.theme_settings || {}
+  const primaryBg = themeSettings.primary_color || '#faf9f6'
+  const accentColor = themeSettings.secondary_color || '#1c1917'
+
   const getLinkIcon = (link: any) => {
     if (link.type === 'website') return <Globe className="w-4 h-4" />
     if (link.type === 'shop') return <ShoppingBag className="w-4 h-4" />
@@ -58,57 +65,67 @@ export function LinkInBioDesign1({
 
   const content = (
     <div className="flex flex-col items-center w-full">
-      {/* Glass Profile Header */}
-      <div className="relative w-full px-4 -mt-16 mb-6">
-        <div className="bg-white/40 backdrop-blur-xl rounded-3xl p-6 shadow-xl border border-white/50 flex flex-col items-center">
-          {/* Profile Photo */}
+      {/* Profile Header Card */}
+      <div className="relative w-full px-4 mb-6">
+        <div 
+          className="bg-white rounded-2xl p-6 shadow-sm border flex flex-col items-center relative"
+          style={{ borderColor: `${accentColor}25` }}
+        >
+          {/* Share Button top-right */}
+          <div className="absolute top-3.5 right-3.5 z-20">
+            <ProfileShareButton
+              profileName={profile.name}
+              profileSlug={profile.custom_url || profile.username}
+              theme="light"
+            />
+          </div>
+
+          {/* Profile Photo / Luxury Monogram */}
           <div className="mb-4">
-            {profile.image_url ? (
-              <img
-                src={profile.image_url}
-                alt={profile.name}
-                className="w-24 h-24 rounded-full mx-auto object-cover border-4 border-white shadow-lg"
-              />
-            ) : (
-              <div className="w-24 h-24 rounded-full mx-auto bg-gradient-to-br from-blue-500 to-indigo-500 flex items-center justify-center text-white text-xl font-bold border-4 border-white shadow-lg">
-                {profile.name.charAt(0).toUpperCase()}
-              </div>
-            )}
+            <ProfileMonogram
+              name={profile.name}
+              imageUrl={profile.image_url}
+              size="lg"
+              shape="rounded-2xl"
+              theme="light"
+              customBorderColor={accentColor}
+            />
           </div>
 
           {/* Name */}
-          <h1 className="text-2xl font-bold text-gray-900 text-center">
+          <h1 className="text-2xl font-black text-gray-900 text-center tracking-tight">
             {profile.name}
           </h1>
+
+          {/* Bio */}
+          {profile.bio && (
+            <p className="text-sm text-gray-600 mt-2 leading-relaxed text-center max-w-xs">
+              {profile.bio}
+            </p>
+          )}
+
+          {/* Localisation */}
+          {profile.location && (
+            <div className="flex items-center justify-center text-gray-500 mt-3 text-xs font-medium">
+              <MapPin className="w-3.5 h-3.5 mr-1 text-gray-400" />
+              {profile.location}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Bio */}
-      {profile.bio && (
-        <p className="text-sm text-gray-600 mb-4 leading-relaxed text-center px-4 max-w-xs">
-          {profile.bio}
-        </p>
-      )}
-
-      {/* Localisation */}
-      {profile.location && (
-        <div className="flex items-center justify-center text-gray-500 mb-6 text-xs font-medium">
-          <MapPin className="w-3 h-3 mr-1" />
-          {profile.location}
-        </div>
-      )}
-
-      {/* Social Media Icons (Standard) - Moved Above Actions */}
+      {/* Social Media Icons (Standard) */}
       {profile.social_links && profile.social_links.filter((link: any) => !['shop', 'website', 'other'].includes(link.platform) && link.is_active !== false).length > 0 && (
-        <div className="w-full mb-6">
-          <div className="flex flex-wrap justify-center gap-4">
+        <div className="w-full mb-6 px-4">
+          <div className="flex flex-wrap justify-center gap-3">
             {profile.social_links
               .filter((link: any) => !['shop', 'website', 'other'].includes(link.platform) && link.is_active !== false)
               .map((link: any, index: number) => (
                 <button
                   key={index}
-                  className="w-10 h-10 rounded-full bg-white shadow-sm border border-gray-100 flex items-center justify-center hover:scale-110 transition-all"
+                  className="w-11 h-11 rounded-xl bg-white shadow-2xs border border-gray-200 flex items-center justify-center hover:border-gray-900 hover:scale-105 transition-all"
                   onClick={() => trackAndOpen(link.platform, link.url)}
+                  title={link.platform}
                 >
                   <SocialIcon platform={link.platform} className="w-5 h-5" />
                 </button>
@@ -117,23 +134,23 @@ export function LinkInBioDesign1({
         </div>
       )}
 
-      {/* Primary Action Buttons (Add to Contacts, Exchange, and Special Links) */}
-      <div className="w-full mb-6 space-y-2 px-4">
+      {/* Primary Action Buttons (Add to Contacts & Exchange) */}
+      <div className="w-full mb-6 space-y-2.5 px-4">
         {showAddToContacts && (
           <>
             <AddToContactsAuto
               profile={profile}
               variant="auto"
               size="lg"
-              className="w-full bg-gradient-to-r from-blue-500 to-indigo-500 text-white rounded-xl py-6 shadow-lg transform active:scale-95 transition-all"
+              className="w-full bg-slate-900 hover:bg-black text-white font-bold rounded-xl py-6 shadow-sm transform active:scale-95 transition-all"
             />
             <Button
               variant="outline"
-              className="w-full border-2 border-blue-100 text-blue-700 py-6 rounded-xl font-semibold transform active:scale-95 transition-all"
+              className="w-full border border-gray-300 hover:border-gray-900 bg-white text-gray-800 py-6 rounded-xl font-bold transform active:scale-95 transition-all shadow-2xs"
               onClick={() => setIsExchangeFormOpen(true)}
             >
               <Mail className="w-4 h-4 mr-2" />
-              Echanger des contacts
+              Échanger les coordonnées
             </Button>
           </>
         )}
@@ -163,24 +180,15 @@ export function LinkInBioDesign1({
           })}
       </div>
 
-      {/* Custom Links */}
-      {profile.custom_links && profile.custom_links.filter((l: any) => l.is_active !== false).length > 0 && (
-        <div className="w-full space-y-2 mb-6 px-4">
-          {profile.custom_links.filter((l: any) => l.is_active !== false).map((link: any, index: number) => (
-            <Button
-              key={index}
-              variant="outline"
-              className="w-full py-6 px-6 rounded-xl border-2 border-gray-100 shadow-sm"
-              onClick={() => trackAndOpen(link.title, link.url)}
-            >
-              <div className="flex items-center justify-center space-x-2">
-                {getLinkIcon(link)}
-                <span className="font-medium text-gray-700">{link.title}</span>
-              </div>
-            </Button>
-          ))}
-        </div>
-      )}
+      {/* Custom Links with Featured Hierarchy */}
+      <div className="w-full px-4 mb-6">
+        <FeaturedLinksList
+          links={profile.custom_links}
+          onLinkClick={trackAndOpen}
+          theme="light"
+          accentColor={accentColor}
+        />
+      </div>
 
       {/* Reviews */}
       <div className="w-full px-4">
@@ -196,12 +204,12 @@ export function LinkInBioDesign1({
       />
 
       {/* Footer */}
-      <div className="mt-12 pb-8 text-center w-full">
+      <div className="mt-8 pb-8 text-center w-full">
         <a 
           href="/onboarding/public-page" 
-          className="inline-block hover:scale-110 transition-transform duration-300"
+          className="inline-block hover:scale-105 transition-transform duration-200"
         >
-          <OfikaBlinkingLogo fontSize="text-2xl" />
+          <OfikaBlinkingLogo fontSize="text-xl" />
         </a>
       </div>
     </div>
@@ -209,22 +217,21 @@ export function LinkInBioDesign1({
 
   if (isPreview) {
     return (
-      <div className="h-full bg-white relative">
+      <div className="h-full relative" style={{ backgroundColor: primaryBg }}>
         {profile.cover_image_url && (
-          <div className="absolute top-0 left-0 right-0 h-40 overflow-hidden z-0">
+          <div className="absolute top-0 left-0 right-0 h-36 overflow-hidden z-0 border-b border-gray-200">
             <img src={profile.cover_image_url} alt="Cover" className="w-full h-full object-cover" />
-            <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-white"></div>
           </div>
         )}
-        <div className={`relative z-10 p-4 ${profile.cover_image_url ? 'pt-32' : 'pt-16'}`}>{content}</div>
+        <div className={`relative z-10 p-4 ${profile.cover_image_url ? 'pt-28' : 'pt-6'}`}>{content}</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
+    <div className="min-h-screen bg-slate-100 flex items-center justify-center p-4">
       <div
-        className="relative bg-white shadow-2xl overflow-hidden"
+        className="relative bg-white shadow-xl overflow-hidden rounded-[32px] border border-gray-200/90"
         style={{
           aspectRatio: deviceAspectRatio,
           maxWidth: `${deviceDimensions.width}px`,
@@ -235,12 +242,11 @@ export function LinkInBioDesign1({
       >
         <div className="h-full overflow-y-auto overflow-x-hidden relative">
           {profile.cover_image_url && (
-            <div className="absolute top-0 left-0 right-0 h-40 sm:h-48 overflow-hidden z-0">
+            <div className="absolute top-0 left-0 right-0 h-36 sm:h-44 overflow-hidden z-0 border-b border-gray-200">
               <img src={profile.cover_image_url} alt="Cover" className="w-full h-full object-cover" />
-              <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-white"></div>
             </div>
           )}
-          <div className={`relative z-10 p-6 ${profile.cover_image_url ? 'pt-32' : 'pt-16'}`}>{content}</div>
+          <div className={`relative z-10 p-5 ${profile.cover_image_url ? 'pt-28' : 'pt-6'}`}>{content}</div>
         </div>
       </div>
     </div>
