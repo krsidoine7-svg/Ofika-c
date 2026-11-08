@@ -44,6 +44,7 @@
     "node_modules",
     "supabase",
     "tests",
-    "lib/services/profiles-drizzle.ts"
+    "lib/services/profiles-drizzle.ts",
+    "_archives"
   ]
 }
