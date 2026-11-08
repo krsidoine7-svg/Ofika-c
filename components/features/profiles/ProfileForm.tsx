@@ -201,7 +201,7 @@ export function ProfileForm({ profile_id, isEditing = false, onSuccess, onCancel
 
   const supabase = createClient()
 
-  const form = useForm<ProfileFormData>({
+  const form = useForm<z.input<typeof profileSchema>, unknown, ProfileFormData>({
     resolver: zodResolver(profileSchema),
     defaultValues: {
       name: initialData?.name || '',
@@ -261,7 +261,8 @@ export function ProfileForm({ profile_id, isEditing = false, onSuccess, onCancel
   const formValuesString = JSON.stringify(formValues)
   useEffect(() => {
     if (onChange) {
-      onChange(formValues)
+      // valeurs en cours de saisie (avant validation) transmises à l'aperçu
+      onChange(formValues as ProfileFormData)
     }
   }, [formValuesString, onChange])
 

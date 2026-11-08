@@ -83,7 +83,7 @@ export const ModernHero = ({ videoUrl }: ModernHeroProps) => {
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5, delay: 0.1 }}
-                            className="text-3xl sm:text-4xl lg:text-5xl font-black text-gray-900 leading-[1.2] tracking-tight mb-5"
+                            className="text-2xl sm:text-4xl lg:text-5xl font-black text-gray-900 leading-[1.2] tracking-tight mb-5"
                         >
                             Partagez vos coordonnées <br />
                             <span className="inline-block px-3.5 py-1 my-1 bg-gradient-to-r from-orange-600 to-ofika-orange text-white rounded-xl transform -rotate-1 shadow-md shadow-orange-500/20 font-black">
@@ -155,7 +155,7 @@ export const ModernHero = ({ videoUrl }: ModernHeroProps) => {
                             onMouseMove={handleMouseMove}
                             onMouseEnter={handleMouseEnter}
                             onMouseLeave={handleMouseLeave}
-                            className="relative w-full max-w-[460px] sm:max-w-[500px] lg:max-w-[530px] h-[430px] sm:h-[460px] lg:h-[480px] [perspective:1400px] flex items-center justify-center cursor-pointer"
+                            className="relative w-full max-w-[460px] sm:max-w-[500px] lg:max-w-[530px] h-[340px] sm:h-[440px] lg:h-[480px] [perspective:1400px] flex items-center justify-center cursor-pointer"
                         >
                             {/* --- CARTE 1 : FACE AVANT (RECTO) --- */}
                             {/* Positionnée en haut à droite pour exposer complètement le logo Ofika et l'emblème sans aucun masque */}
@@ -247,14 +247,15 @@ export const ModernHero = ({ videoUrl }: ModernHeroProps) => {
                             </motion.div>
                         </div>
 
-                        {/* Réassurance discrète et sobre sous les cartes (sans boutons ni pollution visuelle) */}
-                        <div className="mt-4 flex items-center justify-center gap-4 text-xs text-neutral-500 font-medium">
+                        {/* Réassurance discrète et sobre sous les cartes */}
+                        <div className="mt-4 flex flex-wrap items-center justify-center gap-2 sm:gap-4 text-xs text-neutral-500 font-medium text-center">
                             <span className="inline-flex items-center gap-1.5">
                                 <span className="w-1.5 h-1.5 rounded-full bg-orange-500" />
-                                Carte physique connectée sans contact
+                                Carte physique sans contact
                             </span>
                             <span className="text-neutral-300">•</span>
-                            <span>Survolez ou cliquez pour inspecter</span>
+                            <span className="hidden sm:inline">Survolez ou cliquez pour inspecter</span>
+                            <span className="sm:hidden">Touchez pour inspecter</span>
                         </div>
                     </motion.div>
 

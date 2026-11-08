@@ -161,7 +161,7 @@ export async function PATCH(
       return NextResponse.json(
         { 
           error: 'Données invalides',
-          details: error.errors 
+          details: error.issues 
         },
         { status: 400 }
       )

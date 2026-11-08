@@ -28,7 +28,9 @@ import {
   Tablet,
   Eye,
   ArrowRight,
-  Link
+  Link,
+  Info,
+  Check
 } from 'lucide-react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { ProfileTemplateRenderer } from '@/components/features/profiles/ProfileTemplateRenderer'
@@ -302,14 +304,15 @@ export function ProfileSelectionStep({
     <div className="space-y-6">
       <div className="text-center max-w-2xl mx-auto">
         <h2 className="text-3xl font-bold text-gray-900 mb-3">
-          Dernière étape ! 🎉
+          Dernière étape !
         </h2>
         <p className="text-lg text-gray-600 mb-2">
           Où voulez-vous envoyer vos contacts ?
         </p>
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-3">
-          <p className="text-sm text-blue-800">
-            💡 <strong>Important :</strong> Le QR code de votre carte NFC redirigera vos contacts vers le profil que vous choisirez ci-dessous.
+          <p className="text-sm text-blue-800 flex items-center justify-center gap-1.5">
+            <Info className="w-4 h-4 text-blue-600 flex-shrink-0" />
+            <span><strong>Important :</strong> Le QR code de votre carte NFC redirigera vos contacts vers le profil que vous choisirez ci-dessous.</span>
           </p>
         </div>
       </div>
@@ -491,9 +494,15 @@ export function ProfileSelectionStep({
                     </div>
                     <p className="text-[10px] mt-1">
                       {isSlugAvailable === true ? (
-                        <span className="text-green-600 font-medium">✅ Ce lien est disponible !</span>
+                        <span className="text-green-600 font-medium inline-flex items-center gap-1">
+                          <Check className="w-3 h-3" />
+                          Ce lien est disponible !
+                        </span>
                       ) : isSlugAvailable === false ? (
-                        <span className="text-red-500 font-medium">❌ Ce lien est déjà pris.</span>
+                        <span className="text-red-500 font-medium inline-flex items-center gap-1">
+                          <X className="w-3 h-3" />
+                          Ce lien est déjà pris.
+                        </span>
                       ) : (
                         <span className="text-gray-500">Choisissez l'adresse (min. 3 caractères).</span>
                       )}

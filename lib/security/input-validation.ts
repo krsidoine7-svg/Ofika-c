@@ -152,7 +152,7 @@ export function validateAndSanitizeUrl(url: string): { isValid: boolean; sanitiz
     if (!result.success) {
       return {
         isValid: false,
-        error: result.error.errors[0]?.message || 'URL invalide'
+        error: result.error.issues[0]?.message || 'URL invalide'
       }
     }
     

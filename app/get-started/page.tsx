@@ -41,10 +41,10 @@ export default function GetStartedPage() {
           transition={{ duration: 0.6 }}
           className="text-center mb-16"
         >
-          <h1 className="text-4xl md:text-6xl font-bold text-gray-900 mb-6">
+          <h1 className="text-3xl sm:text-4xl md:text-6xl font-bold text-gray-900 mb-4 sm:mb-6">
             Choisissez votre solution
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-base sm:text-xl text-gray-600 max-w-2xl mx-auto">
             Partagez vos informations professionnelles avec style.
             Choisissez entre une carte NFC physique ou une page publique en ligne.
           </p>
@@ -219,10 +219,10 @@ export default function GetStartedPage() {
           transition={{ duration: 0.6, delay: 0.4 }}
           className="flex justify-center mb-16"
         >
-          <Link href="/onboarding/public-page" className="w-full sm:w-auto">
-            <div className="w-fit mx-auto px-12 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-xl py-4 font-bold text-lg flex items-center justify-center shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-1">
-              Créer ma page publique
-              <ArrowRight className="w-5 h-5 ml-2" />
+          <Link href="/onboarding/public-page" className="w-full sm:w-auto px-4">
+            <div className="w-full sm:w-fit mx-auto px-6 sm:px-12 bg-gradient-to-r from-blue-500 to-purple-500 hover:from-blue-600 hover:to-purple-600 text-white rounded-xl py-4 font-bold text-base sm:text-lg flex items-center justify-center shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-1 text-center">
+              <span>Créer ma page publique</span>
+              <ArrowRight className="w-5 h-5 ml-2 shrink-0" />
             </div>
           </Link>
         </motion.div>

@@ -30,6 +30,7 @@ OFIKA est une plateforme permettant à des professionnels et créateurs de gén�
 | **MOD-LAND-01** | Fusion compacte Solution Duo | ✅ VALIDÉ | Fusion des sections Pour qui, Révélation et Duo en une seule section |
 | **MOD-LAND-02** | Redesign Simulateur 3D | ✅ VALIDÉ | Suppression rotation auto, boutons épurés, logo adaptatif, verso centré |
 | **MOD-LAND-03** | Tarification claire & Livraison Abidjan | ✅ VALIDÉ | 3 offres sans fond noir, prix dynamique, livraison 0 FCFA Abidjan |
+| **MOD-RESP-01** | Responsivité Mobile-First & Zéro Émoji | ✅ VALIDÉ | Optimisation fluide 320px–420px, cartes proportionnées, icônes Lucide |
 | **SEC-ADM-01** | Déblocage 2FA Superadmin | ✅ VALIDÉ | Neutralisation du blocage TOTP forcé sur `AdminClientLayout` |
 | **PWA-SW-01** | Correctif Service Worker Chrome Ext | ✅ VALIDÉ | Filtrage des requêtes `chrome-extension://` et cache v2 |
 

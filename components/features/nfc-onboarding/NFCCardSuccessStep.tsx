@@ -90,7 +90,7 @@ export function NFCCardSuccessStep({ nfcProfile, onViewProfiles }: NFCCardSucces
         </div>
 
         <h1 className="text-3xl font-bold text-gray-900 mb-2">
-          Félicitations ! 🎉
+          Félicitations !
         </h1>
         <p className="text-xl text-gray-600 mb-4">
           Votre carte de visite NFC a été créée avec succès

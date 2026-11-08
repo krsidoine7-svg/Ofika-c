@@ -101,8 +101,11 @@ export function createDynamicTemplateSchema(fields: TemplateField[]) {
     switch (field.type) {
       case 'number':
         validator = z.number({
-          required_error: field.errorMessage || `${field.label} est requis`,
-          invalid_type_error: `${field.label} doit être un nombre`
+          // Zod 4 : un seul paramètre « error » (champ absent -> requis, sinon -> mauvais type)
+          error: (issue) =>
+            issue.input === undefined
+              ? field.errorMessage || `${field.label} est requis`
+              : `${field.label} doit être un nombre`,
         })
         .or(z.string().transform((val) => {
           const num = Number(val)
@@ -144,7 +147,7 @@ export function createDynamicTemplateSchema(fields: TemplateField[]) {
       case 'select':
         if (field.options && field.options.length > 0) {
           validator = z.enum(field.options as [string, ...string[]], {
-            errorMap: () => ({ message: `${field.label} doit être l'une des options proposées` })
+            error: `${field.label} doit être l'une des options proposées`
           })
         } else {
           validator = z.string()
@@ -219,7 +222,7 @@ export function createDynamicTemplateSchema(fields: TemplateField[]) {
 export const createProfileWithTemplateSchema = z.object({
   baseFields: baseProfileSchema,
   templateId: z.string().uuid('L\'ID du template est invalide'),
-  templateFields: z.record(z.any()).optional()
+  templateFields: z.record(z.string(), z.any()).optional()
 })
 
 export type CreateProfileWithTemplateData = z.infer<typeof createProfileWithTemplateSchema>
@@ -229,7 +232,7 @@ export type CreateProfileWithTemplateData = z.infer<typeof createProfileWithTemp
  */
 export const updateProfileWithTemplateSchema = z.object({
   baseFields: baseProfileSchema.partial().optional(),
-  templateFields: z.record(z.any()).optional()
+  templateFields: z.record(z.string(), z.any()).optional()
 })
 
 export type UpdateProfileWithTemplateData = z.infer<typeof updateProfileWithTemplateSchema>

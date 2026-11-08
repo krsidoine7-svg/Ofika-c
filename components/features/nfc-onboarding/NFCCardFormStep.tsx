@@ -1,7 +1,7 @@
 'use client'
 
 import { useState, useEffect } from 'react'
-import { useForm } from 'react-hook-form'
+import { type Resolver, useForm } from 'react-hook-form'
 import { zodResolver } from '@hookform/resolvers/zod'
 import { z } from 'zod'
 import { NFCCardStepProps, NFCCardFormData } from '@/lib/types/nfc-card-onboarding'
@@ -49,7 +49,8 @@ export function NFCCardFormStep({ formData, onDataChange, onNext, onPrev, onVali
     setValue,
     trigger
   } = useForm<NFCCardFormData>({
-    resolver: zodResolver(nfcCardSchema),
+    // Le schéma ne valide qu'une partie des champs de NFCCardFormData (comportement identique à Zod 3)
+    resolver: zodResolver(nfcCardSchema) as unknown as Resolver<NFCCardFormData>,
     defaultValues: formData,
     mode: 'onChange'
   })

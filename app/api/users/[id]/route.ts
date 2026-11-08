@@ -121,7 +121,7 @@ export const PUT = withAuth(async (request, authUser, params: { id: string }) =>
 
   const validation = updateSchema.safeParse(body)
   if (!validation.success) {
-    return apiError.badRequest(validation.error.errors[0].message)
+    return apiError.badRequest(validation.error.issues[0].message)
   }
 
   const validatedData = validation.data

@@ -683,7 +683,10 @@ export function CardOrderingFlow({ onComplete, className }: CardOrderingFlowProp
           </div>
 
           <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 max-w-md mx-auto space-y-2">
-            <p className="text-sm font-bold text-gray-800">🚀 Estimation de livraison</p>
+            <p className="text-sm font-bold text-gray-800 flex items-center gap-1.5">
+              <Truck className="h-4 w-4 text-orange-600" />
+              <span>Estimation de livraison</span>
+            </p>
             <p className="text-sm text-gray-600 font-medium">
               Livraison prévue le <span className="text-orange-600 font-bold">{getDeliveryDateString()}</span> entre <span className="font-bold">10h et 18h</span>.
             </p>
@@ -771,9 +774,10 @@ export function CardOrderingFlow({ onComplete, className }: CardOrderingFlowProp
               <Button
                 variant="ghost"
                 onClick={() => router.push('/dashboard/orders')}
-                className="w-full text-gray-500 hover:text-gray-600 text-xs font-semibold"
+                className="w-full text-gray-500 hover:text-gray-600 text-xs font-semibold flex items-center justify-center gap-1.5"
               >
-                Aller à mes commandes ➔
+                <span>Aller à mes commandes</span>
+                <ArrowRight className="h-3.5 w-3.5" />
               </Button>
             </div>
           </Card>

@@ -44,7 +44,7 @@ export interface CompleteValidationResult {
 
 export const shippingAddressSchema = z.object({
   name: z
-    .string({ required_error: 'Le nom est requis' })
+    .string({ error: 'Le nom est requis' })
     .trim()
     .min(2, 'Le nom doit contenir au moins 2 caractères')
     .max(100, 'Le nom ne peut pas dépasser 100 caractères'),
@@ -55,17 +55,17 @@ export const shippingAddressSchema = z.object({
     ])
     .optional(),
   phone: z
-    .string({ required_error: 'Le numéro de téléphone est requis' })
+    .string({ error: 'Le numéro de téléphone est requis' })
     .trim()
     .min(8, 'Numéro de téléphone requis (minimum 8 chiffres)')
     .max(20, 'Numéro de téléphone trop long'),
   address: z
-    .string({ required_error: 'L\'adresse de livraison est requise' })
+    .string({ error: 'L\'adresse de livraison est requise' })
     .trim()
     .min(2, 'L\'adresse doit contenir au moins 2 caractères')
     .max(255, 'L\'adresse ne peut pas dépasser 255 caractères'),
   city: z
-    .string({ required_error: 'La ville est requise' })
+    .string({ error: 'La ville est requise' })
     .trim()
     .min(2, 'La ville doit contenir au moins 2 caractères')
     .max(100, 'Le nom de ville ne peut pas dépasser 100 caractères'),
@@ -86,7 +86,7 @@ export const orderCreateSchema = z.object({
     ),
   payment_method: z.enum(['wave', 'orange_money', 'mtn_money', 'geniuspay']).default('geniuspay'),
   shipping_address: shippingAddressSchema,
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
 })
 
 export type OrderCreateData = z.infer<typeof orderCreateSchema>

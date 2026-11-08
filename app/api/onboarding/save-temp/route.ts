@@ -21,7 +21,7 @@ async function handlePOST(request: NextRequest) {
       return NextResponse.json(
         { 
           error: 'Données invalides', 
-          details: validationResult.error.errors 
+          details: validationResult.error.issues 
         },
         { status: 400 }
       )

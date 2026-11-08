@@ -155,7 +155,7 @@ export function useUser() {
     // Validation des données
     const validation = updateUserSchema.safeParse(data)
     if (!validation.success) {
-      const message = validation.error.errors[0]?.message || 'Données invalides'
+      const message = validation.error.issues[0]?.message || 'Données invalides'
       setError(message)
       toast.error(message)
       return false
@@ -217,7 +217,7 @@ export function useUser() {
     // Validation des mots de passe
     const validation = changePasswordSchema.safeParse(data)
     if (!validation.success) {
-      const message = validation.error.errors[0]?.message || 'Données invalides'
+      const message = validation.error.issues[0]?.message || 'Données invalides'
       setError(message)
       toast.error(message)
       return false
@@ -279,7 +279,7 @@ export function useUser() {
     // Validation des données de confirmation
     const validation = deleteAccountSchema.safeParse(confirmationData)
     if (!validation.success) {
-      const message = validation.error.errors[0]?.message || 'Mot de passe requis'
+      const message = validation.error.issues[0]?.message || 'Mot de passe requis'
       setError(message)
       toast.error(message)
       return false

@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Loader2, Send, CheckCircle2, User, Mail, Phone, Building } from 'lucide-react'
+import { Loader2, Send, CheckCircle2, User, Mail, Phone, Building, Download } from 'lucide-react'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
 import { cn } from '@/lib/utils'
@@ -140,9 +140,10 @@ export function ContactExchangeForm({
                             <Button
                                 type="button"
                                 onClick={triggerVCardDownload}
-                                className="w-full py-5 rounded-xl font-medium bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100 shadow-sm"
+                                className="w-full py-5 rounded-xl font-medium bg-zinc-900 hover:bg-zinc-800 text-white dark:bg-white dark:text-zinc-900 dark:hover:bg-zinc-100 shadow-sm flex items-center justify-center gap-2"
                             >
-                                📇 Enregistrer la fiche de {profileName}
+                                <Download className="w-4 h-4" />
+                                <span>Enregistrer la fiche de {profileName}</span>
                             </Button>
                             <Button
                                 type="button"

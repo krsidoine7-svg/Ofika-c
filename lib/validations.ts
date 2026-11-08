@@ -138,7 +138,7 @@ export const onboardingSaveTempSchema = z.object({
   session_id: z.string().min(1, 'Session ID requis'),
   flow_type: z.enum(['public_page', 'nfc_card']),
   step: z.number().int().min(1),
-  data: z.record(z.any()),
+  data: z.record(z.string(), z.any()),
   user_email: z.string().email().optional(),
 })
 
@@ -163,7 +163,7 @@ export const createOrderSchema = z.object({
     country: z.string().min(2, 'Pays requis'),
     phone: z.string().min(8, 'Numéro de téléphone requis'),
   }).optional(),
-  metadata: z.record(z.any()).optional(),
+  metadata: z.record(z.string(), z.any()).optional(),
   promo_code: z.string().optional(),
 })
 
@@ -201,7 +201,7 @@ export const createNFCCardSchema = z.object({
   name: z.string().min(2).max(100),
   design: z.string(),
   color: z.string().regex(/^#[0-9A-Fa-f]{6}$/, 'Couleur hexadécimale invalide'),
-  profile_data: z.record(z.any()),
+  profile_data: z.record(z.string(), z.any()),
 })
 
 // NFC Card - Update
@@ -209,7 +209,7 @@ export const updateNFCCardSchema = z.object({
   name: z.string().min(2).max(100).optional(),
   design: z.string().optional(),
   color: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
-  profile_data: z.record(z.any()).optional(),
+  profile_data: z.record(z.string(), z.any()).optional(),
   status: z.enum(['pending', 'ordered', 'shipped', 'delivered', 'active', 'inactive']).optional(),
 })
 
