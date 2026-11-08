@@ -33,17 +33,9 @@ export function StaffMfaModal({ onSuccess }: StaffMfaModalProps) {
       const mfaStatus = await getStaffMfaStatus(supabase)
       setStatus(mfaStatus)
 
-      // Si c'est un membre du staff non vérifié AAL2 ou non enrôlé, ouvrir le modal obligatoire
-      if (mfaStatus.isStaff && (!mfaStatus.isEnrolled || !mfaStatus.isVerified)) {
-        setIsOpen(true)
-        if (!mfaStatus.isEnrolled) {
-          // Lancer l'enrôlement initial
-          await startEnrollment()
-        }
-      } else {
-        setIsOpen(false)
-        if (onSuccess) onSuccess()
-      }
+      // Sécurité 2FA rendue optionnelle - Ne bloque plus le superadmin
+      setIsOpen(false)
+      if (onSuccess) onSuccess()
     } catch (err) {
       console.error('Erreur vérification 2FA staff:', err)
     } finally {

@@ -3,7 +3,7 @@
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
-import { CreditCard, Globe, ArrowRight, CheckCircle, Zap } from 'lucide-react'
+import { CreditCard, Globe, ArrowRight, CheckCircle, Zap, Truck, HelpCircle, Sparkles } from 'lucide-react'
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
 import { motion } from 'framer-motion'
@@ -115,8 +115,10 @@ export default function GetStartedPage() {
                   ))}
                 </ul>
 
-                <p className="text-xs text-center text-gray-500 mt-6">
-                  💳 Paiement sécurisé • 🚚 Livraison gratuite dès 2 cartes
+                <p className="text-xs text-center text-gray-500 mt-6 flex items-center justify-center gap-2 flex-wrap">
+                  <span className="inline-flex items-center gap-1"><CreditCard className="w-3.5 h-3.5 text-gray-400" /> Paiement sécurisé</span>
+                  <span>•</span>
+                  <span className="inline-flex items-center gap-1 font-semibold text-gray-700"><Truck className="w-3.5 h-3.5 text-emerald-600" /> Livraison gratuite à Abidjan</span>
                 </p>
 
                 <div className="pt-4">
@@ -191,8 +193,10 @@ export default function GetStartedPage() {
                   ))}
                 </ul>
 
-                <p className="text-xs text-center text-gray-500 mt-6">
-                  ✨ Créez votre page en quelques clics • 🌐 Accessible 24/7
+                <p className="text-xs text-center text-gray-500 mt-6 flex items-center justify-center gap-2 flex-wrap">
+                  <span className="inline-flex items-center gap-1"><Sparkles className="w-3.5 h-3.5 text-blue-500" /> Prête en quelques clics</span>
+                  <span>•</span>
+                  <span className="inline-flex items-center gap-1"><Globe className="w-3.5 h-3.5 text-purple-500" /> Accessible 24/7</span>
                 </p>
 
                 <div className="pt-4">
@@ -232,8 +236,9 @@ export default function GetStartedPage() {
         >
           <Card className="bg-gradient-to-r from-gray-50 to-gray-100">
             <CardContent className="p-6">
-              <h3 className="text-lg font-semibold text-center mb-4">
-                💡 Pas sûr de votre choix ?
+              <h3 className="text-lg font-semibold text-center mb-4 flex items-center justify-center gap-2">
+                <HelpCircle className="w-5 h-5 text-orange-500" />
+                <span>Pas sûr de votre choix ?</span>
               </h3>
               <div className="grid md:grid-cols-2 gap-4 text-sm">
                 <div className="bg-white rounded-lg p-4">

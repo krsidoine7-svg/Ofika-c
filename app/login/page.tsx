@@ -4,6 +4,8 @@ import { Suspense } from "react"
 export const metadata = {
   title: "Connexion | OFIKA",
   description: "Connectez-vous à votre espace OFIKA pour gérer vos cartes NFC, vos profils numériques et vos commandes.",
+  alternates: { canonical: "/login" },
+  robots: { index: false, follow: true },
 }
 
 export default function LoginPage() {

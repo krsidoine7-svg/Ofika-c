@@ -5,6 +5,7 @@ import { ArrowLeft, Shield, Lock, Eye, Database, UserCheck, Mail, Globe, Cpu, Za
 export const metadata = {
     title: 'Politique de Confidentialité — Ofika',
     description: 'Découvrez comment Ofika collecte, traite et protège vos données personnelles conformément aux lois ivoiriennes et internationales.',
+    alternates: { canonical: '/privacy' },
 }
 
 export default function PrivacyPage() {

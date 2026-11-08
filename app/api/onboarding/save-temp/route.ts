@@ -5,7 +5,7 @@
 import { NextRequest, NextResponse } from 'next/server'
 import { createClient } from '@/lib/supabase/server'
 import { onboardingSaveTempSchema } from '@/lib/validations'
-import { withRateLimit, RateLimitPresets } from '@/lib/middleware/rate-limit'
+import { withRateLimit } from '@/lib/security/rate-limiting'
 
 export const dynamic = 'force-dynamic'
 
@@ -154,10 +154,4 @@ export async function GET(request: NextRequest) {
 }
 
 // Export avec rate limiting
-export const POST = withRateLimit(
-  {
-    ...RateLimitPresets.create,
-    maxRequests: 20, // Plus permissif pour l'onboarding
-  },
-  handlePOST
-)
+export const POST = withRateLimit(handlePOST, 'onboarding') // 20 requêtes / minute

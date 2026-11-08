@@ -3,12 +3,13 @@
  * Les prix sont récupérés depuis les variables d'environnement
  */
 
-// Prix unique de secours de la carte (en XOF - Niveau 2)
-export const NFC_CARD_BASE_PRICE = 14600
+// Prix unique de base de la carte (en XOF) - Dynamique via variable d'environnement ou valeur par défaut
+export const NFC_CARD_BASE_PRICE = Number(process.env.NEXT_PUBLIC_NFC_CARD_BASE_PRICE) || 14600
 
 // Frais de livraison par zone (en XOF)
 export const SHIPPING_COSTS = {
-  UEMOA: 2000,           // CI, SN, BJ, BF, TG, NE, ML, GW
+  ABIDJAN: 0,            // Livraison 100% gratuite dans tout Abidjan
+  UEMOA: 2000,           // CI intérieur & zone UEMOA (SN, BJ, BF, TG, NE, ML, GW)
   WEST_AFRICA: 5000,     // GH, NG, CM
   INTERNATIONAL: 10000   // Autres pays
 } as const
@@ -26,7 +27,8 @@ export const CURRENCY = 'XOF'
 export function calculateCardPrice(
   designId: string,
   countryCode: string = 'CI',
-  quantity: number = 1
+  quantity: number = 1,
+  city: string = 'Abidjan'
 ): {
   basePrice: number
   shippingCost: number
@@ -40,7 +42,9 @@ export function calculateCardPrice(
   // Calculer frais de livraison
   let shippingCost: number = SHIPPING_COSTS.INTERNATIONAL
   
-  if (COUNTRY_ZONES.UEMOA.includes(countryCode as any)) {
+  if (countryCode === 'CI' && (!city || city.toLowerCase().includes('abidjan'))) {
+    shippingCost = SHIPPING_COSTS.ABIDJAN // Gratuit dans tout Abidjan
+  } else if (COUNTRY_ZONES.UEMOA.includes(countryCode as any)) {
     shippingCost = SHIPPING_COSTS.UEMOA
   } else if (COUNTRY_ZONES.WEST_AFRICA.includes(countryCode as any)) {
     shippingCost = SHIPPING_COSTS.WEST_AFRICA

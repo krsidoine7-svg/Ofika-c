@@ -1,7 +1,7 @@
 {
     "name": "Ofika - Carte Connectée",
     "short_name": "Ofika",
-    "description": "Digitalisez votre présence professionnelle en Afrique.",
+    "description": "Carte de visite NFC et profil professionnel digital en Côte d'Ivoire. Partagez vos coordonnées d'un simple geste.",
     "start_url": "/",
     "display": "standalone",
     "orientation": "portrait",
@@ -9,28 +9,35 @@
     "theme_color": "#FF6600",
     "icons": [
         {
-            "src": "/assets/logos/logo-orange.svg",
+            "src": "/icons/icon-192.png",
             "sizes": "192x192",
-            "type": "image/svg+xml",
+            "type": "image/png",
             "purpose": "any"
         },
         {
-            "src": "/assets/logos/logo-orange.svg",
+            "src": "/icons/icon-512.png",
             "sizes": "512x512",
-            "type": "image/svg+xml",
+            "type": "image/png",
             "purpose": "any"
         },
         {
-            "src": "/assets/logos/logo-square.svg",
+            "src": "/icons/icon-maskable-192.png",
             "sizes": "192x192",
-            "type": "image/svg+xml",
+            "type": "image/png",
             "purpose": "maskable"
         },
         {
-            "src": "/assets/logos/logo-square.svg",
+            "src": "/icons/icon-maskable-512.png",
             "sizes": "512x512",
-            "type": "image/svg+xml",
+            "type": "image/png",
             "purpose": "maskable"
+        },
+        {
+            "src": "/assets/logos/logo-orange.svg",
+            "sizes": "any",
+            "type": "image/svg+xml",
+            "purpose": "any"
         }
-    ]
+    ],
+    "lang": "fr-CI"
 }

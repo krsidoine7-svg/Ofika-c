@@ -85,6 +85,13 @@ const rateLimitConfigs: { [key: string]: RateLimitConfig } = {
     windowMs: 60 * 1000,
     maxRequests: 60,
     keyGenerator: (req) => `qr_scan:${getClientIP(req)}`
+  },
+
+  // Sauvegarde temporaire pendant l'onboarding (plus permissif)
+  onboarding: {
+    windowMs: 60 * 1000,
+    maxRequests: 20,
+    keyGenerator: (req) => `onboarding:${getClientIP(req)}`
   }
 }
 

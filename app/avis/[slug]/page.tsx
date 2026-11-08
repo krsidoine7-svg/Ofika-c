@@ -128,5 +128,8 @@ export async function generateMetadata({
     return {
         title: link?.title || 'Laisser un avis',
         description: `Partagez votre expérience et laissez un avis sur ${link?.title || 'ce service'}`,
+        alternates: { canonical: `/avis/${slug}` },
+        // Formulaire envoyé aux clients par lien : inutile dans les moteurs de recherche
+        robots: { index: false, follow: false },
     }
 }

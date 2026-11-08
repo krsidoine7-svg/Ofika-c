@@ -9,7 +9,7 @@
 // STRATÉGIES DE MISE EN CACHE (PWA)
 // ==================================
 
-const CACHE_NAME = 'ofika-cache-v1'
+const CACHE_NAME = 'ofika-cache-v2'
 const STATIC_ASSETS = [
     '/',
     '/manifest.json',
@@ -44,6 +44,16 @@ self.addEventListener('activate', (event) => {
 })
 
 self.addEventListener('fetch', (event) => {
+    // 1. Ignorer immédiatement les requêtes non-HTTP/HTTPS (ex: chrome-extension://, moz-extension://, data:, blob:)
+    if (!event.request.url.startsWith('http://') && !event.request.url.startsWith('https://')) {
+        return
+    }
+
+    // 2. Ignorer les requêtes qui ne sont pas des GET (POST, PUT, DELETE...)
+    if (event.request.method !== 'GET') {
+        return
+    }
+
     const url = new URL(event.request.url)
 
     // Ne pas mettre en cache les requêtes API Supabase ou Next.js internes (sauf _next/static)
@@ -68,8 +78,8 @@ self.addEventListener('fetch', (event) => {
                     if (networkResponse && networkResponse.status === 200) {
                         const responseToCache = networkResponse.clone()
                         caches.open(CACHE_NAME).then((cache) => {
-                            cache.put(event.request, responseToCache)
-                        })
+                            cache.put(event.request, responseToCache).catch(() => {})
+                        }).catch(() => {})
                     }
                     return networkResponse
                 }).catch(() => null)
@@ -85,7 +95,9 @@ self.addEventListener('fetch', (event) => {
             fetch(event.request).then((networkResponse) => {
                 if (networkResponse && networkResponse.status === 200) {
                     const clonedResponse = networkResponse.clone()
-                    caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clonedResponse))
+                    caches.open(CACHE_NAME).then((cache) => {
+                        cache.put(event.request, clonedResponse).catch(() => {})
+                    }).catch(() => {})
                 }
                 return networkResponse
             }).catch(() => {

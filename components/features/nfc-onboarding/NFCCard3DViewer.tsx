@@ -188,12 +188,12 @@ export function NFCCard3DViewer({
   const isDark = backgroundColor === 'black'
 
   const cardThemeClasses = isDark
-    ? "bg-gradient-to-br from-[#0c0d10] via-[#171920] to-[#20232c] text-white border-white/15"
-    : "bg-gradient-to-br from-[#ffffff] via-[#fbfbfc] to-[#f0f2f5] text-gray-900 border-gray-200/80"
+    ? "bg-[#0e0f14] text-white border-white/10"
+    : "bg-white text-gray-900 border-gray-200"
 
   const cardShadowClasses = isDark
-    ? "shadow-[0_25px_60px_-15px_rgba(0,0,0,0.85),0_0_20px_rgba(255,255,255,0.04)_inset]"
-    : "shadow-[0_25px_50px_-12px_rgba(0,0,0,0.18),0_0_20px_rgba(0,0,0,0.02)_inset]"
+    ? "shadow-[0_25px_60px_-12px_rgba(0,0,0,0.75),0_0_1px_rgba(255,255,255,0.1)_inset]"
+    : "shadow-[0_25px_50px_-12px_rgba(0,0,0,0.12),0_0_1px_rgba(0,0,0,0.05)_inset]"
 
   const logoColor = isDark ? '#FFFFFF' : '#0F172A'
   const textColor = isDark ? 'text-white' : 'text-slate-900'
@@ -269,102 +269,38 @@ export function NFCCard3DViewer({
               {/* Brushed Metallic Micro-Texture Effect */}
               <div className="absolute inset-0 bg-gradient-to-tr from-transparent via-white/[0.02] to-transparent pointer-events-none" />
 
-              {/* TOP ROW: Contactless NFC wave & Tech Tag */}
-              <div className="relative z-10 flex items-center justify-between w-full">
-                <div className="flex items-center gap-2">
-                  <div className={cn(
-                    "flex items-center gap-1 px-2.5 py-1 rounded-full text-[9px] sm:text-[10px] font-semibold tracking-wider uppercase border",
-                    isDark
-                      ? "bg-white/5 border-white/10 text-white/80 backdrop-blur-sm"
-                      : "bg-black/5 border-black/10 text-slate-700 backdrop-blur-sm"
-                  )}>
-                    <Sparkles className="w-2.5 h-2.5 text-orange-500" />
-                    <span>Ofika Smart Card</span>
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2">
+              {/* TOP ROW: Contactless NFC wave */}
+              <div className="relative z-10 flex items-center justify-end w-full">
+                <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full border border-current/15 text-[10px] font-semibold opacity-80">
                   <ContactlessIcon
-                    className="w-5 h-5 sm:w-6 sm:h-6 opacity-80"
+                    className="w-4 h-4"
                     color={isDark ? "#FFFFFF" : "#0F172A"}
                   />
+                  <span>NFC</span>
                 </div>
               </div>
 
-              {/* CENTER: Logo & Brand Identity */}
-              {cardDesign === 'design1' ? (
-                /* Design 1: Minimalist Balance with Side-by-side Harmony */
-                <div className="relative z-10 my-auto flex items-center justify-center gap-4 sm:gap-6">
-                  {/* Brand Monogram / Custom Logo */}
-                  <div className="w-14 h-14 sm:w-18 sm:h-18 md:w-20 md:h-20 flex items-center justify-center flex-shrink-0 drop-shadow-sm">
-                    {logoUrl ? (
-                      <img
-                        src={logoUrl}
-                        alt="Logo Entreprise"
-                        className="max-h-full max-w-full object-contain rounded-sm"
-                      />
-                    ) : (
-                      <DefaultOfikaLogo
-                        color={logoColor}
-                        className="w-12 h-12 sm:w-16 sm:h-16"
-                      />
-                    )}
-                  </div>
-
-                  {/* Vertical Elegant Divider */}
-                  <div className={cn("h-12 sm:h-16 w-px", accentBorderColor, "bg-current opacity-20")} />
-
-                  {/* Company & Motto */}
-                  <div className="flex flex-col justify-center text-left">
-                    <h3 className={cn("font-bold text-sm sm:text-base md:text-lg tracking-[0.15em] uppercase font-sans leading-tight", textColor)}>
-                      {company || 'OFIKA CONNECT'}
-                    </h3>
-                    <p className={cn("text-[10px] sm:text-xs tracking-wider uppercase mt-0.5", textMutedColor)}>
-                      Smart NFC Profile
-                    </p>
-                  </div>
-                </div>
-              ) : (
-                /* Design 2: Centerpiece Executive Luxury */
-                <div className="relative z-10 my-auto flex flex-col items-center justify-center text-center space-y-2 sm:space-y-3">
-                  <div className="w-14 h-14 sm:w-18 sm:h-18 md:w-20 md:h-20 flex items-center justify-center drop-shadow-md">
-                    {logoUrl ? (
-                      <img
-                        src={logoUrl}
-                        alt="Logo Entreprise"
-                        className="max-h-full max-w-full object-contain rounded-sm"
-                      />
-                    ) : (
-                      <DefaultOfikaLogo
-                        color={logoColor}
-                        className="w-12 h-12 sm:w-16 sm:h-16"
-                      />
-                    )}
-                  </div>
-                  <div>
-                    <h3 className={cn("font-extrabold text-base sm:text-lg md:text-xl tracking-[0.2em] uppercase font-sans", textColor)}>
-                      {company || 'OFIKA CONNECT'}
-                    </h3>
-                    <div className="flex items-center justify-center gap-1.5 mt-1">
-                      <span className={cn("text-[9px] sm:text-[10px] tracking-[0.25em] uppercase", textMutedColor)}>
-                        Digital Card
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              )}
-
-              {/* BOTTOM ROW: Chip Accent & Micro Tap indicator */}
-              <div className="relative z-10 flex items-end justify-between w-full">
-                <div className="flex items-center gap-2">
-                  <MetallicChip isDark={isDark} />
-                </div>
-
-                <div className="flex items-center gap-1.5 opacity-60 text-[9px] sm:text-[10px] font-medium tracking-wider uppercase">
-                  <Wifi className="w-3 h-3 text-orange-500 animate-pulse" />
-                  <span>Tap to Connect</span>
+              {/* CENTER: Logo (Custom uploaded logo or Default Ofika full official logo) */}
+              <div className="relative z-10 my-auto flex flex-col items-center justify-center text-center">
+                <div className="flex items-center justify-center max-h-16 sm:max-h-20 max-w-[220px]">
+                  {logoUrl ? (
+                    <img
+                      src={logoUrl}
+                      alt="Logo Entreprise"
+                      className="max-h-16 sm:max-h-20 max-w-[200px] object-contain drop-shadow-md rounded-xs"
+                    />
+                  ) : (
+                    <img
+                      src={isDark ? "/assets/logos/logo-white-full.svg" : "/assets/logos/logo-black-full.svg"}
+                      alt="Ofika"
+                      className="h-10 sm:h-14 w-auto object-contain drop-shadow-sm"
+                    />
+                  )}
                 </div>
               </div>
+
+              {/* BOTTOM ROW: Clean & Minimalist */}
+              <div className="relative z-10 h-3 w-full" />
             </div>
 
             {/* ========================================================
@@ -397,21 +333,20 @@ export function NFCCard3DViewer({
 
               {/* Verso Layout - Structured High-End Business Card */}
               {cardDesign === 'design1' ? (
-                /* Verso Design 1: Professional Side-by-Side (QR + User Profile) */
+                /* Verso Design 1: Centered QR + User Profile */
                 <div className="relative z-10 h-full flex flex-col justify-between">
                   {/* Top Bar on Verso */}
-                  <div className="flex items-center justify-between w-full pb-1 border-b border-current/10">
+                  <div className="flex items-center justify-between w-full h-5">
                     <span className={cn("text-[9px] sm:text-[10px] font-bold tracking-[0.2em] uppercase", textMutedColor)}>
-                      {company || 'OFIKA NETWORK'}
+                      {company || ''}
                     </span>
-                    <div className="flex items-center gap-1 text-[9px] sm:text-[10px] font-medium text-orange-500">
-                      <ContactlessIcon className="w-3.5 h-3.5" color="#f97316" />
-                      <span>NFC ENABLED</span>
+                    <div className="flex items-center gap-1 opacity-70">
+                      <ContactlessIcon className="w-3.5 h-3.5" color={isDark ? "#FFFFFF" : "#0F172A"} />
                     </div>
                   </div>
 
-                  {/* Middle Content */}
-                  <div className="flex items-center justify-between gap-3 sm:gap-4 my-auto">
+                  {/* Middle Content - Centré horizontalement et verticalement */}
+                  <div className="flex items-center justify-center gap-5 sm:gap-7 my-auto w-full">
                     {/* Left: QR Code in crisp luxury container */}
                     <div className="flex flex-col items-center gap-1.5 flex-shrink-0">
                       <div className="p-1.5 sm:p-2 bg-white rounded-xl shadow-md border border-slate-200/80 flex items-center justify-center">
@@ -430,37 +365,27 @@ export function NFCCard3DViewer({
                     </div>
 
                     {/* Right: Personal & Professional Details */}
-                    <div className="flex-1 flex flex-col justify-center text-left pl-1 sm:pl-2">
-                      <h4 className={cn("font-bold text-sm sm:text-base md:text-lg leading-tight tracking-tight", textColor)}>
+                    <div className="flex flex-col justify-center text-left">
+                      <h4 className={cn("font-bold text-base sm:text-lg md:text-xl leading-tight tracking-tight", textColor)}>
                         {fullName || 'Alexandre Dupont'}
                       </h4>
-                      <p className={cn("text-xs sm:text-sm font-medium mt-0.5", textMutedColor)}>
+                      <p className={cn("text-xs sm:text-sm font-medium mt-1", textMutedColor)}>
                         {jobTitle || 'Directeur Général'}
                       </p>
-                      
-                      <div className="mt-2 pt-2 border-t border-current/10 flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
-                        <span className={cn("text-[9px] sm:text-[10px] font-mono", textMutedColor)}>
-                          ofika.ci/connect
-                        </span>
-                      </div>
                     </div>
                   </div>
 
-                  {/* Bottom Bar */}
-                  <div className="flex items-center justify-between text-[8px] sm:text-[9px] opacity-60 font-mono">
-                    <span>ID: OFK-{(fullName || 'CARD').slice(0, 4).toUpperCase()}</span>
-                    <span>TOUCH & SHARE</span>
-                  </div>
+                  {/* Bottom Bar: Équilibre la hauteur du haut pour un centrage parfait */}
+                  <div className="h-5 w-full" />
                 </div>
               ) : (
                 /* Verso Design 2: Centered Executive Signature */
                 <div className="relative z-10 h-full flex flex-col justify-between text-center items-center">
-                  <div className="flex items-center justify-between w-full pb-1 border-b border-current/10">
+                  <div className="flex items-center justify-between w-full h-5">
                     <span className={cn("text-[9px] font-bold tracking-widest uppercase", textMutedColor)}>
-                      OFIKA PASS
+                      {company || ''}
                     </span>
-                    <ContactlessIcon className="w-3.5 h-3.5 text-orange-500" />
+                    <ContactlessIcon className="w-3.5 h-3.5 opacity-70" color={isDark ? "#FFFFFF" : "#0F172A"} />
                   </div>
 
                   {/* Center Info + Mini QR */}
@@ -476,16 +401,13 @@ export function NFCCard3DViewer({
                       <h4 className={cn("font-extrabold text-sm sm:text-base md:text-lg", textColor)}>
                         {fullName || 'Alexandre Dupont'}
                       </h4>
-                      <p className={cn("text-xs font-medium text-orange-500", textMutedColor)}>
-                        {jobTitle || 'Fondateur & CEO'}
+                      <p className={cn("text-xs font-medium", textMutedColor)}>
+                        {jobTitle || 'Directeur Commercial'}
                       </p>
                     </div>
                   </div>
 
-                  <div className="w-full flex justify-between items-center text-[8px] sm:text-[9px] opacity-50 font-mono">
-                    <span>NFC TAP READY</span>
-                    <span>ALL RIGHTS RESERVED</span>
-                  </div>
+                  <div className="h-5 w-full" />
                 </div>
               )}
             </div>
@@ -493,90 +415,22 @@ export function NFCCard3DViewer({
         </div>
       </div>
 
-      {/* Floating Side Active Indicator & Interactive Controls */}
+      {/* Controls: Bouton unique et épuré pour retourner la carte */}
       {showControls && (
-        <div className="w-full max-w-md mt-3 sm:mt-4 flex flex-col items-center gap-3">
-          {/* Active Side Badge */}
-          <div className="flex items-center gap-2">
-            <span
-              className={cn(
-                "inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-medium transition-all shadow-sm",
-                !isFlipped
-                  ? "bg-orange-500/10 text-orange-600 border border-orange-200"
-                  : "bg-slate-900/10 text-slate-800 border border-slate-200"
-              )}
-            >
-              <span className={cn(
-                "w-2 h-2 rounded-full",
-                !isFlipped ? "bg-orange-500 animate-pulse" : "bg-blue-500"
-              )} />
-              {!isFlipped ? "Face Avant (Recto)" : "Face Arrière (Verso)"}
-            </span>
+        <div className="w-full max-w-md mt-4 flex flex-col items-center gap-2">
+          <Button
+            type="button"
+            variant="outline"
+            size="sm"
+            onClick={handleFlipToggle}
+            className="flex items-center gap-2 px-5 py-2.5 text-xs sm:text-sm font-bold rounded-xl bg-white border border-gray-200 hover:bg-orange-50 hover:text-orange-600 hover:border-orange-300 transition-all shadow-sm cursor-pointer"
+          >
+            <RotateCcw className={cn("w-4 h-4 transition-transform duration-500", isFlipped && "rotate-180")} />
+            <span>{isFlipped ? "Voir la Face Avant (Recto)" : "Voir le Verso (QR Code)"}</span>
+          </Button>
 
-            {isAutoRotating && (
-              <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-full text-[11px] font-medium bg-emerald-50 text-emerald-700 border border-emerald-200 animate-fade-in">
-                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-ping" />
-                Rotation 360° active
-              </span>
-            )}
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex flex-wrap items-center justify-center gap-2 w-full px-2">
-            {/* Flip Button */}
-            <Button
-              type="button"
-              variant="outline"
-              size="sm"
-              onClick={handleFlipToggle}
-              className="flex items-center gap-1.5 text-xs sm:text-sm font-semibold rounded-xl hover:bg-orange-50 hover:text-orange-600 hover:border-orange-300 transition-all shadow-sm"
-            >
-              <RotateCcw className={cn("w-3.5 h-3.5 transition-transform duration-500", isFlipped && "rotate-180")} />
-              <span>{isFlipped ? "Voir le Recto" : "Voir le Verso"}</span>
-            </Button>
-
-            {/* Auto-Rotation Button */}
-            <Button
-              type="button"
-              variant={isAutoRotating ? "default" : "outline"}
-              size="sm"
-              onClick={toggleAutoRotate}
-              className={cn(
-                "flex items-center gap-1.5 text-xs sm:text-sm font-semibold rounded-xl transition-all shadow-sm",
-                isAutoRotating
-                  ? "bg-gradient-to-r from-orange-500 to-pink-500 text-white border-0 hover:from-orange-600 hover:to-pink-600"
-                  : "hover:bg-orange-50 hover:text-orange-600 hover:border-orange-300"
-              )}
-            >
-              {isAutoRotating ? (
-                <>
-                  <Pause className="w-3.5 h-3.5" />
-                  <span>Pause 360°</span>
-                </>
-              ) : (
-                <>
-                  <Play className="w-3.5 h-3.5" />
-                  <span>Rotation Auto 360°</span>
-                </>
-              )}
-            </Button>
-
-            {/* Reset View Button */}
-            <Button
-              type="button"
-              variant="ghost"
-              size="sm"
-              onClick={resetView}
-              className="text-xs text-gray-500 hover:text-gray-900 rounded-xl px-2 sm:px-3"
-            >
-              Recentrer
-            </Button>
-          </div>
-
-          {/* Interaction Tip */}
-          <p className="text-[11px] sm:text-xs text-gray-400 text-center flex items-center justify-center gap-1">
-            <span>💡</span>
-            <span>Cliquez sur la carte ou survolez-la pour l'incliner en 3D</span>
+          <p className="text-[11px] text-gray-400 text-center">
+            Touchez la carte ou le bouton pour afficher l&apos;autre face
           </p>
         </div>
       )}

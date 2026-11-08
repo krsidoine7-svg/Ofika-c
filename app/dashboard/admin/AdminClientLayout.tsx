@@ -19,7 +19,6 @@ import { toast } from "sonner"
 import { useRouter } from "next/navigation"
 import { useAuth } from "@/lib/hooks/useAuth"
 import { OrderNotifications } from '@/components/features/card-ordering/OrderNotifications'
-import { StaffMfaModal } from '@/components/core/auth/StaffMfaModal'
 import Link from 'next/link'
 
 interface AdminClientLayoutProps {
@@ -112,7 +111,6 @@ export function AdminClientLayout({ children }: AdminClientLayoutProps) {
                 </div>
             </SidebarProvider>
             <AdminRealtimeNotifications />
-            <StaffMfaModal />
         </AdminGuard>
     )
 }

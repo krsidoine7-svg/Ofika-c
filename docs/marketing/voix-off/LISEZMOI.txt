@@ -1,0 +1,15 @@
+DOSSIER DES VOIX OFF — programme réseaux sociaux Ofika (9 nov. → 6 déc. 2026)
+
+Dépose ici chaque enregistrement, nommé avec la date et le numéro du post :
+
+  2026-11-09_post01.m4a
+  2026-11-11_post02.m4a
+  2026-11-13_post03.m4a
+  ...
+  2026-12-06_post16.m4a
+
+- Format : m4a, mp3 ou wav (peu importe, je convertis).
+- Une prise ratée ? Refais-la juste après dans le même fichier, avec 2 secondes de silence : je garde la dernière.
+- Plusieurs prises séparées ? Ajoute _v2, _v3 : 2026-11-13_post03_v2.m4a (je prends la plus récente).
+
+Les textes à lire sont dans : docs/marketing/programme-reseaux-sociaux-novembre-2026.md (section 8)

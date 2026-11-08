@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 
-import { ArrowRight, Smartphone, CreditCard, Users, Globe, Shield, Zap, Play, CheckCircle, Smartphone as PhoneIcon, Zap as LightningIcon, Wifi, WifiOff, QrCode, Upload, User, Briefcase, Building, Image, RotateCcw, Palette, Mail, Phone, X, Loader2, UserPlus, Menu, Star, TrendingUp, Award, Link as LinkIcon, AlertTriangle, Facebook, Instagram, Linkedin, MessageCircle, Music2, Sparkles, Video } from "lucide-react"
+import { ArrowRight, Smartphone, CreditCard, Users, Globe, Shield, Zap, Play, CheckCircle, Smartphone as PhoneIcon, Zap as LightningIcon, Wifi, WifiOff, QrCode, Upload, User, Briefcase, Building, Image, RotateCcw, Palette, Mail, Phone, X, Loader2, UserPlus, Menu, Star, TrendingUp, Award, AlertTriangle, Instagram, Linkedin, MessageCircle, Music2, Sparkles, Video, Truck, MapPin } from "lucide-react"
 import Link from "next/link"
 import dynamic from 'next/dynamic'
 import { Logo } from "@/components/ui/logo"
@@ -29,7 +29,10 @@ const InteractiveBusinessCard = dynamic(() => import("@/components/InteractiveBu
   )
 })
 
-import { ModernHero } from "@/components/landing/ModernHero"
+const ModernHero = dynamic(() => import("@/components/landing/ModernHero").then(mod => mod.ModernHero), {
+  ssr: false,
+  loading: () => <div className="min-h-[600px] w-full bg-white" />
+})
 import { ScrollStorytelling } from "@/components/landing/ScrollStorytelling"
 import { ScrollReveal } from "@/components/core/ScrollReveal"
 import { VerifiedReviewsSection } from "@/components/landing/VerifiedReviewsSection"
@@ -208,187 +211,144 @@ export default function HomePage() {
 
 
 
-      {/* TARGET AUDIENCE SECTION : POUR QUI ? */}
-      <section className="pt-[20px] pb-20 bg-white border-b border-gray-100 overflow-hidden">
-        <div className="container mx-auto px-4 text-center">
-          <ScrollReveal>
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-12">
-              Pensé pour tous ceux qui rencontrent <br className="hidden md:block" /> <span className="text-ofika-orange">des clients et des partenaires</span> au quotidien.
+      {/* SECTION COMBINÉE : SOLUTION, NFC vs QR & POUR QUI */}
+      <section id="solution" className="py-16 sm:py-20 bg-gray-50/70 border-b border-gray-100 overflow-hidden">
+        <div className="container mx-auto px-4 max-w-6xl">
+          {/* En-tête percutant */}
+          <div className="text-center max-w-3xl mx-auto mb-12">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-orange-100/80 text-ofika-orange mb-4">
+              <Sparkles className="w-3.5 h-3.5" />
+              L&apos;alternative moderne à la carte papier
+            </span>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 tracking-tight mb-4">
+              Le sans contact pour vos rencontres.<br className="hidden sm:block" />
+              <span className="text-ofika-orange"> Le QR code</span> pour vos supports.
             </h2>
-          </ScrollReveal>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 max-w-7xl mx-auto">
-            <ScrollReveal delay={0.1} direction="up">
-              <Card className="border-0 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 bg-gray-50 hover:bg-orange-50/50 group h-full">
-                <CardContent className="p-6 text-center pt-10">
-                  <div className="w-16 h-16 bg-gradient-to-br from-orange-500/10 to-orange-500/5 border border-orange-500/20 rounded-2xl flex items-center justify-center mx-auto mb-6 text-orange-600 shadow-[0_8px_30px_rgba(249,115,22,0.1)] group-hover:scale-110 group-hover:shadow-[0_12px_40px_rgba(249,115,22,0.2)] transition-all duration-300">
-                    <Building className="w-8 h-8 text-orange-600" />
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">Commerces & Boutiques</h3>
-                  <p className="text-gray-600 text-sm leading-relaxed">Partagez votre catalogue, vos prix et votre WhatsApp d'un simple geste. Ne perdez plus un client qui passe devant chez vous.</p>
-                </CardContent>
-              </Card>
-            </ScrollReveal>
-
-            <ScrollReveal delay={0.2} direction="up">
-              <Card className="border-0 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 bg-gray-50 hover:bg-orange-50/50 group h-full">
-                <CardContent className="p-6 text-center pt-10">
-                  <div className="w-16 h-16 bg-gradient-to-br from-purple-500/10 to-purple-500/5 border border-purple-500/20 rounded-2xl flex items-center justify-center mx-auto mb-6 text-purple-600 shadow-[0_8px_30px_rgba(168,85,247,0.1)] group-hover:scale-110 group-hover:shadow-[0_12px_40px_rgba(168,85,247,0.2)] transition-all duration-300">
-                    <Briefcase className="w-8 h-8 text-purple-600" />
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">Entrepreneurs & Cadres</h3>
-                  <p className="text-gray-600 text-sm leading-relaxed">En réunion ou déjeuner d'affaires, transmettez vos coordonnées complètes sans jamais manquer de cartes de visite.</p>
-                </CardContent>
-              </Card>
-            </ScrollReveal>
-
-            <ScrollReveal delay={0.3} direction="up">
-              <Card className="border-0 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 bg-gray-50 hover:bg-orange-50/50 group h-full">
-                <CardContent className="p-6 text-center pt-10">
-                  <div className="w-16 h-16 bg-gradient-to-br from-pink-500/10 to-pink-500/5 border border-pink-500/20 rounded-2xl flex items-center justify-center mx-auto mb-6 text-pink-600 shadow-[0_8px_30px_rgba(236,72,153,0.1)] group-hover:scale-110 group-hover:shadow-[0_12px_40px_rgba(236,72,153,0.2)] transition-all duration-300">
-                    <User className="w-8 h-8 text-pink-600" />
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">Freelances & Experts</h3>
-                  <p className="text-gray-600 text-sm leading-relaxed">Montrez vos réalisations et vos tarifs en direct. Votre prospect enregistre votre fiche contact en un tap.</p>
-                </CardContent>
-              </Card>
-            </ScrollReveal>
-
-            <ScrollReveal delay={0.4} direction="up">
-              <Card className="border-0 shadow-lg hover:shadow-xl transition-all hover:-translate-y-1 bg-gray-50 hover:bg-orange-50/50 group h-full">
-                <CardContent className="p-6 text-center pt-10">
-                  <div className="w-16 h-16 bg-gradient-to-br from-blue-500/10 to-blue-500/5 border border-blue-500/20 rounded-2xl flex items-center justify-center mx-auto mb-6 text-blue-600 shadow-[0_8px_30px_rgba(59,130,246,0.1)] group-hover:scale-110 group-hover:shadow-[0_12px_40px_rgba(59,130,246,0.2)] transition-all duration-300">
-                    <Video className="w-8 h-8 text-blue-600" />
-                  </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">Créateurs & Médias</h3>
-                  <p className="text-gray-600 text-sm leading-relaxed">Centralisez vos vidéos, vos réseaux sociaux et vos collaborations sur un seul lien clair et élégant.</p>
-                </CardContent>
-              </Card>
-            </ScrollReveal>
-          </div>
-        </div>
-      </section>
-
-      {/* SOLUTION SECTION : LA RÉVÉLATION */}
-      <section id="solution" className="py-20 bg-gray-50 overflow-hidden">
-        <div className="container mx-auto px-4">
-          <ScrollReveal direction="down" className="text-center mb-16">
-            <h2 className="text-3xl sm:text-5xl font-bold text-gray-900 mb-6">
-              Fini les cartes de visite papier <span className="text-ofika-orange">oubliées ou jetées</span>
-            </h2>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              88% des cartes en papier finissent à la poubelle en moins d'une semaine. Avec Ofika, vous restez enregistré dans le téléphone de votre client pour toujours.
+            <p className="text-base sm:text-lg text-gray-600 leading-relaxed">
+              <strong className="text-gray-900 font-semibold">88% des cartes papier finissent à la poubelle</strong> en moins d&apos;une semaine. Avec Ofika, vos coordonnées s&apos;enregistrent instantanément dans le téléphone de votre client, modifiables à vie et sans application.
             </p>
-          </ScrollReveal>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto items-stretch">
-            <ScrollReveal delay={0.1} direction="right" className="flex flex-col h-full">
-              <Card className="shadow-md hover:shadow-[0_30px_60px_-15px_rgba(59,130,246,0.3)] transition-all duration-500 group h-full flex flex-col bg-white overflow-hidden rounded-2xl border-2 border-gray-100 hover:border-blue-500 hover:-translate-y-2">
-                <CardContent className="p-8 text-center flex-1 flex flex-col justify-center">
-                  <div className="w-16 h-16 bg-blue-100 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <LinkIcon className="w-8 h-8 text-blue-600" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-4">Votre vitrine toujours à jour</h3>
-                  <p className="text-gray-600 leading-relaxed">
-                    Un numéro qui change ? Une nouvelle offre ? Vous modifiez vos informations en quelques secondes depuis votre tableau de bord, sans jamais réimprimer de cartes.
-                  </p>
-                </CardContent>
-              </Card>
-            </ScrollReveal>
-
-            <ScrollReveal delay={0.2} direction="left" className="flex flex-col h-full">
-              <Card className="shadow-md hover:shadow-[0_30px_60px_-15px_rgba(168,85,247,0.3)] transition-all duration-500 group h-full flex flex-col bg-white overflow-hidden rounded-2xl border-2 border-gray-100 hover:border-purple-500 hover:-translate-y-2">
-                <CardContent className="p-8 text-center flex-1 flex flex-col justify-center">
-                  <div className="w-16 h-16 bg-purple-100 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform duration-300">
-                    <Wifi className="w-8 h-8 text-purple-600" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-gray-900 mb-4">Un geste, zéro effort</h3>
-                  <p className="text-gray-600 leading-relaxed">
-                    Approchez simplement votre carte du smartphone de votre client. Vos coordonnées complètes s'affichent sans qu'il ait besoin d'installer d'application.
-                  </p>
-                </CardContent>
-              </Card>
-            </ScrollReveal>
           </div>
-        </div>
-      </section>
 
-      {/* HYBRID SECTION : LE MEILLEUR DES DEUX MONDES */}
-      <section className="py-20 bg-white overflow-hidden">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center max-w-6xl mx-auto">
-            <ScrollReveal direction="right" className="space-y-6">
-              <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 leading-tight">
-                Le QR Code pour <span className="text-ofika-orange">vos supports</span>.<br />
-                La Carte Sans Contact pour <span className="text-purple-600">vos rencontres</span>.
-              </h2>
-              <p className="text-lg text-gray-600 leading-relaxed">Vous êtes paré pour toutes les situations, que votre prospect soit en face de vous ou à distance.</p>
-              <div className="space-y-4 pt-4">
-                <div className="flex gap-4 p-4 rounded-xl border border-gray-100 hover:border-orange-100 hover:bg-orange-50/30 transition-all">
-                  <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0"><QrCode className="w-6 h-6 text-ofika-orange" /></div>
-                  <div>
-                    <h4 className="font-bold text-gray-900">Le QR Code Express</h4>
-                    <p className="text-sm text-gray-600">À afficher sur vos emballages, votre vitrine ou vos factures. Vos clients scannent et découvrent vos services en 2 secondes.</p>
-                  </div>
+          {/* Les 2 Piliers : NFC vs QR Code */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 mb-12">
+            {/* Pilier 1 : NFC */}
+            <div className="bg-white rounded-2xl p-7 sm:p-8 border border-gray-200/80 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+              <div className="w-12 h-12 rounded-xl bg-orange-100 text-ofika-orange flex items-center justify-center mb-5 group-hover:scale-105 transition-transform">
+                <Wifi className="w-6 h-6" />
+              </div>
+              <span className="text-xs font-bold uppercase tracking-wider text-ofika-orange">En face-à-face</span>
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1 mb-2">La Carte Sans Contact (NFC)</h3>
+              <p className="text-sm sm:text-base text-gray-600 mb-5 leading-relaxed">
+                Approchez votre carte du smartphone de votre interlocuteur. Votre fiche s&apos;ouvre automatiquement sans qu&apos;il ait besoin d&apos;installer la moindre application.
+              </p>
+              <ul className="space-y-2.5 text-xs sm:text-sm text-gray-700 font-medium border-t border-gray-100 pt-4">
+                <li className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                  <span>100% compatible iPhone &amp; Android</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                  <span>Enregistrement en 1 tap dans les contacts</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                  <span>Profil et coordonnées modifiables à vie</span>
+                </li>
+              </ul>
+            </div>
+
+            {/* Pilier 2 : QR Code */}
+            <div className="bg-white rounded-2xl p-7 sm:p-8 border border-gray-200/80 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+              <div className="w-12 h-12 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center mb-5 group-hover:scale-105 transition-transform">
+                <QrCode className="w-6 h-6" />
+              </div>
+              <span className="text-xs font-bold uppercase tracking-wider text-purple-600">Sur vos supports &amp; à distance</span>
+              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1 mb-2">Le QR Code Intelligent</h3>
+              <p className="text-sm sm:text-base text-gray-600 mb-5 leading-relaxed">
+                Imprimé au dos de votre carte ou affiché sur vos vitrines, emballages, factures et réseaux pour être contacté même à distance.
+              </p>
+              <ul className="space-y-2.5 text-xs sm:text-sm text-gray-700 font-medium border-t border-gray-100 pt-4">
+                <li className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                  <span>Idéal pour vitrines, emballages et flyers</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                  <span>Lien direct vers WhatsApp, catalogue &amp; réseaux</span>
+                </li>
+                <li className="flex items-center gap-2">
+                  <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                  <span>Scannable avec tout appareil photo</span>
+                </li>
+              </ul>
+            </div>
+          </div>
+
+          {/* Bandeau compact : Pour qui ? */}
+          <div className="bg-white rounded-2xl p-6 sm:p-8 border border-gray-200/70 shadow-sm">
+            <div className="text-center sm:text-left mb-5">
+              <span className="text-xs font-bold uppercase tracking-wider text-gray-400">Pour qui ?</span>
+              <h4 className="text-lg sm:text-xl font-bold text-gray-900">Une solution pensée pour votre quotidien professionnel</h4>
+            </div>
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div className="flex items-start gap-3 p-3.5 rounded-xl bg-gray-50/80 hover:bg-orange-50/50 transition-colors">
+                <div className="w-9 h-9 rounded-lg bg-orange-100 text-orange-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <Building className="w-4 h-4" />
                 </div>
-                <div className="flex gap-4 p-4 rounded-xl border border-gray-100 hover:border-purple-100 hover:bg-purple-50/30 transition-all">
-                  <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center flex-shrink-0"><Wifi className="w-6 h-6 text-purple-600" /></div>
-                  <div>
-                    <h4 className="font-bold text-gray-900">La Carte Sans Contact (NFC)</h4>
-                    <p className="text-sm text-gray-600">Posez votre carte sur le smartphone de votre interlocuteur. Votre fiche contact s'ouvre toute seule sur son écran.</p>
-                  </div>
+                <div>
+                  <h5 className="font-bold text-sm text-gray-900">Boutiques &amp; Commerces</h5>
+                  <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">WhatsApp, catalogue &amp; localisation en un geste.</p>
                 </div>
               </div>
-            </ScrollReveal>
 
-            <ScrollReveal direction="left" className="w-[calc(100%+2rem)] -mx-4 lg:w-full lg:mx-0 relative group">
-              <div className="absolute -inset-4 bg-gradient-to-r from-orange-500 to-purple-500 rounded-3xl blur opacity-10 group-hover:opacity-20 transition duration-1000 group-hover:duration-200 hidden lg:block"></div>
-              <div className="relative bg-white p-6 sm:p-8 rounded-3xl border-0 lg:border border-gray-100 shadow-none lg:shadow-xl overflow-hidden">
-                <div className="flex justify-between items-start mb-12">
-                  <div className="space-y-2">
-                    <div className="h-6 w-32 bg-gray-100 rounded-full"></div>
-                    <div className="h-4 w-24 bg-gray-50 rounded-full"></div>
-                  </div>
-                  <QrCode className="w-16 h-16 text-gray-200" />
+              <div className="flex items-start gap-3 p-3.5 rounded-xl bg-gray-50/80 hover:bg-purple-50/50 transition-colors">
+                <div className="w-9 h-9 rounded-lg bg-purple-100 text-purple-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <Briefcase className="w-4 h-4" />
                 </div>
-                <div className="aspect-video bg-gradient-to-br from-gray-900 to-gray-800 rounded-2xl p-6 relative flex flex-col justify-end">
-                  <div className="absolute top-4 right-4"><Wifi className="w-8 h-8 text-white/20 animate-pulse-slow" /></div>
-                  <div className="text-white">
-                    <div className="text-xl font-bold mb-1 tracking-wider uppercase">VOTRE NOM</div>
-                    <div className="text-xs text-orange-400 font-medium">Business Card NFC</div>
-                  </div>
-                </div>
-                <div className="mt-8 flex justify-center gap-4">
-                  <div className="h-2 w-16 bg-gray-100 rounded-full"></div>
-                  <div className="h-2 w-16 bg-ofika-orange/30 rounded-full"></div>
-                  <div className="h-2 w-16 bg-gray-100 rounded-full"></div>
+                <div>
+                  <h5 className="font-bold text-sm text-gray-900">Cadres &amp; Entreprises</h5>
+                  <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">Salons et déjeuners sans jamais manquer de cartes.</p>
                 </div>
               </div>
-            </ScrollReveal>
+
+              <div className="flex items-start gap-3 p-3.5 rounded-xl bg-gray-50/80 hover:bg-pink-50/50 transition-colors">
+                <div className="w-9 h-9 rounded-lg bg-pink-100 text-pink-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <User className="w-4 h-4" />
+                </div>
+                <div>
+                  <h5 className="font-bold text-sm text-gray-900">Freelances &amp; Experts</h5>
+                  <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">Portfolio, offres et prise de contact immédiate.</p>
+                </div>
+              </div>
+
+              <div className="flex items-start gap-3 p-3.5 rounded-xl bg-gray-50/80 hover:bg-blue-50/50 transition-colors">
+                <div className="w-9 h-9 rounded-lg bg-blue-100 text-blue-600 flex items-center justify-center flex-shrink-0 mt-0.5">
+                  <Video className="w-4 h-4" />
+                </div>
+                <div>
+                  <h5 className="font-bold text-sm text-gray-900">Créateurs &amp; Médias</h5>
+                  <p className="text-xs text-gray-500 mt-0.5 leading-relaxed">Réseaux, vidéos et partenariats sur une seule page.</p>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </section>
 
       {/* DEMO SECTION */}
-      <section id="demo" className="py-20 bg-gray-900 text-white overflow-hidden">
+      <section id="demo" className="py-16 sm:py-24 bg-gradient-to-b from-white via-orange-50/25 to-white border-b border-gray-100 overflow-hidden">
         <div className="container mx-auto px-4 max-w-6xl">
-          <div className="text-center mb-16 max-w-3xl mx-auto">
-            <h2 className="text-4xl lg:text-5xl font-extrabold mb-6 leading-tight">
-              Testez le rendu de votre carte <br />
-              <span className="text-ofika-orange">avec vos propres informations</span>
+          <div className="text-center mb-10 max-w-2xl mx-auto">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-orange-100 text-ofika-orange mb-3">
+              <Sparkles className="w-3.5 h-3.5" />
+              Simulateur 3D en direct
+            </span>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 tracking-tight mb-3">
+              Testez votre carte <span className="text-ofika-orange">en temps réel</span>
             </h2>
-            <p className="text-xl text-gray-300 mb-8 leading-relaxed font-medium">
-              Personnalisez votre design en temps réel. <br />
-              Ne nous croyez pas sur parole, remplissez le formulaire ci-dessous.
+            <p className="text-base sm:text-lg text-gray-600 leading-relaxed">
+              Tapez vos informations et observez immédiatement le résultat en 3D sur votre future carte.
             </p>
-
-
-            <Link href="/get-started">
-              <Button size="lg" className="bg-white text-gray-900 hover:bg-gray-100 font-bold px-8 py-6 text-lg">
-                Je valide mon design
-                <ArrowRight className="ml-2 h-5 w-5" />
-              </Button>
-            </Link>
           </div>
 
           <div className="w-full flex justify-center">
@@ -399,381 +359,413 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* PRICING SECTION */}
-      <section id="pricing" className="py-20 bg-gray-900 border-t border-gray-800">
-        <div className="container mx-auto px-4">
-          <div className="text-center mb-16">
-            <h2 className="text-3xl sm:text-5xl font-bold text-white mb-6">Des tarifs adaptés à <span className="text-ofika-orange">votre ambition</span>.</h2>
-            <p className="text-xl text-gray-400 max-w-2xl mx-auto">Pas de frais cachés. Annulable à tout moment.</p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto mb-16">
-            {/* PLAN GRATUIT - DÉCOUVERTE */}
-            <ScrollReveal delay={0.1} className="h-full">
-              <Card className="bg-gray-800 border-gray-700 text-white shadow-xl hover:border-gray-600 transition-all flex flex-col h-full">
-                <CardContent className="p-6 flex flex-col h-full">
-                  <div className="mb-6">
-                    <Badge className="bg-gray-700 text-gray-300 hover:bg-gray-600 mb-3 px-3 py-1 font-bold italic">Essentiel</Badge>
-                    <h3 className="text-2xl font-bold mb-2 text-white">Gratuit à vie</h3>
-                    <div className="flex items-end gap-2"><span className="text-4xl font-black text-white">0 <span className="text-lg font-bold">FCFA</span></span></div>
-                  </div>
-                  <ul className="space-y-3 mb-8 flex-1 text-sm">
-                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Votre page de profil en ligne personnalisée</span></li>
-                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Bouton "Ajouter aux contacts" pour vos clients</span></li>
-                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Liens vers votre WhatsApp, téléphone et réseaux</span></li>
-                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" /><span>QR Code prêt à être scanné ou imprimé</span></li>
-                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Modifiable en temps réel à tout moment</span></li>
-                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Compatible tous smartphones (iPhone & Android)</span></li>
-                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-green-400 flex-shrink-0" /><span>Sans engagement, 100% gratuit à vie</span></li>
-                  </ul>
-                  <Link href="/onboarding/public-page" className="block w-full">
-                    <Button size="lg" className="w-full bg-black text-white hover:bg-gray-900 border border-gray-700/60 font-bold h-12 rounded-xl transition-all shadow-md">
-                      Créer mon profil gratuit
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
-            </ScrollReveal>
-
-            {/* PLAN PRO - CONQUÉRANT */}
-            <ScrollReveal delay={0.2} className="h-full">
-              <Card className="bg-gradient-to-br from-gray-800 to-gray-900 border-ofika-orange border-2 relative overflow-hidden shadow-[0_0_50px_-12px_rgba(249,115,22,0.3)] z-10 flex flex-col h-full transform lg:scale-105">
-                <div className="absolute top-0 right-0 bg-ofika-orange text-white text-[10px] font-black px-3 py-1 rounded-bl-lg uppercase tracking-widest">Recommandé</div>
-                <CardContent className="p-6 flex flex-col h-full">
-                  <div className="mb-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Badge className="bg-ofika-orange/20 text-ofika-orange border-ofika-orange/30 px-3 py-1 text-xs font-bold italic">Premium</Badge>
-                      <Badge className="bg-blue-500/10 text-blue-400 border-blue-500/30 px-2 py-0.5 text-[10px] font-black">BETA</Badge>
-                    </div>
-                    <h3 className="text-2xl font-bold text-white mb-2">Pro</h3>
-                    <div className="flex items-end gap-2 mb-2"><span className="text-4xl font-black text-white">1.000 <span className="text-lg font-bold">FCFA</span></span><span className="text-gray-400 text-xs mb-1">/ mois</span></div>
-                    <p className="text-[10px] text-orange-200/60 leading-tight italic bg-orange-500/5 p-2 rounded-lg border border-orange-500/10">En cours de finalisation. Le profil Gratuit et la carte NFC physique sont actifs.</p>
-                  </div>
-                  <ul className="space-y-2.5 mb-8 flex-1 text-[13px]">
-                    <li className="flex items-center gap-3 text-white font-bold mb-2"><CheckCircle className="w-4 h-4 text-ofika-orange flex-shrink-0" /><span>Tout du plan Gratuit +</span></li>
-                    <li className="flex items-center gap-3 text-white/90"><CheckCircle className="w-4 h-4 text-ofika-orange flex-shrink-0" /><span>Plusieurs profils pour séparer pro et perso</span></li>
-                    <li className="flex items-center gap-3 text-white/90"><CheckCircle className="w-4 h-4 text-ofika-orange flex-shrink-0" /><span>Designs et thèmes visuels exclusifs</span></li>
-                    <li className="flex items-center gap-3 text-white/90"><CheckCircle className="w-4 h-4 text-ofika-orange flex-shrink-0" /><span>Collecte d'avis clients pour rassurer vos acheteurs</span></li>
-                    <li className="flex items-center gap-3 text-white/90"><CheckCircle className="w-4 h-4 text-ofika-orange flex-shrink-0" /><span>Statistiques des visites et des scans reçus</span></li>
-                    <li className="flex items-center gap-3 text-white/90"><CheckCircle className="w-4 h-4 text-ofika-orange flex-shrink-0" /><span>Liens et catalogues produits enrichis</span></li>
-                  </ul>
-                  <Button disabled size="lg" className="w-full bg-gray-700 text-gray-400 font-black h-12 rounded-xl cursor-not-allowed">
-                    Bientôt Disponible
-                  </Button>
-                </CardContent>
-              </Card>
-            </ScrollReveal>
-
-            {/* PLAN BUSINESS - DOMINATION */}
-            <ScrollReveal delay={0.3} className="h-full">
-              <Card className="bg-gray-800 border-purple-500/30 border text-white shadow-xl hover:border-purple-500/50 transition-all flex flex-col h-full opacity-90">
-                <CardContent className="p-6 flex flex-col h-full">
-                  <div className="mb-4">
-                    <div className="flex items-center gap-2 mb-3">
-                      <Badge className="bg-purple-900/40 text-purple-400 border-purple-500/30 px-3 py-1 font-bold italic">Entreprise</Badge>
-                      <Badge className="bg-blue-500/10 text-blue-400 border-blue-500/30 px-2 py-0.5 text-[10px] font-black">BETA</Badge>
-                    </div>
-                    <h3 className="text-2xl font-bold mb-2">Business</h3>
-                    <div className="flex items-end gap-2 mb-2"><span className="text-4xl font-black text-white">3.000 <span className="text-lg font-bold">FCFA</span></span><span className="text-gray-400 text-xs mb-1">/ mois</span></div>
-                    <p className="text-[10px] text-purple-300/60 leading-tight italic bg-purple-500/5 p-2 rounded-lg border border-purple-500/10">En cours de finalisation. Le profil Gratuit et la carte NFC physique sont actifs.</p>
-                  </div>
-                  <ul className="space-y-2.5 mb-8 flex-1 text-[13px]">
-                    <li className="flex items-center gap-3 text-gray-200 font-bold mb-2"><CheckCircle className="w-4 h-4 text-purple-500 flex-shrink-0" /><span>Tout du plan Pro +</span></li>
-                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-purple-500 flex-shrink-0" /><span>Gestion centralisée pour vos collaborateurs</span></li>
-                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-purple-500 flex-shrink-0" /><span>Votre propre nom de domaine personnalisé</span></li>
-                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-purple-500 flex-shrink-0" /><span>Sans aucune mention Ofika (100% à votre marque)</span></li>
-                    <li className="flex items-center gap-3 text-gray-300"><CheckCircle className="w-4 h-4 text-purple-500 flex-shrink-0" /><span>Accompagnement et support prioritaire 7j/7</span></li>
-                  </ul>
-                  <Button disabled size="lg" className="w-full bg-gray-700 text-gray-400 font-black h-12 rounded-xl cursor-not-allowed">
-                    Bientôt Disponible
-                  </Button>
-                </CardContent>
-              </Card>
-            </ScrollReveal>
+      {/* PRICING SECTION - REDESIGN LUMINEUX & ÉPURÉ */}
+      <section id="pricing" className="py-20 sm:py-28 bg-gray-50/70 border-b border-gray-100 overflow-hidden">
+        <div className="container mx-auto px-4 max-w-6xl">
+          {/* En-tête de section */}
+          <div className="text-center mb-14 max-w-2xl mx-auto">
+            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-orange-100 text-ofika-orange mb-3">
+              <Sparkles className="w-3.5 h-3.5" />
+              Transparence totale
+            </span>
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 tracking-tight mb-4">
+              Des tarifs adaptés à <span className="text-ofika-orange">votre ambition</span>
+            </h2>
+            <p className="text-base sm:text-lg text-gray-600 leading-relaxed">
+              Pas de frais cachés, aucun abonnement forcé. Commencez gratuitement ou commandez votre carte physique sans contact.
+            </p>
           </div>
 
-          {/* PHYSICAL CARD SECTION - SEPARATE */}
-          <div className="max-w-4xl mx-auto">
-            <ScrollReveal delay={0.4}>
-              <Card className="bg-white border-2 border-orange-100 text-gray-900 shadow-2xl overflow-hidden group">
-                <div className="flex flex-col md:flex-row">
-                  <div className="bg-gradient-to-br from-orange-500 to-red-600 text-white p-8 md:w-1/3 flex flex-col justify-center items-center text-center">
-                    <div className="bg-white/20 p-4 rounded-3xl mb-4 group-hover:scale-110 transition-transform duration-500">
-                      <CreditCard className="w-12 h-12 text-white" />
-                    </div>
-                    <Badge className="bg-white text-orange-600 mb-2 font-bold tracking-tighter">ÉDITION PHYSIQUE</Badge>
-                    <h3 className="text-2xl font-black mb-1">Carte NFC Ofika</h3>
-                    <div className="text-3xl font-black text-white/95">{NFC_CARD_BASE_PRICE.toLocaleString('fr-FR')} FCFA</div>
-                    <p className="text-[9px] text-orange-100 font-bold uppercase tracking-wider mt-1.5 leading-tight">Achat Unique • Valable à vie</p>
-                  </div>
-                  <div className="p-8 md:w-2/3 flex flex-col">
-                    <h3 className="text-2xl font-bold mb-4">La carte physique qui fait la différence</h3>
-                    <ul className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-8">
-                      <li className="flex items-center gap-3 text-gray-600"><CheckCircle className="w-4 h-4 text-ofika-orange flex-shrink-0" /><span>Sans contact : posez sur le téléphone et c'est partagé</span></li>
-                      <li className="flex items-center gap-3 text-gray-600"><CheckCircle className="w-4 h-4 text-ofika-orange flex-shrink-0" /><span>Carte rigide et étanche, utilisable à vie</span></li>
-                      <li className="flex items-center gap-3 text-gray-600"><CheckCircle className="w-4 h-4 text-ofika-orange flex-shrink-0" /><span>Modifiable en direct sans réimpression</span></li>
-                      <li className="flex items-center gap-3 text-gray-600"><CheckCircle className="w-4 h-4 text-ofika-orange flex-shrink-0" /><span>Livraison rapide à Abidjan et en Côte d'Ivoire</span></li>
-                      <li className="flex items-start gap-3 sm:col-span-2 bg-orange-50/70 p-3 rounded-xl border border-orange-100/60 mt-1">
-                        <CheckCircle className="w-4 h-4 text-ofika-orange flex-shrink-0 mt-0.5" />
-                        <span className="text-[11px] sm:text-xs font-semibold text-gray-700 leading-relaxed">
-                          <strong>Personnalisation sur-mesure pour entreprises :</strong> Commandez des cartes physiques avec votre logo officiel et vos couleurs d'entreprise pour équiper vos équipes.
-                        </span>
-                      </li>
-                    </ul>
-                    <Link href="/get-started" className="mt-auto">
-                      <Button size="lg" className="w-full bg-gray-900 hover:bg-ofika-orange text-white font-bold h-14 rounded-2xl shadow-xl transition-all flex items-center justify-center text-lg">
-                        Commander ma carte
-                        <ArrowRight className="ml-3 h-6 w-6" />
-                      </Button>
-                    </Link>
-                  </div>
+          {/* Grille des 3 offres claires */}
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch mb-12">
+            {/* OFFRE 1 : PROFIL DIGITAL (GRATUIT) */}
+            <div className="bg-white rounded-3xl border border-gray-200/80 p-7 sm:p-8 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
+              <div>
+                <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-700 mb-4">
+                  Pour démarrer
+                </span>
+                <h3 className="text-2xl font-bold text-gray-900 mb-1">Profil Digital</h3>
+                <p className="text-sm text-gray-500 mb-5">Votre vitrine en ligne accessible par QR code.</p>
+                
+                <div className="flex items-baseline gap-1.5 mb-6 pb-6 border-b border-gray-100">
+                  <span className="text-4xl sm:text-5xl font-black text-gray-900">0</span>
+                  <span className="text-base font-bold text-gray-500">FCFA</span>
+                  <span className="text-xs text-emerald-600 font-semibold ml-2">Gratuit à vie</span>
                 </div>
-              </Card>
-            </ScrollReveal>
+
+                <ul className="space-y-3 text-sm text-gray-600 mb-8">
+                  <li className="flex items-center gap-2.5">
+                    <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                    <span>Page de profil en ligne personnalisée</span>
+                  </li>
+                  <li className="flex items-center gap-2.5">
+                    <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                    <span>Bouton "Ajouter aux contacts" en 1 clic</span>
+                  </li>
+                  <li className="flex items-center gap-2.5">
+                    <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                    <span>WhatsApp, téléphone, catalogues &amp; réseaux</span>
+                  </li>
+                  <li className="flex items-center gap-2.5">
+                    <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                    <span>QR Code digital prêt à scanner</span>
+                  </li>
+                  <li className="flex items-center gap-2.5">
+                    <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                    <span>Modifiable en temps réel à tout moment</span>
+                  </li>
+                  <li className="flex items-center gap-2.5">
+                    <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                    <span>100% compatible tous smartphones</span>
+                  </li>
+                </ul>
+              </div>
+
+              <Link href="/onboarding/public-page" className="block w-full">
+                <Button size="lg" className="w-full h-12 rounded-xl bg-gray-900 hover:bg-gray-800 text-white font-bold text-sm shadow-sm transition-all cursor-pointer">
+                  Créer mon profil gratuit
+                </Button>
+              </Link>
+            </div>
+
+            {/* OFFRE 2 : CARTE NFC PHYSIQUE */}
+            <div className="bg-white rounded-3xl border border-gray-200/80 p-7 sm:p-8 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
+              <div>
+                <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-700 mb-4">
+                  Édition physique
+                </span>
+                <h3 className="text-2xl font-bold text-gray-900 mb-1">Carte NFC Physique</h3>
+                <p className="text-sm text-gray-500 mb-5">Le geste sans contact qui marque vos rencontres.</p>
+                
+                <div className="flex items-baseline gap-1.5 mb-6 pb-6 border-b border-gray-100">
+                  <span className="text-4xl sm:text-5xl font-black text-gray-900">{NFC_CARD_BASE_PRICE.toLocaleString('fr-FR')}</span>
+                  <span className="text-base font-bold text-gray-500">FCFA</span>
+                  <span className="text-xs text-emerald-600 font-semibold ml-2">Achat unique • À vie</span>
+                </div>
+
+                <ul className="space-y-3 text-sm text-gray-600 mb-8">
+                  <li className="flex items-center gap-2.5">
+                    <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                    <span>Puce NFC sans contact (1 tap sur smartphone)</span>
+                  </li>
+                  <li className="flex items-center gap-2.5">
+                    <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                    <span>QR Code haute définition gravé au dos</span>
+                  </li>
+                  <li className="flex items-center gap-2.5">
+                    <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                    <span>Carte rigide haut de gamme, étanche &amp; inusable</span>
+                  </li>
+                  <li className="flex items-center gap-2.5">
+                    <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                    <span>Profil digital complet inclus et modifiable à vie</span>
+                  </li>
+                  <li className="flex items-center gap-2.5">
+                    <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                    <span>Aucun abonnement, aucun frais mensuel</span>
+                  </li>
+                  <li className="flex items-center gap-2.5">
+                    <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                    <span className="text-gray-900 font-medium">Livraison 100% gratuite dans tout Abidjan</span>
+                  </li>
+                </ul>
+              </div>
+
+              <Link href="/get-started" className="block w-full">
+                <Button size="lg" className="w-full h-12 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer">
+                  <span>Commander ma carte</span>
+                  <ArrowRight className="w-4 h-4" />
+                </Button>
+              </Link>
+            </div>
+
+            {/* OFFRE 3 : ENTREPRISES & ÉQUIPES */}
+            <div className="bg-white rounded-3xl border border-gray-200/80 p-7 sm:p-8 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
+              <div>
+                <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-700 mb-4">
+                  Équipes &amp; Flottes
+                </span>
+                <h3 className="text-2xl font-bold text-gray-900 mb-1">Entreprises</h3>
+                <p className="text-sm text-gray-500 mb-5">Équipez vos collaborateurs avec votre logo officiel.</p>
+                
+                <div className="flex items-baseline gap-1.5 mb-6 pb-6 border-b border-gray-100">
+                  <span className="text-3xl sm:text-4xl font-black text-gray-900">Sur devis</span>
+                  <span className="text-xs text-purple-600 font-semibold ml-2">Dès 5 cartes</span>
+                </div>
+
+                <ul className="space-y-3 text-sm text-gray-600 mb-8">
+                  <li className="flex items-center gap-2.5">
+                    <CheckCircle className="w-4 h-4 text-purple-600 flex-shrink-0" />
+                    <span>Design 100% sur-mesure à vos couleurs &amp; logo</span>
+                  </li>
+                  <li className="flex items-center gap-2.5">
+                    <CheckCircle className="w-4 h-4 text-purple-600 flex-shrink-0" />
+                    <span>Gestion centralisée des collaborateurs</span>
+                  </li>
+                  <li className="flex items-center gap-2.5">
+                    <CheckCircle className="w-4 h-4 text-purple-600 flex-shrink-0" />
+                    <span>Réattribution instantanée si un membre change</span>
+                  </li>
+                  <li className="flex items-center gap-2.5">
+                    <CheckCircle className="w-4 h-4 text-purple-600 flex-shrink-0" />
+                    <span>Facturation entreprise &amp; commande groupée</span>
+                  </li>
+                  <li className="flex items-center gap-2.5">
+                    <CheckCircle className="w-4 h-4 text-purple-600 flex-shrink-0" />
+                    <span>Accompagnement dédié &amp; support prioritaire</span>
+                  </li>
+                </ul>
+              </div>
+
+              <a
+                href="https://wa.me/2250503681588?text=Bonjour%20Ofika,%20je%20souhaite%20un%20devis%20pour%20%C3%A9quiper%20mon%20entreprise."
+                target="_blank"
+                rel="noopener noreferrer"
+                className="block w-full"
+              >
+                <Button size="lg" variant="outline" className="w-full h-12 rounded-xl border-gray-300 hover:border-purple-500 hover:bg-purple-50 hover:text-purple-700 text-gray-700 font-bold text-sm transition-all cursor-pointer">
+                  Demander un devis équipe
+                </Button>
+              </a>
+            </div>
           </div>
-          <div className="mt-12 text-center">
-            <p className="text-gray-500 text-sm max-w-lg mx-auto leading-tight italic">
-              Besoin de cartes NFC physiques ? Elles sont disponibles à l'achat une fois votre compte créé.
+
+          {/* Note rassurante avec icônes professionnelles */}
+          <div className="text-center">
+            <p className="text-xs sm:text-sm text-gray-600 font-medium max-w-xl mx-auto flex items-center justify-center flex-wrap gap-2">
+              <span className="inline-flex items-center gap-1.5 font-semibold text-gray-800">
+                <Truck className="w-4 h-4 text-emerald-600" />
+                Livraison 100% gratuite dans tout Abidjan
+              </span>
+              <span className="text-gray-300">•</span>
+              <span className="inline-flex items-center gap-1.5">
+                <CreditCard className="w-4 h-4 text-gray-500" />
+                Paiement sécurisé par Mobile Money (Orange, Wave, MTN, Moov) ou carte
+              </span>
             </p>
           </div>
         </div>
       </section>
 
-      {/* ABOUT US SECTION */}
-      <section className="py-20 bg-white border-t border-gray-100">
-        <div className="container mx-auto px-4">
-          <div className="max-w-4xl mx-auto text-center">
-            <Badge className="bg-orange-100 text-orange-700 hover:bg-orange-100 mb-6 px-4 py-1.5 text-sm uppercase tracking-wide font-bold">Notre Mission</Badge>
-            <h2 className="text-3xl font-bold text-gray-900 mb-8">Rendre chaque entrepreneur inoubliable dès la première rencontre.</h2>
-            <p className="text-lg text-gray-600 leading-relaxed mb-6">Ofika est né d'un constat à Abidjan : combien d'opportunités et de ventes sont perdues simplement parce qu'échanger ses coordonnées prend trop de temps ou que la carte en papier finit égarée ?</p>
-            <p className="text-lg text-gray-600 leading-relaxed font-medium">Notre mission est simple : offrir à chaque commerçant, dirigeant et indépendant une présence connectée, durable et sans papier, accessible à tous.</p>
-          </div>
-        </div>
-      </section>
+      {/* SECTION CTA SIMPLE, DIRECTE & CLAIRE (SANS FOND NOIR, TEXTES ÉPURÉS) */}
+      <section className="py-16 sm:py-24 bg-white relative overflow-hidden">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="relative rounded-3xl sm:rounded-[32px] bg-gradient-to-b from-orange-50/70 via-amber-50/30 to-white border border-orange-100 p-8 sm:p-14 lg:p-16 text-center max-w-4xl mx-auto shadow-sm">
+            
+            {/* Titre direct & percutant */}
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-gray-900 tracking-tight leading-tight mb-4">
+              Prêt à passer à la carte <br className="hidden sm:inline" />
+              <span className="text-ofika-orange">nouvelle génération</span> ?
+            </h2>
 
+            {/* Sous-titre court en une phrase */}
+            <p className="text-base sm:text-lg text-gray-600 mb-8 max-w-xl mx-auto font-normal leading-relaxed">
+              Partagez vos coordonnées d'un simple geste sur n'importe quel smartphone, sans application.
+            </p>
 
-
-      {/* FINAL CTA */}
-      <section className="py-12 bg-white overflow-hidden">
-        <div className="container mx-auto px-4 sm:px-6 relative z-10">
-          <div className="relative w-full max-w-[1186px] mx-auto rounded-[20px] bg-[#09090b] border border-white/[0.08] shadow-[0_24px_80px_rgba(0,0,0,0.4)] py-16 px-6 sm:px-12 md:py-24 text-center overflow-hidden">
-            <div className="relative z-10">
-              <h2 className="text-4xl sm:text-6xl font-black mb-8 max-w-4xl mx-auto leading-[1.1] tracking-tighter text-white">
-                Rejoignez les entrepreneurs qui ont <br />
-                <span className="text-transparent bg-clip-text bg-gradient-to-r from-orange-400 to-pink-500">abandonné le papier.</span>
-              </h2>
-              <p className="text-lg sm:text-xl text-gray-400 mb-10 max-w-2xl mx-auto font-medium">
-                Faites forte impression à chaque rencontre d'affaires. Votre profil est prêt en 2 minutes.
-              </p>
-              <div className="flex flex-col sm:flex-row items-center justify-center gap-6">
-                <Link href="/onboarding/public-page">
-                  <Button size="lg" style={{ borderRadius: '20px' }} className="h-[66px] px-10 bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-white rounded-[20px] text-base sm:text-lg font-bold shadow-lg shadow-orange-500/20 transition-all group flex items-center gap-2">
-                    Créer mon profil gratuit
-                    <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 group-hover:translate-x-1 transition-transform" />
-                  </Button>
-                </Link>
-              </div>
-              <p className="mt-8 text-sm text-gray-500 font-bold flex items-center justify-center gap-2">
-                <span className="w-2 h-2 bg-green-500 rounded-full animate-pulse" /> Sans carte bancaire • 100% gratuit • 2 minutes chrono
-              </p>
+            {/* Boutons d'Action Directs */}
+            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+              <Link href="/onboarding/public-page" className="w-full sm:w-auto">
+                <Button size="lg" className="w-full sm:w-auto h-13 sm:h-14 px-8 bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-white rounded-xl sm:rounded-2xl text-base font-bold shadow-lg shadow-orange-500/20 transition-all hover:scale-[1.02] flex items-center justify-center gap-2 group">
+                  Créer mon profil gratuit
+                  <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                </Button>
+              </Link>
+              <Link href="https://wa.me/2250503681588?text=Bonjour%20Ofika%20je%20souhaite%20commander%20une%20carte%20NFC" target="_blank" className="w-full sm:w-auto">
+                <Button variant="outline" size="lg" className="w-full sm:w-auto h-13 sm:h-14 px-7 border-gray-300 bg-white hover:bg-gray-50 text-gray-800 rounded-xl sm:rounded-2xl text-sm sm:text-base font-semibold shadow-sm transition-all flex items-center justify-center gap-2">
+                  <MessageCircle className="w-4 h-4 text-emerald-600" />
+                  Commander une carte physique
+                </Button>
+              </Link>
             </div>
+
+            {/* Micro-réassurance concise */}
+            <p className="mt-6 text-xs text-gray-500 font-medium">
+              100% gratuit pour commencer • Sans engagement • Prêt en 2 minutes
+            </p>
           </div>
         </div>
       </section>
-
-
 
       {/* Section Avis Clients Vérifiés */}
       <VerifiedReviewsSection />
 
-      {/* Footer Premium — 4 colonnes */}
-      <footer className="bg-gray-950 text-gray-400 border-t border-gray-800">
+      {/* FOOTER ULTRA-MODERNE & ÉPURÉ */}
+      <footer className="bg-neutral-950 text-neutral-400 border-t border-neutral-900">
+        <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-16 lg:py-20">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-12 lg:gap-8">
 
-        {/* Corps principal */}
-        <div className="container mx-auto px-4 py-16">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-10">
-
-            {/* Colonne 1 : Logo + Description + Réseaux */}
-            <div className="space-y-6 lg:col-span-1">
+            {/* Colonne 1 : Marque + Mission + Réseaux (4 colonnes) */}
+            <div className="lg:col-span-4 space-y-6">
               <Logo size="md" showText variant="white" />
-              <p className="text-sm leading-relaxed text-gray-500 max-w-xs">
-                La solution Nº1 en Afrique pour digitaliser votre présence professionnelle et convertir vos prospects instantanément.
+              <p className="text-sm leading-relaxed text-neutral-400 max-w-sm">
+                La référence de la carte de visite sans contact et du profil digital professionnel en Afrique de l'Ouest. Partagez vos coordonnées d'un simple geste.
               </p>
-              <div className="flex gap-3">
-                <Link href="https://www.facebook.com/profile.php?id=61583402783024" target="_blank" className="w-9 h-9 bg-gray-800 rounded-xl flex items-center justify-center hover:bg-ofika-orange hover:text-white transition-all duration-200">
-                  <Facebook className="w-4 h-4" />
-                </Link>
-                <Link href="https://www.instagram.com/chris.co0/" target="_blank" className="w-9 h-9 bg-gray-800 rounded-xl flex items-center justify-center hover:bg-ofika-orange hover:text-white transition-all duration-200">
+              
+              {/* Réseaux sociaux officiels (SANS Facebook !) */}
+              <div className="flex items-center gap-3 pt-2">
+                <Link 
+                  href="https://www.instagram.com/chris.co0/" 
+                  target="_blank" 
+                  aria-label="Instagram Ofika"
+                  className="w-10 h-10 rounded-xl bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white hover:border-neutral-700 hover:bg-neutral-800 transition-all"
+                >
                   <Instagram className="w-4 h-4" />
                 </Link>
-                <Link href="https://www.linkedin.com/company/ofikacard/" target="_blank" className="w-9 h-9 bg-gray-800 rounded-xl flex items-center justify-center hover:bg-ofika-orange hover:text-white transition-all duration-200">
+                <Link 
+                  href="https://www.linkedin.com/company/ofikacard/" 
+                  target="_blank" 
+                  aria-label="LinkedIn Ofika"
+                  className="w-10 h-10 rounded-xl bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white hover:border-neutral-700 hover:bg-neutral-800 transition-all"
+                >
                   <Linkedin className="w-4 h-4" />
                 </Link>
-                <Link href="https://wa.me/2250503681588?text=Bonjour%20Ofika" target="_blank" className="w-9 h-9 bg-gray-800 rounded-xl flex items-center justify-center hover:bg-green-500 hover:text-white transition-all duration-200">
+                <Link 
+                  href="https://wa.me/2250503681588?text=Bonjour%20Ofika" 
+                  target="_blank" 
+                  aria-label="WhatsApp Ofika"
+                  className="w-10 h-10 rounded-xl bg-neutral-900 border border-neutral-800 flex items-center justify-center text-emerald-400 hover:text-emerald-300 hover:border-emerald-500/30 hover:bg-emerald-500/10 transition-all"
+                >
                   <MessageCircle className="w-4 h-4" />
                 </Link>
-                <Link href="https://www.tiktok.com/@ofika.ci" target="_blank" className="w-9 h-9 bg-gray-800 rounded-xl flex items-center justify-center hover:bg-gray-600 hover:text-white transition-all duration-200">
+                <Link 
+                  href="https://www.tiktok.com/@ofika.ci" 
+                  target="_blank" 
+                  aria-label="TikTok Ofika"
+                  className="w-10 h-10 rounded-xl bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white hover:border-neutral-700 hover:bg-neutral-800 transition-all"
+                >
                   <Music2 className="w-4 h-4" />
                 </Link>
               </div>
             </div>
 
-            {/* Colonne 2 : Navigation */}
-            <div>
-              <h4 className="text-white font-black mb-6 uppercase text-xs tracking-widest">Navigation</h4>
+            {/* Colonne 2 : Navigation (2 colonnes) */}
+            <div className="lg:col-span-2">
+              <h4 className="text-white font-bold text-xs uppercase tracking-widest mb-5">Navigation</h4>
               <ul className="space-y-3 text-sm">
                 <li>
-                  <button onClick={() => scrollToSection('problem')} className="hover:text-white hover:translate-x-1 transition-all inline-flex items-center gap-2 group">
-                    <span className="w-1 h-1 bg-ofika-orange rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <button onClick={() => scrollToSection('problem')} className="hover:text-white transition-colors">
                     Pourquoi Ofika ?
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => scrollToSection('solution')} className="hover:text-white hover:translate-x-1 transition-all inline-flex items-center gap-2 group">
-                    <span className="w-1 h-1 bg-ofika-orange rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <button onClick={() => scrollToSection('solution')} className="hover:text-white transition-colors">
                     La Solution
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => scrollToSection('pricing')} className="hover:text-white hover:translate-x-1 transition-all inline-flex items-center gap-2 group">
-                    <span className="w-1 h-1 bg-ofika-orange rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <button onClick={() => scrollToSection('pricing')} className="hover:text-white transition-colors">
                     Tarifs
                   </button>
                 </li>
                 <li>
-                  <button onClick={() => scrollToSection('faq')} className="hover:text-white hover:translate-x-1 transition-all inline-flex items-center gap-2 group">
-                    <span className="w-1 h-1 bg-ofika-orange rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <button onClick={() => scrollToSection('faq')} className="hover:text-white transition-colors">
                     FAQ
                   </button>
                 </li>
                 <li>
-                  <Link href="/onboarding/public-page" className="hover:text-white hover:translate-x-1 transition-all inline-flex items-center gap-2 group">
-                    <span className="w-1 h-1 bg-ofika-orange rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                    Créer mon lien
+                  <Link href="/onboarding/public-page" className="hover:text-orange-400 transition-colors font-medium">
+                    Créer mon profil gratuit
                   </Link>
                 </li>
               </ul>
             </div>
 
-            {/* Colonne 3 : Services */}
-            <div>
-              <h4 className="text-white font-black mb-6 uppercase text-xs tracking-widest">Nos Services</h4>
+            {/* Colonne 3 : Écosystème & Solutions (3 colonnes) */}
+            <div className="lg:col-span-3">
+              <h4 className="text-white font-bold text-xs uppercase tracking-widest mb-5">Nos Solutions</h4>
               <ul className="space-y-3 text-sm">
                 <li>
-                  <Link href="/onboarding/public-page" className="hover:text-white hover:translate-x-1 transition-all inline-flex items-center gap-2 group">
-                    <span className="w-1 h-1 bg-ofika-orange rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                    Lien Bio SmartLink
+                  <Link href="/get-started" className="hover:text-white transition-colors">
+                    Cartes NFC Métal & Minérale
                   </Link>
                 </li>
                 <li>
-                  <Link href="/get-started" className="hover:text-white hover:translate-x-1 transition-all inline-flex items-center gap-2 group">
-                    <span className="w-1 h-1 bg-ofika-orange rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                    Carte NFC Physique
+                  <Link href="/onboarding/public-page" className="hover:text-white transition-colors">
+                    Profil SmartLink Connecté
                   </Link>
                 </li>
                 <li>
-                  <Link href="https://ofika-insight.vercel.app/" target="_blank" className="hover:text-white hover:translate-x-1 transition-all inline-flex items-center gap-2 group">
-                    <span className="w-1 h-1 bg-blue-400 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                    Ofika Insight — Analytics
+                  <Link href="https://ofika-insight.vercel.app/" target="_blank" className="hover:text-white transition-colors inline-flex items-center gap-1.5">
+                    <span>Ofika Insight (Analytics)</span>
+                    <span className="text-[10px] px-1.5 py-0.5 rounded bg-blue-500/10 text-blue-400 border border-blue-500/20 font-medium">Pro</span>
                   </Link>
                 </li>
                 <li>
-                  <Link href="https://orla-nou.vercel.app/" target="_blank" className="hover:text-white hover:translate-x-1 transition-all inline-flex items-center gap-2 group">
-                    <span className="w-1 h-1 bg-purple-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                    Orla_nou Automatication
+                  <Link href="https://orla-nou.vercel.app/" target="_blank" className="hover:text-white transition-colors">
+                    Orla_nou Automation
                   </Link>
                 </li>
                 <li>
-                  <Link href="#" className="hover:text-white hover:translate-x-1 transition-all inline-flex items-center gap-2 group">
-                    <span className="w-1 h-1 bg-green-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                    Menly — Menu Digital
+                  <Link href="#" className="hover:text-white transition-colors">
+                    Menly — Menu Digital Restaurants
                   </Link>
                 </li>
               </ul>
             </div>
 
-            {/* Colonne 4 : Légal */}
-            <div>
-              <h4 className="text-white font-black mb-6 uppercase text-xs tracking-widest">Légal</h4>
-              <ul className="space-y-3 text-sm">
-                <li>
-                  <Link href="/terms" className="hover:text-white hover:translate-x-1 transition-all inline-flex items-center gap-2 group">
-                    <span className="w-1 h-1 bg-gray-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                    Conditions générales
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/privacy" className="hover:text-white hover:translate-x-1 transition-all inline-flex items-center gap-2 group">
-                    <span className="w-1 h-1 bg-gray-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                    Confidentialité et RGPD
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/disclaimer" className="hover:text-white hover:translate-x-1 transition-all inline-flex items-center gap-2 group">
-                    <span className="w-1 h-1 bg-gray-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                    Clause de non-responsabilité
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/bug-bounty" className="hover:text-white hover:translate-x-1 transition-all inline-flex items-center gap-2 group">
-                    <span className="w-1 h-1 bg-gray-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                    Programme de primes aux bogues
-                  </Link>
-                </li>
-                <li>
-                  <Link href="/compliance" className="hover:text-white hover:translate-x-1 transition-all inline-flex items-center gap-2 group">
-                    <span className="w-1 h-1 bg-gray-500 rounded-full opacity-0 group-hover:opacity-100 transition-opacity" />
-                    Éthique et conformité
-                  </Link>
-                </li>
-              </ul>
-            </div>
+            {/* Colonne 4 : Contact & Support (3 colonnes) */}
+            <div className="lg:col-span-3 space-y-4">
+              <h4 className="text-white font-bold text-xs uppercase tracking-widest mb-5">Contact direct</h4>
+              
+              <Link 
+                href="https://wa.me/2250503681588" 
+                target="_blank"
+                className="group flex items-start gap-3 p-3.5 rounded-2xl bg-neutral-900/60 border border-neutral-800/80 hover:border-neutral-700 hover:bg-neutral-900 transition-all"
+              >
+                <div className="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center shrink-0 mt-0.5">
+                  <MessageCircle className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="text-xs text-neutral-400">Assistance WhatsApp</div>
+                  <div className="text-sm font-semibold text-white group-hover:text-emerald-400 transition-colors">+225 05 03 68 15 88</div>
+                </div>
+              </Link>
 
-            {/* Colonne 5 : Contact */}
-            <div>
-              <h4 className="text-white font-black mb-6 uppercase text-xs tracking-widest">Contact</h4>
-              <ul className="space-y-4 text-sm">
-                <li className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center shrink-0 mt-0.5">
-                    <MessageCircle className="w-4 h-4 text-green-400" />
-                  </div>
-                  <div>
-                    <p className="text-white font-semibold text-xs mb-0.5">WhatsApp</p>
-                    <Link href="https://wa.me/2250503681588" target="_blank" className="hover:text-white transition-colors text-xs">+225 05 03 68 15 88</Link>
-                  </div>
-                </li>
-                <li className="flex items-start gap-3">
-                  <div className="w-8 h-8 bg-gray-800 rounded-lg flex items-center justify-center shrink-0 mt-0.5">
-                    <Mail className="w-4 h-4 text-ofika-orange" />
-                  </div>
-                  <div>
-                    <p className="text-white font-semibold text-xs mb-0.5">Email</p>
-                    <Link href="mailto:krsidoine7@gmail.com" className="hover:text-white transition-colors text-xs">krsidoine7@gmail.com</Link>
-                  </div>
-                </li>
-              </ul>
+              <Link 
+                href="mailto:contact@ofika.ci" 
+                className="group flex items-start gap-3 p-3.5 rounded-2xl bg-neutral-900/60 border border-neutral-800/80 hover:border-neutral-700 hover:bg-neutral-900 transition-all"
+              >
+                <div className="w-8 h-8 rounded-lg bg-orange-500/10 text-orange-400 flex items-center justify-center shrink-0 mt-0.5">
+                  <Mail className="w-4 h-4" />
+                </div>
+                <div>
+                  <div className="text-xs text-neutral-400">Email commercial</div>
+                  <div className="text-sm font-semibold text-white group-hover:text-orange-400 transition-colors">contact@ofika.ci</div>
+                </div>
+              </Link>
+
+              <div className="text-xs text-neutral-400 flex items-center gap-1.5 pt-1 px-1">
+                <MapPin className="w-3.5 h-3.5 text-orange-400 shrink-0" />
+                <span>Abidjan, Côte d&apos;Ivoire</span>
+              </div>
             </div>
 
           </div>
         </div>
 
-        {/* Barre de copyright */}
-        <div className="border-t border-gray-900 bg-black/30">
-          <div className="container mx-auto px-4 py-6 flex flex-col md:flex-row items-center justify-between gap-6">
-            <div className="flex flex-col items-center md:items-start gap-2">
-              <p className="text-xs text-gray-500">
-                © {new Date().getFullYear()} <span className="text-gray-300 font-bold">Ofika</span>. Tous droits réservés.
-              </p>
-              <p className="text-[10px] text-gray-700 uppercase tracking-widest font-medium">Une solution propulsée par l'innovation</p>
+        {/* Barre de copyright & statut */}
+        <div className="border-t border-neutral-900 bg-neutral-950/80">
+          <div className="container mx-auto px-4 sm:px-6 lg:px-8 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
+            
+            <div className="flex items-center gap-3 text-xs text-neutral-400">
+              <span className="flex items-center gap-1.5 text-neutral-400">
+                <span className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse" />
+                <span>Tous les systèmes opérationnels</span>
+              </span>
+              <span>•</span>
+              <span>© {new Date().getFullYear()} <strong className="text-white font-semibold">Ofika</strong>. Tous droits réservés.</span>
             </div>
-            <div className="flex flex-wrap justify-center gap-8 text-[11px] text-gray-500 font-medium">
-              <Link href="/terms" className="hover:text-ofika-orange transition-colors">Conditions</Link>
-              <Link href="/privacy" className="hover:text-ofika-orange transition-colors">Confidentialité</Link>
-              <Link href="/compliance" className="hover:text-ofika-orange transition-colors">Conformité</Link>
-              <Link href="/auth/login" className="hover:text-ofika-orange transition-colors">Espace Pro</Link>
+
+            <div className="flex flex-wrap items-center gap-6 text-xs text-neutral-400">
+              <Link href="/terms" className="hover:text-neutral-300 transition-colors">Conditions</Link>
+              <Link href="/privacy" className="hover:text-neutral-300 transition-colors">Confidentialité</Link>
+              <Link href="/compliance" className="hover:text-neutral-300 transition-colors">Conformité</Link>
+              <Link href="/auth/login" className="hover:text-orange-400 transition-colors font-medium">Espace Pro</Link>
             </div>
+
           </div>
         </div>
-
       </footer>
     </div>
   )

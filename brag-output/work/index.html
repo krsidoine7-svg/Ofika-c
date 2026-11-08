@@ -1,0 +1,509 @@
+<!doctype html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<title>Ofika — brag</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Fraunces:ital,opsz,wght@0,9..144,400;1,9..144,400&family=Cormorant+Garamond:wght@500&display=swap" rel="stylesheet">
+<style>
+  :root { --orange:#FF6600; --dark:#0B0B0C; --ivory:#F6F3EE; }
+  * { box-sizing:border-box; margin:0; padding:0; }
+  html, body { width:1920px; height:1080px; overflow:hidden; background:#000; }
+  body { font-family:Inter, system-ui, sans-serif; -webkit-font-smoothing:antialiased; }
+  #stage { position:relative; width:1920px; height:1080px; overflow:hidden; background:var(--ivory); }
+  .abs { position:absolute; }
+  .scene { position:absolute; inset:0; }
+  .w { display:inline-block; will-change:transform,opacity; }
+  .serif { font-family:Fraunces, Georgia, serif; }
+
+  /* ---------- Scène 1 : carte papier ---------- */
+  #paper { left:0; top:0; width:600px; height:340px; background:#fff; border-radius:18px;
+    box-shadow:0 30px 60px -20px rgba(60,40,20,.35); padding:38px 42px; transform-origin:50% 50%; }
+  #paper .pn { font-family:Fraunces,serif; font-size:40px; color:#3a3a3a; }
+  #paper .pj { font-size:18px; color:#8a8a8a; margin-top:6px; letter-spacing:.04em; }
+  #paper .pl { height:12px; background:#e9e6e1; border-radius:6px; margin-top:16px; }
+  #s1text { left:860px; top:290px; width:1000px; }
+  #s1l1 { font-size:96px; font-weight:800; line-height:1.02; letter-spacing:-.035em; color:#141414; }
+  #s1l2 { margin-top:26px; display:inline-block; background:var(--orange); color:#fff; font-size:84px; font-weight:800;
+    letter-spacing:-.03em; padding:6px 28px 14px; border-radius:22px; transform-origin:0 50%; }
+
+  /* ---------- Téléphone principal ---------- */
+  #phone { left:0; top:0; width:400px; height:820px; border-radius:58px; background:#141416;
+    padding:12px; box-shadow:0 50px 90px -30px rgba(0,0,0,.7), inset 0 0 0 2px #2a2a2e; }
+  #screen { position:relative; width:376px; height:796px; border-radius:47px; overflow:hidden; background:#000; }
+  #island { position:absolute; left:50%; top:12px; width:118px; height:32px; margin-left:-59px; background:#000; border-radius:20px; z-index:9; }
+  #lock { position:absolute; inset:0; background:radial-gradient(120% 70% at 50% 15%, #3b2a1f 0%, #141414 55%, #0b0b0c 100%); color:#fff; text-align:center; }
+  #lock .time { font-size:96px; font-weight:300; margin-top:160px; letter-spacing:-.03em; }
+  #lock .date { font-size:20px; font-weight:500; opacity:.75; }
+  .toast { position:absolute; left:14px; right:14px; top:58px; background:rgba(255,255,255,.96); color:#111;
+    border-radius:22px; padding:14px 16px; display:flex; align-items:center; gap:12px; box-shadow:0 12px 30px rgba(0,0,0,.35); z-index:8; }
+  .toast .ic { width:40px; height:40px; border-radius:12px; background:var(--orange); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+  .toast .t1 { font-size:16px; font-weight:700; }
+  .toast .t2 { font-size:13px; color:#666; margin-top:2px; }
+
+  /* Profil Éditorial dans le téléphone */
+  #profile { position:absolute; inset:0; background:#f6f3ee; overflow:hidden; color:#161412; }
+  #pscroll { position:absolute; left:0; top:0; width:376px; }
+  #phero { position:relative; height:330px; background:linear-gradient(160deg,#d8c6b1 0%,#b99878 55%,#8f6b4d 100%); overflow:hidden; }
+  #phero .ini { position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-family:Fraunces,serif; font-style:italic; font-size:150px; color:rgba(255,255,255,.35); }
+  #phero .top { position:absolute; left:22px; right:22px; top:58px; display:flex; justify-content:space-between; font-size:11px; letter-spacing:.2em; text-transform:uppercase; color:#fff; font-weight:600; }
+  #phero .fade { position:absolute; left:0; right:0; bottom:-1px; height:170px; background:linear-gradient(to top,#f6f3ee,rgba(246,243,238,0)); }
+  #pid { position:relative; margin-top:-62px; padding:0 26px; }
+  #pid h1 { font-family:Fraunces,serif; font-weight:400; font-size:56px; line-height:.95; letter-spacing:-.02em; }
+  #pid h1 i { color:#9a5b34; }
+  #pid .job { margin-top:14px; font-size:12px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; }
+  #pid .bio { margin-top:8px; font-size:13px; line-height:1.5; color:#6b6157; }
+  .plinks { margin-top:20px; padding:0 26px; }
+  .plink { display:flex; align-items:baseline; gap:14px; padding:14px 0; border-top:1px solid rgba(22,20,18,.14); font-size:15px; font-weight:500; }
+  .plink b { font-family:Fraunces,serif; font-weight:400; font-size:13px; color:#9a5b34; }
+  .plink span { flex:1; }
+  .pcolo { padding:16px 26px 0; display:flex; gap:16px; font-size:13px; font-weight:500; }
+  .pcolo span { border-bottom:1px solid #161412; padding-bottom:2px; }
+  .pact { margin:22px 26px 0; display:flex; gap:10px; }
+  #pbtn { flex:1; height:50px; background:#161412; color:#f6f3ee; display:flex; align-items:center; justify-content:center; gap:8px; font-size:12px; font-weight:700; letter-spacing:.08em; text-transform:uppercase; }
+  .pmail { width:50px; height:50px; border:1px solid #161412; display:flex; align-items:center; justify-content:center; }
+  #finger { position:absolute; width:74px; height:74px; border-radius:50%; background:rgba(255,255,255,.55); border:3px solid rgba(255,255,255,.95);
+    box-shadow:0 6px 24px rgba(0,0,0,.35); z-index:7; }
+
+  /* ---------- Carte Ofika ---------- */
+  .ocard { width:520px; height:328px; border-radius:26px; background:linear-gradient(135deg,#1b1b1e 0%,#0d0d0f 60%,#18120e 100%);
+    box-shadow:0 40px 70px -25px rgba(0,0,0,.8), inset 0 0 0 1.5px rgba(255,255,255,.08); padding:34px 36px; color:#fff; overflow:hidden; }
+  .ocard .glow { position:absolute; right:-80px; top:-80px; width:260px; height:260px; border-radius:50%; background:radial-gradient(circle, rgba(255,102,0,.35), rgba(255,102,0,0) 70%); }
+  .ocard img.lg { height:62px; }
+  .ocard .nfc { position:absolute; right:36px; top:34px; }
+  .ocard .nm { position:absolute; left:36px; bottom:56px; font-size:30px; font-weight:700; letter-spacing:-.01em; }
+  .ocard .jb { position:absolute; left:36px; bottom:30px; font-size:14px; color:rgba(255,255,255,.6); letter-spacing:.08em; text-transform:uppercase; }
+  .ripple { position:absolute; width:20px; height:20px; border-radius:50%; border:4px solid var(--orange); }
+
+  /* ---------- Titres sombres ---------- */
+  .h-dark { color:#fff; font-weight:800; letter-spacing:-.035em; }
+  .badge { display:inline-block; background:linear-gradient(90deg,#ea580c,#FF6600); color:#fff; padding:4px 26px 12px; border-radius:22px; }
+
+  /* ---------- Mini téléphones (galerie des 8 designs) ---------- */
+  .mini { position:absolute; top:0; width:300px; height:620px; border-radius:46px; background:#141416; padding:10px; box-shadow:0 34px 60px -26px rgba(40,30,20,.55); }
+  .mini .sc { position:relative; width:280px; height:600px; border-radius:37px; overflow:hidden; }
+  .mini .lab { position:absolute; left:0; right:0; top:640px; text-align:center; font-size:22px; font-weight:700; color:#1b1b1b; letter-spacing:-.01em; }
+  .bar { height:9px; border-radius:5px; }
+</style>
+</head>
+<body>
+<div id="stage">
+  <div id="bg" class="abs" style="inset:0"></div>
+  <div id="glow" class="abs" style="left:960px;top:540px;width:1400px;height:1400px;margin:-700px 0 0 -700px;border-radius:50%;background:radial-gradient(circle,rgba(255,102,0,.22),rgba(255,102,0,0) 65%)"></div>
+
+  <div id="cam" class="abs" style="left:0;top:0;width:1920px;height:1080px;transform-origin:0 0">
+  <!-- ================= SCÈNE 1 ================= -->
+  <div id="s1" class="scene">
+    <div id="paper" class="abs">
+      <div class="pn">Votre Nom</div>
+      <div class="pj">FONCTION · ENTREPRISE</div>
+      <div class="pl" style="width:70%;margin-top:40px"></div>
+      <div class="pl" style="width:52%"></div>
+      <div class="pl" style="width:60%"></div>
+    </div>
+    <div id="s1text" class="abs">
+      <div id="s1l1"><span class="w">Fini</span> <span class="w">les</span> <span class="w">cartes</span><br><span class="w">de</span> <span class="w">visite</span> <span class="w">papier</span></div>
+      <div id="s1l2">oubliées ou jetées</div>
+    </div>
+  </div>
+
+  <!-- ================= SCÈNE 2 : titre ================= -->
+  <div id="s2" class="scene">
+    <div id="s2t" class="abs h-dark" style="left:0;right:0;top:78px;text-align:center;font-size:76px;line-height:1.12">
+      <div><span class="w">Partagez</span> <span class="w">vos</span> <span class="w">coordonnées</span></div>
+      <div style="margin-top:14px"><span id="s2badge" class="badge w" style="transform-origin:50% 50%">d'un simple geste</span></div>
+    </div>
+    <div id="card2" class="abs ocard">
+      <div class="glow"></div>
+      <img class="lg" src="logo-white-full.svg" alt="">
+      <svg class="nfc" width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="rgba(255,255,255,.7)" stroke-width="1.8" stroke-linecap="round"><path d="M8.5 16.5a6 6 0 0 0 0-9"/><path d="M12 19.5a10 10 0 0 0 0-15"/><path d="M5 13.5a2 2 0 0 0 0-3"/></svg>
+      <div class="nm">Awa Koné</div>
+      <div class="jb">Studio Koné · Architecture intérieure</div>
+    </div>
+    <div id="rip1" class="ripple abs"></div>
+    <div id="rip2" class="ripple abs"></div>
+    <div id="rip3" class="ripple abs"></div>
+  </div>
+
+  <!-- ================= Téléphone (scènes 2-3) ================= -->
+  <div id="phone" class="abs">
+    <div id="screen">
+      <div id="island"></div>
+      <div id="lock"><div class="time">9:41</div><div class="date">Lundi 10 novembre</div></div>
+      <div id="profile">
+        <div id="pscroll">
+          <div id="phero"><div class="ini">AK</div>
+            <div class="top"><span>Abidjan, Cocody</span><span>⤴</span></div><div class="fade"></div></div>
+          <div id="pid">
+            <h1>Awa<br><i>Koné</i></h1>
+            <div class="job">Architecte d'intérieur — Studio Koné</div>
+            <div class="bio">Espaces résidentiels et hôtellerie, du plan à la livraison.</div>
+          </div>
+          <div class="plinks">
+            <div class="plink"><b>01</b><span>Voir mes réalisations</span>↗</div>
+            <div class="plink"><b>02</b><span>Prendre rendez-vous</span>↗</div>
+            <div class="plink"><b>03</b><span>Instagram</span>↗</div>
+            <div class="plink" style="border-bottom:1px solid rgba(22,20,18,.14)"><b>04</b><span>Portfolio PDF</span>↗</div>
+          </div>
+          <div class="pcolo"><span>Appeler</span><span>WhatsApp</span><span>E-mail</span><span>Itinéraire</span></div>
+          <div class="pact">
+            <div id="pbtn"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M19 8v6M22 11h-6"/></svg>Ajouter aux contacts</div>
+            <div class="pmail"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#161412" stroke-width="1.8"><rect x="2" y="4" width="20" height="16" rx="2"/><path d="m22 7-10 6L2 7"/></svg></div>
+          </div>
+          <div id="finger"></div>
+          <div style="height:200px"></div>
+        </div>
+      </div>
+      <div id="toastA" class="toast"><div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.2" stroke-linecap="round"><path d="M8.5 16.5a6 6 0 0 0 0-9"/><path d="M12 19.5a10 10 0 0 0 0-15"/><path d="M5 13.5a2 2 0 0 0 0-3"/></svg></div>
+        <div><div class="t1">Carte Ofika détectée</div><div class="t2">Ouvrir le profil d'Awa Koné</div></div></div>
+      <div id="toastB" class="toast"><div class="ic" style="background:#16a34a"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></div>
+        <div><div class="t1">Contact enregistré</div><div class="t2">Awa Koné · Studio Koné</div></div></div>
+    </div>
+  </div>
+
+  <!-- ================= SCÈNE 3 : légende ================= -->
+  <div id="s3" class="scene">
+    <div id="s3t" class="abs h-dark" style="left:1010px;top:380px;width:880px;font-size:56px;line-height:1.12">
+      <div><span class="w">Numéro,</span> <span class="w">WhatsApp,</span> <span class="w">réseaux :</span></div>
+      <div><span class="w">enregistrés</span> <span class="w">en</span> <span class="w w1" style="color:#FF6600">1 seconde.</span></div>
+      <div id="s3b" style="margin-top:34px;font-size:44px;font-weight:700;color:rgba(255,255,255,.72);letter-spacing:-.02em">Sans aucune application.</div>
+    </div>
+  </div>
+
+  <!-- ================= SCÈNE 4 : 8 designs ================= -->
+  <div id="s4" class="scene">
+    <div id="s4t" class="abs" style="left:0;right:0;top:72px;text-align:center;font-size:76px;font-weight:800;letter-spacing:-.035em;color:#141414">
+      <span class="w">8</span> <span class="w">designs</span> <span class="w">premium.</span> <span class="w" style="color:#FF6600">Vos</span> <span class="w" style="color:#FF6600">couleurs.</span>
+    </div>
+    <div id="strip" class="abs" style="left:0;top:232px;height:700px;width:2800px">
+
+      <!-- Éditorial -->
+      <div class="mini" data-acc="#9a5b34" style="left:0"><div class="sc" style="background:#f6f3ee">
+        <div style="height:250px;background:linear-gradient(160deg,#d8c6b1,#8f6b4d)"></div>
+        <div style="position:absolute;left:0;right:0;top:140px;height:111px;background:linear-gradient(to top,#f6f3ee 4%,rgba(246,243,238,0))"></div>
+        <div style="position:absolute;left:22px;top:196px;font-family:Fraunces,serif;font-size:46px;line-height:.95;color:#161412">Awa<br><i class="acc-c">Koné</i></div>
+        <div style="position:absolute;left:22px;right:22px;top:318px">
+          <div style="display:flex;gap:10px;padding:11px 0;border-top:1px solid rgba(0,0,0,.14);font-size:13px"><b class="acc-c serif" style="font-weight:400">01</b>Réalisations</div>
+          <div style="display:flex;gap:10px;padding:11px 0;border-top:1px solid rgba(0,0,0,.14);font-size:13px"><b class="acc-c serif" style="font-weight:400">02</b>Rendez-vous</div>
+          <div style="display:flex;gap:10px;padding:11px 0;border-top:1px solid rgba(0,0,0,.14);font-size:13px"><b class="acc-c serif" style="font-weight:400">03</b>Instagram</div>
+          <div style="margin-top:22px;height:42px;background:#161412"></div>
+        </div></div><div class="lab">Éditorial</div></div>
+
+      <!-- Carte de visite -->
+      <div class="mini" data-acc="#c9a45c" style="left:340px"><div class="sc" style="background:#eef0f3;padding:46px 16px 0">
+        <div style="position:relative;height:170px;border-radius:14px;background:#0e1a2b;padding:16px;overflow:hidden">
+          <div class="acc-b" style="position:absolute;right:-30px;top:-30px;width:110px;height:110px;border-radius:50%;border:1px solid;opacity:.5"></div>
+          <div class="acc-b" style="width:38px;height:38px;border-radius:9px;border:1px solid;display:flex;align-items:center;justify-content:center;font-family:Fraunces,serif;font-size:15px" ><span class="acc-c">AK</span></div>
+          <div style="position:absolute;left:16px;bottom:30px;color:#f3efe6;font-family:Fraunces,serif;font-size:24px">Awa Koné</div>
+          <div style="position:absolute;left:16px;bottom:14px;color:rgba(255,255,255,.6);font-size:9px;letter-spacing:.14em">ABIDJAN</div></div>
+        <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:7px;margin-top:14px">
+          <div style="height:62px;border-radius:12px;background:#fff"></div><div style="height:62px;border-radius:12px;background:#fff"></div><div style="height:62px;border-radius:12px;background:#fff"></div><div style="height:62px;border-radius:12px;background:#fff"></div></div>
+        <div class="acc-bg" style="height:44px;border-radius:12px;margin-top:12px"></div>
+        <div style="height:150px;border-radius:14px;background:#fff;margin-top:12px"></div>
+        </div><div class="lab">Carte de visite</div></div>
+
+      <!-- Bento -->
+      <div class="mini" data-acc="#c8f169" style="left:680px"><div class="sc" style="background:#f2f2ef;padding:46px 12px 0;display:grid;grid-template-columns:1fr 1fr;grid-auto-rows:62px;gap:8px">
+        <div style="grid-column:span 2;grid-row:span 3;border-radius:22px;background:#fff;padding:14px;display:flex;flex-direction:column;justify-content:space-between">
+          <div style="width:56px;height:56px;border-radius:16px;background:#d9d9d2"></div>
+          <div style="font-size:24px;font-weight:800;letter-spacing:-.03em">Awa Koné</div></div>
+        <div class="acc-bg" style="grid-row:span 2;border-radius:22px"></div>
+        <div style="border-radius:22px;background:#111"></div>
+        <div style="border-radius:22px;background:#fff"></div>
+        <div style="grid-column:span 2;grid-row:span 2;border-radius:22px;background:#fff;padding:14px;font-size:17px;font-weight:800;display:flex;align-items:flex-end">Mes réalisations ↗</div>
+        <div style="border-radius:22px;background:#fff"></div><div style="border-radius:22px;background:#fff"></div>
+        </div><div class="lab">Bento</div></div>
+
+      <!-- Noir Luxe -->
+      <div class="mini" data-acc="#c9a96e" style="left:1020px"><div class="sc" style="background:#0a0a0a;text-align:center;padding-top:54px;color:#ece6da">
+        <div class="acc-c" style="font-size:8px;letter-spacing:.5em">STUDIO KONÉ</div>
+        <div class="acc-b" style="margin:22px auto 0;width:96px;height:120px;border-radius:48px 48px 3px 3px;border:1px solid;padding:5px"><div style="width:100%;height:100%;border-radius:44px 44px 2px 2px;background:#1e1c19"></div></div>
+        <div style="margin-top:18px;font-family:'Cormorant Garamond',serif;font-size:27px;letter-spacing:.14em">AWA KONÉ</div>
+        <div class="acc-c" style="font-family:'Cormorant Garamond',serif;font-style:italic;font-size:14px;margin-top:4px">Architecte d'intérieur</div>
+        <div style="margin:24px 22px 0;border-top:1px solid rgba(255,255,255,.12);padding:12px 0;font-size:9px;letter-spacing:.3em">RÉALISATIONS</div>
+        <div style="margin:0 22px;border-top:1px solid rgba(255,255,255,.12);padding:12px 0;font-size:9px;letter-spacing:.3em">RENDEZ-VOUS</div>
+        <div class="acc-b" style="margin:26px 22px 0;height:40px;border:1px solid"></div>
+        </div><div class="lab">Noir Luxe</div></div>
+
+      <!-- Immersif -->
+      <div class="mini" data-acc="#ffd166" style="left:1360px"><div class="sc" style="background:linear-gradient(170deg,#9c7a5e 0%,#5b4636 45%,#0d0b09 75%)">
+        <div style="position:absolute;left:16px;right:16px;bottom:24px;color:#fff">
+          <span class="acc-bg" style="display:inline-block;padding:4px 9px;border-radius:99px;font-size:10px;font-weight:700;color:#111">Créatrice</span>
+          <div style="font-size:30px;font-weight:800;letter-spacing:-.03em;margin-top:8px">Awa Koné</div>
+          <div style="display:flex;gap:7px;margin-top:12px"><div style="width:36px;height:36px;border-radius:12px;background:rgba(255,255,255,.16)"></div><div style="width:36px;height:36px;border-radius:12px;background:rgba(255,255,255,.16)"></div><div style="width:36px;height:36px;border-radius:12px;background:rgba(255,255,255,.16)"></div></div>
+          <div style="height:44px;border-radius:14px;background:rgba(255,255,255,.16);margin-top:10px"></div>
+          <div style="height:44px;border-radius:14px;background:#fff;margin-top:10px"></div></div>
+        </div><div class="lab">Immersif</div></div>
+
+      <!-- Boutique -->
+      <div class="mini" data-acc="#c2562d" style="left:1700px"><div class="sc" style="background:#fbf5f1">
+        <div class="acc-bg" style="height:110px"></div>
+        <div class="acc-c" style="position:absolute;left:16px;top:82px;width:58px;height:58px;border-radius:15px;background:#fff;border:3px solid #fbf5f1;display:flex;align-items:center;justify-content:center;font-weight:900;font-size:17px">KD</div>
+        <div style="position:absolute;left:16px;top:152px;font-size:18px;font-weight:800">Koné Déco</div>
+        <div style="position:absolute;left:16px;right:16px;top:190px;display:grid;grid-template-columns:1fr 1fr;gap:9px">
+          <div style="height:120px;border-radius:14px;background:#fff;border:1px solid #eee4d9"></div><div style="height:120px;border-radius:14px;background:#fff;border:1px solid #eee4d9"></div>
+          <div style="height:120px;border-radius:14px;background:#fff;border:1px solid #eee4d9"></div><div style="height:120px;border-radius:14px;background:#fff;border:1px solid #eee4d9"></div></div>
+        <div style="position:absolute;left:16px;right:16px;bottom:18px;height:44px;border-radius:14px;background:#1f7a45;color:#fff;font-size:12px;font-weight:700;display:flex;align-items:center;justify-content:center">Commander sur WhatsApp</div>
+        </div><div class="lab">Boutique</div></div>
+
+      <!-- Organique -->
+      <div class="mini" data-acc="#8a5a44" style="left:2040px"><div class="sc" style="background:#efe6da;text-align:center;padding-top:50px">
+        <div class="acc-bg" style="position:absolute;right:-60px;top:-50px;width:170px;height:170px;border-radius:50%;opacity:.18"></div>
+        <div style="margin:0 auto;width:130px;height:162px;border-radius:65px 65px 16px 16px;background:#d6c4ae"></div>
+        <div style="margin-top:16px;font-family:'Cormorant Garamond',serif;font-size:32px;color:#3a2e25">Awa <i>Koné</i></div>
+        <div class="acc-bg" style="margin:18px 18px 0;height:42px;border-radius:99px"></div>
+        <div style="margin:9px 18px 0;height:38px;border-radius:99px;background:rgba(255,255,255,.65)"></div>
+        <div style="margin:9px 18px 0;height:38px;border-radius:99px;background:rgba(255,255,255,.65)"></div>
+        </div><div class="lab">Organique</div></div>
+
+      <!-- Suisse -->
+      <div class="mini" data-acc="#d6371f" style="left:2380px"><div class="sc" style="background:#fff;padding:52px 20px 0">
+        <div style="width:46px;height:46px;background:#e7e7e7"></div>
+        <div style="margin-top:20px;font-size:46px;font-weight:900;letter-spacing:-.05em;line-height:.9">Awa<br>Koné<span class="acc-c">.</span></div>
+        <div style="margin-top:20px;border-top:2px solid #0a0a0a"></div>
+        <div style="display:flex;gap:10px;padding:11px 0;border-bottom:1px solid #e2e2e2;font-size:13px;font-weight:600"><span style="font-family:monospace;color:#888">01</span>Audit des espaces</div>
+        <div style="display:flex;gap:10px;padding:11px 0;border-bottom:1px solid #e2e2e2;font-size:13px;font-weight:600"><span style="font-family:monospace;color:#888">02</span>Plans</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:30px"><div style="height:42px;background:#0a0a0a"></div><div class="acc-bg" style="height:42px"></div></div>
+        </div><div class="lab">Suisse</div></div>
+    </div>
+  </div>
+
+  <!-- ================= SCÈNE 5 : NFC ou QR ================= -->
+  <div id="s5" class="scene">
+    <div id="s5t" class="abs h-dark" style="left:0;right:0;top:70px;text-align:center;font-size:84px">
+      <span class="w">En</span> <span class="w">face</span> <span class="w">ou</span> <span class="w" style="color:#FF6600">à</span> <span class="w" style="color:#FF6600">distance.</span>
+    </div>
+    <div id="card5" class="abs ocard" style="width:440px;height:278px">
+      <div class="glow"></div><img class="lg" src="logo-white-full.svg" alt="" style="height:52px">
+      <div class="nm" style="font-size:26px;bottom:46px">Awa Koné</div><div class="jb" style="bottom:24px;font-size:12px">Studio Koné</div>
+    </div>
+    <div id="waves" class="abs" style="left:0;top:0"></div>
+    <div id="lab5a" class="abs" style="left:150px;top:760px;width:540px;text-align:center;color:#fff;font-size:32px;font-weight:700">Carte sans contact</div>
+    <div id="qr" class="abs" style="width:320px;height:320px;border-radius:30px;background:#fff;padding:26px"><canvas id="qrc" width="268" height="268"></canvas></div>
+    <div id="lab5b" class="abs" style="left:1290px;top:760px;width:480px;text-align:center;color:#fff;font-size:32px;font-weight:700">QR code</div>
+    <div id="phone5" class="abs mini" style="width:330px;height:680px;border-radius:50px;padding:11px;box-shadow:0 50px 90px -30px rgba(0,0,0,.8)">
+      <div class="sc" style="width:308px;height:658px;border-radius:40px;background:#f6f3ee">
+        <div style="height:270px;background:linear-gradient(160deg,#d8c6b1,#8f6b4d)"></div>
+        <div style="position:absolute;left:0;right:0;top:150px;height:121px;background:linear-gradient(to top,#f6f3ee 4%,rgba(246,243,238,0))"></div>
+        <div style="position:absolute;left:24px;top:206px;font-family:Fraunces,serif;font-size:50px;line-height:.95;color:#161412">Awa<br><i style="color:#9a5b34">Koné</i></div>
+        <div style="position:absolute;left:24px;right:24px;top:350px">
+          <div style="display:flex;gap:10px;padding:13px 0;border-top:1px solid rgba(0,0,0,.14);font-size:14px"><b class="serif" style="font-weight:400;color:#9a5b34">01</b>Voir mes réalisations</div>
+          <div style="display:flex;gap:10px;padding:13px 0;border-top:1px solid rgba(0,0,0,.14);font-size:14px"><b class="serif" style="font-weight:400;color:#9a5b34">02</b>Prendre rendez-vous</div>
+          <div style="margin-top:26px;height:46px;background:#161412;color:#f6f3ee;font-size:11px;font-weight:700;letter-spacing:.08em;display:flex;align-items:center;justify-content:center">AJOUTER AUX CONTACTS</div>
+        </div></div></div>
+  </div>
+
+  <!-- ================= SCÈNE 6 : fin ================= -->
+  <div id="s6" class="scene">
+    <img id="logo6" class="abs" src="logo-orange-full.svg" alt="Ofika" style="left:660px;top:270px;width:600px">
+    <div id="tag6" class="abs" style="left:0;right:0;top:650px;text-align:center;color:#fff;font-size:50px;font-weight:700;letter-spacing:-.02em">La carte de visite nouvelle génération</div>
+    <div id="url6" class="abs" style="left:0;right:0;top:740px;text-align:center;color:#FF6600;font-size:40px;font-weight:600;letter-spacing:.01em">ofika.ci</div>
+  </div>
+  </div><!-- /cam -->
+</div>
+
+<script>
+const $ = (s) => document.querySelector(s)
+const $$ = (s) => Array.from(document.querySelectorAll(s))
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x))
+const P = (t, a, b) => clamp((t - a) / (b - a))
+const eo = (x) => 1 - Math.pow(1 - x, 3)
+const eio = (x) => (x < 0.5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2)
+const eob = (x) => { const c1 = 1.5, c3 = c1 + 1; return 1 + c3 * Math.pow(x - 1, 3) + c1 * Math.pow(x - 1, 2) }
+const lerp = (a, b, x) => a + (b - a) * x
+const hex = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16))
+const mix = (a, b, x) => { const A = hex(a), B = hex(b); return `rgb(${A.map((v, i) => Math.round(lerp(v, B[i], x))).join(',')})` }
+function set(el, o, tf) { el.style.opacity = o; el.style.transform = tf || 'none'; el.style.visibility = o <= 0.002 ? 'hidden' : 'visible' }
+// fenêtre d'une scène : apparition, puis disparition
+const win = (t, a, b, fi = 0.18, fo = 0.18) => Math.min(P(t, a, a + fi), 1 - P(t, b - fo, b))
+// mots qui arrivent un par un
+function words(sel, start, stag = 0.07, dur = 0.38, dy = 34) {
+  $$(sel + ' .w').forEach((w, i) => { const p = eo(P(t_, start + i * stag, start + i * stag + dur)); set(w, p, `translateY(${(1 - p) * dy}px)`) })
+}
+let t_ = 0
+
+// QR code déterministe (motif décoratif, non scannable)
+;(function drawQR() {
+  const c = $('#qrc').getContext('2d'), n = 29, s = 268 / n
+  let seed = 7; const rnd = () => (seed = (seed * 16807) % 2147483647) / 2147483647
+  c.fillStyle = '#0b0b0c'
+  const finder = (x, y) => { c.fillRect(x * s, y * s, 7 * s, 7 * s); c.clearRect((x + 1) * s, (y + 1) * s, 5 * s, 5 * s); c.fillRect((x + 2) * s, (y + 2) * s, 3 * s, 3 * s) }
+  for (let y = 0; y < n; y++) for (let x = 0; x < n; x++) {
+    const inF = (x < 8 && y < 8) || (x > n - 9 && y < 8) || (x < 8 && y > n - 9)
+    if (!inF && rnd() > 0.52) c.fillRect(x * s + 0.4, y * s + 0.4, s - 0.8, s - 0.8)
+  }
+  finder(0, 0); finder(n - 7, 0); finder(0, n - 7)
+  c.fillStyle = '#FF6600'; c.fillRect(11.5 * s, 11.5 * s, 6 * s, 6 * s)
+})()
+
+// ondes NFC (scène 5)
+const wavesEl = $('#waves')
+for (let i = 0; i < 3; i++) { const d = document.createElement('div'); d.className = 'abs'; d.style.cssText = 'border:4px solid #FF6600;border-left-color:transparent;border-bottom-color:transparent;border-radius:50%;'; wavesEl.appendChild(d) }
+
+const BG = [[0, '#F6F3EE'], [2.84, '#F6F3EE'], [3.0, '#0B0B0C'], [9.86, '#0B0B0C'], [10.04, '#F6F3EE'], [14.34, '#F6F3EE'], [14.5, '#0B0B0C'], [21, '#0B0B0C']]
+function bgAt(t) { for (let i = 1; i < BG.length; i++) if (t <= BG[i][0]) { const [ta, ca] = BG[i - 1], [tb, cb] = BG[i]; return mix(ca, cb, eio(P(t, ta, tb))) } return BG[BG.length - 1][1] }
+
+
+// ---------- Caméra : zooms, accélérations / ralentis, flou de mouvement ----------
+const eIn = (x) => Math.pow(x, 2.6)                    // accélération
+const eOutX = (x) => (x >= 1 ? 1 : 1 - Math.pow(2, -10 * x))   // décélération forte
+function whipOut(t, a, b) { const x = P(t, a, b); return { s: 1 + 0.42 * eIn(x), blur: 18 * eIn(x) } }
+function whipIn(t, a, b, s0 = 1.38) { const x = eOutX(P(t, a, b)); return { s: t < a ? s0 : lerp(s0, 1, x), blur: t < a ? 18 : 18 * (1 - x) } }
+function cam(t) {
+  let s = 1, fx = 960, fy = 540, blur = 0
+  const apply = (m) => { s *= m.s; blur = Math.max(blur, m.blur) }
+  if (t < 3.0) {                       // S1 : lente poussée vers le titre, puis whip
+    fx = 1180; fy = 460
+    s *= lerp(1.0, 1.07, eio(P(t, 0, 2.7)))
+    apply(whipOut(t, 2.7, 3.0))
+  } else if (t < 6.0) {                // S2 : arrivée en ralentissant, coup de zoom au contact NFC
+    apply(whipIn(t, 3.0, 3.6))
+    const pin = eOutX(P(t, 4.47, 4.6)), pout = eio(P(t, 4.6, 5.7)), k = pin - pout
+    s *= 1 + 0.16 * k
+    fx = lerp(960, 770, clamp(k * 1.4)); fy = lerp(540, 600, clamp(k * 1.4))
+  } else if (t < 10.0) {               // S3 : on suit le téléphone, zoom sur le bouton au moment du tap
+    const d = eio(P(t, 6.0, 6.7)); s *= lerp(1.0, 1.04, d); fx = lerp(960, 760, d); fy = 540
+    const zin = eOutX(P(t, 7.72, 7.95)), zout = eio(P(t, 8.3, 8.75)), z = zin - zout
+    s *= 1 + 0.2 * z
+    fx = lerp(fx, 612, z); fy = lerp(fy, 742, z)
+    apply(whipOut(t, 9.7, 10.0))
+  } else if (t < 14.5) {               // S4 : arrivée whip, léger recul pendant le carrousel
+    apply(whipIn(t, 10.0, 10.55))
+    s *= lerp(1.05, 1.0, eio(P(t, 10.4, 14.2)))
+    fy = 600
+    apply(whipOut(t, 14.2, 14.5))
+  } else if (t < 17.5) {               // S5 : arrivée whip, poussée lente, whip de sortie
+    apply(whipIn(t, 14.5, 15.05, 1.32))
+    s *= lerp(1.0, 1.06, eio(P(t, 15.0, 17.2)))
+    fy = 560
+    apply(whipOut(t, 17.2, 17.5))
+  } else {                             // S6 : le logo « claque » avec rebond, puis poussée lente
+    const x = P(t, 17.5, 18.2)
+    s *= t < 18.2 ? lerp(1.3, 1.0, eob(x)) : 1
+    blur = Math.max(blur, 16 * (1 - eOutX(x)))
+    s *= lerp(1.0, 1.045, eio(P(t, 18.2, 21)))
+    fy = 520
+  }
+  return { s, fx, fy, blur }
+}
+function render(t) {
+  t_ = t
+  const c = cam(t)
+  const camEl = $('#cam')
+  camEl.style.transform = `translate(${c.fx * (1 - c.s)}px,${c.fy * (1 - c.s)}px) scale(${c.s})`
+  camEl.style.filter = c.blur > 0.3 ? `blur(${c.blur.toFixed(2)}px)` : 'none'
+  $('#bg').style.background = bgAt(t)
+  set($('#glow'), Math.max(win(t, 3.0, 9.9, 0.5, 0.2) * 0.9, win(t, 14.5, 21.2, 0.4, 0.01)), `scale(${1 + 0.05 * Math.sin(t * 1.6)})`)
+
+  // ---------- Scène 1 ----------
+  const s1 = win(t, 0, 2.95, 0.01, 0.2); set($('#s1'), s1)
+  if (s1 > 0) {
+    const fall = eob(P(t, 0.05, 0.85)), crum = eio(P(t, 1.7, 2.15)), fly = P(t, 2.15, 2.8)
+    let x = lerp(250, 230, fall), y = lerp(-520, 370, fall), r = lerp(-28, -6, fall)
+    const sx = lerp(1, 0.36, crum), sy = lerp(1, 0.46, crum)
+    r += crum * 38
+    x += Math.pow(fly, 1.6) * -420; y += Math.pow(fly, 2) * 900; r += fly * 220
+    const p = $('#paper'); set(p, 1, `translate(${x}px,${y}px) rotate(${r}deg) scale(${sx},${sy})`)
+    p.style.borderRadius = lerp(18, 170, crum) + 'px'
+    p.style.background = mix('#ffffff', '#e2ddd4', crum)
+    $$('#paper > *').forEach((el) => (el.style.opacity = 1 - P(t, 1.7, 1.95)))
+    words('#s1l1', 0.25, 0.07)
+    const b = eob(P(t, 1.15, 1.6)); set($('#s1l2'), P(t, 1.15, 1.35), `rotate(${-2.5}deg) scale(${lerp(0.6, 1, b)})`)
+  }
+
+  // ---------- Scène 2 ----------
+  const s2 = win(t, 2.95, 6.0, 0.2, 0.25); set($('#s2'), s2)
+  if (s2 > 0) {
+    words('#s2t', 3.15, 0.08)
+    const bb = eob(P(t, 3.45, 3.95)); set($('#s2badge'), P(t, 3.45, 3.65), `rotate(-2deg) scale(${lerp(0.7, 1, bb)})`)
+    // trajectoire de la carte : entrée, approche, contact à 4,5 s, léger rebond
+    const a = eOutX(P(t, 3.05, 3.85)), b2 = eio(P(t, 3.9, 4.5)), back = eo(P(t, 4.5, 4.9)), out = eio(P(t, 5.65, 6.0))
+    let cx = lerp(-700, 150, a), cy = lerp(720, 640, a), cr = lerp(14, -6, a)
+    cx = lerp(cx, 262, b2); cy = lerp(cy, 470, b2); cr = lerp(cr, -10, b2)
+    cx -= back * 34; cy += back * 10
+    cx -= out * 900
+    set($('#card2'), 1 - out, `translate(${cx}px,${cy}px) rotate(${cr}deg)`)
+    ;['#rip1', '#rip2', '#rip3'].forEach((id, i) => {
+      const p = P(t, 4.5 + i * 0.16, 5.4 + i * 0.16), s = lerp(1, 22, eo(p))
+      const el = $(id); el.style.left = '770px'; el.style.top = '600px'
+      set(el, p > 0 && p < 1 ? (1 - p) * 0.9 : 0, `translate(-50%,-50%) scale(${s})`)
+    })
+  }
+
+  // ---------- Téléphone (scènes 2-3) ----------
+  const ph = Math.min(win(t, 3.05, 10.05, 0.5, 0.25), 1)
+  if (ph > 0) {
+    const rise = eOutX(P(t, 3.1, 3.75)), mv = eio(P(t, 6.0, 6.65)), drop = eio(P(t, 9.8, 10.05))
+    const x = lerp(760, 440, mv), y = lerp(lerp(1140, 372, rise), 130, mv) + drop * 180
+    set($('#phone'), ph, `translate(${x}px,${y}px) scale(${lerp(1, 0.94, drop)})`)
+    // écran : verrouillage → profil
+    const op = eo(P(t, 6.0, 6.4)); set($('#lock'), 1 - op)
+    set($('#profile'), op, `scale(${lerp(0.94, 1, op)})`)
+    const sc = eio(P(t, 6.75, 7.55)); $('#pscroll').style.transform = `translateY(${-150 * sc}px)`
+    // toasts
+    const ta = Math.min(eo(P(t, 4.62, 4.95)), 1 - P(t, 5.85, 6.05)); set($('#toastA'), ta, `translateY(${(1 - eo(P(t, 4.62, 4.95))) * -90}px)`)
+    const tb = Math.min(eo(P(t, 8.12, 8.45)), 1 - P(t, 9.7, 9.9)); set($('#toastB'), tb, `translateY(${(1 - eo(P(t, 8.12, 8.45))) * -90}px)`)
+    // doigt simulé sur « Ajouter aux contacts »
+    const btn = $('#pbtn'), f = $('#finger')
+    const fx = btn.offsetLeft + btn.offsetWidth * 0.45 - 37, fy = btn.offsetTop + btn.offsetHeight / 2 - 37
+    const fin = eo(P(t, 7.55, 7.85)), press = P(t, 7.92, 8.05) - P(t, 8.12, 8.3), fout = P(t, 8.3, 8.6)
+    f.style.left = fx + 'px'; f.style.top = fy + 'px'
+    set(f, Math.min(fin, 1 - fout), `translate(${(1 - fin) * 60}px,${(1 - fin) * 80}px) scale(${1 - 0.18 * press})`)
+    btn.style.background = mix('#161412', '#FF6600', clamp(press * 1.4))
+  } else set($('#phone'), 0)
+
+  // ---------- Scène 3 ----------
+  const s3 = win(t, 6.3, 9.95, 0.01, 0.22); set($('#s3'), s3)
+  if (s3 > 0) {
+    words('#s3t', 6.5, 0.09)
+    const sb = eo(P(t, 8.75, 9.1)); set($('#s3b'), sb, `translateY(${(1 - sb) * 24}px)`)
+  }
+
+  // ---------- Scène 4 ----------
+  const s4 = win(t, 10.0, 14.45, 0.15, 0.22); set($('#s4'), s4)
+  if (s4 > 0) {
+    words('#s4t', 10.1, 0.08)
+    let sx
+    if (t < 11.3) sx = lerp(260, -260, eOutX(P(t, 10.15, 11.3)))          // entrée rapide qui freine
+    else if (t < 13.7) sx = lerp(-260, -520, P(t, 11.3, 13.7))           // dérive lente : on lit les designs
+    else sx = lerp(-520, -1250, eIn(P(t, 13.7, 14.45)))                   // ré-accélère vers la sortie
+    $('#strip').style.transform = `translateX(${sx}px)`
+    $$('#strip .mini').forEach((m, i) => {
+      const e = eo(P(t, 10.15 + i * 0.25, 10.6 + i * 0.25))
+      set(m, e, `translateY(${(1 - e) * 90}px)`)
+      // « Vos couleurs » : l'accent de chaque design bascule vers l'orange Ofika
+      const k = eio(P(t, 12.5 + i * 0.09, 13.0 + i * 0.09)), acc = mix(m.dataset.acc, '#FF6600', k)
+      m.querySelectorAll('.acc-c').forEach((el) => (el.style.color = acc))
+      m.querySelectorAll('.acc-bg').forEach((el) => (el.style.background = acc))
+      m.querySelectorAll('.acc-b').forEach((el) => (el.style.borderColor = acc))
+    })
+  }
+
+  // ---------- Scène 5 ----------
+  const s5 = win(t, 14.45, 17.55, 0.2, 0.25); set($('#s5'), s5)
+  if (s5 > 0) {
+    words('#s5t', 14.6, 0.09)
+    const pr = eob(P(t, 14.55, 15.15)); set($('#phone5'), 1, `translate(795px,${lerp(1100, 270, pr)}px)`)
+    const cl = eob(P(t, 14.75, 15.3)); set($('#card5'), clamp(cl * 2), `translate(${lerp(-600, 200, cl)}px,420px) rotate(${lerp(10, -8, cl)}deg)`)
+    const qr = eob(P(t, 14.85, 15.4)); set($('#qr'), clamp(qr * 2), `translate(${lerp(2300, 1370, qr)}px,400px) rotate(${lerp(-10, 6, qr)}deg)`)
+    set($('#lab5a'), eo(P(t, 15.3, 15.6))); set($('#lab5b'), eo(P(t, 15.4, 15.7)))
+    Array.from(wavesEl.children).forEach((w, i) => {
+      const p = ((t - 15.3 - i * 0.25) % 1 + 1) % 1, sz = lerp(60, 230, p)
+      w.style.left = 690 - sz / 2 + 'px'; w.style.top = 520 - sz / 2 + 'px'; w.style.width = sz + 'px'; w.style.height = sz + 'px'
+      set(w, t > 15.3 ? (1 - p) * 0.85 : 0, 'rotate(45deg)')
+    })
+  }
+
+  // ---------- Scène 6 ----------
+  const s6 = win(t, 17.55, 21.5, 0.2, 0.01); set($('#s6'), s6)
+  if (s6 > 0) {
+    const l = eob(P(t, 17.5, 18.1)); set($('#logo6'), P(t, 17.5, 17.62), `scale(${lerp(0.82, 1, l)})`)
+    const g = eo(P(t, 18.3, 18.7)); set($('#tag6'), g, `translateY(${(1 - g) * 26}px)`)
+    const u = eo(P(t, 18.7, 19.1)); set($('#url6'), u, `translateY(${(1 - u) * 20}px)`)
+  }
+}
+window.render = render
+render(0)
+</script>
+</body>
+</html>

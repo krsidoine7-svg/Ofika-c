@@ -5,6 +5,7 @@ import { ArrowLeft, FileText, Scale, Gavel, AlertCircle, ShoppingCart, RefreshCc
 export const metadata = {
     title: 'Conditions Générales d’Utilisation et de Vente — Ofika',
     description: 'Consultez les conditions détaillées régissant l’utilisation de la plateforme Ofika et l’achat de produits NFC.',
+    alternates: { canonical: '/terms' },
 }
 
 export default function TermsPage() {

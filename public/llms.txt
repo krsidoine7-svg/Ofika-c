@@ -1,0 +1,48 @@
+# Ofika
+
+> Ofika est la carte de visite nouvelle génération en Côte d'Ivoire : une carte NFC (ou un QR code) qui ouvre un profil professionnel en ligne. Le contact (numéro, WhatsApp, réseaux sociaux) s'enregistre dans le téléphone de l'interlocuteur en 1 seconde, sans application à installer. Slogan : « Tout est là. »
+
+Site : https://ofika.ci
+Pays : Côte d'Ivoire (Abidjan)
+Langue : français
+
+## Ce que fait Ofika
+
+- Profil professionnel public (page « link in bio ») : nom, métier, entreprise, bio, numéro, WhatsApp, e-mail, adresse, réseaux sociaux, liens (site, boutique, portfolio, prise de rendez-vous).
+- Bouton « Ajouter aux contacts » : le visiteur enregistre la fiche contact complète en un clic.
+- Carte de visite NFC : approchée d'un smartphone, elle ouvre le profil (même technologie que le paiement sans contact). Carte rigide et étanche.
+- QR code inclus avec chaque profil : pour partager à distance, sur flyers, vitrines ou réseaux sociaux.
+- 8 designs de page (Éditorial, Carte de visite, Bento, Noir Luxe, Immersif, Boutique, Organique, Suisse), couleurs personnalisables.
+- Page modifiable à tout moment : changer de numéro ou de poste ne demande pas de racheter de carte.
+- Aucune application à installer, ni pour le propriétaire ni pour le visiteur.
+
+## Pour qui
+
+Entrepreneurs et cadres, freelances et consultants, commerces et boutiques (bouton « Commander sur WhatsApp »), créateurs de contenu et artistes, métiers de la beauté et du bien-être.
+
+## Tarifs (en FCFA)
+
+- Profil public : gratuit, à vie.
+- Carte NFC Ofika : 14 600 FCFA, achat unique, utilisable à vie.
+- Formules Pro (1 000 FCFA/mois) et Business (3 000 FCFA/mois) : en cours de finalisation.
+
+Paiement : Mobile Money (Orange Money, MTN, Moov, Wave) et carte bancaire.
+
+## Questions fréquentes
+
+- **Faut-il une application ?** Non. Le profil s'ouvre directement dans le navigateur du téléphone.
+- **Et si le téléphone ne lit pas le NFC ?** On scanne le QR code, qui fonctionne sur tous les smartphones.
+- **Que se passe-t-il si je change de numéro ?** On modifie sa page Ofika ; la carte reste la même.
+- **Le profil est-il vraiment gratuit ?** Oui, le profil public est gratuit à vie. Seule la carte NFC physique est payante (achat unique).
+
+## Liens utiles
+
+- [Accueil](https://ofika.ci/) : présentation et tarifs
+- [Commencer](https://ofika.ci/get-started) : choisir entre la carte NFC et la page publique gratuite
+- [Créer sa page gratuite](https://ofika.ci/onboarding/public-page)
+- [Conditions générales](https://ofika.ci/terms)
+- [Confidentialité](https://ofika.ci/privacy)
+
+## Contact
+
+Support WhatsApp : +225 05 03 68 15 88
