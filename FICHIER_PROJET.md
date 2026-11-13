@@ -42,6 +42,8 @@ OFIKA est une plateforme permettant à des professionnels et créateurs de gén�
 | **MOD-CTA-01** | Refonte Duo Boutons CTA Final & Anti-Slop | ✅ VALIDÉ | Duo prestigieux Noir mat / Blanc pur, suppression dégradé criard, cadre épuré, réassurance sans puce orpheline |
 | **MOD-FOOT-01** | Épuration Icônes Réseaux Footer & Audit Contacts | ✅ VALIDÉ | Suppression Instagram, vrais logos vectoriels monochromes (LinkedIn, WhatsApp, TikTok) |
 | **MOD-PRICE-01** | Harmonisation Tarifs Éditoriaux & Anti-Slop | ✅ VALIDÉ | Titre contrasté noir/gris, suppression violet intempestif, CTA noir statutaire, réassurance sans puce orpheline |
+| **MOD-ADM-04** | Studio de Contrôle Exécutif Admin (Linear/Stripe) | ✅ VALIDÉ | Refonte complète `/dashboard/admin` : métriques tabulaires haute précision, filtres temporels (7j/30j/Tout), synchro live, recherche express, flux ventes enrichi |
+| **MOD-PWA-03** | Identité Visuelle PWA & Console : Logo Orange sur Fond Blanc | ✅ VALIDÉ | Remplacement de l'icône fond noir de `PwaInstallPrompt.tsx` et de la sidebar admin par le logo vectoriel Ofika orange sur fond blanc pur |
 
 ---
 
