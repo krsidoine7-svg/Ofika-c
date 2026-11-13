@@ -9,9 +9,8 @@
 // STRATÉGIES DE MISE EN CACHE (PWA)
 // ==================================
 
-const CACHE_NAME = 'ofika-cache-v2'
+const CACHE_NAME = 'ofika-cache-v3'
 const STATIC_ASSETS = [
-    '/',
     '/manifest.json',
     '/assets/logos/logo-orange.svg',
     '/assets/logos/logo-black.svg'

@@ -2,13 +2,12 @@
 
 import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
-import { Button } from '@/components/ui/button'
-import { X, Share, PlusSquare, Sparkles, Smartphone, Download } from 'lucide-react'
+import { X, Share, PlusSquare } from 'lucide-react'
 
-// Monogramme Officiel Ofika pour l'icône de l'application
+// Monogramme Officiel Ofika dans un cadre sobre et premium
 const OfikaAppIcon = () => (
-  <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-tr from-slate-950 via-slate-900 to-slate-800 p-2 flex items-center justify-center shadow-md border border-white/15 relative overflow-hidden flex-shrink-0">
-    <div className="absolute inset-0 bg-gradient-to-tr from-orange-500/20 via-transparent to-pink-500/20" />
+  <div className="w-11 h-11 rounded-lg bg-slate-950 p-2.5 flex items-center justify-center shadow-sm border border-slate-800/80 relative overflow-hidden flex-shrink-0">
+    <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent pointer-events-none" />
     <svg className="w-full h-full relative z-10" viewBox="0 0 73.69 74.29" fill="none" xmlns="http://www.w3.org/2000/svg">
       <path fill="#FFFFFF" d="m36.73,45.03c3.95-.09,7.08,3.1,7.57,7.71.78,7.24,1.31,7.87,8.39,9.33,3.39.7,6.07,2.32,5.99,6.13-.07,3.27-1.78,5.89-5.35,6.08-3.85.2-5.97-1.92-6.78-5.8-1.43-6.79-3.04-7.97-9.76-7.98-6.58-.01-8.14,1.22-9.7,7.97-.86,3.73-2.93,6.05-6.84,5.79-3.27-.22-5.03-2.42-5.16-5.65-.17-4.11,2.32-6.25,6.03-6.5,5.61-.38,7.59-3.56,8.09-8.76.54-5.52,3.25-8.22,7.53-8.31Z" />
       <path fill="#FFFFFF" d="m67.5,14.91c3.39.45,5.8,2.07,6.1,5.55.32,3.74-2.05,5.86-5.33,6.81-7.58,2.17-10.37,7.59-7.67,15.24.92,2.61,2.77,4.12,5.5,4.28,2.05.12,3.87.63,5.41,2.06,1.86,1.73,2.69,3.81,1.85,6.28-.81,2.4-2.61,3.86-5.09,4.16-2.53.31-4.52-.83-5.74-3.06-.54-.99-.81-2.16-1.04-3.29-1.38-6.62-2.44-7.61-9.04-8.29-4.82-.5-7.67-3.24-7.7-7.42-.03-4.39,2.96-7.44,7.97-7.57,5.12-.13,8.04-2.42,8.6-7.61.42-3.87,2.12-6.59,6.19-7.14Z" />
@@ -34,7 +33,7 @@ export function PwaInstallPrompt() {
       return
     }
 
-    // Vérifier si l'application s'exécute déjà en mode standalone
+    // Vérifier si l'application s'exécute déjà en mode standalone (déjà installée)
     const isRunningStandalone =
       window.matchMedia('(display-mode: standalone)').matches ||
       (window.navigator as any).standalone === true
@@ -61,12 +60,12 @@ export function PwaInstallPrompt() {
     }
   }, [])
 
-  // Minuteur de 20 secondes pour disparition automatique
+  // Minuteur de 25 secondes pour fermeture automatique non intrusive
   useEffect(() => {
     if ((isInstallable || isIOS) && !dismissed && !isStandalone && !showIosGuide) {
       const timer = setTimeout(() => {
         setDismissed(true)
-      }, 20000) // Disparaît automatiquement après 20 secondes
+      }, 25000)
 
       return () => clearTimeout(timer)
     }
@@ -101,27 +100,34 @@ export function PwaInstallPrompt() {
   return (
     <AnimatePresence>
       {!dismissed && (
-        <motion.div
-          initial={{ opacity: 0, y: 30, scale: 0.95 }}
+        <motion.aside
+          initial={{ opacity: 0, y: 24, scale: 0.98 }}
           animate={{ opacity: 1, y: 0, scale: 1 }}
-          exit={{ opacity: 0, y: 20, scale: 0.95 }}
-          transition={{ duration: 0.35, ease: [0.16, 1, 0.3, 1] }}
-          className="fixed bottom-5 right-5 z-[60] w-[calc(100vw-2.5rem)] sm:w-[360px] max-w-sm"
+          exit={{ opacity: 0, y: 16, scale: 0.98 }}
+          transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
+          className="fixed bottom-4 right-4 sm:bottom-6 sm:right-6 z-[60] w-[calc(100vw-2rem)] sm:w-[350px] max-w-sm"
+          role="region"
+          aria-label="Installation de l'application"
         >
-          <div className="relative overflow-hidden rounded-2xl bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200/80 dark:border-slate-800 shadow-[0_16px_36px_-10px_rgba(0,0,0,0.18)] p-3.5 sm:p-4">
-            {/* Dégradé lumineux d'arrière-plan très subtil */}
-            <div className="absolute top-0 right-0 w-32 h-32 bg-orange-500/10 rounded-full blur-2xl pointer-events-none -z-10" />
+          <div className="relative overflow-hidden rounded-lg bg-white/95 dark:bg-slate-900/95 backdrop-blur-xl border border-slate-200/90 dark:border-slate-800 shadow-[0_10px_30px_-6px_rgba(15,23,42,0.12)] p-4 transition-all">
+            {/* Liseré supérieur subtil rappelant l'orange Ofika */}
+            <div className="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-orange-500/60 to-transparent" />
 
-            {/* Header & Infos */}
-            <div className="flex items-center justify-between gap-3">
+            {/* En-tête : Logo, Titre & Bouton Fermer */}
+            <div className="flex items-start justify-between gap-3">
               <div className="flex items-center gap-3 min-w-0">
                 <OfikaAppIcon />
                 <div className="min-w-0">
-                  <h4 className="font-extrabold text-sm sm:text-base text-slate-900 dark:text-white tracking-tight leading-none">
-                    Application Ofika
-                  </h4>
-                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-1 truncate">
-                    Accès instantané & mode hors-ligne
+                  <div className="flex items-center gap-1.5">
+                    <h4 className="font-semibold text-sm text-slate-900 dark:text-white tracking-tight">
+                      Ofika
+                    </h4>
+                    <span className="text-[10px] font-medium tracking-wide text-orange-600 dark:text-orange-400 bg-orange-500/10 px-1.5 py-0.5 rounded">
+                      App web
+                    </span>
+                  </div>
+                  <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5 leading-snug">
+                    Accédez à vos cartes et profils en 1 clic
                   </p>
                 </div>
               </div>
@@ -130,53 +136,66 @@ export function PwaInstallPrompt() {
               <button
                 type="button"
                 onClick={handleDismiss}
-                className="w-7 h-7 rounded-full text-slate-400 hover:text-slate-700 hover:bg-slate-100 dark:hover:bg-slate-800 flex items-center justify-center transition-all flex-shrink-0"
-                aria-label="Fermer"
+                className="w-7 h-7 -mr-1 -mt-1 rounded-md text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 hover:bg-slate-100 dark:hover:bg-slate-800/80 flex items-center justify-center transition-colors flex-shrink-0 cursor-pointer"
+                aria-label="Fermer la suggestion"
               >
                 <X className="w-4 h-4" />
               </button>
             </div>
 
-            {/* Guide iOS ou Bouton d'action direct */}
-            <div className="mt-3">
+            {/* Zone d'action ou Guide iOS */}
+            <div className="mt-3.5">
               {isIOS && showIosGuide ? (
                 <motion.div
                   initial={{ opacity: 0, height: 0 }}
                   animate={{ opacity: 1, height: 'auto' }}
-                  className="space-y-2 pt-2 border-t border-slate-100 dark:border-slate-800 text-xs text-slate-600 dark:text-slate-300"
+                  className="space-y-2.5 pt-3 border-t border-slate-100 dark:border-slate-800/80 text-xs text-slate-600 dark:text-slate-300"
                 >
-                  <p className="font-semibold text-slate-900 dark:text-white text-[11px] uppercase tracking-wider">
-                    Pour installer sur iOS :
+                  <p className="font-medium text-slate-900 dark:text-slate-100 text-[11px] uppercase tracking-wider">
+                    2 étapes simples sur Safari :
                   </p>
-                  <div className="space-y-1.5 bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-xl border border-slate-100 dark:border-slate-700/50">
+                  
+                  <div className="space-y-2 bg-slate-50 dark:bg-slate-800/50 p-2.5 rounded-md border border-slate-100 dark:border-slate-700/50">
                     <div className="flex items-center gap-2">
-                      <span className="w-4 h-4 rounded-full bg-orange-500 text-white text-[10px] font-bold flex items-center justify-center">1</span>
-                      <span>Appuyez sur</span>
-                      <Share className="w-3.5 h-3.5 text-blue-500 inline" />
-                      <span className="font-semibold">Partager</span>
+                      <span className="w-4 h-4 rounded-sm bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-[10px] font-bold flex items-center justify-center flex-shrink-0">
+                        1
+                      </span>
+                      <span className="flex-1">
+                        Touchez le bouton <Share className="w-3.5 h-3.5 text-blue-500 inline mx-0.5 align-text-bottom" /> <strong>Partager</strong>
+                      </span>
                     </div>
+
                     <div className="flex items-center gap-2">
-                      <span className="w-4 h-4 rounded-full bg-orange-500 text-white text-[10px] font-bold flex items-center justify-center">2</span>
-                      <span>Sélectionnez</span>
-                      <PlusSquare className="w-3.5 h-3.5 text-slate-700 dark:text-white inline" />
-                      <span className="font-semibold">Sur l'écran d'accueil</span>
+                      <span className="w-4 h-4 rounded-sm bg-slate-200 dark:bg-slate-700 text-slate-700 dark:text-slate-200 text-[10px] font-bold flex items-center justify-center flex-shrink-0">
+                        2
+                      </span>
+                      <span className="flex-1">
+                        Sélectionnez <PlusSquare className="w-3.5 h-3.5 text-slate-700 dark:text-slate-300 inline mx-0.5 align-text-bottom" /> <strong>Sur l'écran d'accueil</strong>
+                      </span>
                     </div>
                   </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setShowIosGuide(false)}
+                    className="w-full text-center text-[11px] font-medium text-slate-500 hover:text-slate-800 dark:hover:text-slate-200 py-1 transition-colors cursor-pointer"
+                  >
+                    Fermer le guide
+                  </button>
                 </motion.div>
               ) : (
-                <Button
+                <button
                   type="button"
-                  size="sm"
                   onClick={handleInstallClick}
-                  className="w-full h-9 rounded-xl bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white font-bold text-xs shadow-sm hover:shadow transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  className="w-full h-10 rounded-md bg-slate-900 hover:bg-slate-800 active:scale-[0.98] text-white dark:bg-white dark:text-slate-900 dark:hover:bg-slate-100 font-semibold text-xs shadow-sm hover:shadow transition-all flex items-center justify-center gap-2 cursor-pointer"
                 >
-                  <Download className="w-3.5 h-3.5" />
-                  <span>{isIOS ? 'Comment installer' : 'Installer gratuitement'}</span>
-                </Button>
+                  <PlusSquare className="w-4 h-4 text-orange-400 dark:text-orange-600" />
+                  <span>Ajouter à l'accueil</span>
+                </button>
               )}
             </div>
           </div>
-        </motion.div>
+        </motion.aside>
       )}
     </AnimatePresence>
   )

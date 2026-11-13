@@ -62,8 +62,8 @@ const MetallicChip = ({ isDark = true }: { isDark?: boolean }) => (
 )
 
 export function NFCCard3DViewer({
-  fullName = 'Alexandre Dupont',
-  jobTitle = 'Directeur Commercial',
+  fullName = 'Votre Nom',
+  jobTitle = 'Votre Fonction',
   company = 'OFIKA GLOBAL',
   logoUrl,
   backgroundColor = 'black',
@@ -367,10 +367,10 @@ export function NFCCard3DViewer({
                     {/* Right: Personal & Professional Details */}
                     <div className="flex flex-col justify-center text-left">
                       <h4 className={cn("font-bold text-base sm:text-lg md:text-xl leading-tight tracking-tight", textColor)}>
-                        {fullName || 'Alexandre Dupont'}
+                        {fullName || 'Votre Nom'}
                       </h4>
                       <p className={cn("text-xs sm:text-sm font-medium mt-1", textMutedColor)}>
-                        {jobTitle || 'Directeur Général'}
+                        {jobTitle || 'Votre Fonction'}
                       </p>
                     </div>
                   </div>
@@ -399,10 +399,10 @@ export function NFCCard3DViewer({
                     </div>
                     <div>
                       <h4 className={cn("font-extrabold text-sm sm:text-base md:text-lg", textColor)}>
-                        {fullName || 'Alexandre Dupont'}
+                        {fullName || 'Votre Nom'}
                       </h4>
                       <p className={cn("text-xs font-medium", textMutedColor)}>
-                        {jobTitle || 'Directeur Commercial'}
+                        {jobTitle || 'Votre Fonction'}
                       </p>
                     </div>
                   </div>

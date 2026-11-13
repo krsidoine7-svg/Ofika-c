@@ -15,7 +15,7 @@ import { Button } from "@/components/ui/button"
 import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
 
-import { ArrowRight, Smartphone, CreditCard, Users, Globe, Shield, Zap, Play, CheckCircle, Smartphone as PhoneIcon, Zap as LightningIcon, Wifi, WifiOff, QrCode, Upload, User, Briefcase, Building, Image, RotateCcw, Palette, Mail, Phone, X, Loader2, UserPlus, Menu, Star, TrendingUp, Award, AlertTriangle, Instagram, Linkedin, MessageCircle, Music2, Sparkles, Video, Truck, MapPin } from "lucide-react"
+import { ArrowRight, Smartphone, CreditCard, Users, Globe, Shield, Zap, Play, CheckCircle, Smartphone as PhoneIcon, Zap as LightningIcon, Wifi, WifiOff, QrCode, Upload, User, Briefcase, Building, Image, RotateCcw, Palette, Mail, Phone, X, Loader2, UserPlus, Menu, Star, TrendingUp, Award, AlertTriangle, Linkedin, MessageCircle, Video, Truck, MapPin } from "lucide-react"
 import Link from "next/link"
 import dynamic from 'next/dynamic'
 import { Logo } from "@/components/ui/logo"
@@ -33,7 +33,7 @@ const ModernHero = dynamic(() => import("@/components/landing/ModernHero").then(
   ssr: false,
   loading: () => <div className="min-h-[600px] w-full bg-white" />
 })
-import { ScrollStorytelling } from "@/components/landing/ScrollStorytelling"
+import { MotionVideoShowcase } from "@/components/landing/MotionVideoShowcase"
 import { ScrollReveal } from "@/components/core/ScrollReveal"
 import { VerifiedReviewsSection } from "@/components/landing/VerifiedReviewsSection"
 
@@ -204,80 +204,76 @@ export default function HomePage() {
       </nav>
 
       {/* MODERN PREMIUM HERO */}
-      <ModernHero videoUrl="/deo-tuto.mp4" />
+      <ModernHero />
 
-      {/* SCROLL STORYTELLING : L'animation qui explique le concept "Tap & Connect" */}
-      <ScrollStorytelling videoUrl="/deo-tuto.mp4" />
+      {/* DÉMO VIDÉO CINÉMATIQUE OFIKA (16:9 FULL HD) */}
+      <MotionVideoShowcase videoUrl="/ofika-deo-motion.mp4" />
 
 
 
       {/* SECTION COMBINÉE : SOLUTION, NFC vs QR & POUR QUI */}
-      <section id="solution" className="py-16 sm:py-20 bg-gray-50/70 border-b border-gray-100 overflow-hidden">
+      <section id="solution" className="py-16 sm:py-24 bg-gray-50/70 border-b border-gray-100 overflow-hidden">
         <div className="container mx-auto px-4 max-w-6xl">
-          {/* En-tête percutant */}
-          <div className="text-center max-w-3xl mx-auto mb-12">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-orange-100/80 text-ofika-orange mb-4">
-              <Sparkles className="w-3.5 h-3.5" />
-              L&apos;alternative moderne à la carte papier
-            </span>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 tracking-tight mb-4">
-              Le sans contact pour vos rencontres.<br className="hidden sm:block" />
-              <span className="text-ofika-orange"> Le QR code</span> pour vos supports.
+          {/* En-tête de section - Style Minimaliste & Éditorial */}
+          <div className="text-center max-w-3xl mx-auto mb-12 sm:mb-16">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-neutral-900 tracking-tight leading-[1.18] sm:leading-[1.15] mb-4">
+              Le sans contact pour vos rencontres, <br />
+              <span className="text-neutral-400 font-normal">le QR code pour tous vos supports.</span>
             </h2>
-            <p className="text-base sm:text-lg text-gray-600 leading-relaxed">
-              <strong className="text-gray-900 font-semibold">88% des cartes papier finissent à la poubelle</strong> en moins d&apos;une semaine. Avec Ofika, vos coordonnées s&apos;enregistrent instantanément dans le téléphone de votre client, modifiables à vie et sans application.
+            <p className="text-base sm:text-lg text-neutral-600 leading-relaxed max-w-2xl mx-auto">
+              88% des cartes papier finissent à la poubelle en moins de 7 jours. Avec Ofika, un simple tap enregistre instantanément vos coordonnées dans le smartphone de votre client, sans application.
             </p>
           </div>
 
           {/* Les 2 Piliers : NFC vs QR Code */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 sm:gap-8 mb-12">
             {/* Pilier 1 : NFC */}
-            <div className="bg-white rounded-2xl p-7 sm:p-8 border border-gray-200/80 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-              <div className="w-12 h-12 rounded-xl bg-orange-100 text-ofika-orange flex items-center justify-center mb-5 group-hover:scale-105 transition-transform">
+            <div className="bg-white rounded-2xl p-7 sm:p-8 border border-neutral-200/80 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+              <div className="w-12 h-12 rounded-xl bg-neutral-100 text-neutral-900 flex items-center justify-center mb-5 group-hover:bg-neutral-900 group-hover:text-white transition-colors">
                 <Wifi className="w-6 h-6" />
               </div>
-              <span className="text-xs font-bold uppercase tracking-wider text-ofika-orange">En face-à-face</span>
-              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1 mb-2">La Carte Sans Contact (NFC)</h3>
-              <p className="text-sm sm:text-base text-gray-600 mb-5 leading-relaxed">
+              <span className="text-xs font-semibold uppercase tracking-wider text-neutral-500">En face-à-face</span>
+              <h3 className="text-xl sm:text-2xl font-bold text-neutral-900 mt-1 mb-2">La Carte Sans Contact (NFC)</h3>
+              <p className="text-sm sm:text-base text-neutral-600 mb-5 leading-relaxed">
                 Approchez votre carte du smartphone de votre interlocuteur. Votre fiche s&apos;ouvre automatiquement sans qu&apos;il ait besoin d&apos;installer la moindre application.
               </p>
-              <ul className="space-y-2.5 text-xs sm:text-sm text-gray-700 font-medium border-t border-gray-100 pt-4">
+              <ul className="space-y-2.5 text-xs sm:text-sm text-neutral-600 font-medium border-t border-neutral-100 pt-4">
                 <li className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                  <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                   <span>100% compatible iPhone &amp; Android</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                  <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                   <span>Enregistrement en 1 tap dans les contacts</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                  <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                   <span>Profil et coordonnées modifiables à vie</span>
                 </li>
               </ul>
             </div>
 
             {/* Pilier 2 : QR Code */}
-            <div className="bg-white rounded-2xl p-7 sm:p-8 border border-gray-200/80 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
-              <div className="w-12 h-12 rounded-xl bg-purple-100 text-purple-600 flex items-center justify-center mb-5 group-hover:scale-105 transition-transform">
+            <div className="bg-white rounded-2xl p-7 sm:p-8 border border-neutral-200/80 shadow-sm hover:shadow-md transition-shadow relative overflow-hidden group">
+              <div className="w-12 h-12 rounded-xl bg-neutral-100 text-neutral-900 flex items-center justify-center mb-5 group-hover:bg-neutral-900 group-hover:text-white transition-colors">
                 <QrCode className="w-6 h-6" />
               </div>
-              <span className="text-xs font-bold uppercase tracking-wider text-purple-600">Sur vos supports &amp; à distance</span>
-              <h3 className="text-xl sm:text-2xl font-bold text-gray-900 mt-1 mb-2">Le QR Code Intelligent</h3>
-              <p className="text-sm sm:text-base text-gray-600 mb-5 leading-relaxed">
+              <span className="text-xs font-semibold uppercase tracking-wider text-neutral-500">Sur vos supports &amp; à distance</span>
+              <h3 className="text-xl sm:text-2xl font-bold text-neutral-900 mt-1 mb-2">Le QR Code Intelligent</h3>
+              <p className="text-sm sm:text-base text-neutral-600 mb-5 leading-relaxed">
                 Imprimé au dos de votre carte ou affiché sur vos vitrines, emballages, factures et réseaux pour être contacté même à distance.
               </p>
-              <ul className="space-y-2.5 text-xs sm:text-sm text-gray-700 font-medium border-t border-gray-100 pt-4">
+              <ul className="space-y-2.5 text-xs sm:text-sm text-neutral-600 font-medium border-t border-neutral-100 pt-4">
                 <li className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                  <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                   <span>Idéal pour vitrines, emballages et flyers</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                  <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                   <span>Lien direct vers WhatsApp, catalogue &amp; réseaux</span>
                 </li>
                 <li className="flex items-center gap-2">
-                  <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                  <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                   <span>Scannable avec tout appareil photo</span>
                 </li>
               </ul>
@@ -339,10 +335,6 @@ export default function HomePage() {
       <section id="demo" className="py-16 sm:py-24 bg-gradient-to-b from-white via-orange-50/25 to-white border-b border-gray-100 overflow-hidden">
         <div className="container mx-auto px-4 max-w-6xl">
           <div className="text-center mb-10 max-w-2xl mx-auto">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-orange-100 text-ofika-orange mb-3">
-              <Sparkles className="w-3.5 h-3.5" />
-              Simulateur 3D en direct
-            </span>
             <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 tracking-tight mb-3">
               Testez votre carte <span className="text-ofika-orange">en temps réel</span>
             </h2>
@@ -362,16 +354,13 @@ export default function HomePage() {
       {/* PRICING SECTION - REDESIGN LUMINEUX & ÉPURÉ */}
       <section id="pricing" className="py-20 sm:py-28 bg-gray-50/70 border-b border-gray-100 overflow-hidden">
         <div className="container mx-auto px-4 max-w-6xl">
-          {/* En-tête de section */}
-          <div className="text-center mb-14 max-w-2xl mx-auto">
-            <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-orange-100 text-ofika-orange mb-3">
-              <Sparkles className="w-3.5 h-3.5" />
-              Transparence totale
-            </span>
-            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-gray-900 tracking-tight mb-4">
-              Des tarifs adaptés à <span className="text-ofika-orange">votre ambition</span>
+          {/* En-tête de section - Style Minimaliste & Éditorial */}
+          <div className="text-center mb-12 sm:mb-16 max-w-2xl mx-auto">
+            <h2 className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-neutral-900 tracking-tight leading-[1.18] sm:leading-[1.15] mb-4">
+              Des tarifs clairs, <br />
+              <span className="text-neutral-400 font-normal">adaptés à votre ambition.</span>
             </h2>
-            <p className="text-base sm:text-lg text-gray-600 leading-relaxed">
+            <p className="text-base sm:text-lg text-neutral-600 leading-relaxed">
               Pas de frais cachés, aucun abonnement forcé. Commencez gratuitement ou commandez votre carte physique sans contact.
             </p>
           </div>
@@ -379,100 +368,100 @@ export default function HomePage() {
           {/* Grille des 3 offres claires */}
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-stretch mb-12">
             {/* OFFRE 1 : PROFIL DIGITAL (GRATUIT) */}
-            <div className="bg-white rounded-3xl border border-gray-200/80 p-7 sm:p-8 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
+            <div className="bg-white rounded-2xl border border-neutral-200/80 p-7 sm:p-8 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
               <div>
-                <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-700 mb-4">
+                <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-neutral-100 text-neutral-700 mb-4">
                   Pour démarrer
                 </span>
-                <h3 className="text-2xl font-bold text-gray-900 mb-1">Profil Digital</h3>
-                <p className="text-sm text-gray-500 mb-5">Votre vitrine en ligne accessible par QR code.</p>
+                <h3 className="text-2xl font-bold text-neutral-900 mb-1">Profil Digital</h3>
+                <p className="text-sm text-neutral-500 mb-5">Votre vitrine en ligne accessible par QR code.</p>
                 
-                <div className="flex items-baseline gap-1.5 mb-6 pb-6 border-b border-gray-100">
-                  <span className="text-4xl sm:text-5xl font-black text-gray-900">0</span>
-                  <span className="text-base font-bold text-gray-500">FCFA</span>
+                <div className="flex items-baseline gap-1.5 mb-6 pb-6 border-b border-neutral-100">
+                  <span className="text-4xl sm:text-5xl font-extrabold text-neutral-900">0</span>
+                  <span className="text-base font-bold text-neutral-500">FCFA</span>
                   <span className="text-xs text-emerald-600 font-semibold ml-2">Gratuit à vie</span>
                 </div>
 
-                <ul className="space-y-3 text-sm text-gray-600 mb-8">
+                <ul className="space-y-3 text-sm text-neutral-600 mb-8">
                   <li className="flex items-center gap-2.5">
-                    <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                    <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                     <span>Page de profil en ligne personnalisée</span>
                   </li>
                   <li className="flex items-center gap-2.5">
-                    <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                    <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                     <span>Bouton "Ajouter aux contacts" en 1 clic</span>
                   </li>
                   <li className="flex items-center gap-2.5">
-                    <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                    <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                     <span>WhatsApp, téléphone, catalogues &amp; réseaux</span>
                   </li>
                   <li className="flex items-center gap-2.5">
-                    <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                    <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                     <span>QR Code digital prêt à scanner</span>
                   </li>
                   <li className="flex items-center gap-2.5">
-                    <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                    <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                     <span>Modifiable en temps réel à tout moment</span>
                   </li>
                   <li className="flex items-center gap-2.5">
-                    <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                    <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                     <span>100% compatible tous smartphones</span>
                   </li>
                 </ul>
               </div>
 
               <Link href="/onboarding/public-page" className="block w-full">
-                <Button size="lg" className="w-full h-12 rounded-xl bg-gray-900 hover:bg-gray-800 text-white font-bold text-sm shadow-sm transition-all cursor-pointer">
+                <Button size="lg" className="w-full h-12 rounded-xl bg-neutral-100 hover:bg-neutral-200 text-neutral-900 font-semibold text-sm transition-all cursor-pointer">
                   Créer mon profil gratuit
                 </Button>
               </Link>
             </div>
 
             {/* OFFRE 2 : CARTE NFC PHYSIQUE */}
-            <div className="bg-white rounded-3xl border border-gray-200/80 p-7 sm:p-8 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
+            <div className="bg-white rounded-2xl border-2 border-neutral-950 p-7 sm:p-8 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow relative">
               <div>
-                <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-gray-100 text-gray-700 mb-4">
-                  Édition physique
+                <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-neutral-950 text-white mb-4">
+                  Édition physique • Recommandé
                 </span>
-                <h3 className="text-2xl font-bold text-gray-900 mb-1">Carte NFC Physique</h3>
-                <p className="text-sm text-gray-500 mb-5">Le geste sans contact qui marque vos rencontres.</p>
+                <h3 className="text-2xl font-bold text-neutral-900 mb-1">Carte NFC Physique</h3>
+                <p className="text-sm text-neutral-500 mb-5">Le geste sans contact qui marque vos rencontres.</p>
                 
-                <div className="flex items-baseline gap-1.5 mb-6 pb-6 border-b border-gray-100">
-                  <span className="text-4xl sm:text-5xl font-black text-gray-900">{NFC_CARD_BASE_PRICE.toLocaleString('fr-FR')}</span>
-                  <span className="text-base font-bold text-gray-500">FCFA</span>
+                <div className="flex items-baseline gap-1.5 mb-6 pb-6 border-b border-neutral-100">
+                  <span className="text-4xl sm:text-5xl font-extrabold text-neutral-900">{NFC_CARD_BASE_PRICE.toLocaleString('fr-FR')}</span>
+                  <span className="text-base font-bold text-neutral-500">FCFA</span>
                   <span className="text-xs text-emerald-600 font-semibold ml-2">Achat unique • À vie</span>
                 </div>
 
-                <ul className="space-y-3 text-sm text-gray-600 mb-8">
+                <ul className="space-y-3 text-sm text-neutral-600 mb-8">
                   <li className="flex items-center gap-2.5">
-                    <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                    <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                     <span>Puce NFC sans contact (1 tap sur smartphone)</span>
                   </li>
                   <li className="flex items-center gap-2.5">
-                    <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                    <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                     <span>QR Code haute définition gravé au dos</span>
                   </li>
                   <li className="flex items-center gap-2.5">
-                    <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                    <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                     <span>Carte rigide haut de gamme, étanche &amp; inusable</span>
                   </li>
                   <li className="flex items-center gap-2.5">
-                    <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                    <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                     <span>Profil digital complet inclus et modifiable à vie</span>
                   </li>
                   <li className="flex items-center gap-2.5">
-                    <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
+                    <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                     <span>Aucun abonnement, aucun frais mensuel</span>
                   </li>
                   <li className="flex items-center gap-2.5">
-                    <CheckCircle className="w-4 h-4 text-emerald-500 flex-shrink-0" />
-                    <span className="text-gray-900 font-medium">Livraison 100% gratuite dans tout Abidjan</span>
+                    <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
+                    <span className="text-neutral-900 font-medium">Livraison 100% gratuite dans tout Abidjan</span>
                   </li>
                 </ul>
               </div>
 
               <Link href="/get-started" className="block w-full">
-                <Button size="lg" className="w-full h-12 rounded-xl bg-gradient-to-r from-orange-500 to-orange-600 hover:from-orange-600 hover:to-orange-700 text-white font-bold text-sm shadow-sm transition-all flex items-center justify-center gap-2 cursor-pointer">
+                <Button size="lg" className="w-full h-12 rounded-xl bg-neutral-950 hover:bg-black text-white font-semibold text-sm transition-all flex items-center justify-center gap-2 cursor-pointer shadow-sm active:scale-[0.98]">
                   <span>Commander ma carte</span>
                   <ArrowRight className="w-4 h-4" />
                 </Button>
@@ -480,38 +469,38 @@ export default function HomePage() {
             </div>
 
             {/* OFFRE 3 : ENTREPRISES & ÉQUIPES */}
-            <div className="bg-white rounded-3xl border border-gray-200/80 p-7 sm:p-8 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
+            <div className="bg-white rounded-2xl border border-neutral-200/80 p-7 sm:p-8 flex flex-col justify-between shadow-sm hover:shadow-md transition-shadow">
               <div>
-                <span className="inline-block px-3 py-1 rounded-full text-xs font-bold bg-purple-100 text-purple-700 mb-4">
+                <span className="inline-block px-3 py-1 rounded-full text-xs font-semibold bg-neutral-100 text-neutral-700 mb-4">
                   Équipes &amp; Flottes
                 </span>
-                <h3 className="text-2xl font-bold text-gray-900 mb-1">Entreprises</h3>
-                <p className="text-sm text-gray-500 mb-5">Équipez vos collaborateurs avec votre logo officiel.</p>
+                <h3 className="text-2xl font-bold text-neutral-900 mb-1">Entreprises</h3>
+                <p className="text-sm text-neutral-500 mb-5">Équipez vos collaborateurs avec votre logo officiel.</p>
                 
-                <div className="flex items-baseline gap-1.5 mb-6 pb-6 border-b border-gray-100">
-                  <span className="text-3xl sm:text-4xl font-black text-gray-900">Sur devis</span>
-                  <span className="text-xs text-purple-600 font-semibold ml-2">Dès 5 cartes</span>
+                <div className="flex items-baseline gap-1.5 mb-6 pb-6 border-b border-neutral-100">
+                  <span className="text-3xl sm:text-4xl font-extrabold text-neutral-900">Sur devis</span>
+                  <span className="text-xs text-neutral-500 font-semibold ml-2">Dès 5 cartes</span>
                 </div>
 
-                <ul className="space-y-3 text-sm text-gray-600 mb-8">
+                <ul className="space-y-3 text-sm text-neutral-600 mb-8">
                   <li className="flex items-center gap-2.5">
-                    <CheckCircle className="w-4 h-4 text-purple-600 flex-shrink-0" />
+                    <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                     <span>Design 100% sur-mesure à vos couleurs &amp; logo</span>
                   </li>
                   <li className="flex items-center gap-2.5">
-                    <CheckCircle className="w-4 h-4 text-purple-600 flex-shrink-0" />
+                    <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                     <span>Gestion centralisée des collaborateurs</span>
                   </li>
                   <li className="flex items-center gap-2.5">
-                    <CheckCircle className="w-4 h-4 text-purple-600 flex-shrink-0" />
+                    <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                     <span>Réattribution instantanée si un membre change</span>
                   </li>
                   <li className="flex items-center gap-2.5">
-                    <CheckCircle className="w-4 h-4 text-purple-600 flex-shrink-0" />
+                    <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                     <span>Facturation entreprise &amp; commande groupée</span>
                   </li>
                   <li className="flex items-center gap-2.5">
-                    <CheckCircle className="w-4 h-4 text-purple-600 flex-shrink-0" />
+                    <CheckCircle className="w-4 h-4 text-emerald-600 flex-shrink-0" />
                     <span>Accompagnement dédié &amp; support prioritaire</span>
                   </li>
                 </ul>
@@ -523,66 +512,70 @@ export default function HomePage() {
                 rel="noopener noreferrer"
                 className="block w-full"
               >
-                <Button size="lg" variant="outline" className="w-full h-12 rounded-xl border-gray-300 hover:border-purple-500 hover:bg-purple-50 hover:text-purple-700 text-gray-700 font-bold text-sm transition-all cursor-pointer">
+                <Button size="lg" variant="outline" className="w-full h-12 rounded-xl border-neutral-300 hover:border-neutral-900 hover:bg-neutral-50 text-neutral-900 font-semibold text-sm transition-all cursor-pointer">
                   Demander un devis équipe
                 </Button>
               </a>
             </div>
           </div>
 
-          {/* Note rassurante avec icônes professionnelles */}
+          {/* Note rassurante avec icônes professionnelles (optimisée mobile sans puce orpheline) */}
           <div className="text-center">
-            <p className="text-xs sm:text-sm text-gray-600 font-medium max-w-xl mx-auto flex items-center justify-center flex-wrap gap-2">
-              <span className="inline-flex items-center gap-1.5 font-semibold text-gray-800">
-                <Truck className="w-4 h-4 text-emerald-600" />
+            <div className="text-xs sm:text-sm text-neutral-600 font-medium max-w-xl mx-auto flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-4">
+              <span className="inline-flex items-center gap-1.5 font-semibold text-neutral-800">
+                <Truck className="w-4 h-4 text-emerald-600 shrink-0" />
                 Livraison 100% gratuite dans tout Abidjan
               </span>
-              <span className="text-gray-300">•</span>
-              <span className="inline-flex items-center gap-1.5">
-                <CreditCard className="w-4 h-4 text-gray-500" />
+              <span className="hidden sm:inline text-neutral-300">•</span>
+              <span className="inline-flex items-center gap-1.5 text-neutral-600">
+                <CreditCard className="w-4 h-4 text-neutral-400 shrink-0" />
                 Paiement sécurisé par Mobile Money (Orange, Wave, MTN, Moov) ou carte
               </span>
-            </p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* SECTION CTA SIMPLE, DIRECTE & CLAIRE (SANS FOND NOIR, TEXTES ÉPURÉS) */}
+      {/* SECTION CTA SIMPLE, DIRECTE & CLAIRE (STYLE MINIMALISTE ÉDITORIAL) */}
       <section className="py-16 sm:py-24 bg-white relative overflow-hidden">
         <div className="container mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative rounded-3xl sm:rounded-[32px] bg-gradient-to-b from-orange-50/70 via-amber-50/30 to-white border border-orange-100 p-8 sm:p-14 lg:p-16 text-center max-w-4xl mx-auto shadow-sm">
+          <div className="relative rounded-2xl sm:rounded-3xl bg-neutral-50/80 border border-neutral-200/80 p-8 sm:p-14 lg:p-16 text-center max-w-4xl mx-auto shadow-sm">
             
-            {/* Titre direct & percutant */}
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-black text-gray-900 tracking-tight leading-tight mb-4">
-              Prêt à passer à la carte <br className="hidden sm:inline" />
-              <span className="text-ofika-orange">nouvelle génération</span> ?
+            {/* Titre direct & percutant style éditorial */}
+            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-neutral-900 tracking-tight leading-[1.18] sm:leading-[1.15] mb-4">
+              Prêt à moderniser vos rencontres ? <br className="hidden sm:inline" />
+              <span className="text-neutral-400 font-normal">Créez votre profil en 2 minutes.</span>
             </h2>
 
             {/* Sous-titre court en une phrase */}
-            <p className="text-base sm:text-lg text-gray-600 mb-8 max-w-xl mx-auto font-normal leading-relaxed">
-              Partagez vos coordonnées d'un simple geste sur n'importe quel smartphone, sans application.
+            <p className="text-base sm:text-lg text-neutral-600 mb-8 max-w-xl mx-auto font-normal leading-relaxed">
+              Partagez vos coordonnées d&apos;un simple geste sur n&apos;importe quel smartphone, sans application.
             </p>
 
-            {/* Boutons d'Action Directs */}
-            <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            {/* Boutons d'Action Directs - Duo Harmonieux Noir Mat & Blanc Pur */}
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-center gap-3 sm:gap-4 max-w-md sm:max-w-none mx-auto">
               <Link href="/onboarding/public-page" className="w-full sm:w-auto">
-                <Button size="lg" className="w-full sm:w-auto h-13 sm:h-14 px-8 bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-white rounded-xl sm:rounded-2xl text-base font-bold shadow-lg shadow-orange-500/20 transition-all hover:scale-[1.02] flex items-center justify-center gap-2 group">
-                  Créer mon profil gratuit
+                <Button size="lg" className="w-full sm:w-auto h-12 sm:h-13 px-8 bg-neutral-950 hover:bg-black text-white rounded-xl text-sm sm:text-base font-semibold shadow-sm transition-all active:scale-[0.98] flex items-center justify-center gap-2 group cursor-pointer">
+                  <span>Créer mon profil gratuit</span>
                   <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
                 </Button>
               </Link>
               <Link href="https://wa.me/2250503681588?text=Bonjour%20Ofika%20je%20souhaite%20commander%20une%20carte%20NFC" target="_blank" className="w-full sm:w-auto">
-                <Button variant="outline" size="lg" className="w-full sm:w-auto h-13 sm:h-14 px-7 border-gray-300 bg-white hover:bg-gray-50 text-gray-800 rounded-xl sm:rounded-2xl text-sm sm:text-base font-semibold shadow-sm transition-all flex items-center justify-center gap-2">
-                  <MessageCircle className="w-4 h-4 text-emerald-600" />
-                  Commander une carte physique
+                <Button variant="outline" size="lg" className="w-full sm:w-auto h-12 sm:h-13 px-7 border-neutral-300 hover:border-neutral-950 bg-white hover:bg-neutral-50 text-neutral-900 rounded-xl text-sm sm:text-base font-semibold shadow-xs transition-all active:scale-[0.98] flex items-center justify-center gap-2 cursor-pointer">
+                  <MessageCircle className="w-4 h-4 text-emerald-600 shrink-0" />
+                  <span>Commander une carte physique</span>
                 </Button>
               </Link>
             </div>
 
-            {/* Micro-réassurance concise */}
-            <p className="mt-6 text-xs text-gray-500 font-medium">
-              100% gratuit pour commencer • Sans engagement • Prêt en 2 minutes
-            </p>
+            {/* Micro-réassurance responsive sans rupture disgracieuse */}
+            <div className="mt-6 flex flex-col sm:flex-row items-center justify-center gap-2 sm:gap-3 text-xs text-neutral-500 font-medium">
+              <span>100% gratuit pour commencer</span>
+              <span className="hidden sm:inline text-neutral-300">•</span>
+              <span>Sans engagement</span>
+              <span className="hidden sm:inline text-neutral-300">•</span>
+              <span>Prêt en 2 minutes</span>
+            </div>
           </div>
         </div>
       </section>
@@ -602,39 +595,37 @@ export default function HomePage() {
                 La référence de la carte de visite sans contact et du profil digital professionnel en Afrique de l'Ouest. Partagez vos coordonnées d'un simple geste.
               </p>
               
-              {/* Réseaux sociaux officiels (SANS Facebook !) */}
-              <div className="flex items-center gap-3 pt-2">
-                <Link 
-                  href="https://www.instagram.com/chris.co0/" 
-                  target="_blank" 
-                  aria-label="Instagram Ofika"
-                  className="w-10 h-10 rounded-xl bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white hover:border-neutral-700 hover:bg-neutral-800 transition-all"
-                >
-                  <Instagram className="w-4 h-4" />
-                </Link>
+              {/* Réseaux sociaux officiels - Épurés & Monochromes */}
+              <div className="flex items-center gap-2.5 pt-2">
                 <Link 
                   href="https://www.linkedin.com/company/ofikacard/" 
                   target="_blank" 
                   aria-label="LinkedIn Ofika"
-                  className="w-10 h-10 rounded-xl bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white hover:border-neutral-700 hover:bg-neutral-800 transition-all"
+                  className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-neutral-400 hover:text-white hover:border-white/25 hover:bg-white/10 transition-all shadow-xs"
                 >
-                  <Linkedin className="w-4 h-4" />
+                  <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                    <path d="M20.447 20.452h-3.554v-5.569c0-1.328-.027-3.037-1.852-3.037-1.853 0-2.136 1.445-2.136 2.939v5.667H9.351V9h3.414v1.561h.046c.477-.9 1.637-1.85 3.37-1.85 3.601 0 4.267 2.37 4.267 5.455v6.286zM5.337 7.433c-1.144 0-2.063-.926-2.063-2.065 0-1.138.92-2.063 2.063-2.063 1.14 0 2.064.925 2.064 2.063 0 1.139-.925 2.065-2.064 2.065zm1.782 13.019H3.555V9h3.564v11.452zM22.225 0H1.771C.792 0 0 .774 0 1.729v20.542C0 23.227.792 24 1.771 24h20.451C23.2 24 24 23.227 24 22.271V1.729C24 .774 23.2 0 22.222 0h.003z" />
+                  </svg>
                 </Link>
                 <Link 
                   href="https://wa.me/2250503681588?text=Bonjour%20Ofika" 
                   target="_blank" 
                   aria-label="WhatsApp Ofika"
-                  className="w-10 h-10 rounded-xl bg-neutral-900 border border-neutral-800 flex items-center justify-center text-emerald-400 hover:text-emerald-300 hover:border-emerald-500/30 hover:bg-emerald-500/10 transition-all"
+                  className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-neutral-400 hover:text-white hover:border-white/25 hover:bg-white/10 transition-all shadow-xs"
                 >
-                  <MessageCircle className="w-4 h-4" />
+                  <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                    <path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893A11.821 11.821 0 0020.885 3.488" />
+                  </svg>
                 </Link>
                 <Link 
                   href="https://www.tiktok.com/@ofika.ci" 
                   target="_blank" 
                   aria-label="TikTok Ofika"
-                  className="w-10 h-10 rounded-xl bg-neutral-900 border border-neutral-800 flex items-center justify-center text-neutral-400 hover:text-white hover:border-neutral-700 hover:bg-neutral-800 transition-all"
+                  className="w-9 h-9 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-neutral-400 hover:text-white hover:border-white/25 hover:bg-white/10 transition-all shadow-xs"
                 >
-                  <Music2 className="w-4 h-4" />
+                  <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24">
+                    <path d="M12.525.02c1.31-.02 2.61-.01 3.91-.02.08 1.53.63 3.09 1.75 4.17 1.12 1.11 2.7 1.62 4.24 1.79v4.03c-1.44-.05-2.89-.35-4.2-.97-.57-.26-1.1-.59-1.62-.93-.01 2.92.01 5.84-.02 8.75-.08 1.4-.54 2.79-1.35 3.94-1.31 1.92-3.58 3.17-5.91 3.21-1.43.08-2.86-.31-4.08-1.03-2.02-1.19-3.44-3.37-3.65-5.71-.02-.5-.03-1-.01-1.49.18-1.9 1.12-3.72 2.58-4.96 1.66-1.44 3.98-2.13 6.15-1.72.02 1.48-.04 2.96-.04 4.44-.99-.32-2.15-.23-3.02.37-.63.41-1.11 1.04-1.36 1.75-.21.51-.15 1.07-.14 1.61.24 1.64 1.82 3.02 3.5 2.87 1.12-.01 2.19-.66 2.77-1.61.19-.33.4-.67.41-1.06.1-1.79.06-3.57.07-5.36.01-4.03-.01-8.05.02-12.07z" />
+                  </svg>
                 </Link>
               </div>
             </div>

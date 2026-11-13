@@ -3,7 +3,7 @@
 import { motion, useMotionValue, useSpring, useTransform, useScroll } from 'framer-motion'
 import { useRef, useState, useEffect } from 'react'
 import { Button } from '@/components/ui/button'
-import { ArrowRight, Smartphone, Check, Sparkles } from 'lucide-react'
+import { ArrowRight, Smartphone, Check } from 'lucide-react'
 import Link from 'next/link'
 
 interface ModernHeroProps {
@@ -59,47 +59,45 @@ export const ModernHero = ({ videoUrl }: ModernHeroProps) => {
         <section 
             ref={sectionRef}
             suppressHydrationWarning
-            className="relative pt-32 pb-20 md:pt-40 md:pb-28 overflow-hidden bg-white"
+            className="relative pt-24 pb-16 sm:pt-32 sm:pb-24 lg:pt-36 lg:pb-28 overflow-hidden bg-white"
         >
             <div className="container mx-auto px-4 sm:px-6 lg:px-8 relative z-10 max-w-7xl">
                 {/* --- GRILLE 2 COLONNES : TEXTE À GAUCHE / SHOWCASE DUAL-CARD À DROITE --- */}
-                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 lg:gap-8 items-center">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8 items-center">
                     
                     {/* COLONNE GAUCHE (7 COLONNES) : TITRES, SOUS-TITRE & CTA */}
                     <div className="lg:col-span-7 text-left">
-                        {/* Badge Pilule Supérieur */}
+                        {/* Badge Sobre Supérieur */}
                         <motion.div 
-                            initial={{ opacity: 0, y: -10 }}
+                            initial={{ opacity: 0, y: -8 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5 }}
-                            className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-orange-50 border border-orange-200/80 text-[11px] sm:text-xs font-semibold text-orange-600 mb-6 tracking-wide shadow-sm"
+                            className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neutral-100 border border-neutral-200/70 text-[11px] sm:text-xs font-medium text-neutral-700 mb-5 tracking-wide"
                         >
-                            <span className="w-1.5 h-1.5 rounded-full bg-orange-500 animate-pulse" />
-                            LA CARTE DE VISITE NOUVELLE GÉNÉRATION
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                            <span>Carte connectée NFC &amp; QR intelligent</span>
                         </motion.div>
 
-                        {/* Titre Principal (H1) avec badges équilibrés */}
+                        {/* Titre Principal (H1) Épuré & Éditorial */}
                         <motion.h1 
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5, delay: 0.1 }}
-                            className="text-2xl sm:text-4xl lg:text-5xl font-black text-gray-900 leading-[1.2] tracking-tight mb-5"
+                            className="text-3xl sm:text-4xl lg:text-5xl font-extrabold text-neutral-900 tracking-tight leading-[1.18] sm:leading-[1.15] mb-5"
                         >
                             Partagez vos coordonnées <br />
-                            <span className="inline-block px-3.5 py-1 my-1 bg-gradient-to-r from-orange-600 to-ofika-orange text-white rounded-xl transform -rotate-1 shadow-md shadow-orange-500/20 font-black">
-                                d'un simple geste
-                            </span> <br />
-                            sans carte en <span className="inline-block px-3.5 py-1 my-1 bg-gradient-to-r from-pink-600 to-rose-500 text-white rounded-xl transform rotate-1 shadow-md shadow-pink-500/20 font-black">papier</span>
+                            <span className="text-neutral-900">d&apos;un simple geste,</span>{' '}
+                            <span className="text-neutral-400 font-normal">sans carte papier.</span>
                         </motion.h1>
 
-                        {/* Sous-titre rassurant et sans jargon */}
+                        {/* Sous-titre uniforme et fluide */}
                         <motion.p 
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5, delay: 0.2 }}
-                            className="text-sm sm:text-base text-gray-600 font-normal max-w-xl mb-8 leading-relaxed"
+                            className="text-sm sm:text-base text-neutral-600 font-normal max-w-xl mb-7 leading-relaxed"
                         >
-                            Approchez votre carte d'un smartphone : votre <span className="text-orange-600 font-semibold">numéro</span>, votre <span className="text-orange-600 font-semibold">WhatsApp</span> et vos <span className="text-gray-900 font-semibold">réseaux</span> s'enregistrent en 1 seconde. <span className="text-gray-900 font-medium">Sans aucune application à installer.</span>
+                            Approchez votre carte d&apos;un smartphone : vos coordonnées, votre WhatsApp et vos réseaux s&apos;enregistrent en 1 seconde. Sans aucune application à installer.
                         </motion.p>
 
                         {/* Bouton d'Action Principal (CTA) */}
@@ -107,34 +105,40 @@ export const ModernHero = ({ videoUrl }: ModernHeroProps) => {
                             initial={{ opacity: 0, y: 10 }}
                             animate={{ opacity: 1, y: 0 }}
                             transition={{ duration: 0.5, delay: 0.3 }}
-                            className="flex flex-col sm:flex-row items-start sm:items-center gap-4"
+                            className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4"
                         >
-                            <Link href="/onboarding/public-page">
-                                <motion.div whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }}>
-                                    <Button size="lg" className="h-12 sm:h-14 px-8 bg-gradient-to-r from-orange-600 to-orange-500 hover:from-orange-500 hover:to-orange-400 text-white rounded-xl sm:rounded-2xl text-sm sm:text-base font-bold shadow-lg shadow-orange-500/25 transition-all group flex items-center gap-2">
-                                        Créer mon profil gratuit
-                                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-                                    </Button>
-                                </motion.div>
+                            <Link href="/onboarding/public-page" className="w-full sm:w-auto">
+                                <Button 
+                                    size="lg" 
+                                    className="w-full sm:w-auto h-12 sm:h-13 px-8 bg-neutral-950 hover:bg-black text-white rounded-xl text-sm sm:text-base font-semibold transition-all duration-200 flex items-center justify-center gap-2 shadow-sm active:scale-[0.98]"
+                                >
+                                    <span>Créer mon profil gratuit</span>
+                                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                                </Button>
                             </Link>
                         </motion.div>
 
-                        {/* Ligne de réassurance discrète */}
+                        {/* Réassurance mobile soignée (sans rupture de ligne disgracieuse) */}
                         <motion.div 
                             initial={{ opacity: 0 }}
                             animate={{ opacity: 1 }}
                             transition={{ duration: 0.5, delay: 0.4 }}
-                            className="flex flex-wrap items-center gap-3 text-xs text-gray-500 font-medium mt-6 pt-4 border-t border-gray-100 max-w-xl"
+                            className="flex flex-col sm:flex-row sm:flex-wrap sm:items-center gap-2 sm:gap-4 text-xs text-neutral-500 font-medium mt-6 pt-5 border-t border-neutral-100 max-w-xl"
                         >
-                            <span className="inline-flex items-center gap-1 text-emerald-600 font-semibold">
-                                <Check className="w-3.5 h-3.5" /> Puce NFC sans contact
+                            <span className="inline-flex items-center gap-1.5 text-neutral-700">
+                                <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0" />
+                                Puce NFC sans contact
                             </span>
-                            <span className="text-gray-300">•</span>
-                            <span className="inline-flex items-center gap-1 text-gray-600">
-                                <Smartphone className="w-3.5 h-3.5 text-gray-400" /> Compatible 100% smartphones
+                            <span className="hidden sm:inline text-neutral-300">•</span>
+                            <span className="inline-flex items-center gap-1.5 text-neutral-600">
+                                <Smartphone className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
+                                Compatible 100% smartphones
                             </span>
-                            <span className="text-gray-300">•</span>
-                            <span>Valable à vie</span>
+                            <span className="hidden sm:inline text-neutral-300">•</span>
+                            <span className="inline-flex items-center gap-1.5 text-neutral-600">
+                                <Check className="w-3.5 h-3.5 text-emerald-600 shrink-0 sm:hidden" />
+                                Valable à vie sans abonnement
+                            </span>
                         </motion.div>
                     </div>
 
@@ -184,12 +188,6 @@ export const ModernHero = ({ videoUrl }: ModernHeroProps) => {
                                     activeFace === 'recto' ? 'z-30' : 'z-10'
                                 }`}
                             >
-                                {/* Badge élégant discret au-dessus de la carte */}
-                                <div className="absolute -top-6 right-3 flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-neutral-900/80 border border-neutral-700/60 text-[10px] font-semibold text-neutral-300 shadow-sm backdrop-blur-sm pointer-events-none">
-                                    <Sparkles className="w-3 h-3 text-orange-400" />
-                                    <span>Face avant • Recto</span>
-                                </div>
-
                                 <div className="w-full h-full rounded-[14px] sm:rounded-[18px] overflow-hidden border border-neutral-800 bg-[#0f1115] shadow-xl hover:shadow-2xl transition-all duration-300 group">
                                     {/* SVG Officiel Complet Recto avec toutes les lettres O-F-I-K-A et Emblème */}
                                     {/* eslint-disable-next-line @next/next/no-img-element */}
@@ -229,12 +227,6 @@ export const ModernHero = ({ videoUrl }: ModernHeroProps) => {
                                     activeFace === 'verso' ? 'z-30' : 'z-20'
                                 }`}
                             >
-                                {/* Badge élégant discret au-dessus du verso */}
-                                <div className="absolute -top-6 left-3 flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-neutral-900/80 border border-neutral-700/60 text-[10px] font-semibold text-neutral-300 shadow-sm backdrop-blur-sm pointer-events-none">
-                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-                                    <span>Face arrière • QR Code & NFC</span>
-                                </div>
-
                                 <div className="w-full h-full rounded-[14px] sm:rounded-[18px] overflow-hidden border border-neutral-800 bg-[#0f1115] shadow-2xl transition-all duration-300 group">
                                     {/* SVG Officiel Complet Verso avec vrai QR Code, Signature calligraphiée et Certification */}
                                     {/* eslint-disable-next-line @next/next/no-img-element */}

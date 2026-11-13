@@ -33,6 +33,15 @@ OFIKA est une plateforme permettant à des professionnels et créateurs de gén�
 | **MOD-RESP-01** | Responsivité Mobile-First & Zéro Émoji | ✅ VALIDÉ | Optimisation fluide 320px–420px, cartes proportionnées, icônes Lucide |
 | **SEC-ADM-01** | Déblocage 2FA Superadmin | ✅ VALIDÉ | Neutralisation du blocage TOTP forcé sur `AdminClientLayout` |
 | **PWA-SW-01** | Correctif Service Worker Chrome Ext | ✅ VALIDÉ | Filtrage des requêtes `chrome-extension://` et cache v2 |
+| **PWA-SW-02** | Purge Cache SW v3 & Dé-cache Accueil | ✅ VALIDÉ | Passage à `ofika-cache-v3`, retrait de `'/'` du cache statique pour actualisation directe |
+| **MOD-HERO-01** | Refonte Hero Mobile Éditorial & Anti-Slop | ✅ VALIDÉ | Suppression stickers bariolés, typographie contrastée, CTA noir mat et réassurance fluide |
+| **MOD-VID-01** | Showcase Vidéo Démo Motion 16:9 | ✅ VALIDÉ | Intégration `MotionVideoShowcase.tsx` avec `ofika-deo-motion.mp4` (1080p, autoplay muted, contrôles discrets) |
+| **MOD-STORY-01** | Suppression ScrollStorytelling (Téléphone TikTok) | ✅ VALIDÉ | Retrait complet de la section et neutralisation du composant au profit du showcase vidéo 16:9 |
+| **MOD-SOL-01** | Harmonisation Éditoriale Solution (NFC & QR) | ✅ VALIDÉ | Titre contrasté noir/gris, 2 phrases percutantes (88% papier vs 1 tap), cartes piliers épurées |
+| **MOD-SIM-01** | Épuration Simulateur 3D & Formulaire Zéro Friction | ✅ VALIDÉ | Champs vides par défaut avec filigrane discret, suppression d'Alexandre Dupont, CTA noir statutaire |
+| **MOD-CTA-01** | Refonte Duo Boutons CTA Final & Anti-Slop | ✅ VALIDÉ | Duo prestigieux Noir mat / Blanc pur, suppression dégradé criard, cadre épuré, réassurance sans puce orpheline |
+| **MOD-FOOT-01** | Épuration Icônes Réseaux Footer & Audit Contacts | ✅ VALIDÉ | Suppression Instagram, vrais logos vectoriels monochromes (LinkedIn, WhatsApp, TikTok) |
+| **MOD-PRICE-01** | Harmonisation Tarifs Éditoriaux & Anti-Slop | ✅ VALIDÉ | Titre contrasté noir/gris, suppression violet intempestif, CTA noir statutaire, réassurance sans puce orpheline |
 
 ---
 
@@ -43,6 +52,7 @@ OFIKA est une plateforme permettant à des professionnels et créateurs de gén�
 - **Décision 04** : Suppression des fonds noirs massifs sur la page d'accueil pour une charte lumineuse, lisible et aérée.
 - **Décision 05** : Remplacement de tous les emojis par des icônes SVG standardisées pour un rendu corporate haut de gamme.
 - **Décision 06** : La livraison dans tout Abidjan est désormais gratuite par défaut (`SHIPPING_COSTS.ABIDJAN = 0`).
+- **Décision 07** : Épuration radicale du Hero mobile (`components/landing/ModernHero.tsx`) selon `minimalist-skill` : suppression des blocs stickers inclinés orange/rose, uniformisation du texte, CTA statutaire noir mat et réassurance mobile sans puce orpheline.
 
 ---
 
