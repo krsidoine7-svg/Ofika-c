@@ -14,10 +14,19 @@ export default async function ProfileOgImage({ params }: { params: Promise<{ use
   const role = [profile?.job_title, profile?.company].filter(Boolean).join(' · ')
   const slug = profile?.custom_url || profile?.username || username
   const initials = name.split(/\s+/).slice(0, 2).map((p: string) => p.charAt(0).toUpperCase()).join('')
-  // Le moteur d'image ne lit que le PNG / JPEG / GIF distants
-  const photo = typeof profile?.image_url === 'string' && /^https?:\/\/.+\.(png|jpe?g|gif)(\?.*)?$/i.test(profile.image_url)
-    ? profile.image_url
-    : null
+  
+  // Supporte les images distantes valides (PNG, JPEG, WebP, GIF, Supabase Storage, Google, etc.)
+  const isSupportedImage = (url: unknown): url is string => {
+    if (typeof url !== 'string' || !url.startsWith('http')) return false
+    if (url.toLowerCase().includes('.svg')) return false
+    return (
+      /\.(png|jpe?g|webp|gif)(\?.*)?$/i.test(url) ||
+      url.includes('/storage/v1/object/public/') ||
+      url.includes('googleusercontent.com') ||
+      url.includes('githubusercontent.com')
+    )
+  }
+  const photo = isSupportedImage(profile?.image_url) ? profile.image_url : null
   const nameSize = name.length > 22 ? 58 : 72
 
   return new ImageResponse(
@@ -32,8 +41,38 @@ export default async function ProfileOgImage({ params }: { params: Promise<{ use
           gap: 64,
           background: 'radial-gradient(circle at 20% 50%, #3b1a07 0%, #0b0b0c 60%)',
           color: '#ffffff',
+          position: 'relative',
         }}
       >
+        {/* Badge de marque officiel en haut à droite */}
+        <div
+          style={{
+            position: 'absolute',
+            top: 50,
+            right: 80,
+            display: 'flex',
+            alignItems: 'center',
+            gap: 12,
+            background: 'rgba(255, 255, 255, 0.08)',
+            border: '1px solid rgba(255, 255, 255, 0.15)',
+            padding: '10px 22px',
+            borderRadius: 999,
+            fontSize: 20,
+            fontWeight: 700,
+            color: 'rgba(255, 255, 255, 0.9)',
+          }}
+        >
+          <div
+            style={{
+              width: 10,
+              height: 10,
+              borderRadius: '50%',
+              background: '#FF6600',
+            }}
+          />
+          <span>OFIKA · CARTE NFC</span>
+        </div>
+
         <div
           style={{
             width: 330,

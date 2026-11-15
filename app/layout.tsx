@@ -56,22 +56,33 @@ export const metadata: Metadata = {
     ],
     apple: [{ url: '/icons/apple-touch-icon.png', sizes: '180x180', type: 'image/png' }],
   },
+  alternates: {
+    canonical: SITE_URL,
+  },
   // L'image de partage vient de app/opengraph-image.tsx (PNG 1200×630 généré)
   openGraph: {
     type: 'website',
     locale: 'fr_CI',
-    url: '/',
+    url: SITE_URL,
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
     siteName: 'Ofika',
+    images: [
+      {
+        url: `${SITE_URL}/opengraph-image`,
+        width: 1200,
+        height: 630,
+        alt: "Ofika — Carte de visite NFC et profil pro digital en Côte d'Ivoire",
+        type: 'image/png',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
+    images: [`${SITE_URL}/opengraph-image`],
   },
-  // Pas de « canonical » ici : il serait hérité par TOUTES les pages (profils compris).
-  // Chaque page déclare sa propre adresse canonique.
 }
 
 // Données structurées (schema.org) : qui est Ofika et ce qu'elle vend

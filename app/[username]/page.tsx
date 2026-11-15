@@ -19,11 +19,14 @@ function profileSlug(profile: any, fallback: string): string {
 
 function profileDescription(profile: any): string {
   const name = profile.full_name || profile.profile_name
-  if (profile.bio) return String(profile.bio).slice(0, 200)
   const role = [profile.job_title, profile.company].filter(Boolean).join(' · ')
+  if (profile.bio) {
+    const bioText = String(profile.bio).trim()
+    return role ? `${role} — ${bioText.slice(0, 140)}` : bioText.slice(0, 160)
+  }
   return role
-    ? `${name} — ${role}. Enregistrez son contact en 1 seconde avec Ofika.`
-    : `Découvrez le profil de ${name} sur Ofika et enregistrez son contact en 1 seconde.`
+    ? `${name} — ${role}. Carte de visite digitale : enregistrez mes coordonnées en 1 seconde.`
+    : `Carte de visite digitale de ${name} sur Ofika : enregistrez mes coordonnées en 1 seconde.`
 }
 
 export async function generateMetadata(
@@ -34,17 +37,41 @@ export async function generateMetadata(
 
   if (profile) {
     const name = profile.full_name || profile.profile_name
-    const title = `${name} | Ofika`
+    const role = [profile.job_title, profile.company].filter(Boolean).join(' · ')
+    const title = role ? `${name} (${role}) | Ofika` : `${name} — Carte de visite digitale | Ofika`
     const description = profileDescription(profile)
-    const url = `/${profileSlug(profile, username)}`
+    const slug = profileSlug(profile, username)
+    const absoluteUrl = `${BASE_URL}/${slug}`
+    const ogImageUrl = `${BASE_URL}/${slug}/opengraph-image`
 
-    // L'image de partage est générée par ./opengraph-image.tsx (photo + nom, PNG 1200×630)
+    // L'image de partage dynamique est générée par ./opengraph-image.tsx (photo + nom, PNG 1200×630)
     return {
       title,
       description,
-      alternates: { canonical: url },
-      openGraph: { title, description, type: 'profile', url, siteName: 'Ofika', locale: 'fr_CI' },
-      twitter: { card: 'summary_large_image', title, description },
+      alternates: { canonical: absoluteUrl },
+      openGraph: {
+        title,
+        description,
+        type: 'profile',
+        url: absoluteUrl,
+        siteName: 'Ofika',
+        locale: 'fr_CI',
+        images: [
+          {
+            url: ogImageUrl,
+            width: 1200,
+            height: 630,
+            alt: `Carte de visite digitale de ${name} sur Ofika`,
+            type: 'image/png',
+          },
+        ],
+      },
+      twitter: {
+        card: 'summary_large_image',
+        title,
+        description,
+        images: [ogImageUrl],
+      },
     }
   }
 
