@@ -200,120 +200,122 @@ export function NFCCardFormStep({ formData, onDataChange, onNext, onPrev, onVali
   }, [formData.consentTerms, isValid, isFormValid, onValidationChange])
 
   return (
-    <div className="space-y-8">
-      <div className="text-center">
-        <h2 className="text-2xl font-bold text-gray-900 mb-2">
-          Créez votre carte NFC
+    <div className="space-y-6 sm:space-y-8 max-w-3xl mx-auto">
+      <div className="text-center space-y-1.5">
+        <h2 className="text-xl sm:text-2xl font-extrabold text-neutral-950 tracking-tight">
+          Vos coordonnées professionnelles
         </h2>
-        <p className="text-gray-600">
-          Configurez l'apparence et les informations visibles sur votre carte physique
+        <p className="text-xs sm:text-sm text-neutral-500">
+          Ces informations seront programmées sur votre puce NFC et gravées avec précision.
         </p>
       </div>
 
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Informations de base */}
-        <Card className="overflow-hidden border-orange-100 shadow-sm">
-          <CardHeader className="bg-orange-50/50 pb-4">
-            <CardTitle className="flex items-center gap-2 text-orange-800">
-              <User className="w-5 h-5" />
-              Informations de base
+        <Card className="overflow-hidden border border-neutral-200/90 shadow-xs rounded-2xl bg-white">
+          <CardHeader className="bg-neutral-50/70 border-b border-neutral-100 pb-3.5 pt-4 px-5">
+            <CardTitle className="flex items-center gap-2.5 text-neutral-950 text-sm sm:text-base font-bold">
+              <div className="w-7 h-7 rounded-lg bg-neutral-950 text-white flex items-center justify-center">
+                <User className="w-3.5 h-3.5" />
+              </div>
+              <span>Informations de base</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="space-y-4 pt-6">
+          <CardContent className="space-y-4 p-5 sm:p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <Label htmlFor="fullName" className="text-sm font-semibold">Nom complet *</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="fullName" className="text-xs font-semibold text-neutral-800">Nom complet *</Label>
                 <div className="relative">
                   <Input
                     id="fullName"
                     {...register('fullName')}
                     onChange={(e) => handleDataChange('fullName', e.target.value)}
                     placeholder="Jean Dupont"
-                    className={errors.fullName ? "border-red-300 focus-visible:ring-red-500 pr-10" : "focus-visible:ring-orange-500 pr-10"}
+                    className={errors.fullName ? "border-red-300 focus-visible:ring-red-500 pr-10 rounded-xl" : "focus-visible:ring-neutral-950 pr-10 rounded-xl"}
                   />
-                  <div className="absolute right-3 top-2.5 text-gray-400">
+                  <div className="absolute right-3 top-2.5 text-neutral-400">
                     <User className="w-4 h-4" />
                   </div>
                 </div>
                 {errors.fullName && (
-                  <p className="text-xs text-red-500 italic">{errors.fullName.message}</p>
+                  <p className="text-[11px] text-red-500 italic">{errors.fullName.message}</p>
                 )}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="company" className="text-sm font-semibold">Entreprise</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="company" className="text-xs font-semibold text-neutral-800">Entreprise</Label>
                 <div className="relative">
                   <Input
                     id="company"
                     {...register('company')}
                     onChange={(e) => handleDataChange('company', e.target.value)}
                     placeholder="Acme Corp"
-                    className={errors.company ? "border-red-300 focus-visible:ring-red-500 pr-10" : "focus-visible:ring-orange-500 pr-10"}
+                    className={errors.company ? "border-red-300 focus-visible:ring-red-500 pr-10 rounded-xl" : "focus-visible:ring-neutral-950 pr-10 rounded-xl"}
                   />
-                  <div className="absolute right-3 top-2.5 text-gray-400">
+                  <div className="absolute right-3 top-2.5 text-neutral-400">
                     <Building className="w-4 h-4" />
                   </div>
                 </div>
                 {errors.company && (
-                  <p className="text-xs text-red-500 italic">{errors.company.message}</p>
+                  <p className="text-[11px] text-red-500 italic">{errors.company.message}</p>
                 )}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="jobTitle" className="text-sm font-semibold">Poste/Titre</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="jobTitle" className="text-xs font-semibold text-neutral-800">Poste / Fonction</Label>
                 <div className="relative">
                   <Input
                     id="jobTitle"
                     {...register('jobTitle')}
                     onChange={(e) => handleDataChange('jobTitle', e.target.value)}
-                    placeholder="CEO"
-                    className={errors.jobTitle ? "border-red-300 focus-visible:ring-red-500 pr-10" : "focus-visible:ring-orange-500 pr-10"}
+                    placeholder="Directeur Général"
+                    className={errors.jobTitle ? "border-red-300 focus-visible:ring-red-500 pr-10 rounded-xl" : "focus-visible:ring-neutral-950 pr-10 rounded-xl"}
                   />
-                  <div className="absolute right-3 top-2.5 text-gray-400">
+                  <div className="absolute right-3 top-2.5 text-neutral-400">
                     <Sliders className="w-4 h-4" />
                   </div>
                 </div>
                 {errors.jobTitle && (
-                  <p className="text-xs text-red-500 italic">{errors.jobTitle.message}</p>
+                  <p className="text-[11px] text-red-500 italic">{errors.jobTitle.message}</p>
                 )}
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="phone" className="text-sm font-semibold">Téléphone *</Label>
+              <div className="space-y-1.5">
+                <Label htmlFor="phone" className="text-xs font-semibold text-neutral-800">Téléphone *</Label>
                 <div className="relative">
                   <Input
                     id="phone"
                     {...register('phone')}
                     onChange={(e) => handleDataChange('phone', e.target.value)}
                     placeholder="+225 07 00 00 00 00"
-                    className={errors.phone ? "border-red-300 focus-visible:ring-red-500 pr-10" : "focus-visible:ring-orange-500 pr-10"}
+                    className={errors.phone ? "border-red-300 focus-visible:ring-red-500 pr-10 rounded-xl" : "focus-visible:ring-neutral-950 pr-10 rounded-xl"}
                   />
-                  <div className="absolute right-3 top-2.5 text-gray-400">
+                  <div className="absolute right-3 top-2.5 text-neutral-400">
                     <Phone className="w-4 h-4" />
                   </div>
                 </div>
                 {errors.phone && (
-                  <p className="text-xs text-red-500 italic">{errors.phone.message}</p>
+                  <p className="text-[11px] text-red-500 italic">{errors.phone.message}</p>
                 )}
               </div>
 
-              <div className="space-y-2 md:col-span-2">
-                <Label htmlFor="email" className="text-sm font-semibold">Email *</Label>
+              <div className="space-y-1.5 md:col-span-2">
+                <Label htmlFor="email" className="text-xs font-semibold text-neutral-800">Email professionnel *</Label>
                 <div className="relative">
                   <Input
                     id="email"
                     type="email"
                     {...register('email')}
                     onChange={(e) => handleDataChange('email', e.target.value)}
-                    placeholder="jean@acme.com"
-                    className={errors.email ? "border-red-300 focus-visible:ring-red-500 pr-10" : "focus-visible:ring-orange-500 pr-10"}
+                    placeholder="jean@entreprise.ci"
+                    className={errors.email ? "border-red-300 focus-visible:ring-red-500 pr-10 rounded-xl" : "focus-visible:ring-neutral-950 pr-10 rounded-xl"}
                   />
-                  <div className="absolute right-3 top-2.5 text-gray-400">
+                  <div className="absolute right-3 top-2.5 text-neutral-400">
                     <Mail className="w-4 h-4" />
                   </div>
                 </div>
                 {errors.email && (
-                  <p className="text-xs text-red-500 italic">{errors.email.message}</p>
+                  <p className="text-[11px] text-red-500 italic">{errors.email.message}</p>
                 )}
               </div>
             </div>
@@ -321,48 +323,52 @@ export function NFCCardFormStep({ formData, onDataChange, onNext, onPrev, onVali
         </Card>
 
         {/* Logo de l'entreprise */}
-        <Card className="overflow-hidden border-orange-100 shadow-sm">
-          <CardHeader className="bg-orange-50/50 pb-4">
-            <CardTitle className="flex items-center gap-2 text-orange-800">
-              <Image className="w-5 h-5" />
-              Logo de l'entreprise
+        <Card className="overflow-hidden border border-neutral-200/90 shadow-xs rounded-2xl bg-white">
+          <CardHeader className="bg-neutral-50/70 border-b border-neutral-100 pb-3.5 pt-4 px-5">
+            <CardTitle className="flex items-center gap-2.5 text-neutral-950 text-sm sm:text-base font-bold">
+              <div className="w-7 h-7 rounded-lg bg-neutral-950 text-white flex items-center justify-center">
+                <Image className="w-3.5 h-3.5" />
+              </div>
+              <span>Logo de l'entreprise (Optionnel)</span>
             </CardTitle>
           </CardHeader>
-          <CardContent className="pt-6">
+          <CardContent className="p-5 sm:p-6">
             <div className="flex justify-center">
               {logoPreview ? (
-                <div className="flex items-center gap-4 bg-gray-50 p-4 rounded-xl border border-dashed border-gray-200">
-                  <div className="w-20 h-20 bg-white shadow-sm border border-gray-100 rounded-lg overflow-hidden flex items-center justify-center">
+                <div className="flex items-center gap-4 bg-neutral-50 p-4 rounded-xl border border-dashed border-neutral-200 w-full max-w-sm">
+                  <div className="w-16 h-16 bg-white shadow-xs border border-neutral-200 rounded-lg overflow-hidden flex items-center justify-center shrink-0">
                     <img
                       src={logoPreview}
                       alt="Logo preview"
                       className="max-w-full max-h-full object-contain p-1"
                     />
                   </div>
-                  <div>
-                    <p className="text-sm font-medium text-gray-900">Logo sélectionné</p>
-                    <p className="text-xs text-gray-500 mb-2">Votre logo s'affichera sur la carte</p>
+                  <div className="min-w-0">
+                    <p className="text-xs font-semibold text-neutral-900">Logo personnalisé</p>
+                    <p className="text-[11px] text-neutral-500 mb-2 truncate">Gravé sur la carte physique</p>
                     <Button
                       type="button"
                       variant="ghost"
                       size="sm"
                       onClick={handleLogoRemove}
-                      className="text-red-500 hover:text-red-600 hover:bg-red-50 h-8"
+                      className="text-red-600 hover:text-red-700 hover:bg-red-50 h-7 px-2 text-xs cursor-pointer"
                     >
-                      <Trash2 className="w-3.5 h-3.5 mr-1.5" />
-                      Changer de logo
+                      <Trash2 className="w-3.5 h-3.5 mr-1" />
+                      Supprimer
                     </Button>
                   </div>
                 </div>
               ) : (
-                <div className="w-full max-w-sm border-2 border-dashed border-orange-100 rounded-xl p-4 text-center bg-orange-50/30 hover:bg-orange-50/50 transition-colors cursor-pointer group"
-                  onClick={() => document.getElementById('logo-upload')?.click()}>
-                  <div className="w-8 h-8 bg-white rounded-full shadow-sm flex items-center justify-center mx-auto mb-2 group-hover:scale-110 transition-transform">
-                    <Upload className="w-4 h-4 text-orange-500" />
+                <div
+                  className="w-full max-w-sm border-2 border-dashed border-neutral-200 hover:border-neutral-400 rounded-2xl p-5 text-center bg-neutral-50/50 hover:bg-neutral-50 transition-colors cursor-pointer group"
+                  onClick={() => document.getElementById('logo-upload')?.click()}
+                >
+                  <div className="w-9 h-9 bg-white rounded-xl shadow-xs border border-neutral-200 flex items-center justify-center mx-auto mb-2 group-hover:scale-105 transition-transform">
+                    <Upload className="w-4 h-4 text-neutral-700" />
                   </div>
-                  <p className="font-semibold text-sm text-gray-900 mb-0.5">Dénicher votre logo</p>
-                  <p className="text-[10px] text-gray-500 mb-2 px-2 leading-relaxed">
-                    PNG, JPG ou SVG (max 5MB). Pour un rendu optimal, utilisez un fond transparent.
+                  <p className="font-semibold text-xs sm:text-sm text-neutral-900 mb-0.5">Importer votre logo</p>
+                  <p className="text-[11px] text-neutral-500 mb-3 px-2 leading-relaxed">
+                    PNG, JPG ou SVG (max 5MB). Fond transparent recommandé.
                   </p>
                   <input
                     type="file"
@@ -375,7 +381,7 @@ export function NFCCardFormStep({ formData, onDataChange, onNext, onPrev, onVali
                     type="button"
                     variant="outline"
                     size="sm"
-                    className="h-8 border-orange-200 text-orange-600 hover:bg-orange-50 text-xs px-3"
+                    className="h-8 border-neutral-200 text-neutral-900 hover:bg-neutral-100 text-xs px-3 rounded-lg cursor-pointer"
                   >
                     Choisir un fichier
                   </Button>
@@ -386,7 +392,7 @@ export function NFCCardFormStep({ formData, onDataChange, onNext, onPrev, onVali
         </Card>
 
         {/* Consentement RGPD */}
-        <div className="pt-4">
+        <div className="pt-2">
           <ConsentBanner
             onConsentChange={handleConsentChange}
             initialConsent={{
@@ -397,33 +403,33 @@ export function NFCCardFormStep({ formData, onDataChange, onNext, onPrev, onVali
               acceptTerms: formData.consentTerms ?? false
             }}
             required={true}
-            className="shadow-sm border-orange-100"
+            className="shadow-xs border border-neutral-200/80 rounded-2xl"
           />
         </div>
 
         {/* Message de validation contextuel */}
         {!isFormValid && (
-          <div className="animate-in fade-in slide-in-from-top-2 duration-300">
-            <div className="p-4 bg-orange-50 border border-orange-200 rounded-xl shadow-sm">
-              <div className="flex items-start gap-4">
-                <div className="w-8 h-8 bg-orange-500 rounded-full flex items-center justify-center flex-shrink-0">
+          <div className="animate-in fade-in duration-200">
+            <div className="p-4 bg-neutral-950 text-white rounded-2xl shadow-xs border border-neutral-800">
+              <div className="flex items-start gap-3">
+                <div className="w-7 h-7 bg-neutral-800 rounded-lg flex items-center justify-center shrink-0 text-orange-400 mt-0.5">
                   <SlidingInfoIcon />
                 </div>
-                <div>
-                  <p className="text-sm text-orange-900 font-bold mb-1">
-                    Finalisons votre configuration
+                <div className="text-xs space-y-1">
+                  <p className="font-bold text-white text-xs">
+                    Champs requis avant de continuer :
                   </p>
-                  <ul className="text-xs text-orange-700/80 space-y-1.5">
+                  <ul className="text-neutral-300 space-y-1">
                     {!isValid && (
-                      <li className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-orange-400" />
-                        Complétez les champs marqués d'une * pour vos coordonnées professionnelles.
+                      <li className="flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-orange-400" />
+                        Renseignez votre nom, votre téléphone et votre email.
                       </li>
                     )}
                     {!formData.consentTerms && (
-                      <li className="flex items-center gap-2">
-                        <div className="w-1.5 h-1.5 rounded-full bg-orange-400" />
-                        Acceptez les conditions générales et la politique de confidentialité.
+                      <li className="flex items-center gap-1.5">
+                        <span className="w-1.5 h-1.5 rounded-full bg-orange-400" />
+                        Acceptez les conditions d'utilisation ci-dessus.
                       </li>
                     )}
                   </ul>

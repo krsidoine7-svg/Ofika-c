@@ -126,7 +126,7 @@ export function NFCCardSignupStep({
                 <div className="pt-4 flex flex-col gap-3">
                     <Button
                         type="submit"
-                        className="w-full bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 font-bold"
+                        className="w-full h-11 rounded-xl bg-neutral-950 hover:bg-neutral-800 text-white font-semibold text-sm shadow-xs transition-all active:scale-[0.99] cursor-pointer"
                         disabled={loading}
                     >
                         {loading ? (

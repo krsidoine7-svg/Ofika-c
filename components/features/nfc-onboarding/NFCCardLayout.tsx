@@ -3,7 +3,7 @@
 import { ReactNode } from 'react'
 import { Card, CardContent } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { ArrowLeft, ArrowRight } from 'lucide-react'
+import { ArrowLeft, ArrowRight, Check } from 'lucide-react'
 import { cn } from '@/lib/utils'
 
 interface NFCCardLayoutProps {
@@ -20,10 +20,19 @@ interface NFCCardLayoutProps {
   className?: string
 }
 
+const STEP_LABELS = [
+  { num: 1, label: 'Découverte' },
+  { num: 2, label: 'Coordonnées' },
+  { num: 3, label: 'Design & Finition' },
+  { num: 4, label: 'Page Web' },
+  { num: 5, label: 'Compte' },
+  { num: 6, label: 'Prête' }
+]
+
 export function NFCCardLayout({
   children,
   currentStep,
-  totalSteps,
+  totalSteps = 6,
   onNext,
   onPrev,
   nextLabel = 'Suivant',
@@ -34,102 +43,116 @@ export function NFCCardLayout({
   className
 }: NFCCardLayoutProps) {
   return (
-    <div className={cn('min-h-screen bg-gradient-to-br from-orange-50 to-pink-50', className)}>
-      <div className="container mx-auto px-4 py-8">
+    <div className={cn('min-h-screen bg-neutral-50/70 text-neutral-900', className)}>
+      <div className="container max-w-5xl mx-auto px-4 py-6 sm:py-10">
+        
         {/* Header avec progression */}
-        <div className="mb-8">
-          <div className="text-center mb-4 sm:mb-6">
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-1 sm:mb-2 px-4">
-              Créez votre carte NFC
+        <div className="mb-6 sm:mb-8 max-w-3xl mx-auto">
+          <div className="text-center mb-5 sm:mb-6">
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-neutral-100 text-neutral-700 text-xs font-semibold mb-2">
+              <span>Configuration Carte NFC</span>
+              <span>•</span>
+              <span className="font-mono">Étape {currentStep} sur {totalSteps}</span>
+            </div>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-extrabold text-neutral-950 tracking-tight">
+              Personnalisation de votre carte connectée
             </h1>
-            <p className="text-sm sm:text-base text-gray-600">
-              Étape {currentStep} sur {totalSteps}
-            </p>
           </div>
 
+          {/* Stepper visuel épuré (Style Apple / Linear) */}
+          <div className="bg-white border border-neutral-200/80 rounded-2xl p-3 sm:p-4 shadow-xs">
+            <div className="flex items-center justify-between">
+              {STEP_LABELS.slice(0, totalSteps).map((step, index) => {
+                const isPassed = currentStep > step.num
+                const isCurrent = currentStep === step.num
+                const isUpcoming = currentStep < step.num
 
-          {/* Stepper visuel avec cercles - Optimisé mobile */}
-          <div className="flex items-center justify-between mb-4 px-2">
-            {[
-              { num: 1, label: 'Intro' },
-              { num: 2, label: 'Infos' },
-              { num: 3, label: 'Compte' },
-              { num: 4, label: 'Design' },
-              { num: 5, label: 'Profil' },
-              { num: 6, label: 'Fin' }
-            ].map((step, index) => (
-              <div key={step.num} className="flex items-center flex-1">
-                <div className="flex flex-col items-center flex-1">
-                  <div
-                    className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm transition-all ${currentStep >= step.num
-                      ? 'bg-gradient-to-r from-orange-500 to-pink-500 text-white shadow-lg'
-                      : 'bg-gray-200 text-gray-500'
-                      } ${currentStep === step.num ? 'scale-110 ring-2 ring-orange-300' : ''}`}
-                  >
-                    {step.num}
+                return (
+                  <div key={step.num} className="flex items-center flex-1 last:flex-none">
+                    <div className="flex flex-col items-center flex-1 min-w-0">
+                      <div
+                        className={cn(
+                          'w-7 h-7 sm:w-8 sm:h-8 rounded-full flex items-center justify-center font-bold text-xs transition-all shrink-0',
+                          isPassed && 'bg-emerald-600 text-white',
+                          isCurrent && 'bg-neutral-950 text-white ring-4 ring-neutral-900/10 scale-105',
+                          isUpcoming && 'bg-neutral-100 text-neutral-400 border border-neutral-200'
+                        )}
+                      >
+                        {isPassed ? <Check className="w-3.5 h-3.5" /> : step.num}
+                      </div>
+                      <span
+                        className={cn(
+                          'text-[10px] sm:text-[11px] mt-1.5 font-medium truncate hidden sm:block max-w-[85px] text-center',
+                          isCurrent ? 'text-neutral-950 font-bold' : isPassed ? 'text-emerald-700 font-medium' : 'text-neutral-400'
+                        )}
+                      >
+                        {step.label}
+                      </span>
+                    </div>
+
+                    {index < totalSteps - 1 && (
+                      <div
+                        className={cn(
+                          'h-0.5 flex-1 mx-1.5 sm:mx-2 rounded-full transition-colors',
+                          isPassed ? 'bg-emerald-500' : 'bg-neutral-200'
+                        )}
+                      />
+                    )}
                   </div>
-                  <span className={`text-[10px] sm:text-xs mt-1 sm:mt-2 font-medium hidden sm:block ${currentStep >= step.num ? 'text-orange-600' : 'text-gray-400'
-                    }`}>
-                    {step.label}
-                  </span>
-                </div>
-                {index < 5 && (
-                  <div className={`h-0.5 sm:h-1 flex-1 mx-1 sm:mx-2 rounded transition-all ${currentStep > step.num ? 'bg-gradient-to-r from-orange-500 to-pink-500' : 'bg-gray-200'
-                    }`} />
-                )}
-              </div>
-            ))}
+                )
+              })}
+            </div>
           </div>
         </div>
 
-        {/* Contenu principal */}
-        <div className="max-w-6xl mx-auto">
-          <Card className="shadow-lg border-0">
-            <CardContent className="p-4 sm:p-6 lg:p-8">
+        {/* Contenu principal de l'étape */}
+        <div className="max-w-4xl mx-auto">
+          <Card className="bg-white border border-neutral-200/90 shadow-xs rounded-3xl overflow-hidden">
+            <CardContent className="p-4 sm:p-7 md:p-8">
               {children}
             </CardContent>
           </Card>
         </div>
 
-        {/* Navigation */}
+        {/* Barre de navigation inférieure */}
         {showNavigation && (
-          <div className="max-w-4xl mx-auto mt-8 px-2">
-            <div className="flex justify-between items-center w-full">
-              {/* Précédent à gauche */}
-              <div className="w-1/3 flex justify-start">
+          <div className="max-w-4xl mx-auto mt-6 px-1">
+            <div className="flex justify-between items-center w-full gap-4">
+              {/* Précédent */}
+              <div>
                 {onPrev ? (
                   <Button
+                    type="button"
                     variant="outline"
                     onClick={onPrev}
                     disabled={isLoading}
-                    className="flex items-center gap-1 sm:gap-2 px-3 sm:px-4"
+                    className="h-11 px-4 sm:px-5 rounded-xl border-neutral-200 hover:bg-neutral-100 text-neutral-800 text-xs sm:text-sm font-medium flex items-center gap-2 cursor-pointer transition-colors"
                   >
                     <ArrowLeft className="h-4 w-4" />
                     <span>{prevLabel}</span>
                   </Button>
                 ) : (
-                  <div className="w-4 h-4" />
+                  <div className="w-1" />
                 )}
               </div>
 
-              {/* Indicateur d'étape au milieu */}
-              <div className="w-1/3 flex justify-center text-sm text-gray-500 font-semibold">
-                {currentStep} / {totalSteps}
+              {/* Indicateur d'étape */}
+              <div className="text-xs text-neutral-400 font-mono hidden sm:block">
+                Étape {currentStep} / {totalSteps}
               </div>
 
-              {/* Suivant à droite */}
-              <div className="w-1/3 flex justify-end">
-                {onNext ? (
+              {/* Suivant */}
+              <div>
+                {onNext && (
                   <Button
+                    type="button"
                     onClick={onNext}
                     disabled={isLoading || isNextDisabled}
-                    className="flex items-center gap-1 sm:gap-2 bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 disabled:from-gray-300 disabled:to-gray-400 disabled:cursor-not-allowed disabled:opacity-50 px-3 sm:px-4 text-white"
+                    className="h-11 px-5 sm:px-6 rounded-xl bg-neutral-950 hover:bg-neutral-800 text-white text-xs sm:text-sm font-semibold shadow-xs flex items-center gap-2 cursor-pointer transition-all active:scale-[0.99] disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <span>{nextLabel}</span>
                     <ArrowRight className="h-4 w-4" />
                   </Button>
-                ) : (
-                  <div className="w-4 h-4" />
                 )}
               </div>
             </div>

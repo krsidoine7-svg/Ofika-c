@@ -138,14 +138,14 @@ export function NFCCardDesignStepV2({
     <div className="space-y-8 max-w-5xl mx-auto">
       {/* Header épuré */}
       <div className="text-center space-y-2">
-        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-orange-50 text-orange-600 border border-orange-200 mb-1">
-          <Sparkles className="w-3.5 h-3.5" />
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-neutral-100 text-neutral-800 border border-neutral-200 mb-1">
+          <Sparkles className="w-3.5 h-3.5 text-neutral-900" />
           <span>Personnalisation 3D Haute Définition</span>
         </div>
-        <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight">
+        <h2 className="text-2xl sm:text-3xl font-extrabold text-neutral-950 tracking-tight">
           Visualisez votre carte sous tous les angles
         </h2>
-        <p className="text-sm sm:text-base text-slate-500 max-w-xl mx-auto">
+        <p className="text-sm sm:text-base text-neutral-500 max-w-xl mx-auto">
           Admirez le rendu physique en 3D de votre carte NFC. Tournez-la pour inspecter le recto et le verso.
         </p>
       </div>
@@ -153,7 +153,7 @@ export function NFCCardDesignStepV2({
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
         {/* Colonne Gauche : Carte 3D Interactive & Contrôles (7 Cols) */}
         <div className="lg:col-span-7 flex flex-col items-center">
-          <div className="w-full bg-gradient-to-b from-slate-900/[0.03] to-slate-900/[0.08] dark:from-slate-800/40 dark:to-slate-900/60 p-4 sm:p-6 rounded-3xl border border-slate-200/80 shadow-sm relative overflow-hidden">
+          <div className="w-full bg-neutral-100/60 p-4 sm:p-6 rounded-3xl border border-neutral-200/90 shadow-xs relative overflow-hidden">
             {/* 3D NFC Viewer */}
             <NFCCard3DViewer
               fullName={formData.fullName || 'Votre Nom'}
@@ -169,9 +169,9 @@ export function NFCCardDesignStepV2({
           </div>
 
           {/* Palette de finitions : Noir Mat & Blanc Pur */}
-          <div className="w-full mt-6 bg-white p-4 sm:p-5 rounded-2xl border border-slate-200 shadow-sm space-y-4">
+          <div className="w-full mt-6 bg-white p-4 sm:p-5 rounded-2xl border border-neutral-200 shadow-xs space-y-4">
             <div>
-              <label className="text-xs sm:text-sm font-bold text-slate-700 block mb-2">
+              <label className="text-xs sm:text-sm font-bold text-neutral-800 block mb-2">
                 Finition & Couleur de la carte
               </label>
               <div className="grid grid-cols-2 gap-3">
@@ -182,15 +182,15 @@ export function NFCCardDesignStepV2({
                   className={cn(
                     "flex flex-col items-center p-3 sm:p-4 rounded-xl border-2 transition-all text-center cursor-pointer",
                     backgroundColor === 'black'
-                      ? "border-orange-500 bg-orange-50/40 shadow-sm ring-1 ring-orange-500"
-                      : "border-slate-200 hover:border-slate-300 bg-slate-50/50"
+                      ? "border-neutral-950 bg-neutral-50 shadow-xs ring-1 ring-neutral-950"
+                      : "border-neutral-200 hover:border-neutral-300 bg-neutral-50/40"
                   )}
                 >
-                  <div className="w-8 h-8 rounded-full bg-[#12141a] border border-white/20 shadow-md mb-2 flex items-center justify-center">
+                  <div className="w-8 h-8 rounded-full bg-[#12141a] border border-white/20 shadow-xs mb-2 flex items-center justify-center">
                     {backgroundColor === 'black' && <Check className="w-4 h-4 text-white" />}
                   </div>
-                  <span className="text-xs sm:text-sm font-bold text-slate-800">Noir Mat</span>
-                  <span className="text-[10px] text-slate-400">Carbon Luxury</span>
+                  <span className="text-xs sm:text-sm font-bold text-neutral-900">Noir Mat</span>
+                  <span className="text-[10px] text-neutral-400">Carbon Luxury</span>
                 </button>
 
                 {/* Blanc Minéral */}
@@ -200,22 +200,22 @@ export function NFCCardDesignStepV2({
                   className={cn(
                     "flex flex-col items-center p-3 sm:p-4 rounded-xl border-2 transition-all text-center cursor-pointer",
                     backgroundColor === 'white'
-                      ? "border-orange-500 bg-orange-50/40 shadow-sm ring-1 ring-orange-500"
-                      : "border-slate-200 hover:border-slate-300 bg-slate-50/50"
+                      ? "border-neutral-950 bg-neutral-50 shadow-xs ring-1 ring-neutral-950"
+                      : "border-neutral-200 hover:border-neutral-300 bg-neutral-50/40"
                   )}
                 >
-                  <div className="w-8 h-8 rounded-full bg-white border border-slate-300 shadow-md mb-2 flex items-center justify-center">
-                    {backgroundColor === 'white' && <Check className="w-4 h-4 text-slate-900" />}
+                  <div className="w-8 h-8 rounded-full bg-white border border-neutral-300 shadow-xs mb-2 flex items-center justify-center">
+                    {backgroundColor === 'white' && <Check className="w-4 h-4 text-neutral-900" />}
                   </div>
-                  <span className="text-xs sm:text-sm font-bold text-slate-800">Blanc Pur</span>
-                  <span className="text-[10px] text-slate-400">Arctic Frosted</span>
+                  <span className="text-xs sm:text-sm font-bold text-neutral-900">Blanc Pur</span>
+                  <span className="text-[10px] text-neutral-400">Arctic Frosted</span>
                 </button>
               </div>
             </div>
 
             {/* Sélecteur de style de carte */}
-            <div className="pt-3 border-t border-slate-100">
-              <label className="text-xs sm:text-sm font-bold text-slate-700 block mb-2">
+            <div className="pt-3 border-t border-neutral-100">
+              <label className="text-xs sm:text-sm font-bold text-neutral-800 block mb-2">
                 Disposition graphique
               </label>
               <div className="grid grid-cols-2 gap-2 sm:gap-3">
@@ -223,17 +223,17 @@ export function NFCCardDesignStepV2({
                   type="button"
                   onClick={() => handleDesignSelection('design1')}
                   className={cn(
-                    "p-3 rounded-xl border-2 transition-all text-left flex flex-col justify-between",
+                    "p-3 rounded-xl border-2 transition-all text-left flex flex-col justify-between cursor-pointer",
                     cardDesign === 'design1'
-                      ? "border-orange-500 bg-orange-50/40 ring-1 ring-orange-500"
-                      : "border-slate-200 hover:border-slate-300"
+                      ? "border-neutral-950 bg-neutral-50 ring-1 ring-neutral-950"
+                      : "border-neutral-200 hover:border-neutral-300 bg-neutral-50/40"
                   )}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs font-bold text-slate-900">Design 1 : Balance Pro</span>
-                    {cardDesign === 'design1' && <Check className="w-3.5 h-3.5 text-orange-500" />}
+                    <span className="text-xs font-bold text-neutral-900">Design 1 : Balance Pro</span>
+                    {cardDesign === 'design1' && <Check className="w-3.5 h-3.5 text-neutral-950" />}
                   </div>
-                  <p className="text-[10px] text-slate-500 leading-tight">
+                  <p className="text-[10px] text-neutral-500 leading-tight">
                     Logo & nom alignés, QR code structuré avec détails complets.
                   </p>
                 </button>
@@ -242,17 +242,17 @@ export function NFCCardDesignStepV2({
                   type="button"
                   onClick={() => handleDesignSelection('design2')}
                   className={cn(
-                    "p-3 rounded-xl border-2 transition-all text-left flex flex-col justify-between",
+                    "p-3 rounded-xl border-2 transition-all text-left flex flex-col justify-between cursor-pointer",
                     cardDesign === 'design2'
-                      ? "border-orange-500 bg-orange-50/40 ring-1 ring-orange-500"
-                      : "border-slate-200 hover:border-slate-300"
+                      ? "border-neutral-950 bg-neutral-50 ring-1 ring-neutral-950"
+                      : "border-neutral-200 hover:border-neutral-300 bg-neutral-50/40"
                   )}
                 >
                   <div className="flex items-center justify-between mb-1">
-                    <span className="text-xs font-bold text-slate-900">Design 2 : Executive</span>
-                    {cardDesign === 'design2' && <Check className="w-3.5 h-3.5 text-orange-500" />}
+                    <span className="text-xs font-bold text-neutral-900">Design 2 : Executive</span>
+                    {cardDesign === 'design2' && <Check className="w-3.5 h-3.5 text-neutral-950" />}
                   </div>
-                  <p className="text-[10px] text-slate-500 leading-tight">
+                  <p className="text-[10px] text-neutral-500 leading-tight">
                     Face avant 100% épurée avec logo central, verso signature.
                   </p>
                 </button>
