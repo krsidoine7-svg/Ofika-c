@@ -190,7 +190,6 @@ export const ModernHero = ({ videoUrl }: ModernHeroProps) => {
                             >
                                 <div className="w-full h-full rounded-[14px] sm:rounded-[18px] overflow-hidden border border-neutral-800 bg-[#0f1115] shadow-xl hover:shadow-2xl transition-all duration-300 group">
                                     {/* SVG Officiel Complet Recto avec toutes les lettres O-F-I-K-A et Emblème */}
-                                    {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img 
                                         src="/assets/recto-black-full.svg" 
                                         alt="Carte Ofika - Face avant officielle avec logo et puce NFC"
@@ -229,7 +228,6 @@ export const ModernHero = ({ videoUrl }: ModernHeroProps) => {
                             >
                                 <div className="w-full h-full rounded-[14px] sm:rounded-[18px] overflow-hidden border border-neutral-800 bg-[#0f1115] shadow-2xl transition-all duration-300 group">
                                     {/* SVG Officiel Complet Verso avec vrai QR Code, Signature calligraphiée et Certification */}
-                                    {/* eslint-disable-next-line @next/next/no-img-element */}
                                     <img 
                                         src="/assets/verso-black.svg" 
                                         alt="Carte Ofika - Face arrière avec vrai QR code et signature"

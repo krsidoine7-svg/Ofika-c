@@ -25,6 +25,7 @@ export interface Profile {
   name: string
   bio?: string
   image_url?: string
+  logo_url?: string
   cover_image_url?: string
   custom_url?: string
   username?: string

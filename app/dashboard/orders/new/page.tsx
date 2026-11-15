@@ -101,7 +101,7 @@ export default function NewOrderPage() {
       const appUrl = typeof window !== 'undefined' ? window.location.origin : 'https://ofika.ci'
       const slug = firstProfile.custom_url || firstProfile.username || firstProfile.id
       
-      const profileLogo = firstProfile.logo_url || firstProfile.image_url || ''
+      const profileLogo = (firstProfile as any).logo_url || firstProfile.image_url || ''
       setCardData({
         fullName: firstProfile.name || '',
         company: firstProfile.company || '',
@@ -148,7 +148,7 @@ export default function NewOrderPage() {
     if (found) {
       const appUrl = typeof window !== 'undefined' ? window.location.origin : 'https://ofika.ci'
       const slug = found.custom_url || found.username || found.id
-      const profileLogo = found.logo_url || found.image_url || ''
+      const profileLogo = (found as any).logo_url || found.image_url || ''
 
       setCardData(prev => ({
         ...prev,
