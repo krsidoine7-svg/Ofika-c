@@ -84,7 +84,7 @@ export function NFCCardIntroStep({ onNext }: NFCCardStepProps) {
       <div className="pt-4 flex justify-center">
         <Button
           onClick={onNext}
-          className="h-12 px-8 rounded-xl bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600 text-white font-bold text-sm sm:text-base shadow-lg shadow-orange-500/25 flex items-center gap-2 transform active:scale-95 transition-all"
+          className="h-12 px-8 rounded-xl bg-neutral-950 hover:bg-neutral-800 text-white font-bold text-sm sm:text-base shadow-sm flex items-center gap-2 transform active:scale-95 transition-all cursor-pointer"
         >
           <span>Personnaliser ma carte maintenant</span>
           <ArrowRight className="w-4 h-4" />

@@ -69,99 +69,88 @@ export default function CardOrderOnboardingPage() {
 
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto">
-        <Card className="border-2 border-orange-200 bg-orange-50">
-          <CardContent className="p-6 text-center">
-            <div className="w-16 h-16 bg-orange-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <Smartphone className="h-8 w-8 text-orange-600" />
+      <div className="max-w-2xl mx-auto">
+        <Card className="border border-neutral-200 bg-white shadow-xs rounded-2xl overflow-hidden">
+          <CardContent className="p-6 sm:p-8 text-center space-y-4">
+            <div className="w-16 h-16 bg-neutral-950 text-white rounded-2xl flex items-center justify-center mx-auto mb-2">
+              <Smartphone className="h-8 w-8 text-white" />
             </div>
-            <h3 className="text-xl font-bold mb-2">Carte NFC + QR</h3>
-            <p className="text-gray-600 mb-4">
-              Technologie NFC pour un partage instantané + QR Code de secours
-            </p>
-            <Badge variant="secondary" className="text-lg font-bold px-4 py-2">
-              {basePrice.toLocaleString('fr-FR')} XOF
-            </Badge>
-            <div className="mt-4 space-y-2">
-              <div className="flex items-center text-sm text-gray-600">
-                <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                Partage instantané par contact
-              </div>
-              <div className="flex items-center text-sm text-gray-600">
-                <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                Compatible tous smartphones
-              </div>
-              <div className="flex items-center text-sm text-gray-600">
-                <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                Design premium personnalisé
-              </div>
+            <div>
+              <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200 text-xs font-semibold mb-2">
+                <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                Carte Officielle Ofika
+              </span>
+              <h3 className="text-2xl font-bold text-neutral-950">Carte Connectée NFC + QR</h3>
+              <p className="text-neutral-500 text-sm max-w-md mx-auto mt-1">
+                Puce sans contact haute portée et QR code permanent gravé au laser à votre nom.
+              </p>
             </div>
-          </CardContent>
-        </Card>
 
-        <Card className="border-2 border-blue-200 bg-blue-50">
-          <CardContent className="p-6 text-center">
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              <QrCode className="h-8 w-8 text-blue-600" />
+            <div className="pt-2">
+              <Badge variant="secondary" className="text-xl font-bold px-5 py-2.5 bg-neutral-100 text-neutral-900 border border-neutral-200">
+                {basePrice.toLocaleString('fr-FR')} XOF
+              </Badge>
+              <div className="text-xs text-emerald-600 font-semibold mt-2">
+                Livraison express gratuite sur tout Abidjan
+              </div>
             </div>
-            <h3 className="text-xl font-bold mb-2">Carte QR Code</h3>
-            <p className="text-gray-600 mb-4">
-              QR Code haute qualité pour un partage simple et efficace
-            </p>
-            <Badge variant="secondary" className="text-lg font-bold px-4 py-2">
-              8,000 XOF
-            </Badge>
-            <div className="mt-4 space-y-2">
-              <div className="flex items-center text-sm text-gray-600">
-                <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                Scan rapide et fiable
+
+            <div className="pt-4 max-w-md mx-auto grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-left text-xs text-neutral-700">
+              <div className="flex items-center gap-2 p-2 rounded-lg bg-neutral-50">
+                <CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />
+                <span>Partage instantané sans contact</span>
               </div>
-              <div className="flex items-center text-sm text-gray-600">
-                <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                Prix abordable
+              <div className="flex items-center gap-2 p-2 rounded-lg bg-neutral-50">
+                <CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />
+                <span>Compatible iPhone & Android</span>
               </div>
-              <div className="flex items-center text-sm text-gray-600">
-                <CheckCircle className="h-4 w-4 text-green-500 mr-2" />
-                Design élégant
+              <div className="flex items-center gap-2 p-2 rounded-lg bg-neutral-50">
+                <CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />
+                <span>Gravure laser personnalisée</span>
+              </div>
+              <div className="flex items-center gap-2 p-2 rounded-lg bg-neutral-50">
+                <CheckCircle className="h-4 w-4 text-emerald-500 shrink-0" />
+                <span>Profil modifiable à vie</span>
               </div>
             </div>
           </CardContent>
         </Card>
       </div>
 
-      <div className="bg-gray-50 rounded-lg p-6 max-w-2xl mx-auto">
-        <h3 className="font-semibold text-gray-900 mb-3">Processus de commande</h3>
-        <div className="flex items-center justify-between text-sm">
+      <div className="bg-neutral-50 border border-neutral-200/80 rounded-2xl p-6 max-w-2xl mx-auto">
+        <h3 className="font-semibold text-neutral-900 mb-4 text-sm uppercase tracking-wider">Processus de fabrication & livraison</h3>
+        <div className="flex items-center justify-between text-xs font-medium">
           <div className="flex items-center">
-            <div className="w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center mr-2">
+            <div className="w-7 h-7 bg-neutral-950 text-white rounded-full flex items-center justify-center mr-2 text-xs font-bold">
               1
             </div>
             <span>Commande</span>
           </div>
-          <div className="flex-1 h-0.5 bg-gray-300 mx-2"></div>
+          <div className="flex-1 h-0.5 bg-neutral-200 mx-2"></div>
           <div className="flex items-center">
-            <div className="w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center mr-2">
+            <div className="w-7 h-7 bg-neutral-950 text-white rounded-full flex items-center justify-center mr-2 text-xs font-bold">
               2
             </div>
             <span>Paiement</span>
           </div>
-          <div className="flex-1 h-0.5 bg-gray-300 mx-2"></div>
+          <div className="flex-1 h-0.5 bg-neutral-200 mx-2"></div>
           <div className="flex items-center">
-            <div className="w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center mr-2">
+            <div className="w-7 h-7 bg-neutral-950 text-white rounded-full flex items-center justify-center mr-2 text-xs font-bold">
               3
             </div>
-            <span>Production</span>
+            <span>Gravure</span>
           </div>
-          <div className="flex-1 h-0.5 bg-gray-300 mx-2"></div>
+          <div className="flex-1 h-0.5 bg-neutral-200 mx-2"></div>
           <div className="flex items-center">
-            <div className="w-8 h-8 bg-orange-500 text-white rounded-full flex items-center justify-center mr-2">
+            <div className="w-7 h-7 bg-neutral-950 text-white rounded-full flex items-center justify-center mr-2 text-xs font-bold">
               4
             </div>
             <span>Livraison</span>
           </div>
         </div>
-        <p className="text-center text-gray-600 mt-4">
-          Délai de livraison : 7-14 jours ouvrés
+        <p className="text-center text-xs font-semibold text-neutral-700 mt-4 flex items-center justify-center gap-2">
+          <Truck className="w-4 h-4 text-emerald-600" />
+          <span>Délai de livraison : 24h à 48h ouvrés à Abidjan (Livraison Gratuite)</span>
         </p>
       </div>
     </div>

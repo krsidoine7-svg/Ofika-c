@@ -117,7 +117,7 @@ export default function TermsPage() {
                                     </li>
                                     <li className="flex items-start gap-3">
                                         <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-orange-600" />
-                                        <span><strong>Responsable Publication :</strong> Équipe Ofika — contact@ofika.ci</span>
+                                        <span><strong>Responsable Publication :</strong> Équipe Ofika — krsidoine7@gmail.com</span>
                                     </li>
                                     <li className="flex items-start gap-3">
                                         <div className="mt-1.5 w-1.5 h-1.5 rounded-full bg-orange-600" />

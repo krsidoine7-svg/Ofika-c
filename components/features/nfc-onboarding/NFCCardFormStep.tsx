@@ -285,7 +285,7 @@ export function NFCCardFormStep({ formData, onDataChange, onNext, onPrev, onVali
                     id="phone"
                     {...register('phone')}
                     onChange={(e) => handleDataChange('phone', e.target.value)}
-                    placeholder="+33 6 12 34 56 78"
+                    placeholder="+225 07 00 00 00 00"
                     className={errors.phone ? "border-red-300 focus-visible:ring-red-500 pr-10" : "focus-visible:ring-orange-500 pr-10"}
                   />
                   <div className="absolute right-3 top-2.5 text-gray-400">

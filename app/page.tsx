@@ -739,7 +739,7 @@ export default function HomePage() {
               </Link>
 
               <Link 
-                href="mailto:contact@ofika.ci" 
+                href="mailto:krsidoine7@gmail.com" 
                 className="group flex items-start gap-3 p-3.5 rounded-2xl bg-neutral-900/60 border border-neutral-800/80 hover:border-neutral-700 hover:bg-neutral-900 transition-all"
               >
                 <div className="w-8 h-8 rounded-lg bg-orange-500/10 text-orange-400 flex items-center justify-center shrink-0 mt-0.5">
@@ -747,7 +747,7 @@ export default function HomePage() {
                 </div>
                 <div>
                   <div className="text-xs text-neutral-400">Email commercial</div>
-                  <div className="text-sm font-semibold text-white group-hover:text-orange-400 transition-colors">contact@ofika.ci</div>
+                  <div className="text-sm font-semibold text-white group-hover:text-orange-400 transition-colors">krsidoine7@gmail.com</div>
                 </div>
               </Link>
 

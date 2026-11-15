@@ -24,7 +24,7 @@ export default function GetStartedPage() {
             </Link>
 
             <div className="flex items-center gap-4">
-              <Link href="/auth/login">
+              <Link href="/login">
                 <Button variant="ghost">Se connecter</Button>
               </Link>
             </div>
@@ -87,9 +87,9 @@ export default function GetStartedPage() {
                     <span className="text-3xl font-bold text-gray-900">
                       {basePrice.toLocaleString('fr-FR')} XOF
                     </span>
-                    <span className="text-gray-500">+ livraison</span>
+                    <span className="text-emerald-600 font-semibold text-sm">Livraison Abidjan offerte</span>
                   </div>
-                  <p className="text-sm text-gray-600 mt-1">Carte premium incluse</p>
+                  <p className="text-sm text-gray-600 mt-1">Carte premium connectée & gravée</p>
                 </div>
 
                 {/* Fonctionnalités */}
@@ -100,7 +100,7 @@ export default function GetStartedPage() {
                     'QR Code intégré',
                     'Profil digital complet',
                     'Analytics en temps réel',
-                    'Livraison sous 5-7 jours'
+                    'Livraison express 24h-48h (Abidjan)'
                   ].map((feature, index) => (
                     <motion.li
                       key={index}

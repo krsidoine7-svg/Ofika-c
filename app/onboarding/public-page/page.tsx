@@ -531,7 +531,7 @@ export default function PublicPageOnboardingPage() {
                 type="button"
                 variant="outline"
                 size="sm"
-                onClick={() => router.push('/order/create')}
+                onClick={() => router.push('/dashboard/orders/new')}
                 className="h-8 px-3 text-xs bg-white border-neutral-200 hover:bg-neutral-100 text-neutral-900 font-medium rounded-lg shrink-0 cursor-pointer"
               >
                 Commander
