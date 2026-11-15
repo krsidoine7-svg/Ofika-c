@@ -40,6 +40,8 @@ export interface Order {
   // Prix (calculé automatiquement)
   unit_price: number
   total_amount: number // Renommé pour cohérence
+  amount_cents?: number
+  total_cents?: number
   currency: Currency
 
   // Statuts

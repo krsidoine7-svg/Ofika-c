@@ -146,7 +146,7 @@ export default function OrderDetailPage() {
             <div className="text-left sm:text-right">
               <span className="text-xs uppercase font-extrabold tracking-wider text-slate-400">Montant total</span>
               <div className="text-2xl sm:text-3xl font-extrabold text-slate-950 mt-0.5">
-                {formatPrice(order.total_amount || order.amount_cents || 0)}
+                {formatPrice(order.total_amount || order.total_cents || order.amount_cents || 0)}
               </div>
               <span className="text-[11px] font-semibold text-emerald-600 bg-emerald-50 px-2 py-0.5 rounded-full inline-block mt-1">
                 Livraison gratuite incluse
@@ -215,7 +215,7 @@ export default function OrderDetailPage() {
               </div>
               <PaymentButtonGeniusPay
                 orderId={order.id}
-                text={`Payer maintenant (${formatPrice(order.total_amount || order.amount_cents || 0)})`}
+                text={`Payer maintenant (${formatPrice(order.total_amount || order.total_cents || order.amount_cents || 0)})`}
                 className="w-full h-12 rounded-xl text-sm font-bold bg-orange-500 hover:bg-orange-600 text-white shadow-md flex items-center justify-center gap-2"
               />
             </div>

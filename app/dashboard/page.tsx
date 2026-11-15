@@ -35,12 +35,13 @@ import { BetaFeatureModal, useBetaFeature } from "@/components/ui/beta-feature-m
 import { useDashboardAnalytics } from "@/lib/hooks/useDashboardAnalytics"
 import { useStatsAutoReset } from "@/lib/hooks/useStatsAutoReset"
 import { RecentActivity } from "@/components/features/dashboard/RecentActivity"
-import { ChartAreaInteractive } from "@/components/chart-area-interactive"
+import { DashboardActivityChart } from "@/components/features/dashboard/DashboardActivityChart"
 import { getProfileAnalytics } from '@/lib/services/profile-analytics'
 import { useOrders } from "@/lib/hooks/usePayments"
 import { OrderPromptModal } from "@/components/features/card-ordering/OrderPromptModal"
 import { ProfileWithLinks, Profile } from "@/lib/types/database"
 import { ProfileVisualsBanner } from "@/components/features/dashboard/ProfileVisualsBanner"
+import { OfikaEmblem } from "@/components/features/card-creator/CardVisual"
 import { WalletHubModal } from "@/components/features/dashboard/WalletHubModal"
 import { Calendar } from "@/components/ui/calendar"
 import { toast } from "sonner"
@@ -199,7 +200,7 @@ export default function DashboardPage() {
 
   // Récupérer les analytics du dashboard
   const profileIds = useMemo(() => profiles.map(p => p.id), [profiles])
-  const { totalScans, loading: analyticsLoading } = useDashboardAnalytics(profileIds)
+  const { totalScans, totalContacts, dailyData, loading: analyticsLoading } = useDashboardAnalytics(profileIds)
 
   const handleOrderCard = () => {
     router.push('/dashboard/orders/new')
@@ -359,15 +360,16 @@ export default function DashboardPage() {
 
         <Card className="rounded-xl border border-gray-100 shadow-none hover:border-gray-200 transition-all bg-white p-4">
           <div className="flex items-center justify-between mb-2">
-            <span className="text-xs font-medium text-gray-500">Cartes Digitales</span>
-            <CreditCard className="h-4 w-4 text-gray-400" />
+            <span className="text-xs font-medium text-gray-500">Contacts Captés</span>
+            <Users className="h-4 w-4 text-emerald-600" />
           </div>
           <div className="text-2xl font-bold text-gray-950 tracking-tight font-mono tabular-nums">
-            {cardLogicLoading ? "..." : cardLogicStatus.digitalCardsCount}
+            {analyticsLoading ? "..." : (totalContacts || 0)}
           </div>
-          <p className="text-[11px] text-gray-400 mt-1">
-            Prêtes au partage
-          </p>
+          <Link href="/dashboard/contacts" className="text-[11px] text-emerald-600 hover:text-emerald-700 font-semibold mt-1 inline-flex items-center gap-1 group">
+            <span>Carnet de leads</span>
+            <ChevronRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+          </Link>
         </Card>
 
         <Card className="rounded-xl border border-gray-100 shadow-none hover:border-gray-200 transition-all bg-white p-4">
@@ -471,16 +473,8 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 sm:gap-8">
         {/* Colonne gauche (2/3) */}
         <div className="lg:col-span-2 space-y-6 sm:space-y-8">
-          {/* Graphique Partages & Scans */}
-          <div className="space-y-2.5">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
-              <TrendingUp className="w-3.5 h-3.5 text-gray-500" />
-              Partages & Scans
-            </h3>
-            <div className="rounded-xl border border-gray-100 bg-white overflow-hidden p-2">
-              <ChartAreaInteractive />
-            </div>
-          </div>
+          {/* Graphique Partages & Scans (Données Réelles) */}
+          <DashboardActivityChart data={dailyData} loading={analyticsLoading} />
           
           {/* Liste des Profils */}
           <div className="space-y-3">
@@ -534,11 +528,14 @@ export default function DashboardPage() {
 
           {/* Activité Récente */}
           <div className="space-y-2.5">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
-              <Activity className="w-3.5 h-3.5 text-gray-500" />
-              Activité Récente
-            </h3>
-            <div className="rounded-xl border border-gray-100 bg-white p-4">
+            <div className="flex items-center justify-between">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
+                <Activity className="w-3.5 h-3.5 text-gray-500" />
+                <span>Activité Récente</span>
+              </h3>
+              <span className="text-[11px] text-gray-400">Flux d'interactions</span>
+            </div>
+            <div className="rounded-2xl border border-neutral-100 bg-white p-4 sm:p-5 shadow-xs">
               <RecentActivity />
             </div>
           </div>
@@ -547,7 +544,7 @@ export default function DashboardPage() {
         {/* Colonne droite (1/3) */}
         <div className="space-y-5">
           {/* Carte NFC Connectée - Showcase Studio */}
-          <Card className="bg-[#0a0d14] text-white border border-gray-900 rounded-xl overflow-hidden relative shadow-none p-5 space-y-3.5">
+          <Card className="bg-[#0a0d14] text-white border border-gray-900 rounded-2xl overflow-hidden relative shadow-none p-5 space-y-3.5">
             <div className="flex items-center justify-between">
               <span className="text-[10px] font-mono tracking-wider text-amber-300/90 uppercase bg-amber-500/10 px-2 py-0.5 rounded border border-amber-500/20">
                 Édition Signature
@@ -562,16 +559,29 @@ export default function DashboardPage() {
               </p>
             </div>
 
-            {/* Rendu miniature carte NFC */}
-            <div className="h-24 bg-black/60 border border-gray-800/80 rounded-lg flex items-center justify-center overflow-hidden my-1">
-              <div className="w-32 h-18 rounded-md bg-gradient-to-br from-neutral-800 to-neutral-950 p-2.5 shadow-sm border border-neutral-700/40 flex flex-col justify-between">
-                <div className="flex justify-between items-start">
-                  <div className="w-3.5 h-2.5 rounded-[2px] bg-gradient-to-br from-yellow-300 to-amber-500" />
-                  <Wifi className="w-3 h-3 text-neutral-400 transform rotate-90" />
+            {/* Rendu miniature carte NFC de Luxe */}
+            <div className="h-28 bg-gradient-to-b from-[#14171f] to-[#0a0d14] border border-gray-800 rounded-2xl flex items-center justify-center overflow-hidden my-2 p-2">
+              <div className="w-44 h-24 rounded-xl bg-gradient-to-br from-neutral-900 via-neutral-950 to-black p-3 shadow-lg border border-neutral-700/50 flex flex-col justify-between relative group hover:scale-[1.02] transition-transform">
+                {/* Logo & NFC wave */}
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-1.5">
+                    <OfikaEmblem color="#f97316" className="w-4 h-4" />
+                    <span className="text-[9px] tracking-[0.2em] font-bold text-white uppercase font-sans">OFIKA</span>
+                  </div>
+                  <div className="flex items-center gap-1 text-neutral-400">
+                    <Wifi className="w-3 h-3 rotate-90 text-orange-400" />
+                  </div>
                 </div>
-                <div className="flex justify-between items-end">
-                  <span className="text-[6px] tracking-wider text-neutral-500 font-mono">PREMIUM</span>
-                  <span className="text-[8px] tracking-[0.2em] text-amber-200 font-bold uppercase">OFIKA</span>
+
+                {/* Nom du titulaire gravé */}
+                <div className="space-y-0.5">
+                  <p className="text-[10px] font-bold text-neutral-200 tracking-tight truncate max-w-[140px]">
+                    {firstName || user?.user_metadata?.first_name || user?.user_metadata?.name || 'Votre Nom'}
+                  </p>
+                  <div className="flex items-center justify-between text-[7px] text-neutral-500 font-mono">
+                    <span>NFC CONNECT</span>
+                    <span className="text-orange-400/90 font-semibold">NTAG216</span>
+                  </div>
                 </div>
               </div>
             </div>
