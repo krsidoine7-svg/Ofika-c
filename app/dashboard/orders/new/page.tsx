@@ -18,7 +18,10 @@ import {
   CheckCircle2,
   Check,
   RotateCcw,
-  ShieldCheck
+  ShieldCheck,
+  Upload,
+  Trash2,
+  Image as ImageIcon
 } from "lucide-react"
 import { toast } from "sonner"
 import { usePaymentMethods } from '@/lib/hooks/usePayments'
@@ -46,12 +49,14 @@ export default function NewOrderPage() {
   // Module 1 : Personnalisation de la carte
   const [selectedProfileId, setSelectedProfileId] = useState<string>('')
   const [cardColor, setCardColor] = useState<'black' | 'white'>('black')
+  const [cardDesign, setCardDesign] = useState<'design1' | 'design2'>('design1')
   const [isFlipped, setIsFlipped] = useState(false)
   const [cardData, setCardData] = useState({
     fullName: '',
     company: '',
     jobTitle: '',
-    qrValue: 'https://ofika.ci'
+    qrValue: 'https://ofika.ci',
+    logoUrl: ''
   })
 
   // Module 2 : Livraison
@@ -76,6 +81,17 @@ export default function NewOrderPage() {
     }
   }, [basePrice])
 
+  // Détection des paramètres d'URL (design, finish)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search)
+      const d = params.get('design')
+      if (d === 'design2' || d === 'design1') setCardDesign(d)
+      const f = params.get('finish') || params.get('color')
+      if (f === 'white' || f === 'black') setCardColor(f)
+    }
+  }, [])
+
   // 2. Sélection automatique du profil et pré-remplissage
   useEffect(() => {
     if (profiles && profiles.length > 0 && !selectedProfileId) {
@@ -85,11 +101,13 @@ export default function NewOrderPage() {
       const appUrl = typeof window !== 'undefined' ? window.location.origin : 'https://ofika.ci'
       const slug = firstProfile.custom_url || firstProfile.username || firstProfile.id
       
+      const profileLogo = firstProfile.logo_url || firstProfile.image_url || ''
       setCardData({
         fullName: firstProfile.name || '',
         company: firstProfile.company || '',
         jobTitle: firstProfile.job_title || '',
-        qrValue: `${appUrl}/${slug}`
+        qrValue: `${appUrl}/${slug}`,
+        logoUrl: profileLogo
       })
     }
   }, [profiles, selectedProfileId])
@@ -130,13 +148,16 @@ export default function NewOrderPage() {
     if (found) {
       const appUrl = typeof window !== 'undefined' ? window.location.origin : 'https://ofika.ci'
       const slug = found.custom_url || found.username || found.id
+      const profileLogo = found.logo_url || found.image_url || ''
 
-      setCardData({
+      setCardData(prev => ({
+        ...prev,
         fullName: found.name || '',
         company: found.company || '',
         jobTitle: found.job_title || '',
-        qrValue: `${appUrl}/${slug}`
-      })
+        qrValue: `${appUrl}/${slug}`,
+        logoUrl: profileLogo
+      }))
     }
   }
 
@@ -225,9 +246,11 @@ export default function NewOrderPage() {
           shipping_address: shippingInfo,
           metadata: {
             card_finish: cardColor,
+            design_choice: cardDesign,
             engraved_name: cardData.fullName,
             engraved_company: cardData.company,
             engraved_job_title: cardData.jobTitle,
+            custom_logo_url: cardData.logoUrl || null,
           }
         })
       })
@@ -389,14 +412,15 @@ export default function NewOrderPage() {
             </div>
             <div className="w-full max-w-[280px] mx-auto aspect-[1.586/1] drop-shadow-md">
               <CardVisual
-                design="design1"
+                design={cardDesign}
                 color={cardColor}
                 isFlipped={isFlipped}
                 data={{
                   fullName: cardData.fullName || 'Votre Nom',
                   company: cardData.company || '',
                   jobTitle: cardData.jobTitle || '',
-                  qrValue: cardData.qrValue
+                  qrValue: cardData.qrValue,
+                  logoUrl: cardData.logoUrl
                 }}
               />
             </div>
@@ -503,6 +527,57 @@ export default function NewOrderPage() {
                   </div>
                 </div>
 
+                {/* Choix de la disposition graphique (Design 1 vs Design 2) */}
+                <div className="space-y-1.5 pt-1">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs sm:text-sm font-semibold text-slate-700">
+                      Disposition graphique
+                    </Label>
+                    <span className="text-[11px] text-slate-400">
+                      {cardDesign === 'design1' ? 'QR au recto' : 'QR au verso'}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                    <button
+                      type="button"
+                      onClick={() => setCardDesign('design1')}
+                      className={cn(
+                        "p-3 rounded-xl border text-left transition-all flex flex-col justify-between cursor-pointer",
+                        cardDesign === 'design1'
+                          ? "border-neutral-950 bg-neutral-50 ring-1 ring-neutral-950 shadow-xs"
+                          : "border-slate-200 hover:border-slate-300 bg-white"
+                      )}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-bold text-slate-900">Design 1 : Balance Pro</span>
+                        {cardDesign === 'design1' && <Check className="w-3.5 h-3.5 text-neutral-950" />}
+                      </div>
+                      <p className="text-[10px] text-slate-500 leading-tight">
+                        Logo & QR code côte à côte au recto, nom complet centré au verso.
+                      </p>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => setCardDesign('design2')}
+                      className={cn(
+                        "p-3 rounded-xl border text-left transition-all flex flex-col justify-between cursor-pointer",
+                        cardDesign === 'design2'
+                          ? "border-neutral-950 bg-neutral-50 ring-1 ring-neutral-950 shadow-xs"
+                          : "border-slate-200 hover:border-slate-300 bg-white"
+                      )}
+                    >
+                      <div className="flex items-center justify-between mb-1">
+                        <span className="text-xs font-bold text-slate-900">Design 2 : Executive</span>
+                        {cardDesign === 'design2' && <Check className="w-3.5 h-3.5 text-neutral-950" />}
+                      </div>
+                      <p className="text-[10px] text-slate-500 leading-tight">
+                        Face avant prestige avec logo centré, QR code & détails au verso.
+                      </p>
+                    </button>
+                  </div>
+                </div>
+
                 {/* Champs de gravure en direct */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2">
                   <div className="space-y-1.5">
@@ -529,6 +604,65 @@ export default function NewOrderPage() {
                       placeholder="Ex: Architecte d'intérieur"
                       className="h-11 text-sm bg-white border-slate-200 rounded-xl focus:border-slate-900 focus:ring-slate-900"
                     />
+                  </div>
+                </div>
+
+                {/* Logo d'entreprise / Marque sur la carte physique */}
+                <div className="pt-3 border-t border-slate-100 space-y-2">
+                  <div className="flex items-center justify-between">
+                    <Label className="text-xs font-semibold text-slate-700 flex items-center gap-1.5">
+                      <ImageIcon className="w-3.5 h-3.5 text-slate-500" />
+                      Logo sur la carte (Optionnel)
+                    </Label>
+                    {cardData.logoUrl && (
+                      <button
+                        type="button"
+                        onClick={() => setCardData(prev => ({ ...prev, logoUrl: '' }))}
+                        className="text-[11px] text-red-600 hover:text-red-700 flex items-center gap-1 cursor-pointer font-medium"
+                      >
+                        <Trash2 className="w-3 h-3" />
+                        Retirer le logo
+                      </button>
+                    )}
+                  </div>
+
+                  <div className="flex items-center gap-3">
+                    <input
+                      id="order-logo-upload"
+                      type="file"
+                      accept="image/png, image/jpeg, image/svg+xml"
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0]
+                        if (file) {
+                          if (file.size > 5 * 1024 * 1024) {
+                            toast.error('Image trop volumineuse (max 5MB)')
+                            return
+                          }
+                          const reader = new FileReader()
+                          reader.onload = (ev) => {
+                            const res = ev.target?.result as string
+                            setCardData(prev => ({ ...prev, logoUrl: res }))
+                            toast.success('Logo appliqué sur la carte !')
+                          }
+                          reader.readAsDataURL(file)
+                        }
+                        e.target.value = ''
+                      }}
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={() => document.getElementById('order-logo-upload')?.click()}
+                      className="text-xs rounded-xl flex items-center gap-1.5 border-slate-200 hover:bg-slate-50 cursor-pointer h-9 px-3"
+                    >
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>{cardData.logoUrl ? 'Changer le logo' : 'Téléverser votre logo'}</span>
+                    </Button>
+                    <span className="text-[11px] text-slate-400 truncate">
+                      {cardData.logoUrl ? 'Logo personnalisé actif sur la carte' : 'Par défaut : Emblème officiel Ofika'}
+                    </span>
                   </div>
                 </div>
               </div>
@@ -759,14 +893,15 @@ export default function NewOrderPage() {
                 {/* Conteneur de la carte proportionnelle exacte */}
                 <div className="w-full max-w-[320px] mx-auto aspect-[1.586/1] drop-shadow-xl transition-transform duration-300 hover:scale-[1.02]">
                   <CardVisual
-                    design="design1"
+                    design={cardDesign}
                     color={cardColor}
                     isFlipped={isFlipped}
                     data={{
                       fullName: cardData.fullName || 'Votre Nom',
                       company: cardData.company || '',
                       jobTitle: cardData.jobTitle || '',
-                      qrValue: cardData.qrValue
+                      qrValue: cardData.qrValue,
+                      logoUrl: cardData.logoUrl
                     }}
                   />
                 </div>

@@ -183,7 +183,7 @@ export default function HomePage() {
                 </Link>
               ) : (
                 <div className="flex items-center gap-6">
-                  <Link href="/auth/login" className="text-gray-700 font-bold hover:text-ofika-orange transition-colors text-sm">
+                  <Link href="/login" className="text-gray-700 font-bold hover:text-ofika-orange transition-colors text-sm">
                     Connexion
                   </Link>
                   <Link href="/onboarding/public-page">
@@ -216,7 +216,7 @@ export default function HomePage() {
               <button onClick={() => scrollToSection('pricing')} className="block w-full text-left text-gray-800 font-bold text-lg hover:text-ofika-orange transition-colors">Tarifs</button>
 
               <div className="pt-4 grid grid-cols-2 gap-4">
-                <Link href="/auth/login">
+                <Link href="/login">
                   <Button variant="outline" className="w-full border-gray-200 text-gray-900 font-bold h-12 rounded-xl">Connexion</Button>
                 </Link>
                 <Link href="/onboarding/public-page">
@@ -777,7 +777,7 @@ export default function HomePage() {
               <Link href="/terms" className="hover:text-neutral-300 transition-colors">Conditions</Link>
               <Link href="/privacy" className="hover:text-neutral-300 transition-colors">Confidentialité</Link>
               <Link href="/compliance" className="hover:text-neutral-300 transition-colors">Conformité</Link>
-              <Link href="/auth/login" className="hover:text-orange-400 transition-colors font-medium">Espace Pro</Link>
+              <Link href="/login" className="hover:text-orange-400 transition-colors font-medium">Espace Pro</Link>
             </div>
 
           </div>

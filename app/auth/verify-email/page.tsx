@@ -98,7 +98,7 @@ export default function VerifyEmailPage() {
                 )}
               </Button>
 
-              <Link href="/auth/login">
+              <Link href="/login">
                 <Button
                   variant="ghost"
                   className="w-full"

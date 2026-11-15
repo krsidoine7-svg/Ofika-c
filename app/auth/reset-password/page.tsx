@@ -40,7 +40,7 @@ export default function ResetPasswordPage() {
       const { data: { session } } = await supabase.auth.getSession()
       if (!session) {
         toast.error("Lien de réinitialisation invalide ou expiré")
-        router.push("/auth/login")
+        router.push("/login")
       } else {
         setIsCheckingSession(false)
       }

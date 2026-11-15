@@ -365,7 +365,7 @@ export function SignupForm() {
             <div className="text-center text-sm text-muted-foreground">
               Déjà un compte ?{" "}
               <Link
-                href="/auth/login"
+                href="/login"
                 className="text-orange-600 hover:text-orange-700 font-medium"
               >
                 Connectez-vous

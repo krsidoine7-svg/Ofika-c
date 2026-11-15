@@ -78,6 +78,7 @@ export function NFCCard3DViewer({
   const [isFlipped, setIsFlipped] = useState(false)
   const [isAutoRotating, setIsAutoRotating] = useState(autoRotateDefault)
   const [isHovered, setIsHovered] = useState(false)
+  const [logoError, setLogoError] = useState(false)
 
   // Motion values for tilt & rotation
   const rotateX = useSpring(0, { stiffness: 180, damping: 20 })
@@ -85,6 +86,17 @@ export function NFCCard3DViewer({
   const glareX = useSpring(50, { stiffness: 200, damping: 25 })
   const glareY = useSpring(50, { stiffness: 200, damping: 25 })
   const glareOpacity = useSpring(0, { stiffness: 200, damping: 25 })
+
+  // Dès qu'un logo est injecté ou changé, réinitialiser l'erreur et exposer le recto
+  useEffect(() => {
+    setLogoError(false)
+    if (logoUrl) {
+      setIsAutoRotating(false)
+      setIsFlipped(false)
+      rotateX.set(0)
+      rotateY.set(0)
+    }
+  }, [logoUrl, rotateX, rotateY])
 
   // Auto rotation continuous loop
   useEffect(() => {
@@ -280,23 +292,92 @@ export function NFCCard3DViewer({
                 </div>
               </div>
 
-              {/* CENTER: Logo (Custom uploaded logo or Default Ofika full official logo) */}
-              <div className="relative z-10 my-auto flex flex-col items-center justify-center text-center">
-                <div className="flex items-center justify-center max-h-16 sm:max-h-20 max-w-[220px]">
-                  {logoUrl ? (
-                    <img
-                      src={logoUrl}
-                      alt="Logo Entreprise"
-                      className="max-h-16 sm:max-h-20 max-w-[200px] object-contain drop-shadow-md rounded-xs"
-                    />
-                  ) : (
-                    <img
-                      src={isDark ? "/assets/logos/logo-white-full.svg" : "/assets/logos/logo-black-full.svg"}
-                      alt="Ofika"
-                      className="h-10 sm:h-14 w-auto object-contain drop-shadow-sm"
-                    />
-                  )}
-                </div>
+              {/* CENTER OF RECTO: Depending on design */}
+              <div className="relative z-10 my-auto w-full">
+                {cardDesign === 'design1' ? (
+                  /* Recto Design 1 : Logo & QR Code côte à côte */
+                  <div className="flex items-center justify-center gap-3 sm:gap-5 w-full">
+                    {/* Bloc Logo & Nom Entreprise */}
+                    <div className="flex flex-col items-center space-y-1.5 max-w-[48%] text-center">
+                      <div className="flex items-center justify-center min-h-[44px] max-h-14 sm:max-h-16 max-w-[130px]">
+                        {logoUrl && !logoError ? (
+                          <div className={cn(
+                            "p-1 sm:p-1.5 rounded-xl flex items-center justify-center transition-all overflow-hidden",
+                            isDark
+                              ? "bg-white/10 backdrop-blur-xs border border-white/15 shadow-xs"
+                              : "bg-black/5 border border-black/10 shadow-xs"
+                          )}>
+                            <img
+                              src={logoUrl}
+                              alt="Logo Entreprise"
+                              className="max-h-10 sm:max-h-12 max-w-[105px] w-auto h-auto object-contain drop-shadow-xs"
+                              onError={() => setLogoError(true)}
+                            />
+                          </div>
+                        ) : (
+                          <img
+                            src={isDark ? "/assets/logos/logo-white-full.svg" : "/assets/logos/logo-black-full.svg"}
+                            alt="Ofika"
+                            className="h-9 sm:h-11 w-auto object-contain drop-shadow-sm"
+                          />
+                        )}
+                      </div>
+                      <h4 className={cn("text-[11px] sm:text-xs font-bold truncate max-w-full leading-tight", textColor)}>
+                        {company || 'OFIKA GLOBAL'}
+                      </h4>
+                    </div>
+
+                    {/* Séparateur vertical fin */}
+                    <div className={cn("h-16 sm:h-20 w-px", accentBorderColor)} />
+
+                    {/* Bloc QR Code */}
+                    <div className="flex flex-col items-center space-y-1 shrink-0">
+                      <div className="p-1 sm:p-1.5 bg-white rounded-xl shadow-md border border-slate-200/80 flex items-center justify-center">
+                        <QRCode
+                          value={qrValue || 'https://ofika.ci'}
+                          size={76}
+                          style={{ height: 'auto', maxWidth: '100%', width: '100%' }}
+                          className="w-14 h-14 sm:w-16 sm:h-16"
+                          viewBox="0 0 256 256"
+                        />
+                      </div>
+                      <span className={cn("text-[8px] font-medium flex items-center gap-1", textMutedColor)}>
+                        <QrCode className="w-2.5 h-2.5 text-orange-500" />
+                        Scannez-moi
+                      </span>
+                    </div>
+                  </div>
+                ) : (
+                  /* Recto Design 2 : Logo prestige centré */
+                  <div className="flex flex-col items-center justify-center text-center space-y-2">
+                    <div className="flex items-center justify-center min-h-[50px] max-h-16 sm:max-h-20 max-w-[220px]">
+                      {logoUrl && !logoError ? (
+                        <div className={cn(
+                          "p-2 rounded-2xl flex items-center justify-center transition-all overflow-hidden",
+                          isDark
+                            ? "bg-white/10 backdrop-blur-xs border border-white/15 shadow-xs"
+                            : "bg-black/5 border border-black/10 shadow-xs"
+                        )}>
+                          <img
+                            src={logoUrl}
+                            alt="Logo Entreprise"
+                            className="max-h-12 sm:max-h-16 max-w-[190px] w-auto h-auto object-contain drop-shadow-xs"
+                            onError={() => setLogoError(true)}
+                          />
+                        </div>
+                      ) : (
+                        <img
+                          src={isDark ? "/assets/logos/logo-white-full.svg" : "/assets/logos/logo-black-full.svg"}
+                          alt="Ofika"
+                          className="h-10 sm:h-14 w-auto object-contain drop-shadow-sm"
+                        />
+                      )}
+                    </div>
+                    <h3 className={cn("text-xs sm:text-sm font-bold tracking-tight", textColor)}>
+                      {company || 'OFIKA GLOBAL'}
+                    </h3>
+                  </div>
+                )}
               </div>
 
               {/* BOTTOM ROW: Clean & Minimalist */}
@@ -333,8 +414,8 @@ export function NFCCard3DViewer({
 
               {/* Verso Layout - Structured High-End Business Card */}
               {cardDesign === 'design1' ? (
-                /* Verso Design 1: Centered QR + User Profile */
-                <div className="relative z-10 h-full flex flex-col justify-between">
+                /* Verso Design 1: Centered Pure Typography (Signature Executive) */
+                <div className="relative z-10 h-full flex flex-col justify-between text-center items-center">
                   {/* Top Bar on Verso */}
                   <div className="flex items-center justify-between w-full h-5">
                     <span className={cn("text-[8px] sm:text-[9px] font-mono tracking-[0.2em] uppercase opacity-70", textMutedColor)}>
@@ -345,42 +426,29 @@ export function NFCCard3DViewer({
                     </div>
                   </div>
 
-                  {/* Middle Content - Centré horizontalement et verticalement */}
-                  <div className="flex items-center justify-center gap-5 sm:gap-7 my-auto w-full">
-                    {/* Left: QR Code in crisp luxury container */}
-                    <div className="flex flex-col items-center gap-1.5 flex-shrink-0">
-                      <div className="p-1.5 sm:p-2 bg-white rounded-xl shadow-md border border-slate-200/80 flex items-center justify-center">
-                        <QRCode
-                          value={qrValue || 'https://ofika.ci'}
-                          size={88}
-                          style={{ height: 'auto', maxWidth: '100%', width: '100%' }}
-                          className="w-16 h-16 sm:w-20 sm:h-20 md:w-22 md:h-22"
-                          viewBox="0 0 256 256"
-                        />
-                      </div>
-                      <span className={cn("text-[8px] sm:text-[9px] font-medium tracking-wide flex items-center gap-1", textMutedColor)}>
-                        <QrCode className="w-2.5 h-2.5 text-orange-500" />
-                        Scannez-moi
-                      </span>
-                    </div>
-
-                    {/* Right: Personal & Professional Details */}
-                    <div className="flex flex-col justify-center text-left">
-                      <h4 className={cn("font-bold text-base sm:text-lg md:text-xl leading-tight tracking-tight", textColor)}>
-                        {fullName || 'Votre Nom'}
-                      </h4>
-                      <p className={cn("text-xs sm:text-sm font-medium mt-1", textMutedColor)}>
-                        {jobTitle || 'Votre Fonction'}
-                      </p>
-                    </div>
+                  {/* Middle: Centered Full Name & Job Title */}
+                  <div className="flex flex-col items-center justify-center my-auto space-y-1.5 sm:space-y-2 text-center max-w-[85%]">
+                    <h4 className={cn("font-extrabold text-xl sm:text-2xl md:text-3xl leading-tight tracking-tight", textColor)}>
+                      {fullName || 'Votre Nom'}
+                    </h4>
+                    <p className={cn("text-xs sm:text-sm font-medium", textMutedColor)}>
+                      {jobTitle || 'Votre Fonction'}
+                    </p>
                   </div>
 
                   {/* Bottom Bar: Équilibre la hauteur du haut pour un centrage parfait */}
-                  <div className="h-5 w-full" />
+                  <div className="flex items-center justify-between w-full h-5">
+                    <span className={cn("text-[8px] font-mono tracking-widest uppercase opacity-40", textMutedColor)}>
+                      DIGITAL CARD
+                    </span>
+                    <span className={cn("text-[8px] font-mono tracking-widest uppercase opacity-40", textMutedColor)}>
+                      NFC
+                    </span>
+                  </div>
                 </div>
               ) : (
-                /* Verso Design 2: Centered Executive Signature */
-                <div className="relative z-10 h-full flex flex-col justify-between text-center items-center">
+                /* Verso Design 2: QR Code + Name & Job Title (Split Layout) */
+                <div className="relative z-10 h-full flex flex-col justify-between">
                   <div className="flex items-center justify-between w-full h-5">
                     <span className={cn("text-[8px] sm:text-[9px] font-mono tracking-widest uppercase opacity-70", textMutedColor)}>
                       CARTE CONNECTÉE
@@ -388,26 +456,47 @@ export function NFCCard3DViewer({
                     <ContactlessIcon className="w-3.5 h-3.5 opacity-70" color={isDark ? "#FFFFFF" : "#0F172A"} />
                   </div>
 
-                  {/* Center Info + Mini QR */}
-                  <div className="flex flex-col items-center justify-center my-auto space-y-2">
-                    <div className="p-1.5 bg-white rounded-lg shadow border border-slate-200">
-                      <QRCode
-                        value={qrValue || 'https://ofika.ci'}
-                        size={64}
-                        className="w-12 h-12 sm:w-14 sm:h-14"
-                      />
+                  {/* Center: Split QR Code + Info */}
+                  <div className="flex items-center justify-center gap-4 sm:gap-6 my-auto w-full">
+                    {/* Left: QR Code in crisp luxury container */}
+                    <div className="flex flex-col items-center gap-1 shrink-0">
+                      <div className="p-1 sm:p-1.5 bg-white rounded-xl shadow-md border border-slate-200/80 flex items-center justify-center">
+                        <QRCode
+                          value={qrValue || 'https://ofika.ci'}
+                          size={76}
+                          style={{ height: 'auto', maxWidth: '100%', width: '100%' }}
+                          className="w-14 h-14 sm:w-16 sm:h-16"
+                          viewBox="0 0 256 256"
+                        />
+                      </div>
+                      <span className={cn("text-[8px] font-medium flex items-center gap-1", textMutedColor)}>
+                        <QrCode className="w-2.5 h-2.5 text-orange-500" />
+                        Scannez-moi
+                      </span>
                     </div>
-                    <div>
-                      <h4 className={cn("font-extrabold text-sm sm:text-base md:text-lg", textColor)}>
+
+                    {/* Separator */}
+                    <div className={cn("h-16 sm:h-20 w-px", accentBorderColor)} />
+
+                    {/* Right: Personal & Professional Details */}
+                    <div className="flex flex-col justify-center text-left max-w-[50%]">
+                      <h4 className={cn("font-bold text-sm sm:text-base md:text-lg leading-tight tracking-tight", textColor)}>
                         {fullName || 'Votre Nom'}
                       </h4>
-                      <p className={cn("text-xs font-medium", textMutedColor)}>
+                      <p className={cn("text-xs font-medium mt-0.5", textMutedColor)}>
                         {jobTitle || 'Votre Fonction'}
                       </p>
                     </div>
                   </div>
 
-                  <div className="h-5 w-full" />
+                  <div className="flex items-center justify-between w-full h-5">
+                    <span className={cn("text-[8px] font-mono tracking-widest uppercase opacity-40", textMutedColor)}>
+                      DIGITAL CARD
+                    </span>
+                    <span className={cn("text-[8px] font-mono tracking-widest uppercase opacity-40", textMutedColor)}>
+                      NFC
+                    </span>
+                  </div>
                 </div>
               )}
             </div>

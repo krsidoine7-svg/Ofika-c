@@ -92,7 +92,7 @@ export default function MagicLinkPage() {
                   Envoyer un autre lien
                 </Button>
 
-                <Link href="/auth/login">
+                <Link href="/login">
                   <Button
                     variant="ghost"
                     className="w-full"
@@ -173,7 +173,7 @@ export default function MagicLinkPage() {
 
             <div className="text-center text-sm text-muted-foreground">
               <Link
-                href="/auth/login"
+                href="/login"
                 className="text-orange-600 hover:text-orange-700 font-medium"
               >
                 Retour à la connexion classique

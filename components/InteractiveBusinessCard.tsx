@@ -52,6 +52,7 @@ export default function InteractiveBusinessCard() {
       }
       reader.readAsDataURL(file)
     }
+    event.target.value = ''
   }, [])
 
   const handleStartOnboarding = () => {

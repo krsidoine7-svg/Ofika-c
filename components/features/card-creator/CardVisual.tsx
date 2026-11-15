@@ -1,6 +1,6 @@
 import { QrCode } from "lucide-react"
 import QRCode from 'react-qr-code'
-import { useEffect, useState } from 'react'
+import React, { useEffect, useState } from 'react'
 
 interface CardVisualProps {
     design: 'design1' | 'design2'
@@ -75,11 +75,12 @@ const DefaultOfikaLogo = ({ color = 'black', size = 'w-14 h-14' }: { color: 'bla
 }
 
 export function CardVisual({ design, color, isFlipped, data }: CardVisualProps) {
-    const [processedLogo, setProcessedLogo] = useState<string | null>(null)
+    const [processedLogo, setProcessedLogo] = useState<string | null>(data.logoUrl || null)
     const [logoAspectRatio, setLogoAspectRatio] = useState<'square' | 'horizontal' | 'vertical'>('square')
 
     useEffect(() => {
         if (data.logoUrl) {
+            setProcessedLogo(data.logoUrl)
             const img = new Image()
             img.onload = () => {
                 const ratio = img.width / img.height
@@ -87,14 +88,15 @@ export function CardVisual({ design, color, isFlipped, data }: CardVisualProps) 
                 else if (ratio < 0.8) setLogoAspectRatio('vertical')
                 else setLogoAspectRatio('square')
             }
-            img.crossOrigin = "Anonymous"
+            if (data.logoUrl.startsWith('http://') || data.logoUrl.startsWith('https://')) {
+                img.crossOrigin = "Anonymous"
+            }
             img.src = data.logoUrl
-            setProcessedLogo(data.logoUrl)
         } else {
             setProcessedLogo(null)
             setLogoAspectRatio('square')
         }
-    }, [data.logoUrl, color])
+    }, [data.logoUrl])
 
     const textColor = color === 'black' ? 'text-white' : 'text-slate-900'
     const qrValue = data.qrValue || `https://ofika.ci/`
@@ -139,7 +141,7 @@ export function CardVisual({ design, color, isFlipped, data }: CardVisualProps) 
                         <div className="flex items-center justify-center space-x-3 sm:space-x-5 h-full">
                             {/* Bloc Logo & Nom Entreprise */}
                             <div className="flex flex-col items-center space-y-2 max-w-[48%]">
-                                <div className={`flex items-center justify-center overflow-hidden ${
+                                <div className={`flex items-center justify-center ${
                                     processedLogo
                                         ? logoAspectRatio === 'horizontal'
                                             ? 'w-24 h-14 sm:w-28 sm:h-16'
@@ -149,15 +151,20 @@ export function CardVisual({ design, color, isFlipped, data }: CardVisualProps) 
                                         : 'w-16 h-16 sm:w-20 sm:h-20'
                                 }`}>
                                     {processedLogo ? (
-                                        <img
-                                            src={processedLogo}
-                                            alt="Logo Entreprise"
-                                            className="w-full h-full object-contain drop-shadow-sm"
-                                            onError={(e) => {
-                                                (e.target as HTMLImageElement).style.display = 'none'
-                                                setProcessedLogo(null)
-                                            }}
-                                        />
+                                        <div className={`w-full h-full p-1 rounded-xl flex items-center justify-center overflow-hidden ${
+                                            color === 'black'
+                                                ? 'bg-white/10 backdrop-blur-xs border border-white/15 shadow-xs'
+                                                : 'bg-black/5 border border-black/10 shadow-xs'
+                                        }`}>
+                                            <img
+                                                src={processedLogo}
+                                                alt="Logo Entreprise"
+                                                className="max-w-full max-h-full w-auto h-auto object-contain drop-shadow-sm"
+                                                onError={() => {
+                                                    setProcessedLogo(null)
+                                                }}
+                                            />
+                                        </div>
                                     ) : (
                                         <DefaultOfikaLogo color={color} size="w-14 h-14 sm:w-16 sm:h-16" />
                                     )}
@@ -189,7 +196,7 @@ export function CardVisual({ design, color, isFlipped, data }: CardVisualProps) 
                     ) : (
                         /* Design 2 : Logo centré avec nom d'entreprise */
                         <div className="flex flex-col items-center justify-center space-y-3">
-                            <div className={`flex items-center justify-center overflow-hidden ${
+                            <div className={`flex items-center justify-center ${
                                 processedLogo
                                     ? logoAspectRatio === 'horizontal'
                                         ? 'w-28 h-16 sm:w-36 sm:h-20'
@@ -199,15 +206,20 @@ export function CardVisual({ design, color, isFlipped, data }: CardVisualProps) 
                                     : 'w-20 h-20 sm:w-24 sm:h-24'
                             }`}>
                                 {processedLogo ? (
-                                    <img
-                                        src={processedLogo}
-                                        alt="Logo Entreprise"
-                                        className="w-full h-full object-contain drop-shadow-md"
-                                        onError={(e) => {
-                                            (e.target as HTMLImageElement).style.display = 'none'
-                                            setProcessedLogo(null)
-                                        }}
-                                    />
+                                    <div className={`w-full h-full p-1.5 rounded-2xl flex items-center justify-center overflow-hidden ${
+                                        color === 'black'
+                                            ? 'bg-white/10 backdrop-blur-xs border border-white/15 shadow-xs'
+                                            : 'bg-black/5 border border-black/10 shadow-xs'
+                                    }`}>
+                                        <img
+                                            src={processedLogo}
+                                            alt="Logo Entreprise"
+                                            className="max-w-full max-h-full w-auto h-auto object-contain drop-shadow-md"
+                                            onError={() => {
+                                                setProcessedLogo(null)
+                                            }}
+                                        />
+                                    </div>
                                 ) : (
                                     <DefaultOfikaLogo color={color} size="w-20 h-20 sm:w-24 sm:h-24" />
                                 )}

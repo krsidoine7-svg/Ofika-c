@@ -73,7 +73,7 @@ export default function ForgotPasswordPage() {
               </div>
 
               <div className="space-y-3">
-                <Link href="/auth/login">
+                <Link href="/login">
                   <Button className="w-full">
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Retour à la connexion
@@ -148,7 +148,7 @@ export default function ForgotPasswordPage() {
 
             <div className="text-center text-sm text-muted-foreground">
               <Link
-                href="/auth/login"
+                href="/login"
                 className="text-orange-600 hover:text-orange-700 font-medium"
               >
                 Retour à la connexion

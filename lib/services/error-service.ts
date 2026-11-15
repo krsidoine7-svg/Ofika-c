@@ -175,7 +175,7 @@ export class ErrorService {
           description: 'Redirection vers la page de connexion',
           action: {
             label: 'Se connecter',
-            onClick: () => window.location.href = '/auth/login'
+            onClick: () => window.location.href = '/login'
           }
         })
         break

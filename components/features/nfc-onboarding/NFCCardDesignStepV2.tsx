@@ -1,13 +1,26 @@
 'use client'
 
+import dynamic from 'next/dynamic'
 import { useState, useRef, useCallback, useEffect, useMemo } from 'react'
 import { CardDesign, NFCCardDesignStepProps, COLOR_OPTIONS } from '@/lib/types/nfc-card-onboarding'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Upload, RotateCcw, QrCode, Building, User, Briefcase, Sparkles, Check, Image as ImageIcon, Trash2 } from "lucide-react"
-import { NFCCard3DViewer } from './NFCCard3DViewer'
 import { cn } from '@/lib/utils'
 import { toast } from 'sonner'
+
+// Chargement dynamique côté client sans SSR pour éliminer toute désynchronisation d'hydratation
+const NFCCard3DViewer = dynamic(
+  () => import('./NFCCard3DViewer').then((mod) => mod.NFCCard3DViewer),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full max-w-[340px] sm:max-w-[440px] md:max-w-[480px] mx-auto aspect-[85.6/53.98] rounded-2xl bg-[#0b0c10] border border-white/10 animate-pulse flex items-center justify-center">
+        <div className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+      </div>
+    )
+  }
+)
 
 export function NFCCardDesignStepV2({
   formData,
@@ -120,6 +133,8 @@ export function NFCCardDesignStepV2({
       }
       reader.readAsDataURL(file)
     }
+    // Permet de resélectionner le même fichier si besoin
+    event.target.value = ''
   }, [onDataChange])
 
   const handleRemoveLogo = () => {

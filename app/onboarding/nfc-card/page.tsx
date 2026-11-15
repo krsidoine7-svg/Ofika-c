@@ -1,6 +1,6 @@
 'use client'
 
-import { useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { useNFCCardOnboarding } from '@/lib/hooks/useNFCCardOnboarding'
 import { useProfiles, useCreateProfile } from '@/lib/hooks/useProfiles'
@@ -21,6 +21,7 @@ import { AnimatePresence, motion } from 'framer-motion'
 
 export default function NFCCardOnboardingPage() {
   const router = useRouter()
+  const [mounted, setMounted] = useState(false)
   const { user, loading: authLoading } = useAuth()
   const {
     currentStep,
@@ -47,6 +48,11 @@ export default function NFCCardOnboardingPage() {
   const { createCard } = useNFCCards()
   const { profiles, refetch: refetchProfiles } = useProfiles()
   const { createProfile } = useCreateProfile()
+
+  // Protection contre les erreurs d'hydratation (LocalStorage & Framer Motion)
+  useEffect(() => {
+    setMounted(true)
+  }, [])
 
   // Gestion des erreurs
   useEffect(() => {
@@ -541,6 +547,22 @@ export default function NFCCardOnboardingPage() {
       default:
         return null
     }
+  }
+
+  // Écran d'attente propre pendant l'hydratation côté client (zéro désynchronisation SSR)
+  if (!mounted) {
+    return (
+      <NFCCardLayout
+        currentStep={1}
+        totalSteps={6}
+        showNavigation={false}
+        isLoading={false}
+      >
+        <div className="w-full min-h-[380px] flex items-center justify-center">
+          <div className="w-7 h-7 border-2 border-neutral-300 border-t-neutral-900 rounded-full animate-spin" />
+        </div>
+      </NFCCardLayout>
+    )
   }
 
   return (

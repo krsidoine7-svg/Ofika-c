@@ -394,21 +394,19 @@ export function LoginForm() {
         {/* Footer */}
         <div className="text-center text-xs text-muted-foreground">
           En vous connectant, vous acceptez nos{" "}
-          <Button
-            type="button"
-            variant="link"
-            className="p-0 h-auto text-xs text-orange-600 hover:text-orange-700"
+          <Link
+            href="/terms"
+            className="p-0 h-auto text-xs text-orange-600 hover:text-orange-700 underline underline-offset-4 font-semibold"
           >
             Conditions d'utilisation
-          </Button>{" "}
+          </Link>{" "}
           et notre{" "}
-          <Button
-            type="button"
-            variant="link"
-            className="p-0 h-auto text-xs text-orange-600 hover:text-orange-700"
+          <Link
+            href="/privacy"
+            className="p-0 h-auto text-xs text-orange-600 hover:text-orange-700 underline underline-offset-4 font-semibold"
           >
             Politique de confidentialité
-          </Button>
+          </Link>
         </div>
       </div>
     </div>

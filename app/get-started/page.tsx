@@ -274,7 +274,7 @@ export default function GetStartedPage() {
         >
           <p className="text-gray-600 mb-4">
             Déjà un compte ?{' '}
-            <Link href="/auth/login" className="text-orange-500 hover:text-orange-600 font-medium">
+            <Link href="/login" className="text-orange-500 hover:text-orange-600 font-medium">
               Se connecter
             </Link>
           </p>

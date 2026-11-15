@@ -13,7 +13,7 @@ interface ProtectedRouteProps {
 
 export const ProtectedRoute = memo(function ProtectedRoute({ 
   children, 
-  redirectTo = '/auth/login' 
+  redirectTo = '/login' 
 }: ProtectedRouteProps) {
   const { user, loading } = useAuth()
   const router = useRouter()

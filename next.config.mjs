@@ -139,6 +139,27 @@ const nextConfig = {
   // Configuration des redirects
   redirects: async () => {
     return [
+      // Alias & parcours d'inscription/connexion
+      {
+        source: '/signup',
+        destination: '/auth/signup',
+        permanent: true,
+      },
+      {
+        source: '/register',
+        destination: '/auth/signup',
+        permanent: true,
+      },
+      {
+        source: '/signin',
+        destination: '/login',
+        permanent: true,
+      },
+      {
+        source: '/auth/login',
+        destination: '/login',
+        permanent: true,
+      },
       // Redirections de sécurité
       {
         source: '/admin',

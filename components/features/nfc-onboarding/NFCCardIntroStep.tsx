@@ -1,10 +1,23 @@
 'use client'
 
+import dynamic from 'next/dynamic'
 import { NFCCardStepProps } from '@/lib/types/nfc-card-onboarding'
 import { Button } from '@/components/ui/button'
 import { Card, CardContent } from '@/components/ui/card'
 import { Smartphone, QrCode, Users, Sparkles, ArrowRight, ShieldCheck, Zap } from 'lucide-react'
-import { NFCCard3DViewer } from './NFCCard3DViewer'
+
+// Chargement dynamique côté client sans SSR pour éviter toute erreur d'hydratation
+const NFCCard3DViewer = dynamic(
+  () => import('./NFCCard3DViewer').then((mod) => mod.NFCCard3DViewer),
+  {
+    ssr: false,
+    loading: () => (
+      <div className="w-full max-w-[340px] sm:max-w-[440px] md:max-w-[480px] mx-auto aspect-[85.6/53.98] rounded-2xl bg-[#0b0c10] border border-white/10 animate-pulse flex items-center justify-center">
+        <div className="w-6 h-6 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+      </div>
+    )
+  }
+)
 
 export function NFCCardIntroStep({ onNext }: NFCCardStepProps) {
   return (

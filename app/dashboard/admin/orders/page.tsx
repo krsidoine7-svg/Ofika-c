@@ -1080,24 +1080,35 @@ export default function AdminOrdersPage() {
                                         <QrCode className="w-3.5 h-3.5 text-orange-500" />
                                         Atelier de Gravure & QR Code Permanent
                                     </h4>
-                                    <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange-50 text-orange-700 border border-orange-200">
-                                        {selectedOrder.metadata?.card_finish === 'white' ? 'Finition Blanc Épuré' : 'Finition Noir Mat Luxe'}
-                                    </span>
+                                    <div className="flex items-center gap-1.5 flex-wrap">
+                                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-neutral-950 text-white shadow-2xs">
+                                            {selectedOrder.metadata?.design_choice === 'design2' ? 'Design 2 : Executive (QR Verso)' : 'Design 1 : Balance Pro (QR Recto)'}
+                                        </span>
+                                        <span className="text-[10px] font-bold px-2 py-0.5 rounded-full bg-orange-50 text-orange-700 border border-orange-200">
+                                            {selectedOrder.metadata?.card_finish === 'white' ? 'Blanc Épuré' : 'Noir Mat Luxe'}
+                                        </span>
+                                    </div>
                                 </div>
 
                                 <div className="p-4 rounded-xl border border-gray-200 bg-white shadow-xs space-y-4">
                                     {/* Données de gravure sur la carte physique */}
-                                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs bg-gray-50/80 p-3 rounded-lg border border-gray-100">
+                                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs bg-gray-50/80 p-3 rounded-lg border border-gray-100">
                                         <div>
-                                            <span className="text-gray-400 block text-[10px] font-semibold uppercase tracking-wider">Nom gravé (Face avant)</span>
+                                            <span className="text-gray-400 block text-[10px] font-semibold uppercase tracking-wider">Nom gravé</span>
                                             <span className="font-bold text-gray-900 text-sm">
                                                 {selectedOrder.metadata?.engraved_name || selectedOrder.shipping_address?.name || selectedOrder.user?.name || 'Nom non précisé'}
                                             </span>
                                         </div>
                                         <div>
-                                            <span className="text-gray-400 block text-[10px] font-semibold uppercase tracking-wider">Entreprise / Titre (Face avant)</span>
+                                            <span className="text-gray-400 block text-[10px] font-semibold uppercase tracking-wider">Entreprise / Titre</span>
                                             <span className="font-bold text-gray-900 text-sm">
                                                 {selectedOrder.metadata?.engraved_company || selectedOrder.profile?.company || selectedOrder.metadata?.engraved_job_title || '—'}
+                                            </span>
+                                        </div>
+                                        <div>
+                                            <span className="text-gray-400 block text-[10px] font-semibold uppercase tracking-wider">Face Gravure QR</span>
+                                            <span className="font-bold text-orange-600 text-sm">
+                                                {selectedOrder.metadata?.design_choice === 'design2' ? 'Face Arrière (Verso)' : 'Face Avant (Recto)'}
                                             </span>
                                         </div>
                                     </div>

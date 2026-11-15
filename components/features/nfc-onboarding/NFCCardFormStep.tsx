@@ -67,11 +67,19 @@ export function NFCCardFormStep({ formData, onDataChange, onNext, onPrev, onVali
     if (formData.company && !currentValues.company) setValue('company', formData.company)
     if (formData.jobTitle && !currentValues.jobTitle) setValue('jobTitle', formData.jobTitle)
 
+    // Synchronisation du logo si présent dans formData
+    if (formData.logoUrl !== undefined) {
+      setLogoPreview(formData.logoUrl || null)
+    }
+    if (formData.logoFile !== undefined) {
+      setLogoFile(formData.logoFile || null)
+    }
+
     // Si des données sont présentes, on déclenche la validation
     if (formData.fullName || formData.email || formData.phone) {
       trigger()
     }
-  }, [formData.fullName, formData.email, formData.phone, formData.company, formData.jobTitle, setValue, trigger])
+  }, [formData.fullName, formData.email, formData.phone, formData.company, formData.jobTitle, formData.logoUrl, formData.logoFile, setValue, trigger, watch])
 
   // Mise à jour des données parent
   const handleDataChange = (field: keyof NFCCardFormData, value: any) => {
@@ -100,25 +108,39 @@ export function NFCCardFormStep({ formData, onDataChange, onNext, onPrev, onVali
       return
     }
 
-    // Création de l'URL de prévisualisation
-    const previewUrl = URL.createObjectURL(file)
-    setLogoPreview(previewUrl)
-    setLogoFile(file)
+    // Création d'une URL Base64 pérenne (supporte le rechargement et le localStorage sans expiration de blob)
+    const reader = new FileReader()
+    reader.onload = (e) => {
+      const result = e.target?.result as string
+      setLogoPreview(result)
+      setLogoFile(file)
 
-    // Mise à jour des données
-    handleDataChange('logoFile', file)
-    handleDataChange('logoUrl', previewUrl)
+      // Mise à jour atomique des données parent
+      setValue('logoFile', file)
+      setValue('logoUrl', result)
+      onDataChange({
+        logoFile: file,
+        logoUrl: result
+      })
+      toast.success('Logo ajouté avec succès')
+    }
+    reader.readAsDataURL(file)
+
+    // Réinitialisation de l'input pour permettre le re-téléversement du même fichier
+    event.target.value = ''
   }
 
   // Suppression du logo
   const handleLogoRemove = () => {
-    if (logoPreview) {
-      URL.revokeObjectURL(logoPreview)
-    }
     setLogoPreview(null)
     setLogoFile(null)
-    handleDataChange('logoFile', undefined)
-    handleDataChange('logoUrl', undefined)
+    setValue('logoFile', undefined)
+    setValue('logoUrl', undefined)
+    onDataChange({
+      logoFile: undefined,
+      logoUrl: undefined
+    })
+    toast.info('Logo retiré')
   }
 
   // Gestion de l'upload de photo de profil
@@ -175,6 +197,8 @@ export function NFCCardFormStep({ formData, onDataChange, onNext, onPrev, onVali
     if (currentIsValid) {
       onDataChange({
         ...data,
+        logoUrl: logoPreview || formData.logoUrl || undefined,
+        logoFile: logoFile || formData.logoFile || undefined,
         consentEssential: true,
         consentDataProcessing: true
       })
