@@ -36,7 +36,7 @@ export async function POST(request: NextRequest) {
     // Récupérer la commande
     const { data: order, error: orderError } = await supabase
       .from('orders')
-      .select('id, user_id, total_amount, currency, payment_status')
+      .select('id, user_id, total_amount, total_cents, amount_cents, currency, payment_status')
       .eq('id', paymentData.order_id)
       .eq('user_id', user.id)
       .single()
@@ -46,7 +46,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json({ success: false, error: 'Commande non trouvée ou non autorisée', details: orderError }, { status: 404 })
     }
 
-    const amount = Number(order.total_amount)
+    const amount = Number(order.total_amount ?? order.total_cents ?? order.amount_cents ?? 0)
 
     const protocol = request.headers.get('x-forwarded-proto') || 'http'
     const host = request.headers.get('host')

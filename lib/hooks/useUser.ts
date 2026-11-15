@@ -25,10 +25,15 @@ type DeleteAccountData = z.infer<typeof deleteAccountSchema>
 
 // Configuration sécurisée
 const API_CONFIG = {
-  timeout: 10000, // 10 secondes
+  timeout: 25000, // 25 secondes pour éviter les timeouts intempestifs
   maxRetries: 2,
   retryDelay: 1000,
 }
+
+// Cache global partagé entre toutes les instances du hook useUser
+const globalUserDataCache = new Map<string, { data: any; timestamp: number }>()
+const userDataCache = globalUserDataCache // Alias rétro-compatible anti-ReferenceError
+const inFlightRequests = new Map<string, Promise<any>>()
 
 // Utilitaire pour les requêtes API avec timeout et gestion d'erreurs
 async function apiRequest(
@@ -77,10 +82,7 @@ export function useUser() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
 
-  // Cache local pour éviter les appels répétés
-  const userDataCache = useMemo(() => new Map<string, { data: any; timestamp: number }>(), [])
-
-  // Récupérer les données complètes de l'utilisateur avec cache
+  // Récupérer les données complètes de l'utilisateur avec cache partagé et déduplication
   const getUserData = useCallback(async (userId?: string, forceRefresh = false) => {
     // 🕵️ Détection de l'impersonation via cookie
     let impersonatedId = null
@@ -92,56 +94,84 @@ export function useUser() {
     const targetId = userId || impersonatedId || user?.id
     
     if (!targetId) {
-      setError('ID utilisateur non disponible')
       return null
     }
 
     const cacheKey = `user_${targetId}`
-    const cached = userDataCache.get(cacheKey)
+    const cached = globalUserDataCache.get(cacheKey)
     const now = Date.now()
-    const CACHE_DURATION = 30 * 1000 // 30 secondes (au lieu de 5 minutes)
+    const CACHE_DURATION = 60 * 1000 // 60 secondes de cache
 
     // Utiliser le cache si valide
     if (!forceRefresh && cached && (now - cached.timestamp) < CACHE_DURATION) {
       return cached.data
     }
 
-    try {
-      setLoading(true)
-      setError(null)
-
-      const response = await apiRequest(`/api/users/${targetId}`)
-
-      if (!response.ok) {
-        const errorData = await response.json().catch(() => ({}))
-
-        if (response.status === 401) {
-          throw new Error('Session expirée. Veuillez vous reconnecter.')
-        } else if (response.status === 403) {
-          throw new Error('Accès non autorisé')
-        } else if (response.status === 404) {
-          throw new Error('Utilisateur non trouvé')
-        } else {
-          throw new Error(errorData.error || `Erreur ${response.status}`)
-        }
-      }
-
-      const data = await response.json()
-
-      // Mettre en cache
-      userDataCache.set(cacheKey, { data, timestamp: now })
-
-      return data
-
-    } catch (err) {
-      const message = err instanceof Error ? err.message : 'Erreur lors de la récupération des données'
-      setError(message)
-      toast.error(message)
-      return null
-    } finally {
-      setLoading(false)
+    // Si une requête est déjà en cours pour cet utilisateur, réutiliser la promesse existante
+    if (inFlightRequests.has(cacheKey)) {
+      return inFlightRequests.get(cacheKey)
     }
-  }, [user, userDataCache])
+
+    const fetchPromise = (async () => {
+      try {
+        setLoading(true)
+        setError(null)
+
+        const response = await apiRequest(`/api/users/${targetId}`)
+
+        if (!response.ok) {
+          const errorData = await response.json().catch(() => ({}))
+
+          if (response.status === 401) {
+            throw new Error('Session expirée. Veuillez vous reconnecter.')
+          } else if (response.status === 403) {
+            throw new Error('Accès non autorisé')
+          } else if (response.status === 404) {
+            throw new Error('Utilisateur non trouvé')
+          } else {
+            throw new Error(errorData.error || `Erreur ${response.status}`)
+          }
+        }
+
+        const data = await response.json()
+
+        // Mettre en cache global
+        globalUserDataCache.set(cacheKey, { data, timestamp: Date.now() })
+
+        return data
+      } catch (err) {
+        const message = err instanceof Error ? err.message : 'Erreur lors de la récupération des données'
+        setError(message)
+        
+        // Repli gracieux : si la requête échoue mais qu'on a les métadonnées de session, on les utilise discrètement
+        if (user && user.id === targetId) {
+          const fallbackData = {
+            data: {
+              id: user.id,
+              email: user.email,
+              name: user.user_metadata?.full_name || user.user_metadata?.name || user.email?.split('@')[0],
+              first_name: user.user_metadata?.first_name || (user.user_metadata?.name || '').split(' ')[0],
+              subscription_tier: (user.app_metadata as any)?.subscription_tier || 'free'
+            }
+          }
+          globalUserDataCache.set(cacheKey, { data: fallbackData, timestamp: Date.now() })
+          return fallbackData
+        }
+
+        // Afficher l'erreur seulement si c'est une action explicite
+        if (forceRefresh) {
+          toast.error(message)
+        }
+        return null
+      } finally {
+        setLoading(false)
+        inFlightRequests.delete(cacheKey)
+      }
+    })()
+
+    inFlightRequests.set(cacheKey, fetchPromise)
+    return fetchPromise
+  }, [user])
 
   // Mettre à jour les données de l'utilisateur avec validation
   const updateUser = useCallback(async (data: UpdateUserData) => {
@@ -189,7 +219,7 @@ export function useUser() {
       const updatedUser = await response.json()
 
       // Invalider complètement le cache et rafraîchir l'utilisateur
-      userDataCache.clear() // Clear all cache instead of just one entry
+      globalUserDataCache.clear() // Clear all cache instead of just one entry
       await refreshUser()
 
       toast.success('Profil mis à jour avec succès')
@@ -203,7 +233,7 @@ export function useUser() {
     } finally {
       setLoading(false)
     }
-  }, [user, refreshUser, userDataCache])
+  }, [user, refreshUser])
 
   // Changer le mot de passe avec validation renforcée
   const changePassword = useCallback(async (data: ChangePasswordData) => {
@@ -285,12 +315,6 @@ export function useUser() {
       return false
     }
 
-    // Double confirmation pour éviter les suppressions accidentelles
-    const confirmMessage = '⚠️ ATTENTION: Cette action est irréversible. Toutes vos données seront supprimées définitivement. Confirmer la suppression ?'
-    if (!confirm(confirmMessage)) {
-      return false
-    }
-
     try {
       setLoading(true)
       setError(null)
@@ -320,7 +344,7 @@ export function useUser() {
       setTimeout(async () => {
         try {
           // Nettoyer le cache avant la redirection
-          userDataCache.clear()
+          globalUserDataCache.clear()
           // Utiliser Next.js router au lieu de window.location pour une meilleure UX
           window.location.href = '/?message=account_deleted'
         } catch (error) {
@@ -339,7 +363,7 @@ export function useUser() {
     } finally {
       setLoading(false)
     }
-  }, [user, userDataCache])
+  }, [user])
 
   return useMemo(() => ({
     user,

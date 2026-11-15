@@ -1,52 +1,70 @@
 'use client'
 
-import React from 'react'
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { CreditCard, Settings, Cpu } from "lucide-react"
-
-// Import des sous-composants
+import React, { useState } from 'react'
+import { CreditCard, Settings, Cpu, ShieldCheck } from "lucide-react"
 import { PaymentMethodsTab } from '@/components/features/admin/PaymentMethodsTab'
 import { SystemSettingsTab } from '@/components/features/admin/SystemSettingsTab'
 import { AdvancedConfigTab } from '@/components/features/admin/AdvancedConfigTab'
+import { cn } from "@/lib/utils"
+
+type PaymentTab = 'gateways' | 'system' | 'diagnostic'
 
 export default function AdminPaymentsAndSettingsPage() {
+    const [activeTab, setActiveTab] = useState<PaymentTab>('gateways')
+
     return (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            {/* Global Header */}
-            <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 sm:gap-6">
-                <div className="flex-1 space-y-1.5 sm:space-y-2">
-                    <h1 className="text-2xl sm:text-3xl font-black text-gray-900 tracking-tight">Paiements Système</h1>
-                    <p className="text-xs sm:text-sm text-gray-500 font-medium leading-relaxed">Gérez vos passerelles de paiement (GeniusPay, Wave), les tarifs officiels et la configuration globale du système.</p>
+        <div className="space-y-6 bg-white pb-16">
+            {/* 1. Header Exécutif */}
+            <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 pb-5 border-b border-gray-100">
+                <div>
+                    <div className="flex items-center gap-2.5">
+                        <h1 className="text-xl sm:text-2xl font-bold tracking-tight text-gray-950">
+                            Passerelles & Flux Financiers
+                        </h1>
+                        <span className="inline-flex items-center gap-1.5 px-2 py-0.5 rounded-full text-[11px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                            <span className="w-1.5 h-1.5 rounded-full bg-emerald-500 animate-pulse" />
+                            Opérationnel
+                        </span>
+                    </div>
+                    <p className="text-xs sm:text-sm text-gray-500 mt-1">
+                        Gestion des processeurs de paiement (Wave, GeniusPay), du tarif officiel de la carte NFC et des clés de configuration Supabase.
+                    </p>
                 </div>
             </div>
 
-            <Tabs defaultValue="settings" className="w-full">
-                <TabsList className="grid w-full grid-cols-1 sm:grid-cols-2 max-w-[550px] mb-6 sm:mb-8 bg-gray-100/50 p-1 rounded-xl h-auto gap-1">
-                    <TabsTrigger value="settings" className="rounded-lg font-bold text-xs sm:text-sm py-2 text-center data-[state=active]:bg-white data-[state=active]:shadow-sm">
-                        <Settings className="w-4 h-4 mr-2 text-orange-500 shrink-0 inline-block" />
-                        <span>Configuration & Paiements</span>
-                    </TabsTrigger>
-                    <TabsTrigger value="advanced" className="rounded-lg font-bold text-xs sm:text-sm py-2 text-center data-[state=active]:bg-white data-[state=active]:shadow-sm">
-                        <Cpu className="w-4 h-4 mr-2 text-purple-500 shrink-0 inline-block" />
-                        <span>Diagnostic & Webhooks</span>
-                    </TabsTrigger>
-                </TabsList>
-                
-                <TabsContent value="settings" className="focus:outline-none space-y-12">
-                    <PaymentMethodsTab />
-                    <div className="pt-6 border-t border-gray-200/80">
-                        <div className="mb-6 space-y-1">
-                            <h2 className="text-2xl font-black text-gray-900 tracking-tight">Paramètres Système Plateforme</h2>
-                            <p className="text-sm text-gray-500 font-medium">Éditeur avancé des clés de configuration en base de données Supabase.</p>
-                        </div>
-                        <SystemSettingsTab />
-                    </div>
-                </TabsContent>
-                
-                <TabsContent value="advanced" className="focus:outline-none">
-                    <AdvancedConfigTab />
-                </TabsContent>
-            </Tabs>
+            {/* 2. Navigation par Onglets Segmentés (Linear Style) */}
+            <div className="flex items-center gap-1 overflow-x-auto pb-1 border-b border-gray-100 max-w-full">
+                {[
+                    { id: 'gateways' as PaymentTab, label: 'Passerelles & Tarifs', icon: CreditCard },
+                    { id: 'system' as PaymentTab, label: 'Paramètres Plateforme', icon: Settings },
+                    { id: 'diagnostic' as PaymentTab, label: 'Diagnostic & Webhooks', icon: Cpu },
+                ].map(tab => {
+                    const Icon = tab.icon
+                    const isActive = activeTab === tab.id
+                    return (
+                        <button
+                            key={tab.id}
+                            onClick={() => setActiveTab(tab.id)}
+                            className={cn(
+                                "flex items-center gap-2 px-3.5 py-2 rounded-lg text-xs font-medium transition-all shrink-0 whitespace-nowrap",
+                                isActive
+                                    ? "bg-gray-950 text-white shadow-xs"
+                                    : "text-gray-600 hover:text-gray-950 hover:bg-gray-100/70"
+                            )}
+                        >
+                            <Icon className={cn("w-3.5 h-3.5", isActive ? "text-white" : "text-gray-400")} />
+                            <span>{tab.label}</span>
+                        </button>
+                    )
+                })}
+            </div>
+
+            {/* 3. Contenu de l'onglet actif */}
+            <div className="pt-2">
+                {activeTab === 'gateways' && <PaymentMethodsTab />}
+                {activeTab === 'system' && <SystemSettingsTab />}
+                {activeTab === 'diagnostic' && <AdvancedConfigTab />}
+            </div>
         </div>
     )
 }

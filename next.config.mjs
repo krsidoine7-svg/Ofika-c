@@ -1,6 +1,7 @@
 import { withSentryConfig } from '@sentry/nextjs/config';
 /** @type {import('next').NextConfig} */
 const nextConfig = {
+  devIndicators: false,
   // =====================================================
   // CONFIGURATION DE QUALITÉ ET SÉCURITÉ
   // =====================================================

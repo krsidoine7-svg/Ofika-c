@@ -35,9 +35,35 @@ export async function GET(request: NextRequest) {
             usersMap = new Map(usersData?.map(u => [u.id, u]) || [])
         }
 
+        // 3. Récupérer les profils associés (pour custom_url ou slug)
+        const profileIds = Array.from(new Set((ordersData || []).map(o => o.metadata?.profile_id).filter(Boolean)))
+        let profilesMap = new Map()
+        if (profileIds.length > 0) {
+            const { data: profilesData } = await supabase
+                .from('profiles')
+                .select('id, name, custom_url, username, company, job_title')
+                .in('id', profileIds)
+
+            profilesMap = new Map(profilesData?.map(p => [p.id, p]) || [])
+        }
+
+        // 4. Récupérer les cartes NFC associées
+        const nfcCardIds = Array.from(new Set((ordersData || []).map(o => o.nfc_card_id).filter(Boolean)))
+        let cardsMap = new Map()
+        if (nfcCardIds.length > 0) {
+            const { data: cardsData } = await supabase
+                .from('digital_nfc_cards')
+                .select('id, nfc_link, qr_code_url, preview_data, qr_redirect_id')
+                .in('id', nfcCardIds)
+
+            cardsMap = new Map(cardsData?.map(c => [c.id, c]) || [])
+        }
+
         const mergedOrders = (ordersData || []).map(order => ({
             ...order,
-            user: usersMap.get(order.user_id) || { name: 'Client Inconnu', email: 'N/A' }
+            user: usersMap.get(order.user_id) || { name: 'Client Inconnu', email: 'N/A' },
+            profile: order.metadata?.profile_id ? profilesMap.get(order.metadata.profile_id) : null,
+            card: order.nfc_card_id ? cardsMap.get(order.nfc_card_id) : null
         }))
 
         return NextResponse.json({ success: true, orders: mergedOrders })
@@ -97,8 +123,8 @@ export async function PATCH(request: NextRequest) {
                     notifMsg = 'Votre paiement a été validé. Nous préparons votre carte.'
                 } else if (payment_status === 'failed' || status === 'failed') {
                     notifType = 'payment_failed'
-                    notifTitle = 'Paiement refusé'
-                    notifMsg = "Votre reçu de paiement n'est pas valide. Veuillez en soumettre un nouveau."
+                    notifTitle = 'Paiement non validé'
+                    notifMsg = "Votre tentative de paiement n'a pas abouti. Vous pouvez relancer le paiement depuis votre espace commandes."
                 } else if (status === 'preparing') {
                     notifType = 'production_started'
                     notifTitle = 'En production'

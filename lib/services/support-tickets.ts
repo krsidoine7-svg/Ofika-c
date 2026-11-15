@@ -104,18 +104,20 @@ export async function createSupportTicket(input: {
       message: input.description
     })
 
-    // Insérer une notification système pour l'admin
+    // Insérer une notification système pour l'admin côté serveur
     try {
-      const adminSupabase = createAdminClient()
-      const categoryLabel = input.category === 'review' ? 'Avis Client ⭐' : input.category === 'suggestion' ? 'Suggestion 💡' : 'Ticket Support ❓'
-      await adminSupabase.from('notifications').insert({
-        user_id: user.id, // Utilisateur concerné
-        type: 'new_ticket',
-        title: `Nouveau ${categoryLabel} (${ticketNumber})`,
-        message: `${input.author_name || user.email}: "${input.subject}"`,
-        reference_id: ticketNumber,
-        action_url: '/dashboard/admin/tickets'
-      })
+      if (typeof window === 'undefined') {
+        const adminSupabase = createAdminClient()
+        const categoryLabel = input.category === 'review' ? 'Avis Client ⭐' : input.category === 'suggestion' ? 'Suggestion 💡' : 'Ticket Support ❓'
+        await adminSupabase.from('notifications').insert({
+          user_id: user.id, // Utilisateur concerné
+          type: 'new_ticket',
+          title: `Nouveau ${categoryLabel} (${ticketNumber})`,
+          message: `${input.author_name || user.email}: "${input.subject}"`,
+          reference_id: ticketNumber,
+          action_url: '/dashboard/admin/tickets'
+        })
+      }
     } catch (_) {}
 
     return { success: true, data }
@@ -258,24 +260,26 @@ export async function replyToTicket(
         } catch (_) {}
       }
     } else {
-      // Si la réponse vient d'un client, notifier l'équipe d'administration
+      // Si la réponse vient d'un client, notifier l'équipe d'administration (uniquement côté serveur)
       try {
-        const adminSupabase = createAdminClient()
-        const { data: ticket } = await adminSupabase
-          .from('support_tickets')
-          .select('ticket_number, author_name, user_id')
-          .eq('id', ticketId)
-          .single()
+        if (typeof window === 'undefined') {
+          const adminSupabase = createAdminClient()
+          const { data: ticket } = await adminSupabase
+            .from('support_tickets')
+            .select('ticket_number, author_name, user_id')
+            .eq('id', ticketId)
+            .single()
 
-        if (ticket) {
-          await adminSupabase.from('notifications').insert({
-            user_id: ticket.user_id,
-            type: 'support_message',
-            title: `Nouveau message client (${ticket.ticket_number})`,
-            message: `${ticket.author_name || 'Client'}: "${message.substring(0, 100)}..."`,
-            reference_id: ticket.ticket_number,
-            action_url: '/dashboard/admin/tickets'
-          })
+          if (ticket) {
+            await adminSupabase.from('notifications').insert({
+              user_id: ticket.user_id,
+              type: 'support_message',
+              title: `Nouveau message client (${ticket.ticket_number})`,
+              message: `${ticket.author_name || 'Client'}: "${message.substring(0, 100)}..."`,
+              reference_id: ticket.ticket_number,
+              action_url: '/dashboard/admin/tickets'
+            })
+          }
         }
       } catch (_) {}
     }

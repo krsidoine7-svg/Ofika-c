@@ -55,20 +55,20 @@ export function DeleteAccountButton() {
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-red-200 shadow-[0_8px_30px_rgb(220,38,38,0.06)] p-6 md:p-8">
-      <Alert variant="destructive" className="mb-6 bg-red-50/50 border-red-100">
-        <AlertTriangle className="h-4 w-4" />
-        <AlertTitle className="font-bold">Attention</AlertTitle>
-        <AlertDescription className="mt-2 text-red-700">
-          La suppression de votre compte est définitive et irréversible. Toutes vos données seront perdues.
+    <div className="bg-white rounded-2xl border border-rose-200/90 p-6 md:p-8 shadow-xs">
+      <Alert variant="destructive" className="mb-6 bg-rose-50/60 border-rose-200 text-rose-900">
+        <AlertTriangle className="h-4 w-4 text-rose-600" />
+        <AlertTitle className="font-bold text-rose-900">Attention</AlertTitle>
+        <AlertDescription className="mt-1.5 text-rose-700 text-xs leading-relaxed">
+          La suppression de votre compte est définitive et irréversible. Toutes vos cartes virtuelles, QR codes, contacts et historiques seront définitivement effacés.
         </AlertDescription>
       </Alert>
 
       <Dialog open={isOpen} onOpenChange={handleOpenChange}>
         <DialogTrigger asChild>
-          <Button variant="destructive" className="w-full h-12 bg-red-600 hover:bg-red-700 text-white rounded-xl shadow-md transition-all font-medium">
+          <Button variant="destructive" className="w-full h-11 bg-rose-600 hover:bg-rose-700 text-white rounded-xl shadow-sm transition-all font-semibold text-xs sm:text-sm cursor-pointer">
             <Trash2 className="mr-2 h-4 w-4" />
-            Supprimer mon compte
+            Supprimer définitivement mon compte
           </Button>
         </DialogTrigger>
         <DialogContent className="sm:max-w-[425px]">

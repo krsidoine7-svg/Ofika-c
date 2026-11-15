@@ -15,20 +15,25 @@ export async function trackQRScan(
     ipAddress?: string
     country?: string
     city?: string
-  }
+  },
+  preloadedRedirect?: { id: string; user_id: string; target_url?: string | null }
 ): Promise<{ success: boolean; error?: string }> {
   try {
     const { createAdminClient } = await import('@/lib/supabase/service-role')
     const { parseUserAgent } = await import('@/lib/utils/analytics-parser')
     const adminSupabase = createAdminClient()
     
-    // Récupérer la redirection via adminSupabase
-    const { data: redirect } = await adminSupabase
-      .from('qr_redirects')
-      .select('id, user_id, target_url')
-      .eq('short_code', shortCode)
-      .eq('is_active', true)
-      .single()
+    // Récupérer la redirection via adminSupabase si non préchargée
+    let redirect = preloadedRedirect
+    if (!redirect) {
+      const { data } = await adminSupabase
+        .from('qr_redirects')
+        .select('id, user_id, target_url')
+        .eq('short_code', shortCode)
+        .eq('is_active', true)
+        .single()
+      redirect = data || undefined
+    }
 
     if (!redirect) {
       return { success: false, error: 'Redirection non trouvée' }
@@ -70,7 +75,7 @@ export async function trackQRScan(
         const { data: profile } = await adminSupabase
           .from('profiles')
           .select('id')
-          .or(`custom_url.eq.${lastSlug},username.eq.${lastSlug}`)
+          .or(`custom_url.ilike.${lastSlug},username.ilike.${lastSlug}`)
           .maybeSingle()
 
         if (profile) {

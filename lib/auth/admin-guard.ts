@@ -22,18 +22,26 @@ export async function requireStaffAuth(allowedRoles: UserRole[] = ['ADMIN', 'TEC
     return { error: 'Non authentifié. Veuillez vous connecter.', status: 401, user: null, role: null }
   }
 
-  // Vérification de la source de vérité en base de données
+  // 1. Accélération haute performance : si le rôle est déjà certifié dans app_metadata
+  const metaRole = normalizeRole((user.app_metadata as any)?.role)
+  if (allowedRoles.includes(metaRole)) {
+    return { error: null, status: 200, user, role: metaRole }
+  }
+
+  // 2. Vérification de la source de vérité en base de données, avec repli sur app_metadata
   const { data: userData, error: roleError } = await supabase
     .from('users')
     .select('role')
     .eq('id', user.id)
     .single()
 
-  if (roleError || !userData) {
-    return { error: 'Compte utilisateur introuvable ou inactif.', status: 403, user, role: null }
+  const rawRole = userData?.role || (user.app_metadata as any)?.role
+
+  if (!rawRole) {
+    return { error: 'Compte utilisateur introuvable ou rôle non configuré.', status: 403, user, role: null }
   }
 
-  const role = normalizeRole(userData.role)
+  const role = normalizeRole(rawRole)
 
   if (!allowedRoles.includes(role)) {
     // Journaliser la tentative d'accès non autorisée

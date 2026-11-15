@@ -199,14 +199,27 @@ export async function middleware(request: NextRequest) {
       // Déterminer le rôle normalisé de l'utilisateur
       let role = normalizeRole(user.app_metadata?.role || (user.user_metadata as any)?.role)
 
-      // Si le rôle n'est pas encore présent dans le token JWT, vérifier directement en base
+      // Si le rôle n'est pas encore présent dans le token JWT, vérifier en cookie d'abord puis en base
       if (!user.app_metadata?.role) {
-        try {
-          const { data: dbUser } = await supabase.from('users').select('role').eq('id', user.id).single()
-          if (dbUser?.role) {
-            role = normalizeRole(dbUser.role)
-          }
-        } catch {}
+        const cachedRole = request.cookies.get('ofika_role')?.value
+        if (cachedRole) {
+          role = normalizeRole(cachedRole)
+        } else {
+          try {
+            const { data: dbUser } = await supabase.from('users').select('role').eq('id', user.id).single()
+            if (dbUser?.role) {
+              role = normalizeRole(dbUser.role)
+              // Mise en cache du rôle dans un cookie sécurisé (1 heure) pour épargner la base de données
+              response.cookies.set('ofika_role', role, {
+                path: '/',
+                maxAge: 3600,
+                httpOnly: true,
+                sameSite: 'lax',
+                secure: isProduction
+              })
+            }
+          } catch {}
+        }
       }
 
       // Redirection stricte si déjà connecté lorsqu'on visite /login ou /auth/signup

@@ -3,12 +3,52 @@
 import { useRouter } from 'next/navigation'
 import { memo, useState, useMemo, useCallback } from 'react'
 import { toast } from "sonner"
+import { cn } from "@/lib/utils"
 import { ProfileWithLinks } from '@/lib/types/database'
 import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
+import { Card, CardContent } from "@/components/ui/card"
 import { Badge } from "@/components/ui/badge"
-import { Alert, AlertDescription } from "@/components/ui/alert"
-import { Plus, Edit, Eye, Trash2, ExternalLink, Loader2, Copy, Share2, Smartphone, User, QrCode, ShoppingCart, CreditCard, AlertCircle, CheckCircle, Info, Palette, Settings, Camera, Sparkles, ArrowRight } from "lucide-react"
+import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs"
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogDescription,
+  DialogFooter
+} from "@/components/ui/dialog"
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator
+} from "@/components/ui/dropdown-menu"
+import {
+  Plus,
+  Edit3,
+  Eye,
+  Trash2,
+  ExternalLink,
+  Loader2,
+  Copy,
+  Share2,
+  Smartphone,
+  User,
+  QrCode,
+  CreditCard,
+  AlertCircle,
+  Check,
+  Palette,
+  Settings,
+  Camera,
+  MoreVertical,
+  ArrowRight,
+  ShieldAlert,
+  ShoppingBag,
+  ArrowLeft
+} from "lucide-react"
+import Link from "next/link"
 import { ProtectedRoute } from "@/components/core/auth/ProtectedRoute"
 import { useProfiles, useDeleteProfile } from '@/lib/hooks/useProfiles'
 import { useNFCCards } from '@/lib/hooks/useNFCCards'
@@ -18,11 +58,13 @@ import { NFCCard } from '@/lib/types/nfc-cards'
 import { NFCCardPreview } from '@/components/features/card-creator/NFCCardPreview'
 import { ProfileVisualsBanner } from '@/components/features/dashboard/ProfileVisualsBanner'
 
-// Composant de profil optimisé avec memo
+// ============================================================================
+// COMPOSANT PROFILE CARD ÉPURÉ & ERGONOMIQUE (Style Apple / Linear)
+// ============================================================================
 const ProfileCard = memo(function ProfileCard({
   profile,
   onEdit,
-  onDelete,
+  onDeleteRequest,
   onView,
   onChangeDesign,
   onPersonalize,
@@ -32,7 +74,7 @@ const ProfileCard = memo(function ProfileCard({
 }: {
   profile: ProfileWithLinks
   onEdit: (id: string) => void
-  onDelete: (id: string) => void
+  onDeleteRequest: (profile: ProfileWithLinks) => void
   onView: (profile: ProfileWithLinks) => void
   onChangeDesign: (id: string) => void
   onPersonalize: (id: string) => void
@@ -42,291 +84,264 @@ const ProfileCard = memo(function ProfileCard({
 }) {
   const [isCopied, setIsCopied] = useState(false)
 
-  const getProfileTypeLabel = (type: string) => {
-    switch (type) {
-      case 'professional': return 'Professionnel'
-      case 'personal': return 'Personnel'
-      case 'event': return 'Événement'
-      default: return type
-    }
-  }
+  // Vérifier si une carte NFC est reliée
+  const associatedCard = useMemo(() => {
+    return nfcCards?.find(card =>
+      (card.profile_id && card.profile_id === profile.id) ||
+      (profile.username && (card as any).username === profile.username) ||
+      (profile.custom_url && (card as any).custom_url === profile.custom_url)
+    )
+  }, [nfcCards, profile])
 
-  const getProfileTypeColor = (type: string) => {
-    switch (type) {
-      case 'professional': return 'bg-blue-100 text-blue-800'
-      case 'personal': return 'bg-green-100 text-green-800'
-      case 'event': return 'bg-purple-100 text-purple-800'
-      default: return 'bg-gray-100 text-gray-800'
-    }
-  }
+  // Résolution de l'URL publique
+  const publicSlug = profile.custom_url || profile.username || ''
+  const publicUrl = typeof window !== 'undefined'
+    ? `${window.location.origin}/${publicSlug}`
+    : `https://ofika.ci/${publicSlug}`
 
   const handleCopyLink = async () => {
     try {
-      // Chercher une carte NFC associée à ce profil
-      const associatedCard = nfcCards?.find(card =>
-        (card.profile_id && card.profile_id === profile.id) ||
-        (profile.username && (card as any).username === profile.username) ||
-        (profile.custom_url && (card as any).custom_url === profile.custom_url)
-      )
-
-      let profileUrl
-      if (associatedCard) {
-        // Nettoyer le lien pour extraire le slug
-        let slug = associatedCard.nfc_link
-        if (associatedCard.nfc_link.startsWith('http')) {
-          try {
-            const url = new URL(associatedCard.nfc_link)
-            slug = url.pathname.replace(/^\/+|\/+$/g, '') || url.pathname
-          } catch (e) { /* ignore */ }
-        } else {
-          slug = associatedCard.nfc_link.split('/').filter(Boolean).pop() || associatedCard.nfc_link
-        }
-        profileUrl = `${window.location.origin}/${slug}`
-      } else {
-        // Fallback sur l'URL du profil
-        profileUrl = `${window.location.origin}/${profile.custom_url || profile.username}`
-      }
-
-      await navigator.clipboard.writeText(profileUrl)
+      await navigator.clipboard.writeText(publicUrl)
       setIsCopied(true)
+      toast.success('Lien copié dans le presse-papiers !')
       setTimeout(() => setIsCopied(false), 2000)
-      toast.success('Lien copié !')
-    } catch (error) {
-      console.error('Error copying link:', error)
+    } catch {
       toast.error('Erreur lors de la copie du lien')
     }
   }
 
   const handleShare = async () => {
     try {
-      // Chercher une carte NFC associée à ce profil
-      const associatedCard = nfcCards?.find(card =>
-        (card.profile_id && card.profile_id === profile.id) ||
-        (profile.username && (card as any).username === profile.username) ||
-        (profile.custom_url && (card as any).custom_url === profile.custom_url)
-      )
-
-      let profileUrl
-      if (associatedCard) {
-        // Nettoyer le lien pour extraire le slug
-        let slug = associatedCard.nfc_link
-        if (associatedCard.nfc_link.startsWith('http')) {
-          try {
-            const url = new URL(associatedCard.nfc_link)
-            slug = url.pathname.replace(/^\/+|\/+$/g, '') || url.pathname
-          } catch (e) { /* ignore */ }
-        } else {
-          slug = associatedCard.nfc_link.split('/').filter(Boolean).pop() || associatedCard.nfc_link
-        }
-        profileUrl = `${window.location.origin}/${slug}`
-      } else {
-        // Fallback sur l'URL du profil
-        profileUrl = `${window.location.origin}/${profile.custom_url || profile.username}`
-      }
-
       if (navigator.share) {
         await navigator.share({
-          title: `Profil ${profile.name}`,
-          text: profile.bio || `Découvrez le profil de ${profile.name}`,
-          url: profileUrl,
+          title: `Profil Ofika : ${profile.name}`,
+          text: profile.bio || `Découvrez la carte numérique de ${profile.name}`,
+          url: publicUrl,
         })
       } else {
-        // Fallback: copier le lien
         handleCopyLink()
       }
-    } catch (error) {
-      console.error('Error sharing:', error)
-      toast.error('Erreur lors du partage')
+    } catch {
+      // Ignorer l'annulation de partage
     }
   }
 
+  const hasMissingImages = !profile.image_url || !profile.cover_image_url
+
   return (
-    <Card className="hover:shadow-lg transition-shadow">
-      <CardHeader>
-        <div className="flex items-start justify-between">
-          <div className="flex items-center space-x-3">
-            <div
-              onClick={() => onAddImages && onAddImages(profile.id)}
-              className="relative cursor-pointer group shrink-0"
-              title="Modifier la photo et la couverture"
-            >
-              {profile.image_url ? (
-                <img
-                  src={profile.image_url}
-                  alt={profile.name}
-                  className="w-12 h-12 rounded-full object-cover group-hover:opacity-85 transition-opacity"
-                  loading="lazy"
-                />
-              ) : (
-                <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center group-hover:bg-orange-200 transition-colors">
-                  <span className="text-orange-600 font-bold text-lg">
+    <Card className="border border-neutral-200/90 rounded-2xl bg-white shadow-xs hover:border-neutral-300 transition-all flex flex-col justify-between overflow-hidden">
+      <CardContent className="p-4 sm:p-5 flex flex-col h-full justify-between gap-4">
+        
+        {/* HAUT DE CARTE : AVATAR, INFOS ET MENU D'ACTIONS */}
+        <div>
+          <div className="flex items-start justify-between gap-3">
+            <div className="flex items-center gap-3 min-w-0">
+              {/* Photo avec pastille d'ajout si manquante */}
+              <div
+                onClick={() => onAddImages && onAddImages(profile.id)}
+                className="relative cursor-pointer group shrink-0"
+                title="Modifier les visuels (photo et couverture)"
+              >
+                {profile.image_url ? (
+                  <img
+                    src={profile.image_url}
+                    alt={profile.name}
+                    className="w-12 h-12 rounded-full object-cover border border-neutral-200 group-hover:opacity-85 transition-opacity"
+                    loading="lazy"
+                  />
+                ) : (
+                  <div className="w-12 h-12 rounded-full bg-neutral-100 border border-neutral-200 flex items-center justify-center text-neutral-800 font-semibold text-base group-hover:bg-neutral-200 transition-colors">
                     {profile.name.charAt(0).toUpperCase()}
-                  </span>
-                </div>
-              )}
-              {(!profile.image_url || !profile.cover_image_url) && (
-                <div className="absolute -bottom-0.5 -right-0.5 w-5 h-5 rounded-full bg-blue-600 text-white flex items-center justify-center shadow-md">
-                  <Camera className="w-3 h-3" />
-                </div>
-              )}
+                  </div>
+                )}
+                {hasMissingImages && (
+                  <div className="absolute -bottom-0.5 -right-0.5 w-4 h-4 rounded-full bg-neutral-900 text-white flex items-center justify-center shadow-xs">
+                    <Camera className="w-2.5 h-2.5" />
+                  </div>
+                )}
+              </div>
+
+              {/* Nom & Titre */}
+              <div className="min-w-0">
+                <h3 className="font-semibold text-base sm:text-lg text-neutral-950 tracking-tight truncate leading-tight">
+                  {profile.name}
+                </h3>
+                <p className="text-xs text-neutral-500 truncate mt-0.5">
+                  {profile.job_title ? (
+                    <>
+                      <span>{profile.job_title}</span>
+                      {profile.company && <span className="opacity-75"> • {profile.company}</span>}
+                    </>
+                  ) : (
+                    profile.bio || 'Carte numérique Ofika'
+                  )}
+                </p>
+              </div>
             </div>
-            <div className="flex-1 min-w-0 overflow-hidden">
-              <CardTitle className="text-lg truncate">{profile.name}</CardTitle>
-              <p className="text-sm text-gray-600 line-clamp-2">
-                {profile.bio || 'Aucune description'}
-              </p>
+
+            {/* Badges de statut & Menu Contextuel */}
+            <div className="flex items-center gap-1.5 shrink-0">
+              {profile.is_active ? (
+                <Badge variant="outline" className="bg-emerald-50 text-emerald-800 border-emerald-200/80 text-[10px] font-medium px-2 py-0.5">
+                  En ligne
+                </Badge>
+              ) : (
+                <Badge variant="destructive" className="bg-rose-50 text-rose-800 border-rose-200 text-[10px] font-medium px-2 py-0.5">
+                  Suspendu
+                </Badge>
+              )}
+
+              {/* Menu Plus d'options (remplace les 8 boutons par profil) */}
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    className="h-8 w-8 text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100 rounded-lg cursor-pointer"
+                    aria-label="Options du profil"
+                  >
+                    <MoreVertical className="w-4 h-4" />
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent align="end" className="w-48 bg-white border border-neutral-200 rounded-xl shadow-lg p-1 text-xs">
+                  <DropdownMenuItem
+                    onClick={() => onEdit(profile.id)}
+                    className="flex items-center gap-2 px-2.5 py-2 cursor-pointer rounded-lg hover:bg-neutral-50 font-medium"
+                  >
+                    <Edit3 className="w-3.5 h-3.5 text-neutral-500" />
+                    <span>Modifier les infos</span>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem
+                    onClick={() => onChangeDesign(profile.id)}
+                    className="flex items-center gap-2 px-2.5 py-2 cursor-pointer rounded-lg hover:bg-neutral-50 font-medium"
+                  >
+                    <Palette className="w-3.5 h-3.5 text-neutral-500" />
+                    <span>Changer de modèle</span>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem
+                    onClick={() => onPersonalize(profile.id)}
+                    className="flex items-center gap-2 px-2.5 py-2 cursor-pointer rounded-lg hover:bg-neutral-50 font-medium"
+                  >
+                    <Settings className="w-3.5 h-3.5 text-neutral-500" />
+                    <span>Couleurs & Thème</span>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuItem
+                    onClick={() => onAddImages && onAddImages(profile.id)}
+                    className="flex items-center gap-2 px-2.5 py-2 cursor-pointer rounded-lg hover:bg-neutral-50 font-medium"
+                  >
+                    <Camera className="w-3.5 h-3.5 text-neutral-500" />
+                    <span>Photos & Bannière</span>
+                  </DropdownMenuItem>
+
+                  <DropdownMenuSeparator className="bg-neutral-100 my-1" />
+
+                  <DropdownMenuItem
+                    onClick={() => onDeleteRequest(profile)}
+                    className="flex items-center gap-2 px-2.5 py-2 cursor-pointer rounded-lg text-rose-600 hover:bg-rose-50 hover:text-rose-700 font-medium"
+                  >
+                    <Trash2 className="w-3.5 h-3.5" />
+                    <span>Supprimer le profil</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
             </div>
           </div>
-          <Badge className={`${getProfileTypeColor(profile.profile_type)} flex-shrink-0`}>
-            {getProfileTypeLabel(profile.profile_type)}
-          </Badge>
-        </div>
-        
-        {!profile.is_active && (
-          <Alert variant="destructive" className="mt-4 bg-red-50 border-red-100 text-red-800 py-3 rounded-2xl">
-            <div className="flex items-start gap-3">
-              <AlertCircle className="h-5 w-5 mt-0.5 text-red-600" />
-              <div className="space-y-1">
-                <p className="font-black text-xs uppercase tracking-tight">Profil Suspendu</p>
-                <p className="text-xs font-medium opacity-90">
-                  {profile.suspension_reason 
-                    ? `Raison : ${profile.suspension_reason}` 
-                    : "Votre profil a été mis hors-ligne par la modération."}
-                </p>
-                <a 
-                  href={`https://wa.me/2250503681588?text=Bonjour,%20mon%20profil%20Ofika%20(${profile.custom_url || profile.username})%20est%20suspendu.%20Pouvez-vous%20m'aider%20?`}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-[10px] font-black uppercase tracking-widest underline decoration-2 underline-offset-2 hover:opacity-70 transition-opacity inline-block mt-1"
-                >
-                  Contacter le support via WhatsApp
-                </a>
+
+          {/* BANDEAU ALERTE SI SUSPENDU */}
+          {!profile.is_active && (
+            <div className="mt-3 p-3 rounded-xl bg-rose-50 border border-rose-200/80 text-rose-900 text-xs space-y-1">
+              <div className="flex items-center gap-1.5 font-semibold">
+                <ShieldAlert className="w-4 h-4 text-rose-600" />
+                <span>Profil hors-ligne suite à modération</span>
               </div>
-            </div>
-          </Alert>
-        )}
-      </CardHeader>
-      <CardContent>
-        <div className="space-y-4">
-          {/* Alerte incitative pour photos manquantes */}
-          {(!profile.image_url || !profile.cover_image_url) && (
-            <div
-              onClick={() => onAddImages && onAddImages(profile.id)}
-              className="p-3 rounded-2xl bg-gradient-to-r from-blue-50/90 to-indigo-50/70 border border-blue-200/80 hover:border-blue-400/80 hover:shadow-sm flex items-center justify-between cursor-pointer transition-all group"
-            >
-              <div className="flex items-center gap-2.5 min-w-0">
-                <div className="w-8 h-8 rounded-xl bg-gradient-to-br from-blue-500 to-indigo-600 text-white flex items-center justify-center shrink-0 shadow-sm">
-                  <Camera className="w-4 h-4" />
-                </div>
-                <div className="min-w-0">
-                  <div className="flex items-center gap-1.5 flex-wrap">
-                    <p className="text-xs font-bold text-neutral-900">Photos à compléter</p>
-                    <span className="text-[10px] font-bold text-emerald-700 bg-emerald-100/80 px-1.5 py-0.2 rounded-full">
-                      +300% d'impact
-                    </span>
-                  </div>
-                  <p className="text-[10px] text-blue-700 font-medium truncate">
-                    {!profile.image_url && !profile.cover_image_url
-                      ? "Ajoutez votre photo et couverture"
-                      : !profile.image_url
-                      ? "Ajoutez votre photo de profil"
-                      : "Ajoutez votre photo de couverture"}
-                  </p>
-                </div>
-              </div>
-              <Button
-                size="sm"
-                variant="ghost"
-                className="h-7 px-2 text-xs font-bold text-blue-600 hover:text-blue-700 hover:bg-blue-100/50 flex items-center gap-1 shrink-0 group-hover:translate-x-0.5 transition-transform"
+              <p className="text-[11px] text-rose-700">
+                {profile.suspension_reason || "Veuillez contacter le support pour réactiver votre page."}
+              </p>
+              <a
+                href={`https://wa.me/2250503681588?text=Bonjour,%20mon%20profil%20Ofika%20(${publicSlug})%20est%20suspendu.`}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[11px] font-semibold text-rose-800 underline inline-block pt-0.5"
               >
-                <span>Ajouter</span>
-                <ArrowRight className="w-3.5 h-3.5" />
-              </Button>
+                Contacter le support WhatsApp
+              </a>
             </div>
           )}
 
-          {/* Boutons d'action principaux */}
-          <div className="grid grid-cols-2 gap-2">
+          {/* BANDEAU COPIE RAPIDE DE L'URL */}
+          <div className="mt-3 flex items-center justify-between gap-2 p-2 rounded-xl bg-neutral-50 border border-neutral-200/70">
+            <span className="font-mono text-[11px] text-neutral-600 truncate px-1">
+              /{publicSlug}
+            </span>
             <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onView(profile)}
-              className="flex-1"
-            >
-              <Eye className="h-4 w-4 mr-1" />
-              Voir
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onEdit(profile.id)}
-              className="flex-1"
-            >
-              <Edit className="h-4 w-4 mr-1" />
-              Modifier
-            </Button>
-          </div>
-
-          {/* Boutons de partage et copie */}
-          <div className="grid grid-cols-2 gap-2">
-            <Button
-              variant="outline"
+              type="button"
+              variant="ghost"
               size="sm"
               onClick={handleCopyLink}
-              className="flex-1"
+              className="h-7 px-2 text-[11px] font-medium text-neutral-700 hover:text-neutral-950 hover:bg-white rounded-lg shrink-0 flex items-center gap-1"
             >
-              <Copy className="h-4 w-4 mr-1" />
-              {isCopied ? 'Copié !' : 'Copier'}
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleShare}
-              className="flex-1"
-            >
-              <Share2 className="h-4 w-4 mr-1" />
-              Partager
-            </Button>
-          </div>
-
-          {/* Design : changer de template / personnaliser couleurs & liens */}
-          <div className="grid grid-cols-2 gap-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onChangeDesign(profile.id)}
-              className="flex-1"
-            >
-              <Palette className="h-4 w-4 mr-1" />
-              Template
-            </Button>
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={() => onPersonalize(profile.id)}
-              className="flex-1 border-orange-200 text-orange-700 hover:bg-orange-50"
-            >
-              <Settings className="h-4 w-4 mr-1" />
-              Personnaliser
+              {isCopied ? (
+                <>
+                  <Check className="w-3 h-3 text-emerald-600" />
+                  <span className="text-emerald-700">Copié</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3 h-3 text-neutral-500" />
+                  <span>Copier</span>
+                </>
+              )}
             </Button>
           </div>
+        </div>
 
-          {/* Bouton de suppression */}
+        {/* PIED DE CARTE : ACTIONS PRINCIPALES (Ergonomiques et directes) */}
+        <div className="pt-2 border-t border-neutral-100 flex items-center gap-2">
+          {/* Voir ma page publique */}
           <Button
-            variant="outline"
-            size="sm"
-            onClick={() => onDelete(profile.id)}
-            className="w-full text-red-600 hover:text-red-700 hover:bg-red-50 border-red-200"
+            type="button"
+            onClick={() => onView(profile)}
+            className="flex-1 h-9 px-3 text-xs font-semibold bg-neutral-950 hover:bg-neutral-800 text-white rounded-xl shadow-xs flex items-center justify-center gap-1.5 transition-all active:scale-[0.99] cursor-pointer"
           >
-            <Trash2 className="h-4 w-4 mr-1" />
-            Supprimer
+            <Eye className="w-3.5 h-3.5" />
+            <span>Voir en direct</span>
+          </Button>
+
+          {/* Modifier */}
+          <Button
+            type="button"
+            variant="outline"
+            onClick={() => onEdit(profile.id)}
+            className="flex-1 h-9 px-3 text-xs font-medium bg-white hover:bg-neutral-50 text-neutral-800 border-neutral-200 rounded-xl flex items-center justify-center gap-1.5 cursor-pointer"
+          >
+            <Edit3 className="w-3.5 h-3.5 text-neutral-500" />
+            <span>Modifier</span>
+          </Button>
+
+          {/* Partager */}
+          <Button
+            type="button"
+            variant="outline"
+            onClick={handleShare}
+            className="h-9 w-9 p-0 bg-neutral-50 hover:bg-neutral-100 text-neutral-700 border-neutral-200 rounded-xl flex items-center justify-center shrink-0 cursor-pointer"
+            title="Partager le profil"
+            aria-label="Partager le profil"
+          >
+            <Share2 className="w-3.5 h-3.5" />
           </Button>
         </div>
+
       </CardContent>
     </Card>
   )
 })
 
+// ============================================================================
+// PAGE PRINCIPALE : PROFILES PAGE (Multi-écrans & Haute Ergonomie)
+// ============================================================================
 export default function ProfilesPage() {
   const router = useRouter()
   const { profiles, loading: isLoading, error } = useProfiles()
@@ -335,45 +350,18 @@ export default function ProfilesPage() {
   const { stats: orderStats, loading: orderStatsLoading } = useOrderStats()
   const { basePrice } = usePaymentMethods()
 
-  // Calcul local intelligent du statut (évite 3 hooks et requêtes DB dupliquées)
-  const cardLogicStatus = useMemo(() => {
-    const hasProfile = profiles && profiles.length > 0
-    const hasDigitalCards = nfcCards && nfcCards.length > 0
-    const digitalCardsCount = nfcCards?.length || 0
-    const physicalOrdersCount = orderStats?.paid_orders || 0
+  // Onglet actif avec surbrillance nette et retour immédiat
+  const [activeTab, setActiveTab] = useState<'profiles' | 'cards' | 'orders'>('profiles')
 
-    const canCreateDigital = digitalCardsCount < 2
-    const canOrderPhysical = hasProfile && hasDigitalCards && physicalOrdersCount < 2
+  // État de dialogue de suppression accessible (remplace window.confirm)
+  const [profileToDelete, setProfileToDelete] = useState<ProfileWithLinks | null>(null)
 
-    let nextRequiredAction: 'create_profile' | 'create_digital_card' | 'can_order_physical' | 'all_complete' = 'all_complete'
-
-    if (!hasProfile && !hasDigitalCards) {
-      nextRequiredAction = 'create_profile'
-    } else if (!hasProfile && hasDigitalCards) {
-      nextRequiredAction = 'create_profile'
-    } else if (hasProfile && !hasDigitalCards) {
-      nextRequiredAction = 'create_digital_card'
-    } else if (canOrderPhysical) {
-      nextRequiredAction = 'can_order_physical'
-    }
-
-    return {
-      hasProfile,
-      hasDigitalCards,
-      canCreateDigital,
-      canOrderPhysical,
-      digitalCardsCount,
-      physicalOrdersCount,
-      nextRequiredAction
-    }
-  }, [profiles, nfcCards, orderStats])
-
-  const cardLogicLoading = isLoading || nfcLoading || orderStatsLoading
+  // Prévisualisation de carte physique NFC
   const [previewCardData, setPreviewCardData] = useState<any | null>(null)
   const [isPreviewOpen, setIsPreviewOpen] = useState(false)
   const [startInEditMode, setStartInEditMode] = useState(false)
 
-  // Profils nécessitant l'ajout de visuels (photo ou bannière manquante)
+  // Profils avec visuels incomplets
   const incompleteProfiles = useMemo(() => {
     return profiles.filter(p => !p.image_url || !p.cover_image_url)
   }, [profiles])
@@ -385,90 +373,7 @@ export default function ProfilesPage() {
     }
   }, [incompleteProfiles, router])
 
-  // Handler pour la mise à jour d'une carte NFC
-  const handleCardUpdated = (updatedCard: any) => {
-    // Rafraîchir la liste des cartes
-    refreshCards()
-    // Mettre à jour les données de preview si la carte est affichée
-    if (previewCardData && previewCardData.id === updatedCard.id) {
-      setPreviewCardData((prev: any) => ({
-        ...prev,
-        nfc_link: updatedCard.nfc_link || prev.nfc_link
-      }))
-    }
-  }
-
-  // Construire la liste des pages publiques disponibles (profils + cartes NFC)
-  const publicPages = useMemo(() => {
-    const pages: Array<{ id: string; name: string; url: string; type: 'profile' | 'nfc_card' }> = []
-    // Utiliser l'URL publique configurée, ou fallback sur localhost si non définie, mais préférer la variable d'env
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (typeof window !== 'undefined' ? window.location.origin : 'https://ofika.com')
-
-    // Ajouter les profils publics
-    profiles.forEach(profile => {
-      if (profile.is_public && (profile.custom_url || profile.username)) {
-        const slug = profile.custom_url || profile.username
-        pages.push({
-          id: `profile-${profile.id}`,
-          name: profile.name,
-          url: `${baseUrl}/${slug}`.replace(/([^:]\/)\/+/g, '$1'),
-          type: 'profile'
-        })
-      }
-    })
-
-    // Ajouter les cartes NFC (si elles ont un lien différent)
-    nfcCards?.forEach(card => {
-      if (card.nfc_link) {
-        // Extraire le slug du lien NFC
-        let slug = card.nfc_link
-        try {
-          if (card.nfc_link.startsWith('http')) {
-            const url = new URL(card.nfc_link)
-            slug = url.pathname.replace(/^\//, '')
-          }
-        } catch {
-          // Garder le lien tel quel
-        }
-
-        // Vérifier si cette URL n'est pas déjà dans la liste (éviter les doublons)
-        const existingPage = pages.find(p => p.url.endsWith(`/${slug}`) || p.url === card.nfc_link)
-        if (!existingPage) {
-          pages.push({
-            id: `nfc-${card.id}`,
-            name: card.profile_name || card.full_name || 'Carte NFC',
-            url: `${baseUrl}/${slug}`.replace(/([^:]\/)\/+/g, '$1'),
-            type: 'nfc_card'
-          })
-        }
-      }
-    })
-
-    return pages
-  }, [profiles, nfcCards])
-
-  const handleDeleteProfile = useCallback(async (profile_id: string) => {
-    if (confirm('Êtes-vous sûr de vouloir supprimer définitivement ce profil ? Cette action est irréversible.')) {
-      try {
-        await deleteProfile(profile_id)
-        toast.success('Profil supprimé avec succès')
-      } catch (error) {
-        console.error('Error deleting profile:', error)
-        toast.error('Erreur lors de la suppression du profil')
-      }
-    }
-  }, [deleteProfile])
-
-  // Commande de carte physique
-  const handleOrderCard = useCallback(() => {
-    router.push('/dashboard/orders/new')
-  }, [router])
-
-  // Création de carte NFC numérique
-  const handleCreateDigitalCard = useCallback(() => {
-    router.push('/onboarding/nfc-card?reset=true')
-  }, [router])
-
+  // Navigation handlers
   const handleEditProfile = useCallback((profile_id: string) => {
     router.push(`/dashboard/profiles/${profile_id}/edit`)
   }, [router])
@@ -477,51 +382,42 @@ export default function ProfilesPage() {
     router.push(`/dashboard/profiles/${profile_id}/add-images`)
   }, [router])
 
-  const handleEditNFCCard = useCallback((card: NFCCard) => {
-    if (card.profile_id) {
-      router.push(`/dashboard/profiles/${card.profile_id}/edit`)
-    } else {
-      toast.error("Cette carte ne peut pas être modifiée car elle n'a pas de profil associé.")
-    }
+  const handleChangeDesign = useCallback((profile_id: string) => {
+    router.push(`/dashboard/profiles/${profile_id}/change-design`)
+  }, [router])
+
+  const handlePersonalize = useCallback((profile_id: string) => {
+    router.push(`/dashboard/profiles/${profile_id}/personnaliser`)
+  }, [router])
+
+  const handleManageFields = useCallback((profile_id: string) => {
+    router.push(`/dashboard/profiles/${profile_id}/design-fields`)
   }, [router])
 
   const handleViewProfile = useCallback((profile: ProfileWithLinks) => {
-    // Chercher une carte NFC associée à ce profil
-    const associatedCard = nfcCards?.find(card =>
-      (card.profile_id && card.profile_id === profile.id) ||
-      (profile.username && (card as any).username === profile.username) ||
-      (profile.custom_url && (card as any).custom_url === profile.custom_url)
-    )
-
-    if (associatedCard) {
-      // Nettoyer le lien (enlever les slashes de fin et parser le slug)
-      let username = associatedCard.nfc_link
-      try {
-        if (associatedCard.nfc_link.startsWith('http')) {
-          const url = new URL(associatedCard.nfc_link)
-          username = url.pathname.replace(/^\/+|\/+$/g, '') || url.pathname
-        } else {
-          username = associatedCard.nfc_link.split('/').filter(Boolean).pop() || associatedCard.nfc_link
-        }
-      } catch (e) {
-        console.error("Error parsing link", e)
-      }
-
-      const localUrl = `/${username}`
-      window.open(localUrl, '_blank', 'noopener,noreferrer')
-    } else if (profile.custom_url || profile.username) {
-      // Fallback sur l'URL du profil
-      window.open(`/${profile.custom_url || profile.username}`, '_blank', 'noopener,noreferrer')
+    const slug = profile.custom_url || profile.username
+    if (slug) {
+      window.open(`/${slug}`, '_blank', 'noopener,noreferrer')
     } else {
-      toast.error('Ce profil n\'a pas d\'URL personnalisée')
+      toast.error("Ce profil n'a pas d'URL personnalisée")
     }
-  }, [nfcCards])
+  }, [])
 
+  // Suppression sécurisée
+  const handleConfirmDelete = async () => {
+    if (!profileToDelete) return
+    try {
+      await deleteProfile(profileToDelete.id)
+      toast.success('Profil supprimé avec succès')
+      setProfileToDelete(null)
+    } catch {
+      toast.error('Erreur lors de la suppression du profil')
+    }
+  }
+
+  // Prévisualisation de carte NFC
   const handlePreviewCard = useCallback((card: NFCCard, editMode: boolean = false) => {
-    // 1. Essayer de trouver le profil par profile_id
-    let profileToPreview = profiles.find(p => p.id === card.profile_id)
-
-    // Construire les données pour la prévisualisation physique
+    const profileToPreview = profiles.find(p => p.id === card.profile_id)
     const previewData = {
       id: card.id,
       profile_name: card.profile_name,
@@ -547,32 +443,67 @@ export default function ProfilesPage() {
     setIsPreviewOpen(true)
   }, [profiles])
 
-  const handleChangeDesign = useCallback((profile_id: string) => {
-    router.push(`/dashboard/profiles/${profile_id}/change-design`)
-  }, [router])
+  const handleCardUpdated = (updatedCard: any) => {
+    refreshCards()
+    if (previewCardData && previewCardData.id === updatedCard.id) {
+      setPreviewCardData((prev: any) => ({
+        ...prev,
+        nfc_link: updatedCard.nfc_link || prev.nfc_link
+      }))
+    }
+  }
 
-  const handlePersonalize = useCallback((profile_id: string) => {
-    router.push(`/dashboard/profiles/${profile_id}/personnaliser`)
-  }, [router])
+  const publicPages = useMemo(() => {
+    const pages: Array<{ id: string; name: string; url: string; type: 'profile' | 'nfc_card' }> = []
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || (typeof window !== 'undefined' ? window.location.origin : 'https://ofika.ci')
 
-  const handleManageFields = useCallback((profile_id: string) => {
-    router.push(`/dashboard/profiles/${profile_id}/design-fields`)
-  }, [router])
+    profiles.forEach(profile => {
+      if (profile.is_public && (profile.custom_url || profile.username)) {
+        const slug = profile.custom_url || profile.username
+        pages.push({
+          id: `profile-${profile.id}`,
+          name: profile.name,
+          url: `${baseUrl}/${slug}`.replace(/([^:]\/)\/+/g, '$1'),
+          type: 'profile'
+        })
+      }
+    })
 
-  // N'afficher le loader plein écran QUE lors du tout premier chargement à vide
+    nfcCards?.forEach(card => {
+      if (card.nfc_link) {
+        let slug = card.nfc_link
+        try {
+          if (card.nfc_link.startsWith('http')) {
+            const url = new URL(card.nfc_link)
+            slug = url.pathname.replace(/^\//, '')
+          }
+        } catch { /* ignore */ }
+
+        const existingPage = pages.find(p => p.url.endsWith(`/${slug}`) || p.url === card.nfc_link)
+        if (!existingPage) {
+          pages.push({
+            id: `nfc-${card.id}`,
+            name: card.profile_name || card.full_name || 'Carte NFC',
+            url: `${baseUrl}/${slug}`.replace(/([^:]\/)\/+/g, '$1'),
+            type: 'nfc_card'
+          })
+        }
+      }
+    })
+
+    return pages
+  }, [profiles, nfcCards])
+
+  // Loader initial léger
   const isInitialLoading = (isLoading && profiles.length === 0) && (nfcLoading && nfcCards.length === 0)
 
   if (isInitialLoading) {
     return (
       <ProtectedRoute>
-        <div className="min-h-screen bg-gray-50">
-          <div className="container mx-auto px-4 py-8">
-            <div className="flex items-center justify-center py-12">
-              <div className="text-center space-y-4">
-                <Loader2 className="w-8 h-8 animate-spin text-orange-500 mx-auto" />
-                <p className="text-gray-600">Chargement des profils...</p>
-              </div>
-            </div>
+        <div className="min-h-screen bg-white flex items-center justify-center p-4">
+          <div className="text-center space-y-3">
+            <Loader2 className="w-7 h-7 animate-spin text-neutral-900 mx-auto" />
+            <p className="text-xs text-neutral-500 font-medium">Chargement de votre espace profils...</p>
           </div>
         </div>
       </ProtectedRoute>
@@ -582,331 +513,400 @@ export default function ProfilesPage() {
   if (error) {
     return (
       <ProtectedRoute>
-        <div className="min-h-screen bg-gray-50">
-          <div className="container mx-auto px-4 py-8">
-            <div className="text-center py-12">
-              <div className="space-y-4">
-                <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto">
-                  <span className="text-red-600 text-2xl">⚠️</span>
-                </div>
-                <div>
-                  <h3 className="text-lg font-medium text-gray-900 mb-2">
-                    Erreur lors du chargement
-                  </h3>
-                  <p className="text-red-600 mb-4">{error}</p>
-                  <Button
-                    onClick={() => window.location.reload()}
-                    variant="outline"
-                  >
-                    Réessayer
-                  </Button>
-                </div>
-              </div>
+        <div className="min-h-screen bg-white flex items-center justify-center p-4">
+          <div className="text-center max-w-sm space-y-4">
+            <div className="w-12 h-12 rounded-full bg-rose-50 text-rose-600 flex items-center justify-center mx-auto border border-rose-200">
+              <AlertCircle className="w-6 h-6" />
             </div>
+            <div>
+              <h3 className="text-base font-semibold text-neutral-950">Erreur de chargement</h3>
+              <p className="text-xs text-neutral-500 mt-1">{error}</p>
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => window.location.reload()}
+              className="rounded-xl border-neutral-200"
+            >
+              Réessayer
+            </Button>
           </div>
         </div>
       </ProtectedRoute>
     )
   }
 
-
-
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gray-50 overflow-x-hidden">
-        <div className="container mx-auto px-4 py-8">
-          <div className="max-w-7xl mx-auto">
-            {/* 🌟 Bannière incitative visuels Signature Ofika tout en haut */}
-            <ProfileVisualsBanner
-              incompleteProfiles={incompleteProfiles}
-              onComplete={handleCompleteVisuals}
-            />
+      <div className="min-h-screen bg-white text-neutral-900">
+        <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-6 sm:py-8 space-y-6">
 
-            {/* Header principal */}
-            <div className="flex justify-between items-center mb-8">
-              <div>
-                <h1 className="text-3xl font-bold text-gray-900">Mes Profils & Cartes</h1>
-                <p className="text-gray-600 mt-2">
-                  Gérez vos profils et cartes NFC pour partager vos informations
-                </p>
-              </div>
-              <Button
-                onClick={() => router.push('/dashboard/profiles/create')}
-                className="bg-orange-500 hover:bg-orange-600 text-white"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Créer un profil
-              </Button>
+          {/* Fil d'Ariane & Bouton retour */}
+          <div className="flex items-center gap-2 mb-1">
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Retour au tableau de bord</span>
+            </Link>
+          </div>
+
+          {/* BANNIÈRE DE VISUELS RECOMMANDÉS (SI MANQUANTS) */}
+          <ProfileVisualsBanner
+            incompleteProfiles={incompleteProfiles}
+            onComplete={handleCompleteVisuals}
+          />
+
+          {/* EN-TÊTE PRINCIPAL : TITRE & CTA NOBLE */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-neutral-100 pb-5">
+            <div>
+              <h1 className="text-2xl sm:text-3xl font-semibold tracking-tight text-neutral-950">
+                Mes Profils & Cartes NFC
+              </h1>
+              <p className="text-xs sm:text-sm text-neutral-500 mt-1">
+                Gérez vos cartes numériques, vos liens professionnels et vos modèles de partage.
+              </p>
             </div>
 
-            {/* 🎯 ALERTE INFORMATIVE SELON LE STATUT */}
-            {!cardLogicLoading && (
-              <>
-                {cardLogicStatus.nextRequiredAction === 'create_profile' && (
-                  <Alert className="mb-6 border-orange-200 bg-orange-50">
-                    <AlertCircle className="h-4 w-4 text-orange-600" />
-                    <AlertDescription className="text-orange-800">
-                      <strong>Première étape :</strong> Créez votre profil professionnel pour commencer à utiliser Ofika.
-                    </AlertDescription>
-                  </Alert>
-                )}
+            <div className="flex items-center gap-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => router.push('/dashboard/orders/new')}
+                className="h-10 px-3.5 text-xs font-medium bg-white hover:bg-neutral-50 text-neutral-800 border-neutral-200 rounded-xl flex items-center gap-1.5 cursor-pointer"
+              >
+                <CreditCard className="w-4 h-4 text-neutral-600" />
+                <span className="hidden sm:inline">Commander une carte physique</span>
+                <span className="sm:hidden">Commander</span>
+              </Button>
 
-                {cardLogicStatus.nextRequiredAction === 'create_digital_card' && (
-                  <Alert className="mb-6 border-blue-200 bg-blue-50">
-                    <Info className="h-4 w-4 text-blue-600" />
-                    <AlertDescription className="text-blue-800">
-                      <strong>Étape suivante :</strong> Créez votre carte numérique avant de pouvoir commander une version physique.
-                    </AlertDescription>
-                  </Alert>
-                )}
+              <Button
+                size="sm"
+                onClick={() => router.push('/dashboard/profiles/create')}
+                className="h-10 px-4 text-xs font-semibold bg-neutral-950 hover:bg-neutral-800 text-white rounded-xl shadow-xs flex items-center gap-1.5 cursor-pointer transition-all active:scale-[0.99]"
+              >
+                <Plus className="w-4 h-4" />
+                <span>Nouveau profil</span>
+              </Button>
+            </div>
+          </div>
 
-                {cardLogicStatus.nextRequiredAction === 'can_order_physical' && (
-                  <Alert className="mb-6 border-green-200 bg-green-50">
-                    <CheckCircle className="h-4 w-4 text-green-600" />
-                    <AlertDescription className="text-green-800">
-                      <strong>Prêt à commander !</strong> Vous pouvez maintenant commander votre carte physique.
-                    </AlertDescription>
-                  </Alert>
-                )}
-              </>
-            )}
-
-            {/* Section commande de cartes */}
-            <Card className="mb-8 bg-gradient-to-r from-orange-50 to-blue-50 border-orange-200">
-              <CardContent className="p-6">
-                <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4">
-                  <div className="flex items-start space-x-4">
-                    <div className="w-12 h-12 lg:w-16 lg:h-16 bg-orange-100 rounded-full flex items-center justify-center flex-shrink-0">
-                      <CreditCard className="h-6 w-6 lg:h-8 lg:w-8 text-orange-600" />
-                    </div>
-                    <div className="flex-1 min-w-0">
-                      <h2 className="text-lg lg:text-xl font-bold text-gray-900">Commander une carte physique</h2>
-                      <p className="text-sm lg:text-base text-gray-600 mt-1">
-                        Transformez votre profil numérique en carte physique élégante
-                      </p>
-                      <div className="flex flex-wrap items-center mt-2 gap-x-3 gap-y-1 text-xs lg:text-sm text-gray-600">
-                        <span className="flex items-center whitespace-nowrap">
-                          <Smartphone className="h-3 w-3 lg:h-4 lg:w-4 mr-1" />
-                          NFC + QR Code
-                        </span>
-                        <span className="hidden sm:inline">•</span>
-                        <span className="whitespace-nowrap">Livraison 7-14 jours</span>
-                        <span className="hidden sm:inline">•</span>
-                        <span className="whitespace-nowrap">
-                          À partir de {basePrice.toLocaleString('fr-FR')} XOF
-                        </span>
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex flex-col sm:flex-row lg:flex-col gap-2 w-full sm:w-auto">
-                    <Button
-                      onClick={handleOrderCard}
-                      className="bg-orange-500 hover:bg-orange-600 text-white w-full sm:w-auto"
-                    >
-                      <CreditCard className="h-4 w-4 mr-2" />
-                      <span className="hidden sm:inline">Commander ma carte</span>
-                      <span className="sm:hidden">Commander</span>
-                    </Button>
-                    <Button
-                      variant="outline"
-                      onClick={() => router.push('/dashboard/orders')}
-                      className="text-orange-600 border-orange-600 hover:bg-orange-50 w-full sm:w-auto"
-                    >
-                      Mes commandes
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            {/* Statistiques des commandes */}
-            {orderStats && (
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center">
-                      <div className="w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center">
-                        <ShoppingCart className="h-6 w-6 text-blue-600" />
-                      </div>
-                      <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-600">Total commandes</p>
-                        <p className="text-2xl font-bold text-gray-900">{orderStats.total_orders}</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center">
-                      <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
-                        <CreditCard className="h-6 w-6 text-green-600" />
-                      </div>
-                      <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-600">Commandes payées</p>
-                        <p className="text-2xl font-bold text-gray-900">{orderStats.paid_orders}</p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-
-                <Card>
-                  <CardContent className="p-6">
-                    <div className="flex items-center">
-                      <div className="w-12 h-12 bg-orange-100 rounded-full flex items-center justify-center">
-                        <CreditCard className="h-6 w-6 text-orange-600" />
-                      </div>
-                      <div className="ml-4">
-                        <p className="text-sm font-medium text-gray-600">Total dépensé</p>
-                        <p className="text-2xl font-bold text-gray-900">
-                          {orderStats.total_spent.toLocaleString('fr-FR')} XOF
-                        </p>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
+          {/* KPI BENTO STRIP (3 Indicateurs Clairs & Épurés) */}
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 sm:gap-4">
+            
+            {/* KPI 1 : Profils Actifs */}
+            <div className="p-4 rounded-2xl border border-neutral-200/90 bg-white shadow-xs flex items-center justify-between">
+              <div>
+                <p className="text-[11px] uppercase tracking-wider font-semibold text-neutral-400">Profils numériques</p>
+                <p className="text-xl sm:text-2xl font-semibold text-neutral-950 tracking-tight font-mono mt-0.5">
+                  {profiles.length}
+                </p>
+                <p className="text-[11px] text-neutral-500 mt-0.5">En ligne et partagés</p>
               </div>
-            )}
+              <div className="w-10 h-10 rounded-xl bg-neutral-100 flex items-center justify-center text-neutral-700">
+                <User className="w-5 h-5" />
+              </div>
+            </div>
 
+            {/* KPI 2 : Cartes NFC Liées */}
+            <div className="p-4 rounded-2xl border border-neutral-200/90 bg-white shadow-xs flex items-center justify-between">
+              <div>
+                <p className="text-[11px] uppercase tracking-wider font-semibold text-neutral-400">Cartes connectées</p>
+                <p className="text-xl sm:text-2xl font-semibold text-neutral-950 tracking-tight font-mono mt-0.5">
+                  {nfcCards?.length || 0}
+                </p>
+                <p className="text-[11px] text-neutral-500 mt-0.5">Puces sans contact actives</p>
+              </div>
+              <div className="w-10 h-10 rounded-xl bg-neutral-100 flex items-center justify-center text-neutral-700">
+                <Smartphone className="w-5 h-5" />
+              </div>
+            </div>
 
-            {/* Structure en deux colonnes */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            {/* KPI 3 : Carte Physique & Commandes */}
+            <div className="p-4 rounded-2xl border border-neutral-200/90 bg-white shadow-xs flex items-center justify-between">
+              <div>
+                <p className="text-[11px] uppercase tracking-wider font-semibold text-neutral-400">Version physique</p>
+                <p className="text-xl sm:text-2xl font-semibold text-neutral-950 tracking-tight font-mono mt-0.5">
+                  {orderStats?.paid_orders ? `${orderStats.paid_orders} payée(s)` : 'À commander'}
+                </p>
+                <p className="text-[11px] text-neutral-500 mt-0.5">NFC + Finition haut de gamme</p>
+              </div>
+              <div className="w-10 h-10 rounded-xl bg-neutral-100 flex items-center justify-center text-neutral-700">
+                <CreditCard className="w-5 h-5" />
+              </div>
+            </div>
 
-              {/* COLONNE GAUCHE - PROFILS */}
-              <div className="space-y-6">
-                {/* Header de la section Profils */}
-                <div className="flex items-center justify-between border-b-2 border-orange-200 pb-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-orange-100 rounded-full flex items-center justify-center">
-                      <User className="w-5 h-5 text-orange-600" />
-                    </div>
-                    <h2 className="text-2xl font-bold text-gray-900">Mes Profils</h2>
+          </div>
+
+          {/* ONGLET DE NAVIGATION ERGONOMIQUE AVEC SURBRILLANCE ACTIVE NETTE */}
+          <Tabs value={activeTab} onValueChange={(val) => setActiveTab(val as any)} className="w-full space-y-6">
+            
+            <div className="w-full overflow-x-auto pb-1 no-scrollbar">
+              <div className="inline-flex items-center p-1.5 bg-neutral-100 rounded-2xl border border-neutral-200/90 gap-1.5 shadow-xs">
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('profiles')}
+                  className={cn(
+                    "h-10 px-4 text-xs font-semibold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap",
+                    activeTab === 'profiles'
+                      ? "bg-neutral-950 text-white shadow-md shadow-neutral-950/25 ring-1 ring-neutral-800 scale-[1.02]"
+                      : "text-neutral-600 hover:text-neutral-950 hover:bg-neutral-200/60"
+                  )}
+                >
+                  <User className={cn("w-3.5 h-3.5 transition-colors", activeTab === 'profiles' ? "text-orange-400" : "text-neutral-400")} />
+                  <span>Profils en ligne</span>
+                  <span className={cn(
+                    "px-2 py-0.5 rounded-full text-[10px] font-mono font-bold transition-all",
+                    activeTab === 'profiles'
+                      ? "bg-orange-500/25 text-orange-300 border border-orange-500/40"
+                      : "bg-neutral-200 text-neutral-600"
+                  )}>
+                    {profiles.length}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('cards')}
+                  className={cn(
+                    "h-10 px-4 text-xs font-semibold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap",
+                    activeTab === 'cards'
+                      ? "bg-neutral-950 text-white shadow-md shadow-neutral-950/25 ring-1 ring-neutral-800 scale-[1.02]"
+                      : "text-neutral-600 hover:text-neutral-950 hover:bg-neutral-200/60"
+                  )}
+                >
+                  <Smartphone className={cn("w-3.5 h-3.5 transition-colors", activeTab === 'cards' ? "text-orange-400" : "text-neutral-400")} />
+                  <span>Cartes NFC</span>
+                  <span className={cn(
+                    "px-2 py-0.5 rounded-full text-[10px] font-mono font-bold transition-all",
+                    activeTab === 'cards'
+                      ? "bg-orange-500/25 text-orange-300 border border-orange-500/40"
+                      : "bg-neutral-200 text-neutral-600"
+                  )}>
+                    {nfcCards?.length || 0}
+                  </span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setActiveTab('orders')}
+                  className={cn(
+                    "h-10 px-4 text-xs font-semibold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap",
+                    activeTab === 'orders'
+                      ? "bg-neutral-950 text-white shadow-md shadow-neutral-950/25 ring-1 ring-neutral-800 scale-[1.02]"
+                      : "text-neutral-600 hover:text-neutral-950 hover:bg-neutral-200/60"
+                  )}
+                >
+                  <CreditCard className={cn("w-3.5 h-3.5 transition-colors", activeTab === 'orders' ? "text-orange-400" : "text-neutral-400")} />
+                  <span>Commandes physiques</span>
+                  <span className={cn(
+                    "px-2 py-0.5 rounded-full text-[10px] font-mono font-bold transition-all",
+                    activeTab === 'orders'
+                      ? "bg-orange-500/25 text-orange-300 border border-orange-500/40"
+                      : "bg-neutral-200 text-neutral-600"
+                  )}>
+                    {orderStats?.total_orders || 0}
+                  </span>
+                </button>
+              </div>
+            </div>
+
+            {/* CONTENU ONGLET 1 : PROFILS */}
+            <TabsContent value="profiles" className="focus-visible:outline-none">
+              {profiles.length === 0 ? (
+                <div className="py-16 text-center border border-dashed border-neutral-300 rounded-2xl bg-neutral-50/50 p-6 space-y-4">
+                  <div className="w-14 h-14 rounded-full bg-white border border-neutral-200 flex items-center justify-center mx-auto shadow-xs">
+                    <User className="w-6 h-6 text-neutral-400" />
+                  </div>
+                  <div className="max-w-sm mx-auto">
+                    <h3 className="text-base font-semibold text-neutral-950">Aucun profil numérique créé</h3>
+                    <p className="text-xs text-neutral-500 mt-1">
+                      Créez votre première carte de visite connectée pour commencer à partager vos coordonnées.
+                    </p>
                   </div>
                   <Button
                     onClick={() => router.push('/dashboard/profiles/create')}
-                    className="bg-orange-500 hover:bg-orange-600 text-white"
+                    className="h-10 px-5 text-xs font-semibold bg-neutral-950 hover:bg-neutral-800 text-white rounded-xl shadow-xs"
                   >
-                    <Plus className="h-4 w-4 mr-2" />
-                    Créer mon profil
+                    <Plus className="w-4 h-4 mr-1.5" />
+                    Créer mon profil Ofika
                   </Button>
                 </div>
-
-                {/* Liste des profils */}
-                <div className="space-y-4">
-                  {profiles.length === 0 ? (
-                    <Card className="text-center py-8">
-                      <CardContent>
-                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                          <User className="w-8 h-8 text-gray-400" />
-                        </div>
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">
-                          Aucun profil disponible
-                        </h3>
-                        <p className="text-gray-600">
-                          Vos profils apparaîtront ici une fois créés
-                        </p>
-                      </CardContent>
-                    </Card>
-                  ) : (
-                    <div className="space-y-4">
-                      {profiles.map((profile) => (
-                        <ProfileCard
-                          key={profile.id}
-                          profile={profile}
-                          onEdit={handleEditProfile}
-                          onDelete={handleDeleteProfile}
-                          onView={handleViewProfile}
-                          onChangeDesign={handleChangeDesign}
-                          onPersonalize={handlePersonalize}
-                          onManageFields={handleManageFields}
-                          onAddImages={handleAddImages}
-                          nfcCards={nfcCards}
-                        />
-                      ))}
-                    </div>
-                  )}
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+                  {profiles.map((profile) => (
+                    <ProfileCard
+                      key={profile.id}
+                      profile={profile}
+                      onEdit={handleEditProfile}
+                      onDeleteRequest={(p) => setProfileToDelete(p)}
+                      onView={handleViewProfile}
+                      onChangeDesign={handleChangeDesign}
+                      onPersonalize={handlePersonalize}
+                      onManageFields={handleManageFields}
+                      onAddImages={handleAddImages}
+                      nfcCards={nfcCards}
+                    />
+                  ))}
                 </div>
-              </div>
+              )}
+            </TabsContent>
 
-              {/* COLONNE DROITE - CARTES NFC */}
-              <div className="space-y-6">
-                {/* Header de la section Cartes NFC */}
-                <div className="flex items-center justify-between border-b-2 border-blue-200 pb-4">
-                  <div className="flex items-center space-x-3">
-                    <div className="w-10 h-10 bg-blue-100 rounded-full flex items-center justify-center">
-                      <QrCode className="w-5 h-5 text-blue-600" />
-                    </div>
-                    <h2 className="text-2xl font-bold text-gray-900">Mes Cartes NFC</h2>
+            {/* CONTENU ONGLET 2 : CARTES NFC */}
+            <TabsContent value="cards" className="focus-visible:outline-none">
+              {nfcLoading ? (
+                <div className="py-12 flex items-center justify-center">
+                  <Loader2 className="w-6 h-6 animate-spin text-neutral-900" />
+                </div>
+              ) : nfcCards.length === 0 ? (
+                <div className="py-16 text-center border border-dashed border-neutral-300 rounded-2xl bg-neutral-50/50 p-6 space-y-4">
+                  <div className="w-14 h-14 rounded-full bg-white border border-neutral-200 flex items-center justify-center mx-auto shadow-xs">
+                    <QrCode className="w-6 h-6 text-neutral-400" />
+                  </div>
+                  <div className="max-w-sm mx-auto">
+                    <h3 className="text-base font-semibold text-neutral-950">Aucune carte NFC configurée</h3>
+                    <p className="text-xs text-neutral-500 mt-1">
+                      Reliez une puce sans contact ou créez une carte digitale pour vos échanges en rendez-vous.
+                    </p>
                   </div>
                   <Button
-                    onClick={handleCreateDigitalCard}
-                    className="bg-blue-500 hover:bg-blue-600 text-white"
+                    onClick={() => router.push('/onboarding/nfc-card?reset=true')}
+                    className="h-10 px-5 text-xs font-semibold bg-neutral-950 hover:bg-neutral-800 text-white rounded-xl shadow-xs"
                   >
-                    <Smartphone className="h-4 w-4 mr-2" />
-                    Créer une carte NFC
+                    <Smartphone className="w-4 h-4 mr-1.5" />
+                    Configurer une carte NFC
+                  </Button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-5">
+                  {nfcCards.map((card) => (
+                    <NFCCardItem
+                      key={card.id}
+                      card={card}
+                      onPreview={handlePreviewCard}
+                    />
+                  ))}
+                </div>
+              )}
+            </TabsContent>
+
+            {/* CONTENU ONGLET 3 : COMMANDES PHYSIQUES */}
+            <TabsContent value="orders" className="focus-visible:outline-none">
+              <div className="border border-neutral-200/90 rounded-2xl p-5 sm:p-6 bg-white shadow-xs space-y-6">
+                
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 pb-5 border-b border-neutral-100">
+                  <div className="space-y-1">
+                    <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-[11px] font-semibold bg-neutral-100 text-neutral-800">
+                      <CreditCard className="w-3.5 h-3.5" />
+                      Fabrication & Envoi en Côte d'Ivoire
+                    </div>
+                    <h3 className="text-lg font-semibold text-neutral-950 tracking-tight">
+                      Votre Carte Physique Ofika NFC
+                    </h3>
+                    <p className="text-xs text-neutral-500 max-w-xl">
+                      Une carte rigide gravée au laser, équipée d'une puce NFC NTAG216 et d'un QR code permanent, utilisable à vie sans abonnement.
+                    </p>
+                  </div>
+
+                  <Button
+                    onClick={() => router.push('/dashboard/orders/new')}
+                    className="h-10 px-4 text-xs font-semibold bg-neutral-950 hover:bg-neutral-800 text-white rounded-xl shadow-xs shrink-0 cursor-pointer"
+                  >
+                    <CreditCard className="w-4 h-4 mr-1.5" />
+                    Commander ({basePrice.toLocaleString('fr-FR')} XOF)
                   </Button>
                 </div>
 
-                {/* Liste des cartes NFC */}
-                <div className="space-y-4">
-                  {nfcLoading ? (
-                    <Card className="text-center py-8">
-                      <CardContent>
-                        <div className="flex items-center justify-center space-x-2">
-                          <Loader2 className="w-5 h-5 animate-spin text-blue-500" />
-                          <span className="text-gray-600">Chargement des cartes NFC...</span>
-                        </div>
-                      </CardContent>
-                    </Card>
-                  ) : nfcError ? (
-                    <Card className="text-center py-8">
-                      <CardContent>
-                        <div className="w-16 h-16 bg-red-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                          <span className="text-red-600 text-2xl">⚠️</span>
-                        </div>
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">
-                          Erreur de chargement
-                        </h3>
-                        <p className="text-red-600 mb-4">{nfcError}</p>
-                        <Button
-                          onClick={() => window.location.reload()}
-                          variant="outline"
-                        >
-                          Réessayer
-                        </Button>
-                      </CardContent>
-                    </Card>
-                  ) : nfcCards.length === 0 ? (
-                    <Card className="text-center py-8">
-                      <CardContent>
-                        <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
-                          <QrCode className="w-8 h-8 text-gray-400" />
-                        </div>
-                        <h3 className="text-lg font-medium text-gray-900 mb-2">
-                          Aucune carte NFC disponible
-                        </h3>
-                        <p className="text-gray-600">
-                          Vos cartes NFC apparaîtront ici une fois créées
-                        </p>
-                      </CardContent>
-                    </Card>
-                  ) : (
-                    <div className="space-y-4">
-                      {nfcCards.map((card) => (
-                        <NFCCardItem
-                          key={card.id}
-                          card={card}
-                          onPreview={handlePreviewCard}
-                        />
-                      ))}
-                    </div>
-                  )}
+                {/* Grille récapitulative de statut */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
+                  <div className="p-3.5 rounded-xl bg-neutral-50 border border-neutral-200/70">
+                    <span className="text-neutral-500">Commandes totales</span>
+                    <p className="font-semibold text-neutral-900 text-base font-mono mt-0.5">
+                      {orderStats?.total_orders || 0}
+                    </p>
+                  </div>
+                  <div className="p-3.5 rounded-xl bg-neutral-50 border border-neutral-200/70">
+                    <span className="text-neutral-500">Commandes payées</span>
+                    <p className="font-semibold text-neutral-900 text-base font-mono mt-0.5">
+                      {orderStats?.paid_orders || 0}
+                    </p>
+                  </div>
+                  <div className="p-3.5 rounded-xl bg-neutral-50 border border-neutral-200/70">
+                    <span className="text-neutral-500">Délai de livraison estimé</span>
+                    <p className="font-semibold text-neutral-900 text-base mt-0.5">
+                      7 à 14 jours ouvrés
+                    </p>
+                  </div>
                 </div>
+
+                <div className="flex justify-end pt-2">
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={() => router.push('/dashboard/orders')}
+                    className="h-9 px-4 text-xs text-neutral-700 hover:text-neutral-950 hover:bg-neutral-50 border-neutral-200 rounded-xl"
+                  >
+                    Voir l'historique complet de mes commandes
+                    <ArrowRight className="w-3.5 h-3.5 ml-1.5" />
+                  </Button>
+                </div>
+
               </div>
-            </div>
-          </div>
+            </TabsContent>
+
+          </Tabs>
+
         </div>
       </div>
+
+      {/* MODAL DIALOG DE CONFIRMATION DE SUPPRESSION (Accessible, remplace window.confirm) */}
+      <Dialog open={!!profileToDelete} onOpenChange={(open) => !open && setProfileToDelete(null)}>
+        <DialogContent className="max-w-md bg-white border border-neutral-200/90 rounded-2xl p-6 text-neutral-900">
+          <DialogHeader>
+            <DialogTitle className="text-lg font-semibold text-neutral-950 tracking-tight">
+              Supprimer définitivement ce profil ?
+            </DialogTitle>
+            <DialogDescription className="text-xs text-neutral-500 mt-2">
+              Êtes-vous sûr de vouloir supprimer le profil de <strong className="text-neutral-900">{profileToDelete?.name}</strong> ? Cette action est irréversible : l'URL personnalisée <code className="bg-neutral-100 px-1 py-0.5 rounded text-neutral-800 font-mono">/{profileToDelete?.custom_url || profileToDelete?.username}</code> ne sera plus accessible à vos contacts.
+            </DialogDescription>
+          </DialogHeader>
+
+          <DialogFooter className="mt-6 flex flex-row items-center justify-end gap-2.5">
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={() => setProfileToDelete(null)}
+              disabled={isDeleting}
+              className="h-9 px-4 text-xs rounded-xl border-neutral-200 text-neutral-700 hover:bg-neutral-50"
+            >
+              Annuler
+            </Button>
+            <Button
+              type="button"
+              size="sm"
+              onClick={handleConfirmDelete}
+              disabled={isDeleting}
+              className="h-9 px-4 text-xs rounded-xl bg-rose-600 hover:bg-rose-700 text-white font-medium shadow-xs flex items-center gap-1.5"
+            >
+              {isDeleting ? (
+                <>
+                  <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                  <span>Suppression...</span>
+                </>
+              ) : (
+                <>
+                  <Trash2 className="w-3.5 h-3.5" />
+                  <span>Supprimer définitivement</span>
+                </>
+              )}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* MODALE DE PRÉVISUALISATION PHYSIQUE DE CARTE NFC */}
       {isPreviewOpen && previewCardData && (
         <NFCCardPreview
           card={previewCardData}

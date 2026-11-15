@@ -16,6 +16,9 @@ interface SupportRealtimeNotificationsProps {
 
 export function SupportRealtimeNotifications({ userId, isAdmin = false }: SupportRealtimeNotificationsProps) {
   useEffect(() => {
+    // Si l'utilisateur n'est pas encore authentifié, ne pas ouvrir de canaux WebSocket prématurément
+    if (!userId && !isAdmin) return
+
     // Demander la permission push au démarrage
     requestPushPermission()
 

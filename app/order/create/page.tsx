@@ -112,24 +112,18 @@ function OrderCreateForm() {
                 `${process.env.NEXT_PUBLIC_APP_URL || window.location.origin}/payment/cancelled?type=${cardType}`
             )
 
-            if (formData.paymentMethod === 'wave') {
-                router.push(
-                    `/payment/wave-redirect?order_id=${data.order.id}&type=${cardType}&amount=${amount}&success_url=${successUrl}&failure_url=${failureUrl}`
-                )
+            // Paiement automatique GeniusPay (Wave, Orange, MTN, Moov, CB)
+            const gpResponse = await fetch('/api/payments/geniuspay/initiate', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ order_id: data.order.id })
+            })
+            const gpData = await gpResponse.json()
+            if (gpData.success && gpData.checkout_url) {
+                window.location.href = gpData.checkout_url
+                return
             } else {
-                // Paiement automatique GeniusPay
-                const gpResponse = await fetch('/api/payments/geniuspay/initiate', {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ order_id: data.order.id })
-                })
-                const gpData = await gpResponse.json()
-                if (gpData.success && gpData.checkout_url) {
-                    window.location.href = gpData.checkout_url
-                    return
-                } else {
-                    router.push(`/dashboard/orders?created=${data.order.id}`)
-                }
+                router.push(`/dashboard/orders?created=${data.order.id}`)
             }
 
         } catch (error) {

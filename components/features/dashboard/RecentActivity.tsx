@@ -48,9 +48,6 @@ export function RecentActivity() {
                     .order('created_at', { ascending: false })
                     .limit(5)
 
-                console.log('Profils:', profiles)
-                console.log('Commandes:', orders)
-
                 // 3. Normaliser et fusionner les activités
                 const allActivities: ActivityItem[] = []
 

@@ -215,7 +215,7 @@ export async function POST(request: NextRequest) {
       }
 
       // Générer l'URL NFC
-      const appUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://ofika.com'
+      const appUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://ofika.ci').replace(/\/$/, '')
       const nfcLink = `${appUrl}/card/${nfcCard.id}`
 
       // Générer le QR code dynamique

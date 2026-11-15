@@ -1,10 +1,14 @@
 // =====================================================
-// PAGE DE REDIRECTION QR CODE DYNAMIQUE
+// PAGE DE REDIRECTION QR CODE DYNAMIQUE & CARTE NFC
+// Résolution ultra-rapide (<50ms) via HTTP 307 Server Redirect
+// Tracking asynchrone non-bloquant via after() Next.js 15
 // =====================================================
 
 import { createAdminClient } from '@/lib/supabase/service-role'
 import { trackQRScan } from '@/lib/services/qr-redirect'
 import { headers } from 'next/headers'
+import { after } from 'next/server'
+import { redirect } from 'next/navigation'
 import { getClientIp, validateTargetUrl } from '@/lib/utils/qr-validation'
 import { getLocationFromHeaders } from '@/lib/utils/analytics-parser'
 import Link from 'next/link'
@@ -19,24 +23,26 @@ export default async function QRRedirectPage({ params }: QRRedirectPageProps) {
   const { shortCode } = await params
   const supabase = createAdminClient()
 
+  let redirectTargetUrl: string | null = null
+
   try {
-    // Récupérer la redirection
-    console.log(`🔍 [QR] Recherche du code: "${shortCode}"`)
-    
+    // 1. Récupération ultra-rapide de la redirection
+    console.log(`🔍 [QR/NFC] Résolution du code: "${shortCode}"`)
+
     const { data: qrRedirect, error } = await supabase
       .from('qr_redirects')
-      .select('*')
-      .ilike('short_code', shortCode) // Insensible à la casse
+      .select('id, user_id, short_code, target_url, title, type, is_active, deleted_at')
+      .ilike('short_code', shortCode) // Insensible à la casse (index optimisé)
       .eq('is_active', true)
       .is('deleted_at', null)
-      .maybeSingle() 
+      .maybeSingle()
 
     if (error) {
-      console.error('❌ [QR] Erreur Supabase:', error)
+      console.error('❌ [QR/NFC] Erreur Supabase:', error)
     }
 
     if (!qrRedirect) {
-      console.warn(`⚠️ [QR] Aucune redirection active trouvée pour "${shortCode}"`)
+      console.warn(`⚠️ [QR/NFC] Aucun QR ou carte active pour "${shortCode}"`)
       return (
         <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 text-center">
           <div className="max-w-md w-full bg-white rounded-3xl p-8 shadow-xl border border-slate-100">
@@ -58,7 +64,7 @@ export default async function QRRedirectPage({ params }: QRRedirectPageProps) {
       )
     }
 
-    // Tracker le scan
+    // 2. Préparation du tracking analytics en arrière-plan
     const headersList = await headers()
     const userAgent = headersList.get('user-agent') || ''
     const referrer = headersList.get('referer') || ''
@@ -70,20 +76,34 @@ export default async function QRRedirectPage({ params }: QRRedirectPageProps) {
 
     const url = new URL(`http://localhost${headersList.get('x-invoke-path') || ''}`)
     const forceTrack = url.searchParams.get('force') === '1'
-
     const location = getLocationFromHeaders(headersList)
 
+    // Exécution du tracking en tâche de fond après envoi de la redirection (0 milliseconde de blocage)
     if (!alreadyScanned || forceTrack) {
-      trackQRScan(shortCode, {
-        userAgent,
-        referrer,
-        ipAddress,
-        country: location.country,
-        city: location.city
-      }).catch(err => console.error('Error tracking scan:', err))
+      after(async () => {
+        try {
+          await trackQRScan(
+            shortCode,
+            {
+              userAgent,
+              referrer,
+              ipAddress,
+              country: location.country,
+              city: location.city
+            },
+            {
+              id: qrRedirect.id,
+              user_id: qrRedirect.user_id,
+              target_url: qrRedirect.target_url
+            }
+          )
+        } catch (err) {
+          console.error('❌ Erreur tracking scan en arrière-plan:', err)
+        }
+      })
     }
 
-    let targetUrl = qrRedirect.target_url || qrRedirect.nfc_link
+    let targetUrl = qrRedirect.target_url
 
     if (!targetUrl) {
       return (
@@ -159,12 +179,14 @@ export default async function QRRedirectPage({ params }: QRRedirectPageProps) {
 
     // Traitement et normalisation de l'URL cible
     const appUrl = (process.env.NEXT_PUBLIC_APP_URL || 'https://ofika.ci').replace(/\/$/, '')
-    
-    if (!targetUrl.startsWith('http://') && 
-        !targetUrl.startsWith('https://') && 
-        !targetUrl.startsWith('tel:') && 
-        !targetUrl.startsWith('mailto:') && 
-        !targetUrl.startsWith('data:')) {
+
+    if (
+      !targetUrl.startsWith('http://') &&
+      !targetUrl.startsWith('https://') &&
+      !targetUrl.startsWith('tel:') &&
+      !targetUrl.startsWith('mailto:') &&
+      !targetUrl.startsWith('data:')
+    ) {
       const cleanPath = targetUrl.startsWith('/') ? targetUrl : `/${targetUrl}`
       targetUrl = `${appUrl}${cleanPath}`
     }
@@ -204,32 +226,34 @@ export default async function QRRedirectPage({ params }: QRRedirectPageProps) {
       )
     }
 
-    console.log('🔍 QR Redirect:', { shortCode, targetUrl })
-
-    // Redirection automatique via meta-refresh / script client tout en restant valide dans App Router
-    return (
-      <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 text-center">
-        <meta httpEquiv="refresh" content={`0;url=${targetUrl}`} />
-        <div className="max-w-md w-full bg-white rounded-3xl p-8 shadow-xl border border-slate-100">
-          <div className="w-16 h-16 bg-orange-50 text-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
-            📱
+    // Cas spécifique des schémas d'action mobile (téléphone, email)
+    if (targetUrl.startsWith('tel:') || targetUrl.startsWith('mailto:')) {
+      return (
+        <div className="min-h-screen bg-slate-50 flex items-center justify-center p-6 text-center">
+          <meta httpEquiv="refresh" content={`0;url=${targetUrl}`} />
+          <div className="max-w-md w-full bg-white rounded-3xl p-8 shadow-xl border border-slate-100">
+            <div className="w-16 h-16 bg-orange-50 text-orange-500 rounded-2xl flex items-center justify-center mx-auto mb-4 text-2xl font-bold">
+              {targetUrl.startsWith('tel:') ? '📞' : '✉️'}
+            </div>
+            <h2 className="text-xl font-bold text-slate-900 mb-2">
+              {targetUrl.startsWith('tel:') ? 'Appel téléphonique' : 'Envoyer un email'}
+            </h2>
+            <p className="text-xs text-slate-500 mb-6">
+              Cliquez sur le bouton ci-dessous pour lancer l&apos;action sur votre téléphone.
+            </p>
+            <a
+              href={targetUrl}
+              className="inline-block px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold rounded-xl transition-all shadow-sm"
+            >
+              Ouvrir l&apos;application
+            </a>
           </div>
-          <h2 className="text-xl font-bold text-slate-900 mb-2">Redirection en cours...</h2>
-          <p className="text-xs text-slate-500 mb-6">
-            Si la redirection ne fonctionne pas automatiquement, cliquez ci-dessous.
-          </p>
-          <a
-            href={targetUrl}
-            className="inline-block px-6 py-3 bg-orange-500 hover:bg-orange-600 text-white text-xs font-bold rounded-xl transition-all shadow-sm"
-          >
-            Ouvrir la destination
-          </a>
-          <p className="mt-4 text-[10px] text-slate-400 break-all px-4">
-            Destination : {targetUrl}
-          </p>
         </div>
-      </div>
-    )
+      )
+    }
+
+    console.log('⚡ [QR/NFC] Redirection HTTP 307 instantanée vers:', targetUrl)
+    redirectTargetUrl = targetUrl
   } catch (error) {
     console.error('Error in QR redirect:', error)
     return (
@@ -249,6 +273,11 @@ export default async function QRRedirectPage({ params }: QRRedirectPageProps) {
       </div>
     )
   }
+
+  // 3. Redirection HTTP 307 native Next.js hors try/catch (évite l'interception de NEXT_REDIRECT)
+  if (redirectTargetUrl) {
+    redirect(redirectTargetUrl)
+  }
 }
 
 export async function generateMetadata({ params }: QRRedirectPageProps) {
@@ -258,9 +287,10 @@ export async function generateMetadata({ params }: QRRedirectPageProps) {
   const { data: qrRedirect } = await supabase
     .from('qr_redirects')
     .select('title, description')
-    .eq('short_code', shortCode)
+    .ilike('short_code', shortCode)
     .eq('is_active', true)
-    .single()
+    .is('deleted_at', null)
+    .maybeSingle()
 
   return {
     title: qrRedirect?.title || 'Redirection',

@@ -77,6 +77,7 @@ export function OrderNotifications({ className }: OrderNotificationsProps) {
     try {
       setLoading(true)
       const res = await fetch('/api/notifications')
+      if (!res.ok) return
       const data = await res.json()
       if (data.success) {
         setNotifications(data.notifications || [])
@@ -90,10 +91,28 @@ export function OrderNotifications({ className }: OrderNotificationsProps) {
   }, [])
 
   useEffect(() => {
+    // 1. Chargement initial
     loadNotifications()
-    const interval = setInterval(loadNotifications, 30000)
+
+    // 2. Écouteur de visibilité de l'onglet : rafraîchir discrètement au retour de l'utilisateur
+    let lastFetchTime = Date.now()
+    const handleVisibilityChange = () => {
+      if (document.visibilityState === 'visible' && Date.now() - lastFetchTime > 60000) {
+        lastFetchTime = Date.now()
+        loadNotifications()
+      }
+    }
+    document.addEventListener('visibilitychange', handleVisibilityChange)
+
+    // 3. Polling de secours ultra-léger (toutes les 5 minutes au lieu de 30 secondes, et seulement si l'onglet est actif)
+    const interval = setInterval(() => {
+      if (document.visibilityState === 'visible') {
+        lastFetchTime = Date.now()
+        loadNotifications()
+      }
+    }, 5 * 60 * 1000)
     
-    // Supabase Realtime for notifications
+    // 4. Supabase Realtime : mise à jour instantanée dès qu'une notification est insérée
     const setupRealtime = async () => {
       const { data: { user } } = await supabase.auth.getUser()
       if (!user) return
@@ -130,6 +149,7 @@ export function OrderNotifications({ className }: OrderNotificationsProps) {
 
     return () => {
       clearInterval(interval)
+      document.removeEventListener('visibilitychange', handleVisibilityChange)
       if (channel) supabase.removeChannel(channel)
     }
   }, [loadNotifications, supabase, playNotificationSound])

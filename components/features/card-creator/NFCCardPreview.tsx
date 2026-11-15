@@ -172,39 +172,39 @@ export function NFCCardPreview({ card, publicPages = [], onClose, onCardUpdated,
   })?.name
 
   return (
-    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4" onClick={onClose}>
-      <div className="bg-white rounded-xl shadow-2xl max-w-4xl w-full max-h-[90vh] overflow-y-auto" onClick={(e) => e.stopPropagation()}>
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-3 sm:p-4 overflow-x-hidden" onClick={onClose}>
+      <div className="bg-white rounded-2xl shadow-2xl max-w-3xl w-full max-h-[90vh] overflow-y-auto overflow-x-hidden no-scrollbar" onClick={(e) => e.stopPropagation()}>
 
         {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b">
+        <div className="flex items-center justify-between p-5 sm:p-6 border-b border-gray-100">
           <div>
-            <h2 className="text-2xl font-bold text-gray-900">Aperçu de la carte NFC</h2>
-            <p className="text-gray-600">Recto et verso de votre carte de visite</p>
+            <h2 className="text-xl sm:text-2xl font-bold text-gray-900">Aperçu de la carte NFC</h2>
+            <p className="text-xs sm:text-sm text-gray-500">Recto et verso de votre carte de visite</p>
           </div>
           <div className="flex gap-2 flex-wrap">
-            <Button variant="outline" onClick={handleFlip}>
-              <RotateCcw className="w-4 h-4 mr-2" />
-              {currentSide === 'recto' ? 'Retourner au verso' : 'Retourner au recto'}
+            <Button variant="outline" size="sm" onClick={handleFlip} className="h-9 text-xs rounded-xl">
+              <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
+              {currentSide === 'recto' ? 'Verso' : 'Recto'}
             </Button>
-            <Button variant="outline" onClick={handleViewPublicPage}>
-              <ExternalLink className="w-4 h-4 mr-2" />
+            <Button variant="outline" size="sm" onClick={handleViewPublicPage} className="h-9 text-xs rounded-xl">
+              <ExternalLink className="w-3.5 h-3.5 mr-1.5" />
               Voir le profil
             </Button>
           </div>
         </div>
 
         {/* Contenu principal */}
-        <div className="p-6">
-          <div className="flex flex-col lg:flex-row gap-8">
+        <div className="p-5 sm:p-6">
+          <div className="flex flex-col lg:flex-row gap-6 lg:gap-8 items-start">
 
             {/* Carte de visite */}
-            <div className="flex-1 flex flex-col items-center">
-              <div className="w-full mb-6">
+            <div className="flex-1 w-full flex flex-col items-center">
+              <div className="w-full max-w-[360px] sm:max-w-[380px] mb-4">
                 <div className="flex items-center justify-between mb-2">
-                  <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-100 px-3 py-1">
+                  <Badge variant="secondary" className="bg-blue-50 text-blue-700 border-blue-100 px-2.5 py-0.5 text-xs">
                     {currentSide === 'recto' ? 'Face Recto' : 'Face Verso'}
                   </Badge>
-                  <span className="text-xs text-gray-500 font-medium italic">
+                  <span className="text-[11px] text-gray-400 font-medium italic">
                     {currentSide === 'recto'
                       ? 'Informations de contact'
                       : 'QR Code & Identité'
@@ -213,10 +213,10 @@ export function NFCCardPreview({ card, publicPages = [], onClose, onCardUpdated,
                 </div>
               </div>
 
-              {/* Carte physique avec effet de profondeur */}
-              <div className="relative w-full max-w-md perspective-1000 group">
-                <div className="absolute -inset-4 bg-gradient-to-tr from-blue-500/10 to-purple-500/10 rounded-[2rem] blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
-                <div className="flip-card w-full aspect-[85/55] cursor-pointer shadow-2xl rounded-2xl overflow-visible" onClick={handleFlip}>
+              {/* Carte physique avec effet de profondeur maîtrisé (sans débordement horizontal) */}
+              <div className="relative w-full max-w-[360px] sm:max-w-[380px] perspective-1000 group">
+                <div className="absolute inset-0 bg-gradient-to-tr from-blue-500/10 to-purple-500/10 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"></div>
+                <div className="flip-card w-full aspect-[85/55] cursor-pointer shadow-xl rounded-2xl overflow-visible" onClick={handleFlip}>
                   <div className={`flip-card-inner ${isFlipped ? 'flipped' : ''}`}>
                     {/* Recto */}
                     <div className="flip-card-front h-full w-full">
@@ -421,24 +421,6 @@ export function NFCCardPreview({ card, publicPages = [], onClose, onCardUpdated,
                       </div>
                     </div>
                   )}
-
-                  <div className="mt-6 pt-4 border-t">
-                    <h4 className="font-medium text-gray-900 mb-2">Fonctionnalités</h4>
-                    <div className="space-y-2 text-sm">
-                      <div className="flex items-center gap-2">
-                        <Smartphone size={14} className="text-green-600" />
-                        <span>Partage par contact NFC</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <QrCode size={14} className="text-blue-600" />
-                        <span>QR Code de secours</span>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        <ExternalLink size={14} className="text-purple-600" />
-                        <span>Page publique personnalisée</span>
-                      </div>
-                    </div>
-                  </div>
                 </CardContent>
               </Card>
             </div>

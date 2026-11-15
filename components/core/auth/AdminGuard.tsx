@@ -3,62 +3,77 @@
 import { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import { createClient } from '@/lib/supabase/client'
-import { Loader2 } from 'lucide-react'
 import { isStaffRole, normalizeRole } from '@/lib/roles'
+import { useAuth } from '@/lib/hooks/useAuth'
 
 interface AdminGuardProps {
     children: React.ReactNode
 }
 
 export function AdminGuard({ children }: AdminGuardProps) {
-    const [isAdmin, setIsAdmin] = useState<boolean | null>(null)
+    const { user, loading: authLoading } = useAuth()
     const router = useRouter()
     const supabase = createClient()
 
     useEffect(() => {
-        async function checkAdmin() {
-            try {
-                const { data: { user } } = await supabase.auth.getUser()
+        let isMounted = true
 
-                if (!user) {
-                    router.push('/login?callbackUrl=/dashboard/admin')
+        async function verifyAdminSession() {
+            try {
+                // 1. Vérification rapide si l'utilisateur est déjà en session client ou cookie
+                if (user) {
+                    const role = normalizeRole(user.app_metadata?.role || (user.user_metadata as any)?.role)
+                    if (isStaffRole(role)) {
+                        return
+                    }
+                }
+
+                const cookieRole = typeof document !== 'undefined' ? document.cookie.match(/ofika_role=([^;]+)/)?.[1] : null
+                if (cookieRole && isStaffRole(normalizeRole(cookieRole))) {
                     return
                 }
 
-                const { data: adminData, error: adminError } = await supabase
+                // 2. Vérification de la session locale Supabase
+                const { data: { session } } = await supabase.auth.getSession()
+                if (!session?.user) {
+                    if (!authLoading && !user && isMounted) {
+                        router.push('/login?callbackUrl=/dashboard/admin')
+                    }
+                    return
+                }
+
+                const sessionRole = normalizeRole(session.user.app_metadata?.role)
+                if (isStaffRole(sessionRole)) {
+                    return
+                }
+
+                // 3. Vérification de sécurité en base si le rôle n'était pas dans le token
+                const { data: adminData } = await supabase
                     .from('users')
                     .select('role')
-                    .eq('id', user.id)
+                    .eq('id', session.user.id)
                     .single()
 
-                const role = normalizeRole(adminData?.role || user.app_metadata?.role)
+                const role = normalizeRole(adminData?.role || session.user.app_metadata?.role)
 
-                if (adminError || !isStaffRole(role)) {
-                    console.error('Accès staff refusé:', adminError || 'Rôle insuffisant')
+                if (!isStaffRole(role) && isMounted) {
+                    console.error('Accès staff refusé: rôle insuffisant')
                     router.push('/dashboard')
-                    return
                 }
-
-                setIsAdmin(true)
             } catch (error) {
-                console.error('Erreur check admin:', error)
-                router.push('/dashboard')
+                console.error('Erreur vérification admin:', error)
             }
         }
 
-        checkAdmin()
-    }, [router, supabase])
+        verifyAdminSession()
 
-    if (isAdmin === null) {
-        return (
-            <div className="min-h-screen flex items-center justify-center bg-gray-50">
-                <div className="text-center">
-                    <Loader2 className="w-10 h-10 animate-spin text-orange-500 mx-auto mb-4" />
-                    <p className="text-gray-600 font-medium">Vérification des accès administrateur...</p>
-                </div>
-            </div>
-        )
-    }
+        return () => {
+            isMounted = false
+        }
+    }, [router, supabase, user, authLoading])
 
+    // Le layout serveur (app/dashboard/admin/layout.tsx) garantit déjà strictement l'accès avant le rendu.
+    // L'affichage est donc instantané côté client, sans écran blanc de blocage.
     return <>{children}</>
 }
+

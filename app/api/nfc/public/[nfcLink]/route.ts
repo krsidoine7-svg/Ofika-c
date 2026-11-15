@@ -12,11 +12,11 @@ export async function GET(
     const supabase = await createClient()
     const { nfcLink } = await params
 
-    // Récupérer la carte NFC par son lien en cherchant dans le JSON structuré
+    // Récupérer la carte NFC par son lien en cherchant dans le JSON structuré (supporte ofika.ci, ofika.com, liens relatifs et bruts)
     const { data: searchCard, error: searchError } = await supabase
         .from('digital_nfc_cards')
         .select('*')
-        .or(`nfc_link.eq.https://ofika.com/${nfcLink},preview_data->>nfc_link.eq.https://ofika.com/${nfcLink}`)
+        .or(`nfc_link.eq.https://ofika.ci/${nfcLink},nfc_link.eq.https://ofika.com/${nfcLink},nfc_link.eq./${nfcLink},nfc_link.eq.${nfcLink},preview_data->>nfc_link.eq.https://ofika.ci/${nfcLink},preview_data->>nfc_link.eq.https://ofika.com/${nfcLink}`)
         .eq('status', 'active')
         .single()
         

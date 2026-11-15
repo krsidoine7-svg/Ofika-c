@@ -1,7 +1,8 @@
 'use client'
 
 import { useState } from 'react'
-import { Star, Plus, Loader2, QrCode } from 'lucide-react'
+import { Star, Plus, Loader2, QrCode, ArrowLeft } from 'lucide-react'
+import Link from 'next/link'
 import { Button } from '@/components/ui/button'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs'
 import {
@@ -50,63 +51,86 @@ export default function AvisClientsPage() {
     // État vide (aucun lien créé)
     if (!isLoading && (!links || links.length === 0)) {
         return (
-            <div className="flex flex-col items-center justify-center min-h-[70vh] text-center space-y-6 px-4">
-                <div className="rounded-full bg-orange-100 p-6">
-                    <Star className="w-16 h-16 text-orange-600" />
+            <div className="p-4 sm:p-6 md:p-8 pt-6 font-sans max-w-7xl mx-auto space-y-6">
+                <div className="flex items-center gap-2 mb-1">
+                    <Link
+                        href="/dashboard"
+                        className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors"
+                    >
+                        <ArrowLeft className="w-3.5 h-3.5" />
+                        <span>Retour au tableau de bord</span>
+                    </Link>
                 </div>
 
-                <div className="space-y-2 max-w-2xl">
-                    <h2 className="text-3xl font-bold text-gray-900">
-                        Collectez des avis clients authentiques
-                    </h2>
-                    <p className="text-lg text-gray-600">
-                        Créez un lien personnalisé et commencez à recevoir des retours de vos clients en moins de 2 minutes
-                    </p>
+                <div className="flex flex-col items-center justify-center min-h-[55vh] text-center space-y-6 px-4">
+                    <div className="rounded-2xl bg-orange-50 border border-orange-200/80 p-5 shadow-xs">
+                        <Star className="w-12 h-12 text-orange-500 fill-orange-500" />
+                    </div>
+
+                    <div className="space-y-2 max-w-2xl">
+                        <h2 className="text-2xl sm:text-3xl font-extrabold text-slate-900">
+                            Collectez des avis clients authentiques
+                        </h2>
+                        <p className="text-sm sm:text-base text-slate-500">
+                            Créez un lien personnalisé et commencez à recevoir des retours 5 étoiles de vos clients en moins de 2 minutes.
+                        </p>
+                    </div>
+
+                    <ul className="text-left space-y-2.5 bg-slate-50 border border-slate-200/80 rounded-2xl p-5 max-w-md text-xs sm:text-sm">
+                        <li className="flex items-center gap-2.5 text-slate-700">
+                            <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold shrink-0">✓</span>
+                            <span>Formulaire simple et rapide pour vos clients</span>
+                        </li>
+                        <li className="flex items-center gap-2.5 text-slate-700">
+                            <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold shrink-0">✓</span>
+                            <span>Affichage direct sur votre profil public Link-in-Bio</span>
+                        </li>
+                        <li className="flex items-center gap-2.5 text-slate-700">
+                            <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold shrink-0">✓</span>
+                            <span>Modération facile (approuver ou masquer un avis)</span>
+                        </li>
+                        <li className="flex items-center gap-2.5 text-slate-700">
+                            <span className="w-5 h-5 rounded-full bg-emerald-100 text-emerald-700 flex items-center justify-center text-xs font-bold shrink-0">✓</span>
+                            <span>Export CSV et QR Code pour comptoir / vitrine</span>
+                        </li>
+                    </ul>
+
+                    <Button size="lg" onClick={() => setShowCreateDialog(true)} className="gap-2 h-11 px-6 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-xs">
+                        <Plus className="h-4 w-4" />
+                        Créer mon premier lien de collecte
+                    </Button>
+
+                    <CreateLinkDialog open={showCreateDialog} onOpenChange={setShowCreateDialog} />
                 </div>
-
-                <ul className="text-left space-y-3 bg-gray-50 rounded-lg p-6 max-w-md">
-                    <li className="flex items-start gap-3">
-                        <span className="text-green-600 font-bold">✓</span>
-                        <span className="text-gray-700">Formulaire simple et rapide pour vos clients</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                        <span className="text-green-600 font-bold">✓</span>
-                        <span className="text-gray-700">Dashboard de suivi en temps réel</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                        <span className="text-green-600 font-bold">✓</span>
-                        <span className="text-gray-700">Export CSV et partage automatique</span>
-                    </li>
-                    <li className="flex items-start gap-3">
-                        <span className="text-green-600 font-bold">✓</span>
-                        <span className="text-gray-700">Statistiques détaillées par lien</span>
-                    </li>
-                </ul>
-
-                <Button size="lg" onClick={() => setShowCreateDialog(true)} className="gap-2">
-                    <Plus className="h-5 w-5" />
-                    Créer mon premier lien
-                </Button>
-
-                <CreateLinkDialog open={showCreateDialog} onOpenChange={setShowCreateDialog} />
             </div>
         )
     }
 
     // État avec données
     return (
-        <div className="space-y-6">
+        <div className="space-y-6 p-4 sm:p-6 md:p-8 pt-6 font-sans max-w-7xl mx-auto">
+            {/* Fil d'Ariane & Bouton retour */}
+            <div className="flex items-center gap-2 mb-1">
+                <Link
+                    href="/dashboard"
+                    className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors"
+                >
+                    <ArrowLeft className="w-3.5 h-3.5" />
+                    <span>Retour au tableau de bord</span>
+                </Link>
+            </div>
+
             {/* Header */}
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 border-b border-slate-200/80 pb-5">
                 <div>
-                    <h1 className="text-3xl font-bold text-gray-900">Avis Clients</h1>
-                    <p className="text-gray-600 mt-1">
-                        Gérez et analysez vos avis clients
+                    <h1 className="text-2xl sm:text-3xl font-extrabold tracking-tight text-slate-900">Avis & Témoignages Clients</h1>
+                    <p className="text-xs sm:text-sm text-slate-500 mt-1">
+                        Collectez, modérez et affichez les avis 5 étoiles de vos clients sur vos profils.
                     </p>
                 </div>
-                <Button onClick={() => setShowCreateDialog(true)} className="gap-2">
+                <Button onClick={() => setShowCreateDialog(true)} className="gap-2 h-10 rounded-xl bg-slate-900 hover:bg-slate-800 text-white font-bold text-xs shadow-xs px-4">
                     <Plus className="h-4 w-4" />
-                    Nouveau lien
+                    Nouveau lien de collecte
                 </Button>
             </div>
 

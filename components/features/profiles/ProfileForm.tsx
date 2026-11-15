@@ -677,7 +677,7 @@ export function ProfileForm({ profile_id, isEditing = false, onSuccess, onCancel
                   control={form.control}
                   name="custom_url"
                   render={({ field }) => {
-                    const appDomain = (process.env.NEXT_PUBLIC_APP_URL || 'ofika.com')
+                    const appDomain = (process.env.NEXT_PUBLIC_APP_URL || 'ofika.ci')
                       .replace(/^https?:\/\//, '')
                       .replace(/\/$/, '') + '/';
                     return (

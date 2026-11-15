@@ -53,8 +53,8 @@ export function ChangePasswordForm() {
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6 md:p-8">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+    <div className="bg-white rounded-2xl border border-neutral-200/80 p-6 md:p-8 shadow-xs">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Mot de passe actuel */}
         <div className="space-y-2">
           <Label htmlFor="currentPassword">Mot de passe actuel *</Label>
@@ -159,7 +159,7 @@ export function ChangePasswordForm() {
         <Button
           type="submit"
           disabled={isSubmitting}
-          className="w-full h-12 bg-gray-900 hover:bg-black text-white rounded-xl shadow-md transition-all font-medium"
+          className="w-full h-11 bg-neutral-950 hover:bg-neutral-900 text-white font-semibold rounded-xl shadow-md shadow-neutral-950/20 ring-1 ring-neutral-800 transition-all duration-200 cursor-pointer text-xs sm:text-sm"
         >
           {isSubmitting ? (
             <>

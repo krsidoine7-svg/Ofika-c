@@ -15,7 +15,7 @@ interface ProcessOrderResult {
 export interface PaymentMethod {
   id: string
   name: string
-  provider: 'geniuspay' | 'wave'
+  provider: 'geniuspay' | string
   is_active: boolean
   icon_url?: string
   description?: string
@@ -107,19 +107,14 @@ export function useCreatePayment() {
   const [isProcessing, setIsProcessing] = useState(false)
 
   const createPayment = async (
-    provider: 'geniuspay' | 'wave',
+    provider: 'geniuspay' | string = 'geniuspay',
     paymentData: PaymentData
   ): Promise<PaymentResult> => {
     setIsProcessing(true)
 
     try {
-      const endpoint = provider === 'geniuspay'
-        ? '/api/payments/geniuspay/initiate'
-        : '/api/payments/wave/create'
-
-      const bodyData = provider === 'geniuspay'
-        ? { order_id: paymentData.order_id }
-        : paymentData
+      const endpoint = '/api/payments/geniuspay/initiate'
+      const bodyData = { order_id: paymentData.order_id }
 
       const response = await fetch(endpoint, {
         method: 'POST',
@@ -415,51 +410,25 @@ export function useOrderProcess() {
       }
 
       const order = data.order
-      const paymentMethod = orderData.payment_method || 'geniuspay'
-      
-      const provider = paymentMethod === 'wave' ? 'wave' : 'geniuspay'
-
       let url: string | undefined
 
-      if (provider === 'geniuspay') {
-        const paymentResponse = await fetch('/api/payments/geniuspay/initiate', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            order_id: order.id,
-          })
+      const paymentResponse = await fetch('/api/payments/geniuspay/initiate', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          order_id: order.id,
         })
+      })
 
-        const paymentData = await paymentResponse.json()
+      const paymentData = await paymentResponse.json()
 
-        if (!paymentResponse.ok || !paymentData.success) {
-          throw new Error(paymentData.error || 'Erreur lors de la création du paiement GeniusPay')
-        }
-
-        url = paymentData.checkout_url
-      } else {
-        const paymentResponse = await fetch('/api/payments/wave/create', {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            amount: data.order.amount_cents,
-            order_id: order.id,
-            message: `Commande #${order.order_number}`
-          })
-        })
-
-        const paymentData = await paymentResponse.json()
-
-        if (!paymentResponse.ok || !paymentData.success) {
-          throw new Error(paymentData.error || 'Erreur lors de la création du paiement Wave')
-        }
-
-        url = paymentData.data?.link
+      if (!paymentResponse.ok || !paymentData.success) {
+        throw new Error(paymentData.error || 'Erreur lors de la création du paiement GeniusPay')
       }
+
+      url = paymentData.checkout_url
 
       setPaymentUrl(url || null)
 

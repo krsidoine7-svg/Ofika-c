@@ -466,7 +466,7 @@ export function ProfileSelectionStep({
                     </Label>
                     <div className="flex">
                       <span className="inline-flex items-center px-3 rounded-l-md border border-r-0 border-gray-300 bg-gray-50 text-gray-500 text-sm select-none">
-                        {(process.env.NEXT_PUBLIC_APP_URL || 'ofika.com')
+                        {(process.env.NEXT_PUBLIC_APP_URL || 'ofika.ci')
                           .replace(/^https?:\/\//, '')
                           .replace(/\/$/, '') + '/'}
                       </span>

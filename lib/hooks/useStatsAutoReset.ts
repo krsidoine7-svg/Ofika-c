@@ -33,11 +33,23 @@ export function useStatsAutoReset() {
   useEffect(() => {
     if (!user?.id) return
 
+    // Optimisation performance : ne vérifier le cycle de 40 jours qu'une seule fois toutes les 24 heures par utilisateur
+    const storageKey = `ofika_stats_reset_check_${user.id}`
+    const lastCheck = typeof window !== 'undefined' ? localStorage.getItem(storageKey) : null
+    const now = Date.now()
+    if (lastCheck && (now - Number(lastCheck)) < 24 * 60 * 60 * 1000) {
+      return
+    }
+
     const checkAndReset = async () => {
       setChecking(true)
       setError(null)
 
       try {
+        if (typeof window !== 'undefined') {
+          localStorage.setItem(storageKey, String(Date.now()))
+        }
+
         // Vérifier et effectuer le reset si nécessaire
         const result = await autoResetStatsIfNeeded(user.id)
 

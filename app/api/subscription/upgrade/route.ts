@@ -4,7 +4,7 @@ import { AuthGuard } from '@/lib/security/auth-guard'
 import { createRateLimitMiddleware, RATE_LIMIT_CONFIGS } from '@/lib/security/rate-limiter'
 import { InputSanitizer } from '@/lib/security/input-sanitizer'
 import { SUBSCRIPTION_PLANS } from '@/lib/hooks/usePayments'
-import { generateWavePaymentUrl, WaveApiConfig } from '@/lib/services/wave-api'
+import { createGeniusPayPayment } from '@/lib/services/geniuspay/client'
 
 export const dynamic = 'force-dynamic'
 
@@ -59,47 +59,35 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // 1. Récupérer la configuration Wave
-    const { data: dbConfig } = await supabase
-      .from('system_config')
-      .select('value')
-      .eq('key', 'payment_gateways')
-      .single()
-
-    const waveConfig = dbConfig?.value?.wave || {}
-    const isWaveActive = waveConfig.is_active ?? true
-    
-    if (!isWaveActive) {
-      return NextResponse.json(
-        { success: false, error: 'La méthode de paiement Wave est temporairement désactivée.' },
-        { status: 403 }
-      )
-    }
-
     // Générer un ID de commande unique pour l'abonnement
     const orderId = `sub_${Date.now()}_${user.id.substring(0, 8)}`
 
-    // Déterminer le lien de paiement Wave
-    let paymentLink = waveConfig.wave_payment_link
-    if (!paymentLink) {
-      paymentLink = generateWavePaymentUrl({
-        amount: plan.price,
-        orderId: orderId,
-        merchantId: waveConfig.wave_merchant_id || WaveApiConfig.merchantId,
-        countryCode: 'ci'
-      })
-    } else {
-      if (paymentLink.includes('?')) {
-        paymentLink = `${paymentLink}&a=${plan.price}`
-      } else {
-        paymentLink = `${paymentLink}?a=${plan.price}`
-      }
-    }
+    // Déclencher le paiement sécurisé via GeniusPay (Wave, Orange, MTN, Moov, CB)
+    const protocol = request.headers.get('x-forwarded-proto') || 'http'
+    const host = request.headers.get('host') || 'localhost:3000'
+    const baseUrl = `${protocol}://${host}`
 
-    console.log('✅ Paiement abonnement créé:', {
+    const transaction = await createGeniusPayPayment({
+      amount: plan.price,
+      currency: plan.currency || 'XOF',
+      description: `Abonnement ${plan.name} (${user.email || user.id})`,
+      customer: {
+        name: user.user_metadata?.full_name || user.user_metadata?.name || 'Abonné Ofika',
+        email: user.email || '',
+        phone: user.phone || ''
+      },
+      success_url: `${baseUrl}/subscription?status=success&plan=${planId}`,
+      error_url: `${baseUrl}/subscription?status=error&plan=${planId}`,
+      metadata: { order_id: orderId, plan_id: planId, user_id: user.id }
+    })
+
+    const paymentLink = transaction.checkout_url || transaction.payment_url
+
+    console.log('✅ Paiement abonnement GeniusPay créé:', {
       plan: planId,
       amount: plan.price,
-      order_id: orderId
+      order_id: orderId,
+      reference: transaction.reference
     })
 
     return NextResponse.json({
@@ -109,7 +97,8 @@ export async function POST(request: NextRequest) {
         plan_id: planId,
         amount: plan.price,
         currency: plan.currency,
-        order_id: orderId
+        order_id: orderId,
+        reference: transaction.reference
       },
       message: 'Redirection vers le paiement en cours...'
     })

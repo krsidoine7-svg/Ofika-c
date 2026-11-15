@@ -20,13 +20,16 @@ export async function GET(request: NextRequest) {
     const { count: cardCount } = await supabase.from('digital_nfc_cards').select('*', { count: 'exact', head: true })
     const { count: scanCount } = await supabase.from('qr_scans').select('*', { count: 'exact', head: true })
 
-    // 2. Revenus
+    // 2. Revenus réels (commandes payées, préparées ou livrées)
     const { data: revenueData } = await supabase
       .from('orders')
-      .select('total_cents')
-      .eq('payment_status', 'paid')
+      .select('total_cents, total_amount, amount_cents, payment_status, status')
+      .or('payment_status.eq.succeeded,status.in.(paid,preparing,shipped,delivered)')
 
-    const totalRevenueXOF = (revenueData?.reduce((acc, order) => acc + (order.total_cents || 0), 0) || 0)
+    const totalRevenueXOF = (revenueData?.reduce((acc, order) => {
+      const val = order.total_cents ?? order.total_amount ?? order.amount_cents ?? 0
+      return acc + Number(val)
+    }, 0) || 0)
 
     // 3. Graphique History (7 jours)
     const sevenDaysAgo = new Date()
@@ -65,7 +68,7 @@ export async function GET(request: NextRequest) {
     const activities = [
       ...(latestUsers?.map(u => ({ id: u.id, type: 'user', title: u.name || 'Nouvel utilisateur', time: u.created_at })) || []),
       ...(latestOrders?.map(o => ({ id: o.id, type: 'order', title: `Commande ${o.order_number}`, amount: o.amount_cents, time: o.created_at })) || []),
-      ...(latestScans?.map(s => ({ id: s.id, type: 'scan', title: `Scan à ${s.city || 'Inconnu'} (${s.country || 'SN'})`, browser: s.browser, time: s.scanned_at })) || [])
+      ...(latestScans?.map(s => ({ id: s.id, type: 'scan', title: `Scan à ${s.city || 'Abidjan'} (${s.country || 'CI'})`, browser: s.browser, time: s.scanned_at })) || [])
     ].sort((a, b) => new Date(b.time).getTime() - new Date(a.time).getTime()).slice(0, 10)
 
     // 5. Audience Analytics

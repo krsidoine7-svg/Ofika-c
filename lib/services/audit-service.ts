@@ -27,6 +27,7 @@ export type AuditAction =
   | 'PROFILE_STATUS_UPDATE'
   | 'MODERATION_BAN'
   | 'MODERATION_UNBAN'
+  | 'LEAD_DELETE'
 
 export type AuditSeverity = 'info' | 'warning' | 'error' | 'critical'
 
@@ -39,7 +40,7 @@ export interface AuditDetails {
 
 export interface LogParams {
   action: AuditAction
-  targetType: 'user' | 'order' | 'nfc_card' | 'profile' | 'system' | 'announcement' | 'link' | 'qr_redirect' | 'security' | 'auth'
+  targetType: 'user' | 'order' | 'nfc_card' | 'profile' | 'system' | 'announcement' | 'link' | 'qr_redirect' | 'security' | 'auth' | 'contact'
   targetId?: string
   details?: AuditDetails
   severity?: AuditSeverity

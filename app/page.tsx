@@ -43,6 +43,31 @@ export default function HomePage() {
   // États pour le menu mobile
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
 
+  // Tarif officiel synchronisé en direct avec la base de données
+  const [nfcCardPrice, setNfcCardPrice] = useState<number>(NFC_CARD_BASE_PRICE)
+
+  useEffect(() => {
+    let isMounted = true
+    const fetchOfficialPrice = async () => {
+      try {
+        const res = await fetch('/api/payments/methods')
+        if (res.ok) {
+          const json = await res.json()
+          const dbPrice = json?.methods?.[0]?.base_price
+          if (isMounted && typeof dbPrice === 'number' && dbPrice > 0) {
+            setNfcCardPrice(dbPrice)
+          }
+        }
+      } catch {
+        // En cas d'indisponibilité réseau, conservation silencieuse du prix par défaut
+      }
+    }
+    fetchOfficialPrice()
+    return () => {
+      isMounted = false
+    }
+  }, [])
+
   // Authentification
   const { user, loading } = useAuth()
   const router = useRouter()
@@ -427,7 +452,7 @@ export default function HomePage() {
                 <p className="text-sm text-neutral-500 mb-5">Le geste sans contact qui marque vos rencontres.</p>
                 
                 <div className="flex items-baseline gap-1.5 mb-6 pb-6 border-b border-neutral-100">
-                  <span className="text-4xl sm:text-5xl font-extrabold text-neutral-900">{NFC_CARD_BASE_PRICE.toLocaleString('fr-FR')}</span>
+                  <span className="text-4xl sm:text-5xl font-extrabold text-neutral-900">{nfcCardPrice.toLocaleString('fr-FR')}</span>
                   <span className="text-base font-bold text-neutral-500">FCFA</span>
                   <span className="text-xs text-emerald-600 font-semibold ml-2">Achat unique • À vie</span>
                 </div>

@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
     }
 
     // 2. Traiter le statut de la transaction
-    const status = transaction.status.toLowerCase()
+    const status = (transaction.status || 'pending').toLowerCase()
     
     if (status === 'completed' || status === 'successful' || status === 'succeeded') {
       // Vérifier idempotence

@@ -10,15 +10,16 @@ import { PublicProfile } from '@/lib/types/public-profile';
 export const getPublicProfile = unstable_cache(
   async (username: string): Promise<PublicProfile | null> => {
     const supabase = createPublicClient();
+    const cleanUsername = username?.trim() || '';
 
-    // 1. Chercher dans la table profiles
+    // 1. Chercher dans la table profiles (recherche insensible à la casse avec index)
     const { data: profileData, error: profileError } = await supabase
       .from('profiles')
       .select(`
         id, name, bio, image_url, cover_image_url, custom_url, username, email, phone,
         job_title, company, location,
         social_links, custom_links, design_choice, color_theme, is_public, is_active,
-        suspension_reason, created_at,
+        suspension_reason, created_at, theme_settings,
         instagram_followers, instagram_posts, instagram_verified,
         ig_show_followers, ig_show_posts, ig_show_verified,
         tiktok_followers, tiktok_posts, tiktok_verified,
@@ -30,33 +31,26 @@ export const getPublicProfile = unstable_cache(
         facebook_followers, facebook_verified,
         fb_show_followers, fb_show_verified
       `)
-      .or(`username.eq.${username},custom_url.eq.${username}`)
+      .or(`username.ilike.${cleanUsername},custom_url.ilike.${cleanUsername}`)
       .eq('is_public', true)
       .eq('is_active', true)
       .maybeSingle();
 
     if (profileData && !profileError) {
-      // Requêtes parallèles pour accélérer le chargement public
-      const [{ data: nfcAssociation }, { data: themeRow }] = await Promise.all([
-        supabase
-          .from('digital_nfc_cards')
-          .select('id')
-          .eq('profile_id', profileData.id)
-          .eq('status', 'active')
-          .maybeSingle(),
-        supabase
-          .from('profiles')
-          .select('theme_settings')
-          .eq('id', profileData.id)
-          .maybeSingle()
-      ]);
+      // Vérifier si une carte NFC physique active est associée à ce profil
+      const { data: nfcAssociation } = await supabase
+        .from('digital_nfc_cards')
+        .select('id')
+        .eq('profile_id', profileData.id)
+        .eq('status', 'active')
+        .maybeSingle();
 
       return {
         ...profileData,
-        theme_settings: (themeRow as any)?.theme_settings || {},
+        theme_settings: (profileData as any)?.theme_settings || {},
         id: profileData.id,
         profile_name: profileData.name,
-        nfc_link: `https://ofika.com/${profileData.custom_url || profileData.username}`,
+        nfc_link: `${(process.env.NEXT_PUBLIC_APP_URL || 'https://ofika.ci').replace(/\/$/, '')}/${profileData.custom_url || profileData.username}`,
         design_choice: profileData.design_choice || 'design1',
         color_theme: profileData.color_theme || 'default',
         status: 'active',
@@ -84,7 +78,7 @@ export const getPublicProfile = unstable_cache(
         whatsapp, youtube, tiktok, linkedin, other_links, location, username, custom_url,
         logo_url, profile_photo_url, custom_links, cover_image_url
       `)
-      .or(`username.eq.${username},custom_url.eq.${username}`)
+      .or(`username.ilike.${cleanUsername},custom_url.ilike.${cleanUsername}`)
       .eq('status', 'active')
       .eq('is_active', true)
       .maybeSingle();

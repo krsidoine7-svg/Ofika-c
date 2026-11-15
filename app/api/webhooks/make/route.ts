@@ -91,13 +91,22 @@ export async function POST(request: NextRequest) {
 
     if (!response.ok) {
       const errorText = await response.text()
-      console.error('❌ Erreur Make.com:', response.status, errorText)
+      if (response.status === 410) {
+        console.warn('⚠️ Webhook Make.com inactif ou expiré (410 Gone) - notification ignorée de manière transparente')
+        return NextResponse.json({
+          success: false,
+          inactive: true,
+          message: 'Webhook is no longer active.'
+        }, { status: 200 })
+      }
+
+      console.warn('⚠️ Webhook Make.com non distribué:', response.status, errorText)
       return NextResponse.json(
         { 
           success: false, 
           error: `HTTP ${response.status}: ${errorText}` 
         },
-        { status: response.status }
+        { status: 200 }
       )
     }
 

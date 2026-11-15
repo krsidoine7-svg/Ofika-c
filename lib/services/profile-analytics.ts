@@ -222,10 +222,22 @@ export function getDeviceType(): 'mobile' | 'desktop' | 'tablet' {
   }
 }
 
+// Cache mémoire des statistiques de profil (TTL 60s) pour éviter les requêtes DB excessives
+const profileAnalyticsCache = new Map<string, { data: any; timestamp: number }>()
+const ANALYTICS_CACHE_TTL = 60000 // 60 secondes
+
+export function invalidateProfileAnalyticsCache(profileId?: string) {
+  if (profileId) {
+    profileAnalyticsCache.delete(profileId)
+  } else {
+    profileAnalyticsCache.clear()
+  }
+}
+
 /**
  * Récupère les statistiques d'un profil
  */
-export async function getProfileAnalytics(profileId: string): Promise<{
+export async function getProfileAnalytics(profileId: string, force = false): Promise<{
   success: boolean
   data?: {
     total_views: number
@@ -254,6 +266,14 @@ export async function getProfileAnalytics(profileId: string): Promise<{
   }
   error?: string
 }> {
+  // 1. Vérifier le cache mémoire
+  if (!force) {
+    const cached = profileAnalyticsCache.get(profileId)
+    if (cached && (Date.now() - cached.timestamp < ANALYTICS_CACHE_TTL)) {
+      return { success: true, data: cached.data }
+    }
+  }
+
   try {
     let supabaseClient = getSupabase()
     if (typeof window === 'undefined') {
@@ -334,23 +354,28 @@ export async function getProfileAnalytics(profileId: string): Promise<{
       })
     }
 
+    const resultData = {
+      total_views,
+      total_link_clicks,
+      total_qr_scans,
+      total_contact_actions,
+      device_breakdown,
+      countries,
+      cities,
+      browsers,
+      oss,
+      last_30_days,
+      last_7_days,
+      daily_data,
+      recent_events: (events || []).reverse().slice(0, 50) // Retourner les 50 derniers events
+    }
+
+    // Mettre en cache
+    profileAnalyticsCache.set(profileId, { data: resultData, timestamp: Date.now() })
+
     return {
       success: true,
-      data: {
-        total_views,
-        total_link_clicks,
-        total_qr_scans,
-        total_contact_actions,
-        device_breakdown,
-        countries,
-        cities,
-        browsers,
-        oss,
-        last_30_days,
-        last_7_days,
-        daily_data,
-        recent_events: (events || []).reverse().slice(0, 50) // Retourner les 50 derniers events
-      }
+      data: resultData
     }
   } catch (error) {
     console.error('Error in getProfileAnalytics:', error)

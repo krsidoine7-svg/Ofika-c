@@ -1,16 +1,16 @@
 'use client'
 
-import { useState, useRef, useEffect } from 'react'
+import { useState, useRef, useEffect, useMemo } from 'react'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Textarea } from '@/components/ui/textarea'
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select'
 import { 
-  Pencil, 
   Camera, 
   Plus, 
   Trash2, 
   ArrowRight, 
+  ArrowLeft,
   Check, 
   Phone, 
   Mail, 
@@ -25,12 +25,18 @@ import {
   Linkedin, 
   Youtube, 
   Palette,
+  Eye,
   X,
-  AlertCircle
+  AlertCircle,
+  Sparkles,
+  Image as ImageIcon
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
 import { ProfileColorCustomizer } from '@/components/features/profiles/ProfileColorCustomizer'
+import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetTrigger } from '@/components/ui/sheet'
+import { IPhone15Frame } from '@/components/ui/iphone-15-frame'
+import { cn } from '@/lib/utils'
 
 interface MobileWysiwygEditorProps {
   formData: any
@@ -43,12 +49,21 @@ interface MobileWysiwygEditorProps {
 }
 
 const SOCIAL_PLATFORMS = [
-  { id: 'whatsapp', label: 'WhatsApp', icon: MessageCircle },
-  { id: 'instagram', label: 'Instagram', icon: Instagram },
-  { id: 'facebook', label: 'Facebook', icon: Facebook },
-  { id: 'linkedin', label: 'LinkedIn', icon: Linkedin },
-  { id: 'twitter', label: 'Twitter/X', icon: Twitter },
-  { id: 'youtube', label: 'YouTube', icon: Youtube },
+  { id: 'whatsapp', label: 'WhatsApp', icon: MessageCircle, prefix: 'https://wa.me/' },
+  { id: 'linkedin', label: 'LinkedIn', icon: Linkedin, prefix: 'https://linkedin.com/in/' },
+  { id: 'instagram', label: 'Instagram', icon: Instagram, prefix: 'https://instagram.com/' },
+  { id: 'facebook', label: 'Facebook', icon: Facebook, prefix: 'https://facebook.com/' },
+  { id: 'twitter', label: 'X / Twitter', icon: Twitter, prefix: 'https://x.com/' },
+  { id: 'youtube', label: 'YouTube', icon: Youtube, prefix: 'https://youtube.com/@' },
+]
+
+type StepId = 'identity' | 'contact' | 'links' | 'design'
+
+const STEPS: Array<{ id: StepId; label: string; shortLabel: string; icon: any }> = [
+  { id: 'identity', label: '1. Profil & Identité', shortLabel: 'Profil', icon: User },
+  { id: 'contact', label: '2. Coordonnées', shortLabel: 'Contacts', icon: Phone },
+  { id: 'links', label: '3. Réseaux & Liens', shortLabel: 'Liens', icon: Globe },
+  { id: 'design', label: '4. Thème & Style', shortLabel: 'Style', icon: Palette },
 ]
 
 export function MobileWysiwygEditor({ 
@@ -60,9 +75,11 @@ export function MobileWysiwygEditor({
   onNext,
   availableTemplates
 }: MobileWysiwygEditorProps) {
-  const [mounted, setMounted] = useState(false)
+  const [currentStep, setCurrentStep] = useState<StepId>('identity')
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false)
+  const [uploadingField, setUploadingField] = useState<'profile' | 'cover' | null>(null)
 
-  // Profile local state
+  // État local des coordonnées du profil
   const [data, setData] = useState({
     name: formData?.name || '',
     first_name: formData?.first_name || '',
@@ -79,51 +96,29 @@ export function MobileWysiwygEditor({
     custom_links: formData?.custom_links || [],
   })
 
-  // Active inline editor popup over element ('name' | 'job' | 'bio' | 'contact' | 'social' | 'custom' | null)
-  const [activeInlineEditor, setActiveInlineEditor] = useState<'name' | 'job' | 'bio' | 'contact' | 'social' | 'custom' | null>(null)
-  const [uploadingField, setUploadingField] = useState<'profile' | 'cover' | null>(null)
-
   const profileInputRef = useRef<HTMLInputElement>(null)
   const coverInputRef = useRef<HTMLInputElement>(null)
 
-  useEffect(() => {
-    setMounted(true)
-  }, [])
-
-  // --- VALIDATION DES CHAMPS ET REGLES ---
-
-  // Nettoyeur de numéro de téléphone (Empêche la saisie de lettres)
-  const sanitizePhone = (val: string) => {
-    return val.replace(/[^\d+()\s-]/g, '')
-  }
-
-  // Validateur Email
-  const isValidEmail = (email: string) => {
-    if (!email || !email.trim()) return false
-    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
-  }
-
-  // Validateur Téléphone
+  // Nettoyage et validation des champs
+  const sanitizePhone = (val: string) => val.replace(/[^\d+()\s-]/g, '')
+  const isValidEmail = (email: string) => !email || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email.trim())
   const isValidPhone = (phone: string) => {
     if (!phone || !phone.trim()) return false
     const clean = phone.trim()
     return clean.length >= 8 && /^[\d+()\s-]+$/.test(clean)
   }
 
-  // Vérification de la présence du Nom / Prénom
   const hasName = Boolean(
     (data.first_name && data.first_name.trim().length >= 2) || 
     (data.last_name && data.last_name.trim().length >= 2) || 
     (data.name && data.name.trim().length >= 2 && data.name !== 'Votre Nom')
   )
 
-  // Vérification de la présence d'au moins 1 contact valide (Téléphone OU Email)
   const hasValidContact = Boolean(
     (data.phone && isValidPhone(data.phone)) || 
-    (data.email && isValidEmail(data.email))
+    (data.email && isValidEmail(data.email) && data.email.trim().length > 3)
   )
 
-  // Le formulaire global est-il valide pour continuer ?
   const isFormValid = hasName && hasValidContact
 
   const updateProfileData = (updates: Partial<typeof data>) => {
@@ -138,19 +133,19 @@ export function MobileWysiwygEditor({
     onChange(updated)
   }
 
-  // Upload d'image direct
+  // Téléversement d'image optimisé
   const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>, type: 'profile' | 'cover') => {
     const file = event.target.files?.[0]
     if (!file) return
 
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/gif', 'image/webp']
     if (!allowedTypes.includes(file.type.toLowerCase())) {
-      toast.error('Format d\'image non supporté')
+      toast.error("Format d'image non supporté (utilisez JPG ou PNG)")
       return
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      toast.error('Fichier trop lourd (max 5MB)')
+      toast.error('Fichier trop lourd (maximum 5 Mo)')
       return
     }
 
@@ -166,7 +161,7 @@ export function MobileWysiwygEditor({
     }
     reader.readAsDataURL(file)
 
-    // Upload vers Supabase Storage
+    // Upload Supabase Storage
     try {
       setUploadingField(type)
       const supabase = createClient()
@@ -189,20 +184,21 @@ export function MobileWysiwygEditor({
           }
         }
       }
-    } catch (e) {
-      console.log('Preview locale active')
+      toast.success(type === 'profile' ? "Photo de profil ajoutée" : "Photo de couverture ajoutée")
+    } catch {
+      // Prévisualisation locale conservée
     } finally {
       setUploadingField(null)
     }
   }
 
-  // Réseaux sociaux (max 4)
+  // Gestion des liens réseaux
   const addSocialLink = () => {
     if (data.social_links.length >= 4) {
-      toast.error('Maximum 4 réseaux sociaux autorisés')
+      toast.error('Maximum 4 réseaux sociaux')
       return
     }
-    updateProfileData({ social_links: [...data.social_links, { platform: 'instagram', url: '' }] })
+    updateProfileData({ social_links: [...data.social_links, { platform: 'linkedin', url: '' }] })
   }
 
   const updateSocialLink = (index: number, field: 'platform' | 'url', value: string) => {
@@ -215,10 +211,10 @@ export function MobileWysiwygEditor({
     updateProfileData({ social_links: data.social_links.filter((_: any, i: number) => i !== index) })
   }
 
-  // Autres liens (max 4)
+  // Gestion des autres liens
   const addCustomLink = () => {
     if (data.custom_links.length >= 4) {
-      toast.error('Maximum 4 autres liens autorisés')
+      toast.error('Maximum 4 autres liens')
       return
     }
     updateProfileData({ custom_links: [...data.custom_links, { title: '', url: '' }] })
@@ -234,279 +230,581 @@ export function MobileWysiwygEditor({
     updateProfileData({ custom_links: data.custom_links.filter((_: any, i: number) => i !== index) })
   }
 
-  return (
-    <div className="w-full flex flex-col items-center pb-28" suppressHydrationWarning>
-      
-      {/* 1. SELECTION DU STYLE DE CARTE (Pilules défilantes) */}
-      <div className="w-full mb-3 flex flex-col items-center px-1" suppressHydrationWarning>
-        <div className="flex items-center justify-between w-full mb-1.5 px-1">
-          <span className="text-xs font-bold text-gray-800 flex items-center gap-1.5">
-            <Palette className="w-3.5 h-3.5 text-orange-500" />
-            Style du template :
-          </span>
-          <span className="text-[10px] text-gray-400">Glissez pour choisir</span>
-        </div>
+  // Navigation entre étapes
+  const currentStepIndex = STEPS.findIndex(s => s.id === currentStep)
+  const isFirstStep = currentStepIndex === 0
+  const isLastStep = currentStepIndex === STEPS.length - 1
 
-        <div className="flex items-center gap-1.5 overflow-x-auto w-full custom-scrollbar py-1 px-1">
-          {availableTemplates.map((t) => {
-            const Icon = t.icon
-            const isSelected = selectedDesign === t.id
+  const handleNextStep = () => {
+    if (currentStep === 'identity' && !hasName) {
+      toast.error("Veuillez indiquer au moins votre nom ou prénom")
+      return
+    }
+    if (currentStep === 'contact' && !hasValidContact) {
+      toast.error("Veuillez renseigner un numéro de téléphone ou un email valide")
+      return
+    }
+
+    if (isLastStep) {
+      if (isFormValid) {
+        onNext()
+      } else {
+        toast.error("Vérifiez votre nom et vos coordonnées avant de finaliser")
+      }
+    } else {
+      setCurrentStep(STEPS[currentStepIndex + 1].id)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
+
+  const handlePrevStep = () => {
+    if (!isFirstStep) {
+      setCurrentStep(STEPS[currentStepIndex - 1].id)
+      window.scrollTo({ top: 0, behavior: 'smooth' })
+    }
+  }
+
+  return (
+    <div className="w-full flex flex-col items-center pb-36 text-neutral-900" suppressHydrationWarning>
+      
+      {/* 1. BARRE DE NAVIGATION SUPÉRIEURE ÉPURÉE (Style Apple / Linear) */}
+      <div className="w-full sticky top-0 z-30 bg-white/95 backdrop-blur-md pt-1 pb-3 border-b border-neutral-200/80 mb-6">
+        <div className="flex items-center justify-between gap-1 max-w-md mx-auto px-2">
+          {STEPS.map((step, idx) => {
+            const isActive = currentStep === step.id
+            const isDone = (
+              (step.id === 'identity' && hasName) ||
+              (step.id === 'contact' && hasValidContact) ||
+              (step.id === 'links' && (data.social_links.length > 0 || data.custom_links.length > 0))
+            )
+
             return (
               <button
-                key={t.id}
+                key={step.id}
                 type="button"
-                onClick={() => onDesignChange(t.id)}
-                className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-semibold whitespace-nowrap transition-all duration-200 ${
-                  isSelected
-                    ? 'bg-gradient-to-r from-orange-500 to-amber-500 text-white shadow-md scale-105'
-                    : 'bg-white text-gray-700 hover:text-gray-900 border border-gray-200'
-                }`}
+                onClick={() => setCurrentStep(step.id)}
+                className={cn(
+                  "flex-1 flex items-center justify-center gap-1.5 py-2 px-1.5 rounded-lg text-xs font-medium transition-all",
+                  isActive
+                    ? "bg-neutral-950 text-white shadow-xs font-semibold"
+                    : isDone
+                    ? "text-neutral-900 hover:bg-neutral-100"
+                    : "text-neutral-400 hover:text-neutral-700 hover:bg-neutral-50"
+                )}
               >
-                <Icon className={`w-3.5 h-3.5 ${isSelected ? 'text-white' : 'text-orange-500'}`} />
-                <span>{t.label}</span>
+                <span className={cn(
+                  "w-4 h-4 rounded-full flex items-center justify-center text-[10px] shrink-0",
+                  isActive 
+                    ? "bg-white/20 text-white" 
+                    : isDone
+                    ? "bg-emerald-100 text-emerald-800 font-bold"
+                    : "bg-neutral-100 text-neutral-500"
+                )}>
+                  {isDone && !isActive ? <Check className="w-2.5 h-2.5" /> : idx + 1}
+                </span>
+                <span className="truncate">{step.shortLabel}</span>
               </button>
             )
           })}
         </div>
-
-        {/* Personnalisation des couleurs (fond + accent) */}
-        <ProfileColorCustomizer
-          className="mt-2"
-          currentSettings={formData?.theme_settings || {}}
-          designId={selectedDesign}
-          onChange={(theme_settings) => onChange({ theme_settings })}
-        />
       </div>
 
-      {/* 2. LE TEMPLATE REEL RENDU DANS LE VIEWPORT MOBILE AVEC CRAYONS DE MODIFICATION OVERLAY */}
-      <div className="w-full max-w-md mx-auto relative rounded-2xl border border-gray-200/90 shadow-sm overflow-hidden bg-white">
+      {/* 2. CONTENU DU FORMULAIRE & APERÇU LIVE INTÉGRÉ */}
+      <div className="w-full max-w-md mx-auto px-3 space-y-5">
         
-        {/* BOUTONS CRAYONS INTERACTIFS DIRECTEMENT SUR LE TEMPLATE */}
-        <div className="absolute top-3 left-3 z-30 flex items-center gap-1.5 bg-black/60 backdrop-blur-md text-white p-1 rounded-full text-xs shadow-lg">
-          {/* Crayon Photo de Profil */}
-          <button 
-            type="button"
-            className="p-1.5 hover:bg-orange-500 rounded-full transition-colors flex items-center gap-1"
-            title="Modifier Photo de Profil"
-            onClick={() => profileInputRef.current?.click()}
-          >
-            <Camera className="w-4 h-4 text-white" />
-            <span className="text-[10px] font-bold pr-1">Photo</span>
-          </button>
+        {/* MINI CARTE LIVE EN HAUT : L'utilisateur voit sa carte se construire sous ses yeux */}
+        <div 
+          onClick={() => setIsPreviewOpen(true)}
+          className="w-full relative rounded-2xl border border-neutral-200/90 overflow-hidden bg-white shadow-xs cursor-pointer group hover:border-neutral-400 transition-all"
+        >
+          {/* Bandeau d'état au-dessus de la carte */}
+          <div className="flex items-center justify-between px-3 py-2 bg-neutral-50/90 border-b border-neutral-100">
+            <span className="inline-flex items-center gap-1.5 text-[11px] font-semibold text-neutral-800">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              Rendu en direct de votre profil
+            </span>
+            <span className="inline-flex items-center gap-1 text-[11px] font-medium text-neutral-500 group-hover:text-neutral-950 transition-colors">
+              <Eye className="w-3.5 h-3.5" />
+              <span>Agrandir</span>
+            </span>
+          </div>
 
-          <span className="w-px h-3 bg-white/30" />
-
-          {/* Crayon Photo de Couverture */}
-          <button 
-            type="button"
-            className="p-1.5 hover:bg-orange-500 rounded-full transition-colors flex items-center gap-1"
-            title="Modifier Photo de Couverture"
-            onClick={() => coverInputRef.current?.click()}
-          >
-            <Pencil className="w-4 h-4 text-white" />
-            <span className="text-[10px] font-bold pr-1">Couverture</span>
-          </button>
+          {/* Rendu miniature interactif */}
+          <div className="w-full h-44 sm:h-48 overflow-hidden pointer-events-none flex items-start justify-center pt-2 bg-neutral-50/40">
+            <div className="w-[340px] scale-[0.62] sm:scale-[0.68] origin-top">
+              {renderPreview(selectedDesign)}
+            </div>
+          </div>
         </div>
-
-        {/* BOUTONS D'ÉDITION DIRECTE DU TEXTE SUR LE TEMPLATE */}
-        <div className="absolute top-3 right-3 z-30 flex items-center gap-1 bg-black/60 backdrop-blur-md text-white p-1 rounded-full text-xs shadow-lg">
-          <button 
-            type="button"
-            className={`p-1.5 rounded-full transition-colors flex items-center gap-1 ${
-              activeInlineEditor === 'name' ? 'bg-orange-500' : 'hover:bg-white/20'
-            }`}
-            onClick={() => setActiveInlineEditor(activeInlineEditor === 'name' ? null : 'name')}
-          >
-            <Pencil className="w-3.5 h-3.5" />
-            <span className="text-[10px] font-bold">Nom & Bio</span>
-          </button>
-
-          <button 
-            type="button"
-            className={`p-1.5 rounded-full transition-colors flex items-center gap-1 ${
-              activeInlineEditor === 'contact' ? 'bg-orange-500' : 'hover:bg-white/20'
-            }`}
-            onClick={() => setActiveInlineEditor(activeInlineEditor === 'contact' ? null : 'contact')}
-          >
-            <Phone className="w-3.5 h-3.5" />
-            <span className="text-[10px] font-bold">Contacts</span>
-          </button>
-
-          <button 
-            type="button"
-            className={`p-1.5 rounded-full transition-colors flex items-center gap-1 ${
-              activeInlineEditor === 'social' ? 'bg-orange-500' : 'hover:bg-white/20'
-            }`}
-            onClick={() => setActiveInlineEditor(activeInlineEditor === 'social' ? null : 'social')}
-          >
-            <Globe className="w-3.5 h-3.5" />
-            <span className="text-[10px] font-bold">Liens</span>
-          </button>
-        </div>
-
-        {/* MODALE D'ÉDITION DIRECTE DE CHAMP SUR LE TEMPLATE */}
-        {activeInlineEditor && (
-          <div className="absolute inset-x-2 top-14 z-40 bg-white/95 backdrop-blur-md rounded-xl border border-orange-300 shadow-2xl p-3 animate-in fade-in zoom-in-95 duration-150">
-            <div className="flex items-center justify-between pb-1.5 mb-2 border-b border-gray-100">
-              <span className="text-xs font-bold text-gray-900 flex items-center gap-1">
-                <Pencil className="w-3.5 h-3.5 text-orange-500" />
-                {activeInlineEditor === 'name' && 'Modifier Nom, Poste & Bio (Requis)'}
-                {activeInlineEditor === 'contact' && 'Modifier les Coordonnées (Requis)'}
-                {activeInlineEditor === 'social' && 'Modifier les Liens'}
-              </span>
-              <Button size="icon" variant="ghost" className="h-6 w-6 text-gray-400 hover:text-gray-600" onClick={() => setActiveInlineEditor(null)}>
-                <X className="w-3.5 h-3.5" />
-              </Button>
+        
+        {/* === ÉTAPE 1 : IDENTITÉ & PHOTO === */}
+        {currentStep === 'identity' && (
+          <div className="space-y-5 animate-in fade-in duration-200">
+            <div>
+              <h2 className="text-lg font-semibold text-neutral-950 tracking-tight">
+                Votre Identité
+              </h2>
+              <p className="text-xs text-neutral-500 mt-0.5">
+                Ces informations apparaîtront en tête de votre carte de visite connectée.
+              </p>
             </div>
 
-            {/* FORMULAIRE OVERLAY REACTIF EN TEMPS REEL */}
-            {activeInlineEditor === 'name' && (
-              <div className="space-y-2">
-                <div className="grid grid-cols-2 gap-1.5">
-                  <div>
-                    <label className="text-[10px] font-semibold text-gray-500">Prénom</label>
-                    <Input value={data.first_name} placeholder="Prénom" className="h-8 text-xs" onChange={(e) => updateProfileData({ first_name: e.target.value })} />
-                  </div>
-                  <div>
-                    <label className="text-[10px] font-semibold text-gray-500">Nom *</label>
-                    <Input value={data.last_name} placeholder="Nom *" className="h-8 text-xs font-bold border-orange-200" onChange={(e) => updateProfileData({ last_name: e.target.value })} />
-                  </div>
-                </div>
-                {!hasName && (
-                  <p className="text-[10px] text-red-500 font-semibold flex items-center gap-1">
-                    <AlertCircle className="w-3 h-3" /> Veuillez indiquer votre nom ou prénom (requis)
-                  </p>
+            {/* Téléversement Photo de Profil */}
+            <div className="p-4 rounded-xl border border-neutral-200/80 bg-neutral-50/50 flex items-center gap-4">
+              <div 
+                onClick={() => profileInputRef.current?.click()}
+                className="relative w-16 h-16 rounded-full bg-white border-2 border-dashed border-neutral-300 hover:border-neutral-900 cursor-pointer overflow-hidden flex items-center justify-center shrink-0 group transition-colors shadow-xs"
+              >
+                {data.image_url ? (
+                  <img src={data.image_url} alt="Photo" className="w-full h-full object-cover" />
+                ) : (
+                  <Camera className="w-6 h-6 text-neutral-400 group-hover:text-neutral-800 transition-colors" />
                 )}
-                <div className="grid grid-cols-2 gap-1.5">
-                  <Input value={data.job_title} placeholder="Poste" className="h-8 text-xs" onChange={(e) => updateProfileData({ job_title: e.target.value })} />
-                  <Input value={data.company} placeholder="Entreprise" className="h-8 text-xs" onChange={(e) => updateProfileData({ company: e.target.value })} />
-                </div>
-                <Textarea value={data.bio} placeholder="Biographie..." className="text-xs h-14 resize-none" onChange={(e) => updateProfileData({ bio: e.target.value })} />
-              </div>
-            )}
-
-            {activeInlineEditor === 'contact' && (
-              <div className="space-y-2">
-                <div>
-                  <label className="text-[10px] font-semibold text-gray-500">Téléphone (Chiffres uniquement)</label>
-                  <Input 
-                    value={data.phone} 
-                    placeholder="ex: +2250102030405" 
-                    className="h-8 text-xs" 
-                    onChange={(e) => updateProfileData({ phone: sanitizePhone(e.target.value) })} 
-                  />
-                  {data.phone && !isValidPhone(data.phone) && (
-                    <p className="text-[10px] text-red-500 mt-0.5">Format de téléphone invalide (min 8 chiffres)</p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="text-[10px] font-semibold text-gray-500">Email</label>
-                  <Input 
-                    value={data.email} 
-                    placeholder="contact@exemple.com" 
-                    className="h-8 text-xs" 
-                    onChange={(e) => updateProfileData({ email: e.target.value })} 
-                  />
-                  {data.email && !isValidEmail(data.email) && (
-                    <p className="text-[10px] text-red-500 mt-0.5">Format d'email invalide (ex: nom@domaine.com)</p>
-                  )}
-                </div>
-
-                <div>
-                  <label className="text-[10px] font-semibold text-gray-500">Localisation</label>
-                  <Input value={data.location} placeholder="Localisation" className="h-8 text-xs" onChange={(e) => updateProfileData({ location: e.target.value })} />
-                </div>
-
-                {!hasValidContact && (
-                  <p className="text-[10px] text-red-500 font-semibold flex items-center gap-1 pt-1">
-                    <AlertCircle className="w-3 h-3" /> Au moins un téléphone ou un email valide est requis.
-                  </p>
+                {uploadingField === 'profile' && (
+                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                    <span className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  </div>
                 )}
               </div>
-            )}
 
-            {activeInlineEditor === 'social' && (
-              <div className="space-y-2 max-h-56 overflow-y-auto custom-scrollbar">
-                <div className="flex justify-between items-center">
-                  <span className="text-[11px] font-bold text-gray-700">Réseaux ({data.social_links.length}/4)</span>
-                  <Button type="button" variant="outline" size="sm" className="h-6 px-2 text-[10px] font-bold text-orange-600" disabled={data.social_links.length >= 4} onClick={addSocialLink}>
-                    <Plus className="w-3 h-3 mr-1" /> Ajouter
+              <div className="flex-1 min-w-0">
+                <p className="text-xs font-semibold text-neutral-900">Photo de profil</p>
+                <p className="text-[11px] text-neutral-500 mt-0.5">Format JPG, PNG (visage centré)</p>
+                <div className="flex items-center gap-2 mt-2">
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={() => profileInputRef.current?.click()}
+                    className="h-7 text-xs px-2.5 bg-white border-neutral-200 hover:bg-neutral-100 text-neutral-800 font-medium"
+                  >
+                    {data.image_url ? 'Changer' : 'Ajouter une photo'}
                   </Button>
+                  {data.image_url && (
+                    <button
+                      type="button"
+                      onClick={() => updateProfileData({ image_url: null })}
+                      className="text-[11px] text-neutral-400 hover:text-rose-600 transition-colors"
+                    >
+                      Supprimer
+                    </button>
+                  )}
                 </div>
-                {data.social_links.map((link: any, index: number) => (
-                  <div key={index} className="flex gap-1 items-center bg-gray-50 p-1 rounded-lg border">
-                    <Select value={link.platform} onValueChange={(val) => updateSocialLink(index, 'platform', val)}>
-                      <SelectTrigger className="h-7 text-[11px] w-24 bg-white"><SelectValue placeholder="Réseau" /></SelectTrigger>
-                      <SelectContent>{SOCIAL_PLATFORMS.map(p => (<SelectItem key={p.id} value={p.id} className="text-xs">{p.label}</SelectItem>))}</SelectContent>
-                    </Select>
-                    <Input value={link.url} placeholder="https://..." className="h-7 text-[11px] flex-1 bg-white" onChange={(e) => updateSocialLink(index, 'url', e.target.value)} />
-                    <Button size="icon" variant="ghost" className="h-7 w-7 text-red-500 hover:bg-red-50" onClick={() => removeSocialLink(index)}><Trash2 className="w-3.5 h-3.5" /></Button>
-                  </div>
-                ))}
-
-                <div className="flex justify-between items-center pt-1.5 border-t">
-                  <span className="text-[11px] font-bold text-gray-700">Autres Liens ({data.custom_links.length}/4)</span>
-                  <Button type="button" variant="outline" size="sm" className="h-6 px-2 text-[10px] font-bold text-orange-600" disabled={data.custom_links.length >= 4} onClick={addCustomLink}>
-                    <Plus className="w-3 h-3 mr-1" /> Ajouter
-                  </Button>
-                </div>
-                {data.custom_links.map((link: any, index: number) => (
-                  <div key={index} className="flex gap-1 items-center bg-gray-50 p-1 rounded-lg border">
-                    <Input value={link.title} placeholder="Titre" className="h-7 text-[11px] w-24 bg-white" onChange={(e) => updateCustomLink(index, 'title', e.target.value)} />
-                    <Input value={link.url} placeholder="https://..." className="h-7 text-[11px] flex-1 bg-white" onChange={(e) => updateCustomLink(index, 'url', e.target.value)} />
-                    <Button size="icon" variant="ghost" className="h-7 w-7 text-red-500 hover:bg-red-50" onClick={() => removeCustomLink(index)}><Trash2 className="w-3.5 h-3.5" /></Button>
-                  </div>
-                ))}
               </div>
-            )}
+            </div>
 
-            <Button className="w-full mt-2 bg-orange-500 hover:bg-orange-600 font-bold h-7 text-xs" onClick={() => setActiveInlineEditor(null)}>
-              Valider
-            </Button>
+            {/* Prénom & Nom */}
+            <div className="grid grid-cols-2 gap-3">
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-neutral-700">Prénom</label>
+                <Input 
+                  value={data.first_name} 
+                  placeholder="ex: Marie" 
+                  className="h-11 text-xs bg-white border-neutral-200 rounded-lg placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-neutral-950" 
+                  onChange={(e) => updateProfileData({ first_name: e.target.value })} 
+                />
+              </div>
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-neutral-700">Nom *</label>
+                <Input 
+                  value={data.last_name} 
+                  placeholder="ex: Konan" 
+                  className={cn(
+                    "h-11 text-xs bg-white rounded-lg placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-neutral-950",
+                    !hasName ? "border-amber-300" : "border-neutral-200"
+                  )} 
+                  onChange={(e) => updateProfileData({ last_name: e.target.value })} 
+                />
+              </div>
+            </div>
+
+            {/* Titre & Entreprise */}
+            <div className="space-y-3">
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-neutral-700">Fonction / Titre professionnel</label>
+                <Input 
+                  value={data.job_title} 
+                  placeholder="ex: Directrice Commerciale, Consultant, etc." 
+                  className="h-11 text-xs bg-white border-neutral-200 rounded-lg placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-neutral-950" 
+                  onChange={(e) => updateProfileData({ job_title: e.target.value })} 
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-neutral-700">Entreprise ou Activité</label>
+                <Input 
+                  value={data.company} 
+                  placeholder="ex: Cabinet Consulting, Ofika, etc." 
+                  className="h-11 text-xs bg-white border-neutral-200 rounded-lg placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-neutral-950" 
+                  onChange={(e) => updateProfileData({ company: e.target.value })} 
+                />
+              </div>
+
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-neutral-700">Bio courte (facultatif)</label>
+                <Textarea 
+                  value={data.bio} 
+                  placeholder="Décrivez votre activité ou votre proposition de valeur en 1 ou 2 phrases..." 
+                  className="text-xs h-20 resize-none bg-white border-neutral-200 rounded-lg placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-neutral-950" 
+                  onChange={(e) => updateProfileData({ bio: e.target.value })} 
+                />
+              </div>
+            </div>
           </div>
         )}
 
-        {/* INPUTS FICHIERS IMAGE MASQUÉS */}
-        <input ref={profileInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, 'profile')} />
-        <input ref={coverInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, 'cover')} />
+        {/* === ÉTAPE 2 : COORDONNÉES DIRECTES === */}
+        {currentStep === 'contact' && (
+          <div className="space-y-5 animate-in fade-in duration-200">
+            <div>
+              <h2 className="text-lg font-semibold text-neutral-950 tracking-tight">
+                Vos Coordonnées
+              </h2>
+              <p className="text-xs text-neutral-500 mt-0.5">
+                Permettez à vos interlocuteurs de vous contacter et d&apos;enregistrer votre fiche contact en 1 geste.
+              </p>
+            </div>
 
-        {/* RENDU VRAI DU TEMPLATE SÉLECTIONNÉ */}
-        <div className="w-full h-full relative">
-          {renderPreview(selectedDesign)}
-        </div>
-      </div>
+            <div className="space-y-4">
+              {/* Téléphone / WhatsApp */}
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-neutral-700 flex items-center justify-between">
+                  <span>Numéro de téléphone / WhatsApp *</span>
+                  <span className="text-[10px] text-neutral-400">Recommandé</span>
+                </label>
+                <div className="relative">
+                  <Phone className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
+                  <Input 
+                    value={data.phone} 
+                    placeholder="ex: +225 05 03 68 15 88" 
+                    className="pl-9 h-11 text-xs bg-white border-neutral-200 rounded-lg placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-neutral-950 font-mono" 
+                    onChange={(e) => updateProfileData({ phone: sanitizePhone(e.target.value) })} 
+                  />
+                </div>
+                {data.phone && !isValidPhone(data.phone) && (
+                  <p className="text-[11px] text-amber-600 mt-1">Numéro incomplet (minimum 8 chiffres)</p>
+                )}
+              </div>
 
-      {/* 3. BOUTON SUIVANT STICKY EN BAS D'ÉCRAN (DESACTIVES SI FORMULAIRE INVALIDE) */}
-      <div className="fixed bottom-0 left-0 right-0 p-3 bg-white/95 backdrop-blur-md border-t border-gray-200 z-50 flex flex-col items-center justify-center gap-1">
-        
-        {/* Message d'explication si désactivé */}
-        {!isFormValid && (
-          <p className="text-[10px] font-semibold text-orange-600 flex items-center gap-1 text-center">
-            <AlertCircle className="w-3 h-3 text-orange-500 flex-shrink-0" />
-            {!hasName 
-              ? "Veuillez indiquer votre nom dans 'Nom & Bio'" 
-              : "Renseignez un numéro de téléphone ou un email valide dans 'Contacts'"
-            }
-          </p>
+              {/* Email professionnel */}
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-neutral-700 flex items-center justify-between">
+                  <span>Email professionnel *</span>
+                  <span className="text-[10px] text-neutral-400">Pour recevoir des messages</span>
+                </label>
+                <div className="relative">
+                  <Mail className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
+                  <Input 
+                    type="email"
+                    value={data.email} 
+                    placeholder="ex: contact@ofika.ci" 
+                    className="pl-9 h-11 text-xs bg-white border-neutral-200 rounded-lg placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-neutral-950" 
+                    onChange={(e) => updateProfileData({ email: e.target.value })} 
+                  />
+                </div>
+                {data.email && !isValidEmail(data.email) && (
+                  <p className="text-[11px] text-amber-600 mt-1">Format d&apos;email invalide (ex: nom@domaine.com)</p>
+                )}
+              </div>
+
+              {/* Localisation */}
+              <div className="space-y-1">
+                <label className="text-xs font-semibold text-neutral-700">Ville & Pays</label>
+                <div className="relative">
+                  <MapPin className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-neutral-400" />
+                  <Input 
+                    value={data.location} 
+                    placeholder="ex: Abidjan, Côte d'Ivoire" 
+                    className="pl-9 h-11 text-xs bg-white border-neutral-200 rounded-lg placeholder:text-neutral-400 focus-visible:ring-1 focus-visible:ring-neutral-950" 
+                    onChange={(e) => updateProfileData({ location: e.target.value })} 
+                  />
+                </div>
+              </div>
+            </div>
+
+            {!hasValidContact && (
+              <div className="p-3 rounded-lg border border-amber-200 bg-amber-50/60 text-xs text-amber-800 flex items-center gap-2">
+                <AlertCircle className="w-4 h-4 shrink-0" />
+                <span>Renseignez au moins un numéro de téléphone ou un email pour continuer.</span>
+              </div>
+            )}
+          </div>
         )}
 
-        <Button 
-          disabled={!isFormValid}
-          onClick={() => {
-            if (isFormValid) {
-              onNext()
-            }
-          }}
-          className={`w-full max-w-md h-12 font-bold text-sm rounded-xl flex items-center justify-center gap-2 transition-all ${
-            isFormValid
-              ? 'bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 text-white shadow-lg shadow-orange-500/25 cursor-pointer'
-              : 'bg-gray-200 text-gray-400 border border-gray-300 cursor-not-allowed shadow-none'
-          }`}
-        >
-          <span>Suivant (Créer mon compte)</span>
-          <ArrowRight className="w-4 h-4" />
-        </Button>
+        {/* === ÉTAPE 3 : RÉSEAUX & LIENS === */}
+        {currentStep === 'links' && (
+          <div className="space-y-6 animate-in fade-in duration-200">
+            <div>
+              <h2 className="text-lg font-semibold text-neutral-950 tracking-tight">
+                Réseaux & Liens Clés
+              </h2>
+              <p className="text-xs text-neutral-500 mt-0.5">
+                Connectez vos profils professionnels, réseaux et liens vers vos services.
+              </p>
+            </div>
+
+            {/* Réseaux Sociaux */}
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-neutral-800">
+                  Réseaux Sociaux ({data.social_links.length}/4)
+                </span>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  size="sm" 
+                  disabled={data.social_links.length >= 4} 
+                  onClick={addSocialLink}
+                  className="h-7 px-2.5 text-xs bg-white border-neutral-200 text-neutral-700 hover:bg-neutral-50 font-medium"
+                >
+                  <Plus className="w-3.5 h-3.5 mr-1" /> Ajouter
+                </Button>
+              </div>
+
+              {data.social_links.length === 0 ? (
+                <div className="p-4 rounded-xl border border-dashed border-neutral-200 text-center text-xs text-neutral-400">
+                  Aucun réseau ajouté. Cliquez sur &quot;Ajouter&quot; pour relier LinkedIn, WhatsApp, etc.
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {data.social_links.map((link: any, index: number) => (
+                    <div key={index} className="flex gap-2 items-center bg-neutral-50/70 p-2 rounded-xl border border-neutral-200/80">
+                      <Select value={link.platform} onValueChange={(val) => updateSocialLink(index, 'platform', val)}>
+                        <SelectTrigger className="h-9 text-xs w-28 bg-white border-neutral-200 rounded-lg">
+                          <SelectValue placeholder="Réseau" />
+                        </SelectTrigger>
+                        <SelectContent className="bg-white border-neutral-200">
+                          {SOCIAL_PLATFORMS.map(p => (
+                            <SelectItem key={p.id} value={p.id} className="text-xs">
+                              {p.label}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      
+                      <Input 
+                        value={link.url} 
+                        placeholder="Lien ou identifiant..." 
+                        className="h-9 text-xs flex-1 bg-white border-neutral-200 rounded-lg placeholder:text-neutral-400" 
+                        onChange={(e) => updateSocialLink(index, 'url', e.target.value)} 
+                      />
+                      
+                      <Button 
+                        size="icon" 
+                        variant="ghost" 
+                        className="h-9 w-9 text-neutral-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg shrink-0" 
+                        onClick={() => removeSocialLink(index)}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Autres Liens Personnalisés */}
+            <div className="space-y-3 pt-2 border-t border-neutral-100">
+              <div className="flex items-center justify-between">
+                <span className="text-xs font-semibold text-neutral-800">
+                  Autres Liens / Boutons ({data.custom_links.length}/4)
+                </span>
+                <Button 
+                  type="button" 
+                  variant="outline" 
+                  size="sm" 
+                  disabled={data.custom_links.length >= 4} 
+                  onClick={addCustomLink}
+                  className="h-7 px-2.5 text-xs bg-white border-neutral-200 text-neutral-700 hover:bg-neutral-50 font-medium"
+                >
+                  <Plus className="w-3.5 h-3.5 mr-1" /> Ajouter
+                </Button>
+              </div>
+
+              {data.custom_links.length === 0 ? (
+                <div className="p-4 rounded-xl border border-dashed border-neutral-200 text-center text-xs text-neutral-400">
+                  Ajoutez un lien vers votre portfolio, catalogue, prise de rendez-vous ou site web.
+                </div>
+              ) : (
+                <div className="space-y-2">
+                  {data.custom_links.map((link: any, index: number) => (
+                    <div key={index} className="flex gap-2 items-center bg-neutral-50/70 p-2 rounded-xl border border-neutral-200/80">
+                      <Input 
+                        value={link.title} 
+                        placeholder="Titre (ex: Mon site)" 
+                        className="h-9 text-xs w-32 bg-white border-neutral-200 rounded-lg placeholder:text-neutral-400" 
+                        onChange={(e) => updateCustomLink(index, 'title', e.target.value)} 
+                      />
+                      <Input 
+                        value={link.url} 
+                        placeholder="https://mon-site.com" 
+                        className="h-9 text-xs flex-1 bg-white border-neutral-200 rounded-lg placeholder:text-neutral-400" 
+                        onChange={(e) => updateCustomLink(index, 'url', e.target.value)} 
+                      />
+                      <Button 
+                        size="icon" 
+                        variant="ghost" 
+                        className="h-9 w-9 text-neutral-400 hover:text-rose-600 hover:bg-rose-50 rounded-lg shrink-0" 
+                        onClick={() => removeCustomLink(index)}
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </Button>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* === ÉTAPE 4 : DESIGN & STYLE === */}
+        {currentStep === 'design' && (
+          <div className="space-y-5 animate-in fade-in duration-200">
+            <div>
+              <h2 className="text-lg font-semibold text-neutral-950 tracking-tight">
+                Style & Univers Visuel
+              </h2>
+              <p className="text-xs text-neutral-500 mt-0.5">
+                Sélectionnez le template qui mettra le mieux en valeur vos compétences.
+              </p>
+            </div>
+
+            {/* Grille des Templates Épurée */}
+            <div className="grid grid-cols-2 gap-2.5">
+              {availableTemplates.map((t) => {
+                const Icon = t.icon
+                const isSelected = selectedDesign === t.id
+
+                return (
+                  <button
+                    key={t.id}
+                    type="button"
+                    onClick={() => onDesignChange(t.id)}
+                    className={cn(
+                      "p-3.5 rounded-xl border text-left transition-all flex flex-col justify-between gap-3 group",
+                      isSelected
+                        ? "bg-neutral-950 text-white border-neutral-950 shadow-sm"
+                        : "bg-white text-neutral-800 border-neutral-200/80 hover:border-neutral-300 hover:bg-neutral-50/50"
+                    )}
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <div className={cn(
+                        "w-8 h-8 rounded-lg flex items-center justify-center transition-colors",
+                        isSelected 
+                          ? "bg-white/10 text-white" 
+                          : "bg-neutral-100 text-neutral-700 group-hover:text-neutral-950"
+                      )}>
+                        <Icon className="w-4 h-4" />
+                      </div>
+                      {isSelected && (
+                        <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                      )}
+                    </div>
+                    <div>
+                      <p className="text-xs font-semibold">{t.label}</p>
+                      <p className={cn("text-[10px] mt-0.5", isSelected ? "text-neutral-300" : "text-neutral-400")}>
+                        {isSelected ? 'Actif' : 'Cliquer pour choisir'}
+                      </p>
+                    </div>
+                  </button>
+                )
+              })}
+            </div>
+
+            {/* Personnalisation Couleurs de la page */}
+            <div className="pt-2 border-t border-neutral-100">
+              <ProfileColorCustomizer
+                currentSettings={formData?.theme_settings || {}}
+                designId={selectedDesign}
+                onChange={(theme_settings) => onChange({ theme_settings })}
+              />
+            </div>
+
+            {/* Bouton d'aperçu direct dans l'étape style */}
+            <div className="p-4 rounded-xl border border-neutral-200/80 bg-neutral-50/60 flex items-center justify-between gap-3">
+              <div>
+                <p className="text-xs font-semibold text-neutral-900">Vérifier le rendu en direct</p>
+                <p className="text-[11px] text-neutral-500">Visualisez votre carte dans le simulateur iPhone 15.</p>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setIsPreviewOpen(true)}
+                className="h-8 text-xs bg-white border-neutral-200 hover:bg-neutral-100 text-neutral-800 font-medium shrink-0 flex items-center gap-1.5"
+              >
+                <Eye className="w-3.5 h-3.5 text-neutral-500" />
+                <span>Ouvrir l&apos;aperçu</span>
+              </Button>
+            </div>
+          </div>
+        )}
+      </div>
+
+      {/* 3. INPUTS FICHIERS IMAGE MASQUÉS */}
+      <input ref={profileInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, 'profile')} />
+      <input ref={coverInputRef} type="file" accept="image/*" className="hidden" onChange={(e) => handleImageUpload(e, 'cover')} />
+
+      {/* 4. BARRE D'ACTION FLOTTANTE CENTRÉE (Anti-collision, protégée des coins et safe-area) */}
+      <div className="fixed bottom-5 sm:bottom-6 inset-x-0 z-40 flex justify-center px-4 pointer-events-none pb-[env(safe-area-inset-bottom)]">
+        <div className="w-full max-w-sm sm:max-w-md bg-white/95 backdrop-blur-xl border border-neutral-200/90 shadow-[0_12px_40px_rgba(0,0,0,0.16)] rounded-2xl p-2 sm:p-2.5 flex items-center gap-2 pointer-events-auto">
+          
+          {/* Bouton Retour */}
+          {!isFirstStep && (
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={handlePrevStep}
+              className="h-10 px-3 text-xs bg-white border-neutral-200 hover:bg-neutral-100 text-neutral-800 font-medium rounded-xl shrink-0 flex items-center gap-1 cursor-pointer transition-colors"
+              aria-label="Retour à l'étape précédente"
+            >
+              <ArrowLeft className="w-3.5 h-3.5 shrink-0" />
+              <span>Retour</span>
+            </Button>
+          )}
+
+          {/* Bouton Voir l'Aperçu (Feuille coulissante) */}
+          <Sheet open={isPreviewOpen} onOpenChange={setIsPreviewOpen}>
+            <SheetTrigger asChild>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                className="h-10 px-3 text-xs bg-neutral-50 hover:bg-neutral-100 border-neutral-200 text-neutral-800 font-medium rounded-xl flex items-center gap-1.5 shrink-0 cursor-pointer transition-colors"
+                aria-label="Voir l'aperçu du profil"
+              >
+                <Eye className="w-3.5 h-3.5 text-neutral-600 shrink-0" />
+                <span>Aperçu</span>
+              </Button>
+            </SheetTrigger>
+
+            <SheetContent side="bottom" className="h-[92vh] rounded-t-3xl p-4 overflow-y-auto bg-neutral-900 border-neutral-800 flex flex-col items-center">
+              <SheetHeader className="p-2 border-b border-neutral-800 w-full flex-row items-center justify-between text-white mb-2">
+                <SheetTitle className="text-white text-sm font-semibold flex items-center gap-2">
+                  <Eye className="w-4 h-4 text-neutral-400" />
+                  Rendu en direct de votre carte
+                </SheetTitle>
+              </SheetHeader>
+              
+              <div className="w-full flex justify-center py-2">
+                <IPhone15Frame showColorPicker={false} scaleClass="scale-[0.80] origin-top">
+                  {renderPreview(selectedDesign)}
+                </IPhone15Frame>
+              </div>
+            </SheetContent>
+          </Sheet>
+
+          {/* Bouton Suivant / Valider */}
+          <Button
+            type="button"
+            onClick={handleNextStep}
+            className="flex-1 h-10 px-3.5 text-xs font-semibold bg-neutral-950 hover:bg-neutral-800 text-white rounded-xl shadow-xs flex items-center justify-center gap-1.5 transition-all active:scale-[0.99] cursor-pointer truncate"
+          >
+            <span className="truncate">{isLastStep ? 'Créer mon compte' : 'Étape suivante'}</span>
+            <ArrowRight className="w-3.5 h-3.5 shrink-0" />
+          </Button>
+        </div>
       </div>
 
     </div>

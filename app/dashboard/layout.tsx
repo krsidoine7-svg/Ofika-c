@@ -40,7 +40,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
     const pathname = usePathname()
     const { user } = useAuth()
     const { profiles } = useProfiles(impersonatedId || undefined)
-    const { getUserData } = useUser()
+    const { getUserData } = useUser() // Synchronisé avec le cache partagé
     const { signOut } = useAuth()
     const router = useRouter()
     const profileIds = profiles.map(p => p.id)
@@ -56,10 +56,19 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         }
     }
 
-    // 1. Initial check for impersonation (only once or when user changes)
+    // 1. Initial check for impersonation (uniquement si le cookie est présent dans le navigateur)
     useEffect(() => {
         const checkImpersonation = async () => {
             try {
+                // Éviter un appel API inutile si aucun mode mascarade n'est actif
+                if (typeof document !== 'undefined' && !document.cookie.includes('x-impersonating-user=')) {
+                    if (impersonatedId !== null) {
+                        setImpersonatedId(null)
+                        setImpersonatedUser(null)
+                    }
+                    return
+                }
+
                 const res = await fetch('/api/admin/impersonate')
                 const data = await res.json()
                 const val = data.impersonatingId || null
@@ -74,7 +83,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             }
         }
         checkImpersonation()
-    }, [user])
+    }, [user, impersonatedId])
 
     // 2. Load user data when identity changes
     useEffect(() => {
@@ -134,7 +143,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
     return (
         <ProtectedRoute>
-            <div className="min-h-screen bg-white flex flex-col">
+            <div className="min-h-screen bg-white flex flex-col w-full max-w-full overflow-x-hidden">
                 {/* Masquerade Banner - Enhanced UI */}
                 {impersonatedId && (
                     <div className="bg-gradient-to-r from-orange-600 via-orange-500 to-amber-600 text-white px-4 py-3 flex items-center justify-between sticky top-0 z-[100] shadow-lg animate-in slide-in-from-top duration-500 border-b border-orange-400/30">
@@ -175,7 +184,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
                     </div>
                 )}
 
-                <div className="flex flex-1 bg-white">
+                <div className="flex flex-1 bg-white w-full max-w-full overflow-x-hidden">
                     {/* Desktop Sidebar - Hidden on Admin paths to avoid double sidebar */}
                     {!isAdminPath && (
                         <aside className={cn(

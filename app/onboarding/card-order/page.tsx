@@ -18,11 +18,10 @@ import {
   Zap,
   Shield
 } from "lucide-react"
-import { CardOrderingFlow } from '@/components/features/card-ordering/CardOrderingFlow'
 import { ProtectedRoute } from "@/components/core/auth/ProtectedRoute"
 import { usePaymentMethods } from '@/lib/hooks/usePayments'
 
-type OnboardingStep = 'welcome' | 'benefits' | 'order'
+type OnboardingStep = 'welcome' | 'benefits'
 
 export default function CardOrderOnboardingPage() {
   const router = useRouter()
@@ -32,8 +31,6 @@ export default function CardOrderOnboardingPage() {
   const handleBack = () => {
     if (currentStep === 'benefits') {
       setCurrentStep('welcome')
-    } else if (currentStep === 'order') {
-      setCurrentStep('benefits')
     } else {
       router.back()
     }
@@ -43,7 +40,7 @@ export default function CardOrderOnboardingPage() {
     if (currentStep === 'welcome') {
       setCurrentStep('benefits')
     } else if (currentStep === 'benefits') {
-      setCurrentStep('order')
+      router.push('/dashboard/orders/new')
     }
   }
 
@@ -313,8 +310,6 @@ export default function CardOrderOnboardingPage() {
                 }`} />
               <div className={`w-3 h-3 rounded-full ${currentStep === 'benefits' ? 'bg-orange-500' : 'bg-gray-300'
                 }`} />
-              <div className={`w-3 h-3 rounded-full ${currentStep === 'order' ? 'bg-orange-500' : 'bg-gray-300'
-                }`} />
             </div>
           </div>
 
@@ -322,26 +317,18 @@ export default function CardOrderOnboardingPage() {
           <div className="max-w-6xl mx-auto">
             {currentStep === 'welcome' && renderWelcomeStep()}
             {currentStep === 'benefits' && renderBenefitsStep()}
-            {currentStep === 'order' && (
-              <CardOrderingFlow
-                onComplete={handleOrderComplete}
-                className="max-w-4xl mx-auto"
-              />
-            )}
           </div>
 
           {/* Navigation */}
-          {currentStep !== 'order' && (
-            <div className="flex justify-center mt-12">
-              <Button
-                onClick={handleNext}
-                size="lg"
-                className="bg-orange-500 hover:bg-orange-600 text-white px-8"
-              >
-                {currentStep === 'welcome' ? 'Découvrir les avantages' : 'Commander ma carte'}
-              </Button>
-            </div>
-          )}
+          <div className="flex justify-center mt-12">
+            <Button
+              onClick={handleNext}
+              size="lg"
+              className="bg-orange-500 hover:bg-orange-600 text-white px-8"
+            >
+              {currentStep === 'welcome' ? 'Découvrir les avantages' : 'Commander ma carte'}
+            </Button>
+          </div>
         </div>
       </div>
     </ProtectedRoute>

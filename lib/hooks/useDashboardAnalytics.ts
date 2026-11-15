@@ -15,19 +15,26 @@ interface DashboardAnalytics {
   error: string | null
 }
 
+// Cache mémoire global (TTL 60s) pour éviter de scanner la table analytics_events à chaque navigation
+const dashboardAnalyticsCache = new Map<string, { data: { totalScans: number; totalViews: number; totalClicks: number }; timestamp: number }>()
+const CACHE_TTL = 60000
+
 export function useDashboardAnalytics(profileIds: string[]) {
-  const [analytics, setAnalytics] = useState<DashboardAnalytics>({
-    totalScans: 0,
-    totalViews: 0,
-    totalClicks: 0,
-    loading: true,
+  const cacheKey = profileIds.sort().join(',')
+  const cached = cacheKey ? dashboardAnalyticsCache.get(cacheKey) : null
+  const hasFreshCache = !!(cached && (Date.now() - cached.timestamp < CACHE_TTL))
+
+  const [analytics, setAnalytics] = useState<DashboardAnalytics>(() => ({
+    totalScans: hasFreshCache && cached ? cached.data.totalScans : 0,
+    totalViews: hasFreshCache && cached ? cached.data.totalViews : 0,
+    totalClicks: hasFreshCache && cached ? cached.data.totalClicks : 0,
+    loading: !hasFreshCache && profileIds.length > 0,
     error: null
-  })
+  }))
 
   useEffect(() => {
     const fetchAnalytics = async () => {
       if (!profileIds || profileIds.length === 0) {
-        console.log('📊 useDashboardAnalytics: Aucun profil à analyser')
         setAnalytics({
           totalScans: 0,
           totalViews: 0,
@@ -38,8 +45,16 @@ export function useDashboardAnalytics(profileIds: string[]) {
         return
       }
 
-      console.log(`📊 useDashboardAnalytics: Chargement analytics pour ${profileIds.length} profil(s)`)
-      console.log('Profile IDs:', profileIds)
+      // Utiliser le cache si frais
+      const currentCached = dashboardAnalyticsCache.get(cacheKey)
+      if (currentCached && (Date.now() - currentCached.timestamp < CACHE_TTL)) {
+        setAnalytics({
+          ...currentCached.data,
+          loading: false,
+          error: null
+        })
+        return
+      }
 
       try {
         const supabase = createClient()
@@ -51,7 +66,6 @@ export function useDashboardAnalytics(profileIds: string[]) {
           .in('profile_id', profileIds)
 
         if (error) {
-          console.error('❌ Error fetching dashboard analytics:', error)
           setAnalytics(prev => ({
             ...prev,
             loading: false,
@@ -60,33 +74,20 @@ export function useDashboardAnalytics(profileIds: string[]) {
           return
         }
 
-        console.log(`✅ Analytics events récupérés: ${events?.length || 0} événements`)
-        
-        if (events && events.length > 0) {
-          console.log('Exemple d\'événements:', events.slice(0, 3))
-        }
-
         // Calculer les totaux
         const totalViews = events?.filter(e => e.event_type === 'profile_viewed').length || 0
         const totalClicks = events?.filter(e => e.event_type === 'link_clicked').length || 0
         const totalScans = events?.filter(e => e.event_type === 'qr_scanned').length || 0
 
-        console.log('📈 Statistiques calculées:', { 
-          totalViews, 
-          totalClicks, 
-          totalScans,
-          total: totalViews + totalClicks + totalScans
-        })
+        const calculated = { totalScans, totalViews, totalClicks }
+        dashboardAnalyticsCache.set(cacheKey, { data: calculated, timestamp: Date.now() })
 
         setAnalytics({
-          totalScans,
-          totalViews,
-          totalClicks,
+          ...calculated,
           loading: false,
           error: null
         })
       } catch (err: any) {
-        console.error('❌ Error in useDashboardAnalytics:', err)
         setAnalytics(prev => ({
           ...prev,
           loading: false,
@@ -96,7 +97,7 @@ export function useDashboardAnalytics(profileIds: string[]) {
     }
 
     fetchAnalytics()
-  }, [profileIds.join(',')]) // ✅ Utiliser join pour une comparaison stable
+  }, [cacheKey]) // ✅ Utiliser join pour une comparaison stable
 
   return analytics
 }

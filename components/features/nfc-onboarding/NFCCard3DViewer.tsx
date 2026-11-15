@@ -337,8 +337,8 @@ export function NFCCard3DViewer({
                 <div className="relative z-10 h-full flex flex-col justify-between">
                   {/* Top Bar on Verso */}
                   <div className="flex items-center justify-between w-full h-5">
-                    <span className={cn("text-[9px] sm:text-[10px] font-bold tracking-[0.2em] uppercase", textMutedColor)}>
-                      {company || ''}
+                    <span className={cn("text-[8px] sm:text-[9px] font-mono tracking-[0.2em] uppercase opacity-70", textMutedColor)}>
+                      CARTE CONNECTÉE
                     </span>
                     <div className="flex items-center gap-1 opacity-70">
                       <ContactlessIcon className="w-3.5 h-3.5" color={isDark ? "#FFFFFF" : "#0F172A"} />
@@ -382,8 +382,8 @@ export function NFCCard3DViewer({
                 /* Verso Design 2: Centered Executive Signature */
                 <div className="relative z-10 h-full flex flex-col justify-between text-center items-center">
                   <div className="flex items-center justify-between w-full h-5">
-                    <span className={cn("text-[9px] font-bold tracking-widest uppercase", textMutedColor)}>
-                      {company || ''}
+                    <span className={cn("text-[8px] sm:text-[9px] font-mono tracking-widest uppercase opacity-70", textMutedColor)}>
+                      CARTE CONNECTÉE
                     </span>
                     <ContactlessIcon className="w-3.5 h-3.5 opacity-70" color={isDark ? "#FFFFFF" : "#0F172A"} />
                   </div>

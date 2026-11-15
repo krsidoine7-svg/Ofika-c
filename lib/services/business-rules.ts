@@ -33,7 +33,7 @@ export class WebhookService {
 
       if (!response.ok) {
         const errorText = await response.text()
-        console.error('❌ Erreur webhook:', response.status, errorText)
+        console.warn('⚠️ Webhook externe non distribué (non bloquant):', response.status, errorText)
         return { success: false, error: `HTTP ${response.status}: ${errorText}` }
       }
 
@@ -41,7 +41,7 @@ export class WebhookService {
       return { success: true }
 
     } catch (error) {
-      console.error('❌ Erreur lors de l\'envoi du webhook simple:', error)
+      console.warn('⚠️ Webhook externe ignoré (non bloquant):', error)
       return { success: false, error: error instanceof Error ? error.message : 'Erreur inconnue' }
     }
   }

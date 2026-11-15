@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Stepper, Step } from '@/components/ui/stepper'
-import { ArrowLeft, CheckCircle, Globe, Eye, Palette, Sparkles, LayoutGrid, Leaf, Star, ShoppingBag, Moon, Briefcase, Crown, Users, Copy } from 'lucide-react'
+import { ArrowLeft, CheckCircle, Globe, Eye, Palette, Sparkles, LayoutGrid, Leaf, Star, ShoppingBag, Moon, Briefcase, Crown, Users, Copy, Check, ExternalLink, LayoutDashboard, CreditCard } from 'lucide-react'
 import { TemplateSelectionStep } from '@/components/features/profiles/TemplateSelectionStep'
 import { OnboardingWizard } from '@/components/features/profiles/onboarding/OnboardingWizard'
 import { MobileWysiwygEditor } from '@/components/features/onboarding/public-page/MobileWysiwygEditor'
@@ -106,6 +106,7 @@ export default function PublicPageOnboardingPage() {
   const [createdProfile, setCreatedProfile] = useState<any>(null)
   const [selectedDesign, setSelectedDesign] = useState<string>(DEFAULT_TEMPLATE)
   const [mounted, setMounted] = useState(false)
+  const [isCopied, setIsCopied] = useState(false)
   const supabase = createClient()
 
   useEffect(() => {
@@ -287,7 +288,6 @@ export default function PublicPageOnboardingPage() {
       }
 
       setCurrentStep('success')
-      toast.success('Félicitations ! Votre page est en ligne.')
     } catch (e) {
       toast.error('Erreur lors de la publication')
     } finally {
@@ -338,16 +338,6 @@ export default function PublicPageOnboardingPage() {
     }
   }, [user?.id, authLoading, currentStep])
 
-  // ✅ Redirection automatique vers le dashboard après 2 secondes sur la page de succès
-  useEffect(() => {
-    if (currentStep === 'success') {
-      const timer = setTimeout(() => {
-        router.push('/dashboard/profiles')
-      }, 2000)
-      return () => clearTimeout(timer)
-    }
-  }, [currentStep, router])
-
   const handleGoToDashboard = () => {
     router.push('/dashboard/profiles')
   }
@@ -364,7 +354,9 @@ export default function PublicPageOnboardingPage() {
       const url = createdProfile.custom_url || createdProfile.username
       const fullUrl = `${window.location.origin}/${url}`
       navigator.clipboard.writeText(fullUrl)
+      setIsCopied(true)
       toast.success('Lien copié dans le presse-papiers !')
+      setTimeout(() => setIsCopied(false), 2500)
     }
   }
 
@@ -416,77 +408,139 @@ export default function PublicPageOnboardingPage() {
           </Card>
         )
 
-      case 'success':
-        return (
-          <Card className="max-w-xl mx-auto border-none lg:border shadow-none lg:shadow-sm">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-green-600 justify-center">
-                <CheckCircle className="w-8 h-8" />
-                Page publique créée avec succès !
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-8 mt-4">
-                <div className="text-center space-y-4">
-                  <div className="w-24 h-24 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6 ring-8 ring-green-50/50">
-                    <CheckCircle className="w-12 h-12 text-green-500" />
-                  </div>
-                  <h3 className="text-2xl font-bold text-gray-900">
-                    Votre page est maintenant en ligne !
-                  </h3>
-                  <p className="text-gray-500 text-lg">
-                    Votre page publique est accessible via l'URL personnalisée
-                  </p>
-                </div>
+      case 'success': {
+        const profileSlug = createdProfile?.custom_url || createdProfile?.username || ''
+        const publicUrl = typeof window !== 'undefined'
+          ? `${window.location.origin}/${profileSlug}`
+          : `https://ofika.ci/${profileSlug}`
 
-                {createdProfile && (
-                  <div className="bg-white border border-gray-100 shadow-sm p-6 rounded-2xl">
-                    <h4 className="font-semibold text-gray-900 mb-4 flex items-center gap-2">
-                      <Globe className="w-4 h-4 text-blue-500" />
-                      Informations de la page
-                    </h4>
-                    <div className="space-y-4 text-sm">
-                      <div className="flex justify-between items-center py-2 border-b border-gray-50">
-                        <span className="text-gray-500">Nom</span>
-                        <span className="font-semibold text-gray-900">{createdProfile.name}</span>
-                      </div>
-                      <div className="flex justify-between items-center py-2 border-b border-gray-50">
-                        <span className="text-gray-500">URL</span>
-                        <div className="flex items-center gap-2">
-                          <span className="font-semibold text-blue-600 bg-blue-50 px-3 py-1 rounded-full">/{createdProfile.custom_url || createdProfile.username}</span>
-                        </div>
-                      </div>
-                      <div className="flex justify-between items-center py-2">
-                        <span className="text-gray-500">Design</span>
-                        <Badge variant="secondary" className="bg-gradient-to-r from-orange-500 to-amber-500 text-white border-none shadow-sm">
-                          {getTemplateLabel(selectedDesign)}
-                        </Badge>
-                      </div>
+        return (
+          <div className="w-full max-w-lg mx-auto py-4 sm:py-8 px-2 sm:px-4 text-center animate-in fade-in duration-300 pb-16">
+            
+            {/* Badge Statutaire & Épuré (Style Apple / Linear) */}
+            <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-50 text-emerald-800 border border-emerald-200/80 text-xs font-medium mx-auto mb-3">
+              <span className="w-2 h-2 rounded-full bg-emerald-500 animate-pulse" />
+              <span>Profil publié en ligne</span>
+            </div>
+
+            {/* Titre & Sous-titre */}
+            <h2 className="text-2xl sm:text-3xl font-semibold tracking-tight text-neutral-950">
+              Votre carte numérique est prête
+            </h2>
+            <p className="text-xs sm:text-sm text-neutral-500 mt-1.5 max-w-sm mx-auto">
+              Votre profil professionnel est désormais accessible publiquement et synchronisé avec vos coordonnées.
+            </p>
+
+            {/* Bento Card URL & Coordonnées */}
+            <div className="mt-6 bg-white border border-neutral-200/90 rounded-2xl p-4 sm:p-5 shadow-xs text-left space-y-4">
+              
+              {/* Bloc Copie Directe de l'URL */}
+              <div className="p-3.5 rounded-xl bg-neutral-50 border border-neutral-200/80 flex items-center justify-between gap-3">
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <div className="w-8 h-8 rounded-lg bg-neutral-950 text-white flex items-center justify-center shrink-0">
+                    <Globe className="w-4 h-4 text-white" />
+                  </div>
+                  <div className="min-w-0">
+                    <div className="text-[10px] uppercase tracking-wider font-semibold text-neutral-400">Lien public</div>
+                    <div className="text-xs sm:text-sm font-mono font-medium text-neutral-900 truncate">
+                      {publicUrl}
                     </div>
                   </div>
-                )}
+                </div>
 
-                <div className="flex flex-col gap-3 pt-4">
-                  <Button 
-                    onClick={handleCopyLink} 
-                    className="w-full bg-black text-white hover:bg-gray-800 h-12 text-base font-semibold shadow-md flex items-center justify-center gap-2"
-                  >
-                    <Copy className="w-5 h-5" />
-                    Copier le lien de ma page
-                  </Button>
-                  <div className="flex gap-3">
-                    <Button onClick={handleViewProfile} variant="outline" className="flex-1 h-12 font-medium bg-white hover:bg-gray-50 text-gray-700 border-gray-200">
-                      Voir ma page
-                    </Button>
-                    <Button variant="outline" onClick={handleGoToDashboard} className="flex-1 h-12 font-medium bg-white hover:bg-gray-50 text-gray-700 border-gray-200">
-                      Aller au dashboard
-                    </Button>
-                  </div>
+                <Button
+                  type="button"
+                  onClick={handleCopyLink}
+                  size="sm"
+                  className="h-8 px-3 text-xs bg-neutral-950 hover:bg-neutral-800 text-white font-medium rounded-lg shrink-0 flex items-center gap-1.5 cursor-pointer transition-all active:scale-95"
+                >
+                  {isCopied ? (
+                    <>
+                      <Check className="w-3.5 h-3.5 text-emerald-400" />
+                      <span>Copié</span>
+                    </>
+                  ) : (
+                    <>
+                      <Copy className="w-3.5 h-3.5" />
+                      <span>Copier</span>
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              {/* Fiche récapitulative haute densité */}
+              <div className="divide-y divide-neutral-100 text-xs">
+                <div className="py-2.5 flex items-center justify-between">
+                  <span className="text-neutral-500">Titulaire</span>
+                  <span className="font-semibold text-neutral-900">{createdProfile?.name || 'Profil Ofika'}</span>
+                </div>
+                <div className="py-2.5 flex items-center justify-between">
+                  <span className="text-neutral-500">Identifiant</span>
+                  <span className="font-mono text-neutral-700 font-medium">@{profileSlug}</span>
+                </div>
+                <div className="py-2.5 flex items-center justify-between">
+                  <span className="text-neutral-500">Modèle visuel</span>
+                  <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-neutral-100 text-neutral-800 border border-neutral-200/60 font-medium text-[11px]">
+                    {getTemplateLabel(selectedDesign)}
+                  </span>
+                </div>
+                <div className="py-2.5 flex items-center justify-between">
+                  <span className="text-neutral-500">Accessibilité</span>
+                  <span className="inline-flex items-center gap-1.5 text-emerald-700 font-medium text-[11px]">
+                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                    Sans application requise
+                  </span>
                 </div>
               </div>
-            </CardContent>
-          </Card>
+            </div>
+
+            {/* Boutons d'Action Principaux */}
+            <div className="mt-5 space-y-2.5">
+              <Button
+                type="button"
+                onClick={handleViewProfile}
+                className="w-full h-11 sm:h-12 bg-neutral-950 hover:bg-neutral-800 text-white font-medium text-xs sm:text-sm rounded-xl shadow-xs flex items-center justify-center gap-2 transition-all active:scale-[0.99] cursor-pointer"
+              >
+                <ExternalLink className="w-4 h-4" />
+                <span>Découvrir ma page publique</span>
+              </Button>
+
+              <Button
+                type="button"
+                variant="outline"
+                onClick={handleGoToDashboard}
+                className="w-full h-11 bg-white hover:bg-neutral-50 text-neutral-800 border-neutral-200 font-medium text-xs sm:text-sm rounded-xl flex items-center justify-center gap-2 transition-colors cursor-pointer"
+              >
+                <LayoutDashboard className="w-4 h-4 text-neutral-500" />
+                <span>Accéder au tableau de bord</span>
+              </Button>
+            </div>
+
+            {/* Passerelle Carte Physique NFC */}
+            <div className="mt-5 p-3.5 rounded-xl bg-neutral-50 border border-neutral-200/70 flex items-center justify-between gap-3 text-left">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-9 h-9 rounded-lg bg-white border border-neutral-200 flex items-center justify-center shrink-0">
+                  <CreditCard className="w-4 h-4 text-neutral-800" />
+                </div>
+                <div className="min-w-0">
+                  <div className="text-xs font-semibold text-neutral-900">Commander la carte physique NFC</div>
+                  <div className="text-[11px] text-neutral-500 truncate">Partagez vos coordonnées d'un geste sans contact</div>
+                </div>
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => router.push('/order/create')}
+                className="h-8 px-3 text-xs bg-white border-neutral-200 hover:bg-neutral-100 text-neutral-900 font-medium rounded-lg shrink-0 cursor-pointer"
+              >
+                Commander
+              </Button>
+            </div>
+
+          </div>
         )
+      }
 
       default:
         return null
@@ -496,7 +550,7 @@ export default function PublicPageOnboardingPage() {
   const isSplitScreen = currentStep === 'form' || currentStep === 'signup'
 
   return (
-    <div className="min-h-screen w-full bg-gradient-to-br from-blue-50 via-white to-purple-50 flex flex-col overflow-y-auto custom-scrollbar" suppressHydrationWarning>
+    <div className="min-h-screen w-full bg-white flex flex-col overflow-y-auto custom-scrollbar" suppressHydrationWarning>
       <div className="flex-1 flex flex-col p-4 sm:p-6 lg:p-8">
         <div className={`mx-auto w-full flex-1 flex flex-col ${
           isSplitScreen ? "max-w-6xl" : currentStep === 'template' ? "max-w-5xl" : "max-w-3xl"
@@ -588,21 +642,21 @@ export default function PublicPageOnboardingPage() {
             )}
           </div>
 
-          {/* Bouton d'aperçu flottant pour mobile */}
-          {(isSplitScreen || currentStep === 'template') && (
-            <div className="lg:hidden fixed bottom-6 right-6 z-40">
+          {/* Bouton d'aperçu flottant pour mobile (étape création compte uniquement) */}
+          {currentStep === 'signup' && (
+            <div className="lg:hidden fixed bottom-4 right-4 z-40">
               <Sheet>
                 <SheetTrigger asChild>
-                  <Button className="rounded-full shadow-lg bg-gradient-to-r from-orange-500 to-amber-500 hover:from-orange-600 hover:to-amber-600 font-bold gap-2 text-white px-5 py-6">
-                    <Eye className="w-5 h-5" />
-                    Aperçu
+                  <Button className="rounded-xl shadow-md bg-neutral-950 hover:bg-neutral-800 text-xs font-semibold gap-1.5 text-white px-4 h-11">
+                    <Eye className="w-4 h-4 text-orange-400" />
+                    <span>Aperçu en direct</span>
                   </Button>
                 </SheetTrigger>
-                <SheetContent side="bottom" className="h-[95vh] rounded-t-[2.5rem] p-4 overflow-y-auto bg-gray-900 border-gray-800 flex flex-col items-center justify-start">
-                  <SheetHeader className="p-2 border-b border-gray-800 bg-gray-900 flex-row items-center justify-between text-white w-full mb-2">
-                    <SheetTitle className="text-white flex items-center gap-2">
-                      <Eye className="w-5 h-5 text-orange-500" />
-                      Aperçu en direct
+                <SheetContent side="bottom" className="h-[92vh] rounded-t-3xl p-4 overflow-y-auto bg-neutral-900 border-neutral-800 flex flex-col items-center justify-start">
+                  <SheetHeader className="p-2 border-b border-neutral-800 bg-neutral-900 flex-row items-center justify-between text-white w-full mb-2">
+                    <SheetTitle className="text-white text-sm font-semibold flex items-center gap-2">
+                      <Eye className="w-4 h-4 text-orange-500" />
+                      Aperçu en direct de votre carte
                     </SheetTitle>
                   </SheetHeader>
 
@@ -646,6 +700,7 @@ export default function PublicPageOnboardingPage() {
             onConfirm={handleCelebrationConfirm}
             selectedDesign={selectedDesign}
             renderPreview={renderPreview}
+            isLoggedIn={!!user}
           />
         </div>
       </div>

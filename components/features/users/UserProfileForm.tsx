@@ -164,8 +164,8 @@ export function UserProfileForm() {
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-100 shadow-[0_8px_30px_rgb(0,0,0,0.04)] p-6 md:p-8">
-      <form onSubmit={handleSubmit(onSubmit)} className="space-y-8">
+    <div className="bg-white rounded-2xl border border-neutral-200/80 p-6 md:p-8 shadow-xs">
+      <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
           {/* Photo de profil */}
           {!isAdminProfile && (
           <div>

@@ -29,7 +29,15 @@ export function generateCompleteVCard(profile: any, baseUrl: string, photoData?:
   const name = escapeVCard(profile.full_name || profile.name || profile.profile_name)
   if (name) {
     lines.push(`FN;CHARSET=UTF-8:${name}`)
-    lines.push(`N;CHARSET=UTF-8:${name};;;`)
+    // Découpage propre Prénom / Nom pour affichage parfait dans le répertoire Apple Contacts et Google Contacts
+    const nameParts = name.trim().split(/\s+/)
+    if (nameParts.length > 1) {
+      const lastName = nameParts[nameParts.length - 1]
+      const firstName = nameParts.slice(0, -1).join(' ')
+      lines.push(`N;CHARSET=UTF-8:${lastName};${firstName};;;`)
+    } else {
+      lines.push(`N;CHARSET=UTF-8:${name};;;;`)
+    }
   }
 
   const bio = escapeVCard(profile.bio)
@@ -38,11 +46,12 @@ export function generateCompleteVCard(profile: any, baseUrl: string, photoData?:
   }
 
   if (profile.email) {
-    lines.push(`EMAIL;TYPE=INTERNET:${profile.email}`)
+    lines.push(`EMAIL;TYPE=INTERNET,PREF:${profile.email}`)
   }
 
   if (profile.phone) {
-    lines.push(`TEL;TYPE=CELL:${profile.phone}`)
+    // Format CELL + VOICE universel pour appel 1-clic et WhatsApp sur iOS et Android
+    lines.push(`TEL;TYPE=CELL,VOICE,PREF:${profile.phone}`)
   }
 
   // Intégration de la photo : base64 en priorité pour affichage dans le répertoire mobile
@@ -140,5 +149,6 @@ export function generateCompleteVCard(profile: any, baseUrl: string, photoData?:
   }
 
   lines.push('END:VCARD')
-  return lines.filter(line => line).join('\n')
+  // Délimiteur de fin de ligne CRLF (\r\n) obligatoire selon la norme RFC 2426 (vCard 3.0)
+  return lines.filter(line => line).join('\r\n') + '\r\n'
 }

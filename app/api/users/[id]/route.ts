@@ -127,6 +127,16 @@ export const PUT = withAuth(async (request, authUser, params: { id: string }) =>
   const validatedData = validation.data
   const updateData: any = { ...validatedData }
 
+  // Synchroniser automatiquement `name` (nom complet) si first_name ou last_name sont fournis
+  if (validatedData.first_name !== undefined || validatedData.last_name !== undefined) {
+    const fn = validatedData.first_name ?? ''
+    const ln = validatedData.last_name ?? ''
+    const computedName = `${fn} ${ln}`.trim()
+    if (computedName && !validatedData.name) {
+      updateData.name = computedName
+    }
+  }
+
   // Normaliser l'email
   const emailToUpdate = validatedData.email && validatedData.email !== authUser.email 
     ? validatedData.email 

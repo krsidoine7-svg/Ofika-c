@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server'
-import { createClient } from '@/lib/supabase/server'
+import { createAdminClient } from '@/lib/supabase/service-role'
 
 export const dynamic = 'force-dynamic'
 
@@ -8,7 +8,7 @@ export async function GET(
   { params }: { params: Promise<{ id: string }> }
 ) {
   try {
-    const supabase = await createClient()
+    const supabase = createAdminClient()
     const { id: profileId } = await params
 
     // 1. Get Profile to check display_reviews and get user_id
@@ -16,7 +16,7 @@ export async function GET(
       .from('profiles')
       .select('user_id, display_reviews')
       .eq('id', profileId)
-      .single()
+      .maybeSingle()
 
     if (profileError || !profile) {
       return NextResponse.json({ error: 'Profile not found' }, { status: 404 })
@@ -34,6 +34,8 @@ export async function GET(
       .from('review_links')
       .select('id')
       .eq('user_id', profile.user_id)
+      .eq('is_active', true)
+      .is('deleted_at', null)
 
     if (linksError) {
       console.error('Error fetching review links:', linksError)
@@ -46,14 +48,13 @@ export async function GET(
 
     const linkIds = links.map(l => l.id)
 
-    // 3. Get approved reviews
+    // 3. Get approved public reviews
     const { data: reviews, error: reviewsError } = await supabase
       .from('reviews')
       .select('id, rating, comment, client_name, created_at, media_url, media_type, link_id')
       .in('link_id', linkIds)
       .eq('moderation_status', 'approved')
-      // Optional: check individual review privacy if it exists, assume consistent with admin view
-      // .eq('is_public', true) // If this column exists and is used
+      .is('deleted_at', null)
       .order('created_at', { ascending: false })
       .limit(20)
 
@@ -62,7 +63,7 @@ export async function GET(
       return NextResponse.json({ error: 'Internal Server Error' }, { status: 500 })
     }
 
-    return NextResponse.json({ data: reviews })
+    return NextResponse.json({ data: reviews || [] })
 
   } catch (error) {
     console.error('Error in public reviews API:', error)

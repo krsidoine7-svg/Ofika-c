@@ -26,7 +26,8 @@ import {
   UserPlus,
   MapPin,
   Cpu,
-  History
+  History,
+  ArrowLeft
 } from 'lucide-react'
 import { ProtectedRoute } from '@/components/core/auth/ProtectedRoute'
 import { useProfiles } from '@/lib/hooks/useProfiles'
@@ -265,16 +266,27 @@ export default function AnalyticsPage() {
 
   return (
     <ProtectedRoute>
-      <div className="min-h-screen bg-gray-50">
-        <div className="container mx-auto px-4 py-8">
+      <div className="min-h-screen bg-gray-50/60 font-sans">
+        <div className="container max-w-7xl mx-auto px-4 sm:px-6 py-6 sm:py-8">
+          {/* Fil d'Ariane & Bouton retour */}
+          <div className="flex items-center gap-2 mb-3">
+            <Link
+              href="/dashboard"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-slate-500 hover:text-slate-900 transition-colors"
+            >
+              <ArrowLeft className="w-3.5 h-3.5" />
+              <span>Retour au tableau de bord</span>
+            </Link>
+          </div>
+
           {/* Header */}
-          <div className="mb-8">
+          <div className="mb-6 sm:mb-8">
             <div>
-              <h1 className="text-3xl font-bold text-gray-900 tracking-tight">
-                <BarChart3 className="w-8 h-8 mr-3 inline text-orange-500" />
+              <h1 className="text-2xl sm:text-3xl font-extrabold text-slate-900 tracking-tight flex items-center">
+                <BarChart3 className="w-7 h-7 sm:w-8 sm:h-8 mr-2.5 text-orange-500" />
                 Tableau de Bord Analytics
               </h1>
-              <p className="text-gray-600 mt-1">Données en temps réel de vos interactions physiques et digitales.</p>
+              <p className="text-xs sm:text-sm text-slate-500 mt-1">Données en temps réel de vos interactions physiques NFC et digitales.</p>
             </div>
           </div>
 
@@ -337,21 +349,22 @@ export default function AnalyticsPage() {
              </div>
           </div>
 
-          {/* Key Metrics Cards */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {/* Key Metrics Cards (4 Bento KPIs complets) */}
+          <div className="grid grid-cols-2 lg:grid-cols-4 gap-3.5 sm:gap-4 mb-8">
              {[
-               { label: 'Visites', value: totals.totalViews, icon: Eye, color: 'text-blue-600', bg: 'bg-blue-50' },
-               { label: 'Scans QR', value: totals.totalQRScans, icon: QrCode, color: 'text-orange-600', bg: 'bg-orange-50' },
-               { label: 'Clics Liens', value: totals.totalLinkClicks, icon: MousePointer, color: 'text-green-600', bg: 'bg-green-50' }
+               { label: 'Visites Profil', value: totals.totalViews, icon: Eye, color: 'text-blue-600', bg: 'bg-blue-50' },
+               { label: 'Scans QR / NFC', value: totals.totalQRScans, icon: QrCode, color: 'text-orange-600', bg: 'bg-orange-50' },
+               { label: 'Clics sur Liens', value: totals.totalLinkClicks, icon: MousePointer, color: 'text-emerald-600', bg: 'bg-emerald-50' },
+               { label: 'Contacts Enregistrés', value: totals.totalContactActions, icon: UserPlus, color: 'text-purple-600', bg: 'bg-purple-50' }
              ].map((stat, i) => (
-               <Card key={i} className="group hover:shadow-md transition-shadow rounded-2xl">
-                 <CardContent className="p-6 flex items-center justify-between">
+               <Card key={i} className="group hover:shadow-md transition-shadow rounded-2xl border-slate-200/80 bg-white">
+                 <CardContent className="p-4 sm:p-5 flex items-center justify-between">
                    <div>
-                     <p className="text-xs font-bold uppercase text-gray-500 mb-1">{stat.label}</p>
-                     <p className={`text-3xl font-black ${stat.color}`}>{stat.value.toLocaleString()}</p>
+                     <p className="text-[10px] sm:text-xs font-bold uppercase tracking-wider text-slate-400 mb-1">{stat.label}</p>
+                     <p className={`text-xl sm:text-2xl font-black ${stat.color}`}>{stat.value.toLocaleString('fr-FR')}</p>
                    </div>
-                   <div className={`p-3 rounded-2xl ${stat.bg} ${stat.color}`}>
-                     <stat.icon className="w-6 h-6" />
+                   <div className={`p-2.5 sm:p-3 rounded-2xl ${stat.bg} ${stat.color} shrink-0`}>
+                     <stat.icon className="w-5 h-5 sm:w-6 sm:h-6" />
                    </div>
                  </CardContent>
                </Card>

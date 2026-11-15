@@ -1,25 +1,21 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import {
     Settings,
     Save,
-    RefreshCcw,
     Globe,
     Palette,
     Shield,
-    Mail,
     Lock,
     Loader2,
-    Wallet,
-    CreditCard,
     CheckCircle2,
-    AlertCircle
+    AlertTriangle,
+    Database
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Label } from "@/components/ui/label"
 import { toast } from "sonner"
 import { cn } from "@/lib/utils"
 import {
@@ -27,65 +23,58 @@ import {
     DialogContent,
     DialogHeader,
     DialogTitle,
-    DialogFooter,
     DialogDescription
 } from "@/components/ui/dialog"
-import { AlertTriangle } from "lucide-react"
 
 export function SystemSettingsTab() {
     const [config, setConfig] = useState<any[]>([])
     const [loading, setLoading] = useState(true)
     const [isSaving, setIsSaving] = useState(false)
 
-    // État spécifique pour la tarification officielle BD
-    const [cardBasePriceInput, setCardBasePriceInput] = useState<string>('14600')
-
-    // États pour le dialogue de confirmation groupé
+    // Dialogue de confirmation minimaliste
     const [isConfirmOpen, setIsConfirmOpen] = useState(false)
     const [confirmConfig, setConfirmConfig] = useState<{
-        title: string,
-        message: string,
-        action: () => void,
+        title: string
+        message: string
+        action: () => Promise<void> | void
         variant: 'default' | 'destructive'
     }>({
         title: '',
         message: '',
-        action: () => { },
+        action: () => {},
         variant: 'default'
     })
 
-    const openConfirm = (title: string, message: string, action: () => void, variant: 'default' | 'destructive' = 'default') => {
+    const openConfirm = (
+        title: string,
+        message: string,
+        action: () => Promise<void> | void,
+        variant: 'default' | 'destructive' = 'default'
+    ) => {
         setConfirmConfig({ title, message, action, variant })
         setIsConfirmOpen(true)
     }
 
-    useEffect(() => {
-        fetchConfig()
-    }, [])
-
-    async function fetchConfig() {
+    const fetchConfig = useCallback(async () => {
         try {
             setLoading(true)
-            // Utiliser l'API Admin (Bypass RLS)
             const res = await fetch('/api/admin/config')
             const json = await res.json()
 
-            if (!res.ok || json.error) throw new Error(json.error || 'Erreur chargement')
+            if (!res.ok || json.error) throw new Error(json.error || 'Erreur lors du chargement')
             const items = json.data || []
             setConfig(items)
-
-            // Extraire le prix de base de la carte si présent
-            const pricingItem = items.find((item: any) => item.key === 'pricing_config')
-            if (pricingItem?.value?.nfc_card_base_price) {
-                setCardBasePriceInput(pricingItem.value.nfc_card_base_price.toString())
-            }
         } catch (error) {
             console.error('Erreur chargement config admin:', error)
-            toast.error("Erreur de chargement de la configuration système")
+            toast.error("Erreur de chargement des paramètres système")
         } finally {
             setLoading(false)
         }
-    }
+    }, [])
+
+    useEffect(() => {
+        fetchConfig()
+    }, [fetchConfig])
 
     async function handleSave(key: string, value: any) {
         try {
@@ -97,9 +86,8 @@ export function SystemSettingsTab() {
             })
             const json = await res.json()
 
-            if (!res.ok || json.error) throw new Error(json.error || 'Erreur d\'enregistrement')
-            
-            // Si on sauvegarde pricing_config, synchroniser aussi avec /api/payments/methods
+            if (!res.ok || json.error) throw new Error(json.error || "Erreur d'enregistrement")
+
             if (key === 'pricing_config' && value?.nfc_card_base_price) {
                 await fetch('/api/payments/methods', {
                     method: 'PATCH',
@@ -108,7 +96,7 @@ export function SystemSettingsTab() {
                 })
             }
 
-            toast.success(`Configuration "${key.replace('_', ' ')}" mise à jour dans la BD Supabase`)
+            toast.success(`Clé de configuration "${key}" mise à jour`)
             fetchConfig()
         } catch (error: any) {
             console.error('Erreur sauvegarde config admin:', error)
@@ -119,89 +107,92 @@ export function SystemSettingsTab() {
         }
     }
 
-    const saveBasePrice = () => {
-        const parsed = parseInt(cardBasePriceInput, 10)
-        if (isNaN(parsed) || parsed <= 0) {
-            toast.error('Montant invalide')
-            return
-        }
-        openConfirm(
-            "Mettre à jour le prix de la carte ?",
-            `Le nouveau tarif officiel de ${parsed.toLocaleString('fr-FR')} FCFA sera enregistré dans la table BD Supabase et appliqué immédiatement.`,
-            () => handleSave('pricing_config', { nfc_card_base_price: parsed })
+    if (loading) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[300px] gap-2">
+                <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+                <p className="text-xs text-gray-400 font-medium">Chargement des paramètres...</p>
+            </div>
         )
     }
 
-    if (loading) return (
-        <div className="flex items-center justify-center min-h-[350px]">
-            <Loader2 className="w-8 h-8 animate-spin text-orange-500" />
-        </div>
-    )
-
     return (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-
-            {/* Layout 2 Colonnes */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                
-                {/* COLONNE GAUCHE */}
-                <div className="space-y-8">
-                    {/* Dynamic System Config Keys */}
+        <div className="space-y-6">
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Colonne Gauche : Clés dynamiques */}
+                <div className="space-y-6">
                     {config.filter(c => c.key !== 'pricing_config').map((item) => (
-                        <Card key={item.key} className="border-none shadow-sm overflow-hidden rounded-2xl">
-                            <CardHeader className="bg-gray-50/50 border-b border-gray-100">
-                                <div className="flex items-center justify-between">
-                                    <CardTitle className="text-lg font-bold flex items-center gap-2">
-                                        {item.key === 'platform_settings' ? <Globe className="w-4 h-4 text-blue-500" /> : <Palette className="w-4 h-4 text-purple-500" />}
-                                        {item.key.replace('_', ' ').toUpperCase()}
-                                    </CardTitle>
-                                    <Button
-                                        size="sm"
-                                        className="bg-orange-500 hover:bg-orange-600 text-white font-bold h-8 rounded-lg"
-                                        onClick={() => openConfirm(
-                                            "Enregistrer les modifications ?",
-                                            `Voulez-vous appliquer ces nouveaux paramètres pour "${item.key.replace('_', ' ')}" dans la base de données Supabase ?`,
-                                            () => handleSave(item.key, item.value)
+                        <Card key={item.key} className="border border-gray-100 shadow-none rounded-xl bg-white overflow-hidden p-5 space-y-4">
+                            <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+                                <div>
+                                    <div className="flex items-center gap-2">
+                                        {item.key === 'platform_settings' ? (
+                                            <Globe className="w-4 h-4 text-gray-500" />
+                                        ) : (
+                                            <Palette className="w-4 h-4 text-gray-500" />
                                         )}
-                                        disabled={isSaving}
-                                    >
-                                        <Save className="w-3 h-3 mr-2" />
-                                        Enregistrer
-                                    </Button>
+                                        <h3 className="text-xs font-bold font-mono text-gray-950 uppercase tracking-wider">
+                                            {item.key}
+                                        </h3>
+                                    </div>
+                                    <p className="text-[11px] text-gray-400 mt-0.5">
+                                        {item.description || 'Paramètres stockés dans public.system_config.'}
+                                    </p>
                                 </div>
-                                <CardDescription className="mt-1">{item.description}</CardDescription>
-                            </CardHeader>
-                            <CardContent className="p-6 space-y-4">
-                                {Object.entries(item.value).map(([field, val]: [string, any]) => (
-                                    <div key={field} className="space-y-1.5">
-                                        <label className="text-xs font-black text-gray-400 uppercase tracking-widest">{field.replace('_', ' ')}</label>
+
+                                <Button
+                                    size="sm"
+                                    className="bg-gray-950 hover:bg-black text-white text-xs font-medium h-7 px-3 rounded-md shadow-xs gap-1.5"
+                                    onClick={() => openConfirm(
+                                        "Enregistrer les modifications ?",
+                                        `Mettre à jour la clé "${item.key}" dans la base de données Supabase ?`,
+                                        () => handleSave(item.key, item.value)
+                                    )}
+                                    disabled={isSaving}
+                                >
+                                    <Save className="w-3 h-3" />
+                                    <span>Enregistrer</span>
+                                </Button>
+                            </div>
+
+                            <div className="space-y-3">
+                                {Object.entries(item.value || {}).map(([field, val]: [string, any]) => (
+                                    <div key={field} className="space-y-1">
+                                        <label className="text-[11px] font-semibold text-gray-500 uppercase tracking-wider">
+                                            {field.replace(/_/g, ' ')}
+                                        </label>
+
                                         {typeof val === 'boolean' ? (
-                                            <div className="flex items-center gap-3">
+                                            <div className="flex items-center gap-2.5 pt-0.5">
                                                 <button
                                                     onClick={() => {
                                                         const newValue = { ...item.value, [field]: !val }
                                                         setConfig(config.map(c => c.key === item.key ? { ...c, value: newValue } : c))
                                                     }}
                                                     className={cn(
-                                                        "w-10 h-5 rounded-full relative transition-colors duration-300",
-                                                        val ? "bg-orange-500" : "bg-gray-200"
+                                                        "w-9 h-5 rounded-full transition-colors relative focus:outline-none",
+                                                        val ? "bg-emerald-600" : "bg-gray-300"
                                                     )}
                                                 >
-                                                    <div className={cn(
-                                                        "absolute top-1 w-3 h-3 bg-white rounded-full transition-all duration-300",
-                                                        val ? "left-6" : "left-1"
-                                                    )}></div>
+                                                    <span className={cn(
+                                                        "w-3.5 h-3.5 bg-white rounded-full absolute top-0.75 transition-transform shadow-xs",
+                                                        val ? "left-4.5" : "left-1"
+                                                    )} />
                                                 </button>
-                                                <span className="text-sm font-medium">{val ? 'Activé' : 'Désactivé'}</span>
+                                                <span className="text-xs font-medium text-gray-700">
+                                                    {val ? 'Activé' : 'Désactivé'}
+                                                </span>
                                             </div>
                                         ) : typeof val === 'object' && val !== null ? (
-                                            <div className="p-4 bg-gray-50/80 rounded-2xl border border-gray-100/60 shadow-inner mt-2">
-                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                            <div className="p-3 bg-gray-50/70 rounded-lg border border-gray-100 space-y-2 mt-1">
+                                                <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                                                     {Object.entries(val).map(([subKey, subVal]: [string, any]) => (
-                                                        <div key={subKey} className="space-y-1.5 bg-white p-3 rounded-xl border border-gray-100 shadow-sm">
-                                                            <label className="text-[10px] font-black text-gray-500 uppercase tracking-widest">{subKey.replace('_', ' ')}</label>
+                                                        <div key={subKey} className="space-y-1 bg-white p-2.5 rounded-md border border-gray-100">
+                                                            <label className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider block">
+                                                                {subKey.replace(/_/g, ' ')}
+                                                            </label>
                                                             {typeof subVal === 'boolean' ? (
-                                                                <div className="flex items-center gap-2 pt-1">
+                                                                <div className="flex items-center gap-2 pt-0.5">
                                                                     <button
                                                                         onClick={() => {
                                                                             const newValue = { ...item.value }
@@ -209,21 +200,22 @@ export function SystemSettingsTab() {
                                                                             setConfig(config.map(c => c.key === item.key ? { ...c, value: newValue } : c))
                                                                         }}
                                                                         className={cn(
-                                                                            "w-9 h-5 rounded-full relative transition-colors duration-300",
-                                                                            subVal ? "bg-green-500" : "bg-gray-200"
+                                                                            "w-8 h-4.5 rounded-full transition-colors relative focus:outline-none",
+                                                                            subVal ? "bg-emerald-600" : "bg-gray-300"
                                                                         )}
                                                                     >
-                                                                        <div className={cn(
-                                                                            "absolute top-1 w-3 h-3 bg-white rounded-full transition-all duration-300",
-                                                                            subVal ? "left-5" : "left-1"
-                                                                        )}></div>
+                                                                        <span className={cn(
+                                                                            "w-3 h-3 bg-white rounded-full absolute top-0.75 transition-transform shadow-xs",
+                                                                            subVal ? "left-4" : "left-1"
+                                                                        )} />
                                                                     </button>
-                                                                    <span className={cn("text-[10px] font-black uppercase tracking-widest", subVal ? "text-green-600" : "text-gray-400")}>{subVal ? 'Activé' : 'Désactivé'}</span>
+                                                                    <span className="text-[11px] font-medium text-gray-700">
+                                                                        {subVal ? 'Oui' : 'Non'}
+                                                                    </span>
                                                                 </div>
                                                             ) : (
                                                                 <Input
                                                                     type={typeof subVal === 'number' ? "number" : "text"}
-                                                                    step={typeof subVal === 'number' ? "0.01" : undefined}
                                                                     value={subVal}
                                                                     onChange={(e) => {
                                                                         const newValue = { ...item.value }
@@ -233,7 +225,7 @@ export function SystemSettingsTab() {
                                                                         }
                                                                         setConfig(config.map(c => c.key === item.key ? { ...c, value: newValue } : c))
                                                                     }}
-                                                                    className="h-8 border-gray-100 bg-gray-50/50 focus:ring-orange-500 focus:bg-white rounded-lg text-xs font-bold text-gray-700"
+                                                                    className="h-7 text-xs font-mono rounded border-gray-200"
                                                                 />
                                                             )}
                                                         </div>
@@ -247,89 +239,96 @@ export function SystemSettingsTab() {
                                                     const newValue = { ...item.value, [field]: e.target.value }
                                                     setConfig(config.map(c => c.key === item.key ? { ...c, value: newValue } : c))
                                                 }}
-                                                className="h-10 border-gray-100 focus:ring-orange-500 rounded-xl text-sm"
+                                                className="h-8 text-xs font-mono rounded-lg border-gray-200"
                                             />
                                         )}
                                     </div>
                                 ))}
-                            </CardContent>
+                            </div>
                         </Card>
                     ))}
                 </div>
 
-                {/* COLONNE DROITE */}
-                <div className="space-y-8">
-                    {/* CARTE 3 : Information et Statut du Système */}
-                    <Card className="border-none shadow-sm rounded-2xl bg-white overflow-hidden">
-                        <CardHeader className="bg-blue-50/40 border-b border-blue-100/50">
-                            <CardTitle className="text-lg font-bold flex items-center gap-2 text-blue-900">
-                                <Settings className="w-5 h-5 text-blue-600" />
-                                Statut de la Configuration Serveur
-                            </CardTitle>
-                            <CardDescription className="text-xs text-blue-600 font-medium">
-                                Les configurations ci-dessous utilisent l'API Admin sécurisée avec contournement de RLS.
-                            </CardDescription>
-                        </CardHeader>
-                        <CardContent className="p-6 space-y-4 text-sm">
-                            <div className="p-4 bg-gray-50 rounded-2xl space-y-2 border border-gray-100">
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-500 font-medium">Table Supabase :</span>
-                                    <code className="font-bold text-orange-600 bg-white px-2 py-0.5 rounded border border-gray-200">public.system_config</code>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-500 font-medium">Clés Chargées :</span>
-                                    <span className="font-black text-gray-900">{config.length} clés configurées</span>
-                                </div>
-                                <div className="flex justify-between items-center">
-                                    <span className="text-gray-500 font-medium">Authentification API :</span>
-                                    <span className="text-xs font-bold bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Service Role Key (Protégée)</span>
-                                </div>
-                            </div>
-                        </CardContent>
-                    </Card>
-
-                    {/* CARTE 4 : Sécurité & Secrets d'API */}
-                    <Card className="border-dashed border-2 border-gray-200 shadow-none rounded-2xl bg-gray-50/50">
-                        <CardContent className="p-8 text-center space-y-4">
-                            <Lock className="w-10 h-10 text-gray-300 mx-auto" />
-                            <div className="space-y-2">
-                                <h3 className="font-bold text-gray-900">Sécurité & Secrets d'API</h3>
-                                <p className="text-xs text-gray-500 max-w-md mx-auto italic">
-                                    Les secrets d'API (GeniusPay SK, Webhook Secret, VAPID Private Key) sont stockés de manière sécurisée dans les variables d'environnement du serveur et ne sont jamais exposés au client.
+                {/* Colonne Droite : Architecture & Statut */}
+                <div className="space-y-6">
+                    <Card className="border border-gray-100 shadow-none rounded-xl bg-white p-5 space-y-4">
+                        <div className="flex items-center gap-2 pb-3 border-b border-gray-100">
+                            <Database className="w-4 h-4 text-gray-500" />
+                            <div>
+                                <h3 className="text-xs font-bold text-gray-950 uppercase tracking-wider">
+                                    Statut Stockage Supabase
+                                </h3>
+                                <p className="text-[11px] text-gray-400">
+                                    Accès sécurisé géré par API serveur autorisée.
                                 </p>
                             </div>
-                            <Button variant="secondary" className="font-bold text-xs rounded-xl" disabled>
-                                <Shield className="w-4 h-4 mr-2" />
-                                Clés Protégées
-                            </Button>
-                        </CardContent>
+                        </div>
+
+                        <div className="p-3.5 bg-gray-50/70 rounded-lg border border-gray-100 space-y-2.5 text-xs">
+                            <div className="flex justify-between items-center">
+                                <span className="text-gray-500">Table cible :</span>
+                                <code className="font-mono text-[11px] bg-white px-2 py-0.5 rounded border border-gray-200 text-gray-800">
+                                    public.system_config
+                                </code>
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <span className="text-gray-500">Clés actives :</span>
+                                <span className="font-mono font-bold text-gray-950">{config.length} clés chargées</span>
+                            </div>
+                            <div className="flex justify-between items-center">
+                                <span className="text-gray-500">Contrôle d'accès :</span>
+                                <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200/60">
+                                    <span className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+                                    Service Role Protégé
+                                </span>
+                            </div>
+                        </div>
+                    </Card>
+
+                    <Card className="border border-gray-100 shadow-none rounded-xl bg-gray-50/50 p-5 text-center space-y-3">
+                        <div className="w-9 h-9 rounded-xl bg-white border border-gray-200 flex items-center justify-center mx-auto text-gray-500 shadow-2xs">
+                            <Lock className="w-4 h-4" />
+                        </div>
+                        <div className="space-y-1">
+                            <h4 className="text-xs font-bold text-gray-950">Sécurité des Secrets Financiers</h4>
+                            <p className="text-[11px] text-gray-500 leading-relaxed max-w-sm mx-auto">
+                                Les clés d'API sensibles (GeniusPay Secret Key, Webhook Tokens, Clés privées VAPID) restent confinées dans les variables d'environnement serveur.
+                            </p>
+                        </div>
                     </Card>
                 </div>
             </div>
 
-            {/* Modal de Confirmation Générique */}
+            {/* Dialogue de confirmation minimaliste */}
             <Dialog open={isConfirmOpen} onOpenChange={setIsConfirmOpen}>
-                <DialogContent className="sm:max-w-[400px] rounded-3xl border-none shadow-2xl p-0 overflow-hidden">
-                    <div className="p-6 text-center">
-                        <div className="w-16 h-16 rounded-2xl mx-auto flex items-center justify-center mb-4 shadow-lg bg-orange-100 text-orange-600">
-                            <AlertTriangle className="w-8 h-8" />
+                <DialogContent className="sm:max-w-[400px] rounded-2xl border border-gray-200 bg-white shadow-xl p-5">
+                    <div className="flex items-start gap-3">
+                        <div className="w-9 h-9 rounded-xl flex items-center justify-center shrink-0 bg-gray-100 text-gray-900">
+                            <AlertTriangle className="w-4 h-4" />
                         </div>
-                        <h3 className="text-xl font-black text-gray-900 mb-2">{confirmConfig.title}</h3>
-                        <p className="text-gray-500 font-medium leading-relaxed text-sm">
-                            {confirmConfig.message}
-                        </p>
+                        <div className="space-y-1">
+                            <DialogTitle className="text-sm font-bold text-gray-950">
+                                {confirmConfig.title || 'Confirmation requise'}
+                            </DialogTitle>
+                            <DialogDescription className="text-xs text-gray-500 leading-relaxed">
+                                {confirmConfig.message || 'Veuillez confirmer cette opération.'}
+                            </DialogDescription>
+                        </div>
                     </div>
-                    <div className="bg-gray-50 p-4 flex gap-3 justify-center border-t border-gray-100">
+
+                    <div className="flex items-center justify-end gap-2 mt-5 pt-3 border-t border-gray-100">
                         <Button
                             variant="ghost"
+                            size="sm"
                             onClick={() => setIsConfirmOpen(false)}
-                            className="rounded-xl font-bold flex-1 h-12"
+                            className="h-8 text-xs font-medium text-gray-600 hover:text-gray-900 rounded-lg"
                         >
                             Annuler
                         </Button>
                         <Button
+                            size="sm"
                             onClick={confirmConfig.action}
-                            className="rounded-xl font-black uppercase tracking-widest flex-1 h-12 shadow-md bg-orange-600 hover:bg-orange-700 text-white"
+                            className="h-8 text-xs font-medium rounded-lg px-3 bg-gray-950 hover:bg-black text-white shadow-xs"
                         >
                             Confirmer
                         </Button>

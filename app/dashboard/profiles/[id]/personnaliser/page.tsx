@@ -85,10 +85,10 @@ export default function PersonalizeDesignPage() {
           <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
             <div>
               <h1 className="text-2xl sm:text-3xl font-bold text-gray-900">Personnaliser ma page</h1>
-              <p className="text-gray-500 mt-1 flex items-center gap-2 flex-wrap">
-                {savedProfile.name}
+              <div className="text-gray-500 mt-1 flex items-center gap-2 flex-wrap text-sm">
+                <span>{savedProfile.name}</span>
                 <Badge variant="secondary">{getTemplateLabel(savedProfile.design_choice)}</Badge>
-              </p>
+              </div>
             </div>
             <div className="flex gap-2">
               <Button variant="outline" onClick={() => router.push(`/dashboard/profiles/${profileId}/change-design`)}>

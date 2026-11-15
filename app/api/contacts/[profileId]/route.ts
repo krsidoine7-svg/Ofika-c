@@ -72,12 +72,12 @@ export async function GET(
     // Déterminer si c'est un UUID
     const isUUID = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(profileIdOrUsername)
 
-    // 1. Chercher dans 'profiles'
+    // 1. Chercher dans 'profiles' (recherche insensible à la casse avec index)
     let profileQuery = supabase.from('profiles').select('*')
     if (isUUID) {
       profileQuery = profileQuery.eq('id', profileIdOrUsername)
     } else {
-      profileQuery = profileQuery.or(`username.eq.${profileIdOrUsername},custom_url.eq.${profileIdOrUsername}`)
+      profileQuery = profileQuery.or(`username.ilike.${profileIdOrUsername},custom_url.ilike.${profileIdOrUsername}`)
     }
     
     const { data: profileData } = await profileQuery.eq('is_active', true).maybeSingle()
@@ -85,12 +85,12 @@ export async function GET(
     if (profileData) {
       profile = profileData
     } else {
-      // 2. Chercher dans 'digital_nfc_cards'
+      // 2. Chercher dans 'digital_nfc_cards' (recherche insensible à la casse avec index)
       let nfcQuery = supabase.from('digital_nfc_cards').select('*')
       if (isUUID) {
         nfcQuery = nfcQuery.eq('id', profileIdOrUsername)
       } else {
-        nfcQuery = nfcQuery.or(`username.eq.${profileIdOrUsername},custom_url.eq.${profileIdOrUsername}`)
+        nfcQuery = nfcQuery.or(`username.ilike.${profileIdOrUsername},custom_url.ilike.${profileIdOrUsername}`)
       }
       
       const { data: nfcData } = await nfcQuery.eq('status', 'active').maybeSingle()
@@ -106,7 +106,7 @@ export async function GET(
     const finalName = profile.full_name || profile.name || profile.profile_name || 'contact'
     const fileName = `${finalName.replace(/[^a-zA-Z0-9\s-]/g, '').replace(/\s+/g, '_')}.vcf`
 
-    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://ofika.app'
+    const baseUrl = process.env.NEXT_PUBLIC_APP_URL || 'https://ofika.ci'
 
     // Récupérer et convertir la photo en base64 pour affichage direct dans Apple Contacts et Android
     const photoUrl = profile.image_url || profile.profile_photo_url || profile.logo_url

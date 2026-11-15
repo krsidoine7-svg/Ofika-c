@@ -1,22 +1,22 @@
 'use client'
 
-import React, { useEffect, useState } from 'react'
+import React, { useEffect, useState, useCallback } from 'react'
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card"
 import { 
     Cpu, 
     CreditCard, 
-    LayoutTemplate, 
     ShieldAlert, 
     Loader2, 
     Database,
     Zap,
     Lock,
     Save,
-    RefreshCw
+    RotateCw,
+    Shield
 } from "lucide-react"
 import { Button } from "@/components/ui/button"
-import { Badge } from "@/components/ui/badge"
 import { toast } from "sonner"
+import { cn } from "@/lib/utils"
 
 export function AdvancedConfigTab() {
     const [gateways, setGateways] = useState<any>(null)
@@ -25,7 +25,7 @@ export function AdvancedConfigTab() {
     const [isEditing, setIsEditing] = useState(false)
     const [rawConfig, setRawConfig] = useState("")
 
-    const fetchConfig = async () => {
+    const fetchConfig = useCallback(async () => {
         try {
             setLoading(true)
             const res = await fetch('/api/admin/config?key=payment_gateways')
@@ -35,11 +35,11 @@ export function AdvancedConfigTab() {
                 setRawConfig(JSON.stringify(json.data.value, null, 2))
             }
         } catch (err) {
-            toast.error("Erreur de récupération des données")
+            toast.error("Erreur lors de la récupération des passerelles")
         } finally {
             setLoading(false)
         }
-    }
+    }, [])
 
     const handleSave = async () => {
         try {
@@ -55,14 +55,14 @@ export function AdvancedConfigTab() {
             })
             const json = await res.json()
             if (json.success) {
-                toast.success("Configuration mise à jour")
+                toast.success("Configuration brute mise à jour")
                 setGateways(parsed)
                 setIsEditing(false)
             } else {
-                toast.error(json.error)
+                toast.error(json.error || "Erreur lors de l'enregistrement")
             }
         } catch (err) {
-            toast.error("Format JSON invalide")
+            toast.error("Format JSON invalide. Vérifiez la syntaxe.")
         } finally {
             setSaving(false)
         }
@@ -70,150 +70,161 @@ export function AdvancedConfigTab() {
 
     useEffect(() => {
         fetchConfig()
-    }, [])
+    }, [fetchConfig])
 
-    if (loading) return <div className="flex justify-center p-20"><Loader2 className="animate-spin text-orange-500" /></div>
+    if (loading) {
+        return (
+            <div className="flex flex-col items-center justify-center min-h-[300px] gap-2">
+                <Loader2 className="w-6 h-6 animate-spin text-gray-400" />
+                <p className="text-xs text-gray-400 font-medium">Chargement des données de configuration...</p>
+            </div>
+        )
+    }
 
     return (
-        <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
-            <div className="flex justify-end mb-6">
-                <Button variant="outline" onClick={fetchConfig} className="rounded-xl font-bold text-xs uppercase tracking-widest">
-                    <RefreshCw className="w-4 h-4 mr-2" />
-                    Actualiser
+        <div className="space-y-6">
+            <div className="flex items-center justify-between">
+                <div>
+                    <h2 className="text-sm font-bold text-gray-950 tracking-tight">
+                        Diagnostic Passerelles & Schéma JSON
+                    </h2>
+                    <p className="text-xs text-gray-500">
+                        Visualisation et modification avancée de la clé Supabase <code className="font-mono text-[11px] bg-gray-100 px-1 py-0.5 rounded text-gray-800">payment_gateways</code>.
+                    </p>
+                </div>
+                <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={fetchConfig}
+                    className="h-8 text-xs font-medium border-gray-200 text-gray-700 hover:bg-gray-50 rounded-lg gap-1.5"
+                >
+                    <RotateCw className="w-3.5 h-3.5 text-gray-400" />
+                    <span>Actualiser</span>
                 </Button>
             </div>
 
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-                {/* Structure des Paiements */}
-                <Card className="border-none shadow-sm rounded-3xl overflow-hidden bg-white">
-                    <CardHeader className="bg-gray-50/50 p-6">
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="w-10 h-10 rounded-xl bg-orange-100 flex items-center justify-center text-orange-600">
-                                    <CreditCard className="w-5 h-5" />
-                                </div>
-                                <div>
-                                    <CardTitle className="text-lg">Passerelles de Paiement</CardTitle>
-                                    <CardDescription>Configuration brute des processeurs</CardDescription>
-                                </div>
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                {/* Structure brute JSON */}
+                <Card className="border border-gray-100 shadow-none rounded-xl bg-white overflow-hidden p-5 flex flex-col justify-between space-y-4">
+                    <div>
+                        <div className="flex items-center justify-between pb-3 border-b border-gray-100">
+                            <div className="flex items-center gap-2">
+                                <CreditCard className="w-4 h-4 text-gray-500" />
+                                <h3 className="text-xs font-bold font-mono text-gray-950 uppercase tracking-wider">
+                                    Processeurs de Paiement (JSON)
+                                </h3>
                             </div>
-                            <Button 
-                                variant={isEditing ? "destructive" : "outline"} 
-                                size="sm" 
-                                className="rounded-xl font-black text-[10px] uppercase"
+                            <Button
+                                variant="outline"
+                                size="sm"
                                 onClick={() => setIsEditing(!isEditing)}
+                                className="h-7 text-xs font-medium border-gray-200 rounded-md"
                             >
-                                {isEditing ? "Annuler" : "Modifier"}
+                                {isEditing ? "Annuler" : "Modifier le JSON"}
                             </Button>
                         </div>
-                    </CardHeader>
-                    <CardContent className="p-0">
+
                         {isEditing ? (
-                            <div className="p-6 space-y-4">
-                                <textarea 
-                                    className="w-full h-80 bg-gray-900 text-green-400 p-4 font-mono text-xs rounded-2xl outline-none focus:ring-2 ring-orange-500"
+                            <div className="space-y-3 pt-3">
+                                <textarea
+                                    className="w-full h-72 bg-gray-950 text-gray-100 p-3.5 font-mono text-xs rounded-lg border border-gray-800 outline-none focus:ring-1 focus:ring-gray-700 leading-relaxed"
                                     value={rawConfig}
                                     onChange={(e) => setRawConfig(e.target.value)}
+                                    spellCheck={false}
                                 />
-                                <Button 
-                                    className="w-full bg-orange-600 hover:bg-orange-700 text-white font-black uppercase text-xs h-12 rounded-2xl"
+                                <Button
+                                    size="sm"
+                                    className="w-full bg-gray-950 hover:bg-black text-white text-xs font-medium h-8 rounded-lg shadow-xs gap-1.5"
                                     onClick={handleSave}
                                     disabled={saving}
                                 >
-                                    {saving ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Save className="w-4 h-4 mr-2" />}
-                                    Sauvegarder les modifications
+                                    {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+                                    <span>Enregistrer la configuration</span>
                                 </Button>
                             </div>
                         ) : (
-                            <div className="p-6 space-y-6">
+                            <div className="space-y-3 pt-3">
                                 {gateways && Object.entries(gateways).map(([key, provider]: [string, any]) => (
-                                    <div key={key} className="space-y-3 p-4 bg-gray-50 rounded-2xl border border-gray-100">
+                                    <div key={key} className="p-3.5 bg-gray-50/70 rounded-lg border border-gray-100 space-y-2">
                                         <div className="flex items-center justify-between">
-                                            <Badge className="bg-orange-600 text-white border-none font-black text-[10px] uppercase">{key}</Badge>
-                                            <div className="flex items-center gap-2">
-                                                <div className={`w-2 h-2 rounded-full ${provider.enabled ? 'bg-green-500' : 'bg-red-500'}`} />
-                                                <span className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">{provider.enabled ? 'Actif' : 'Inactif'}</span>
-                                            </div>
+                                            <span className="font-mono text-xs font-bold text-gray-950 uppercase">
+                                                {key}
+                                            </span>
+                                            <span className={cn(
+                                                "inline-flex items-center gap-1 px-2 py-0.5 rounded-md text-[10px] font-medium border",
+                                                provider.enabled
+                                                    ? "bg-emerald-50 text-emerald-700 border-emerald-200/60"
+                                                    : "bg-gray-50 text-gray-500 border-gray-200/60"
+                                            )}>
+                                                <span className={cn(
+                                                    "w-1.5 h-1.5 rounded-full",
+                                                    provider.enabled ? "bg-emerald-500" : "bg-gray-400"
+                                                )} />
+                                                {provider.enabled ? 'Actif' : 'Inactif'}
+                                            </span>
                                         </div>
-                                        <div className="grid grid-cols-1 gap-2">
-                                            <div className="flex justify-between text-xs font-medium">
-                                                <span className="text-gray-400">Mode :</span>
-                                                <span className="text-gray-900 font-bold">{provider.mode === 'test' ? '🚧 Sandbox' : '💰 Production'}</span>
+
+                                        <div className="grid grid-cols-2 gap-2 text-xs pt-1 border-t border-gray-200/60">
+                                            <div>
+                                                <span className="text-[10px] text-gray-400 block font-semibold uppercase">Mode</span>
+                                                <span className="font-medium text-gray-800">
+                                                    {provider.mode === 'test' ? 'Sandbox' : 'Production'}
+                                                </span>
                                             </div>
-                                            <div className="flex justify-between text-xs font-medium">
-                                                <span className="text-gray-400">Client ID / Public Key :</span>
-                                                <code className="bg-white px-2 py-0.5 rounded text-[10px] text-orange-600">
-                                                    {provider.public_key || provider.client_id ? `CONFIGURÉ` : 'N/A'}
-                                                </code>
+                                            <div>
+                                                <span className="text-[10px] text-gray-400 block font-semibold uppercase">Clé Publique</span>
+                                                <span className="font-mono text-[11px] text-gray-600">
+                                                    {provider.public_key || provider.client_id ? 'Configurée' : 'Non renseignée'}
+                                                </span>
                                             </div>
                                         </div>
                                     </div>
                                 ))}
                             </div>
                         )}
-                        <div className="bg-gray-900 p-6 flex items-center justify-between">
-                            <div className="flex items-center gap-3 text-orange-400">
-                                <ShieldAlert className="w-5 h-5" />
-                                <span className="text-[10px] font-black uppercase tracking-widest">Zone Hautement Sécurisée</span>
-                            </div>
-                            <Badge variant="outline" className="text-white/40 border-white/20 text-[8px]">SERVICE ROLE REQUIS</Badge>
-                        </div>
-                    </CardContent>
+                    </div>
+
+                    <div className="pt-3 border-t border-gray-100 flex items-center justify-between text-[11px] text-gray-400">
+                        <span className="flex items-center gap-1.5">
+                            <Shield className="w-3.5 h-3.5 text-gray-500" />
+                            Accès restreint aux administrateurs
+                        </span>
+                        <span className="font-mono text-[10px] bg-gray-100 px-1.5 py-0.5 rounded text-gray-600">
+                            SERVICE ROLE API
+                        </span>
+                    </div>
                 </Card>
 
-                {/* Dashboard Widgets Schema */}
-                <Card className="border-none shadow-sm rounded-3xl overflow-hidden bg-white">
-                    <CardHeader className="bg-gray-50/50 p-6">
-                        <div className="flex items-center gap-3">
-                            <div className="w-10 h-10 rounded-xl bg-blue-100 flex items-center justify-center text-blue-600">
-                                <LayoutTemplate className="w-5 h-5" />
-                            </div>
+                {/* Sécurité et conformité */}
+                <div className="space-y-6">
+                    <Card className="border border-gray-100 shadow-none rounded-xl bg-white p-5 space-y-3">
+                        <div className="flex items-center gap-2 pb-3 border-b border-gray-100">
+                            <Lock className="w-4 h-4 text-gray-500" />
                             <div>
-                                <CardTitle className="text-lg">Structure des Widgets</CardTitle>
-                                <CardDescription>Organisation par défaut du dashboard client</CardDescription>
+                                <h3 className="text-xs font-bold text-gray-950 uppercase tracking-wider">
+                                    Conformité Financière & PCI DSS
+                                </h3>
+                                <p className="text-[11px] text-gray-400">
+                                    Protection des données de paiement utilisateur.
+                                </p>
                             </div>
                         </div>
-                    </CardHeader>
-                    <CardContent className="p-6">
-                        <div className="space-y-4">
-                            <div className="flex items-start gap-3 p-4 bg-blue-50/50 rounded-2xl border border-blue-100">
-                                <div className="mt-1"><Zap className="w-4 h-4 text-blue-500" /></div>
-                                <div>
-                                    <p className="text-sm font-bold text-blue-900">Les widgets sont dynamiques</p>
-                                    <p className="text-xs text-blue-700 leading-relaxed mt-1">
-                                        Chaque utilisateur peut réorganiser ses graphiques et raccourcis. L'admin définit ici les blocs disponibles par défaut.
-                                    </p>
-                                </div>
-                            </div>
-                            
-                            <div className="grid grid-cols-2 gap-4">
-                                <div className="p-4 border-2 border-dashed border-gray-100 rounded-2xl flex flex-col items-center justify-center text-gray-400 gap-2">
-                                    <Database className="w-6 h-6 opacity-20" />
-                                    <span className="text-[10px] font-black uppercase tracking-widest">Stats Rapides</span>
-                                </div>
-                                <div className="p-4 border-2 border-dashed border-gray-100 rounded-2xl flex flex-col items-center justify-center text-gray-400 gap-2">
-                                    <Database className="w-6 h-6 opacity-20" />
-                                    <span className="text-[10px] font-black uppercase tracking-widest">Scan History</span>
-                                </div>
-                            </div>
-                        </div>
-                    </CardContent>
-                </Card>
-            </div>
 
-            <div className="p-10 bg-white rounded-[2.5rem] border border-gray-100 flex flex-col items-center text-center space-y-4">
-                <div className="w-16 h-16 rounded-3xl bg-gray-50 flex items-center justify-center text-gray-400">
-                    <Lock className="w-8 h-8" />
+                        <p className="text-xs text-gray-500 leading-relaxed">
+                            Pour des raisons strictes de conformité, aucun numéro de carte ou code secret bancaire n'est enregistré dans les bases de données locales. Les passerelles Wave et GeniusPay gèrent l'authentification des clients sur leurs canaux certifiés.
+                        </p>
+                    </Card>
+
+                    <Card className="border border-gray-100 shadow-none rounded-xl bg-gray-50/50 p-5 space-y-2.5">
+                        <div className="flex items-center gap-2">
+                            <Cpu className="w-4 h-4 text-gray-500" />
+                            <h4 className="text-xs font-bold text-gray-950">Statut des Webhooks</h4>
+                        </div>
+                        <p className="text-xs text-gray-500 leading-relaxed">
+                            Les notifications IPN (Instant Payment Notification) de Wave et GeniusPay sont traitées via les routes dédiées <code className="font-mono text-[11px] bg-white px-1.5 py-0.5 rounded border border-gray-200 text-gray-800">/api/webhooks/...</code> avec validation de signature cryptographique.
+                        </p>
+                    </Card>
                 </div>
-                <div className="space-y-1">
-                    <h3 className="text-xl font-black text-gray-900">Accès aux Méthodes de Paiement Clients</h3>
-                    <p className="text-sm text-gray-500 max-w-lg">
-                        Pour des raisons de conformité PCI DSS, les informations de paiement sensibles ne sont jamais stockées en clair. Vous ne pouvez voir que les métadonnées (type de carte, expiration) via l'onglet <strong>Paiements</strong>.
-                    </p>
-                </div>
-                <Button variant="outline" className="rounded-2xl font-black uppercase tracking-widest text-[10px] px-8 h-12 shadow-sm">
-                    En savoir plus sur la sécurité
-                </Button>
             </div>
         </div>
     )

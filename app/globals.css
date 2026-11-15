@@ -389,3 +389,13 @@
     background-position: 0% 50%;
   }
 }
+
+/* En développement, s'assurer que les dev indicators Next.js / Turbopack ne masquent pas les actions mobiles */
+@media (max-width: 640px) {
+  nextjs-portal {
+    pointer-events: none !important;
+  }
+  nextjs-portal * {
+    pointer-events: auto;
+  }
+}

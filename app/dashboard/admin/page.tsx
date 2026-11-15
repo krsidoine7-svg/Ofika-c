@@ -40,7 +40,10 @@ interface RecentOrder {
     id: string
     order_number: string
     total_amount: number | null
+    total_cents?: number | null
+    amount_cents?: number | null
     status: string | null
+    payment_status?: string | null
     shipping_status?: string | null
     created_at: string
     user_id?: string
@@ -67,8 +70,19 @@ interface AdminStats {
     pendingOrdersCount: number
     openTicketsCount: number
     pendingRevenue: number
+    totalScans: number
+    totalNfcCards: number
     recentUsers: RecentUser[]
     recentOrders: RecentOrder[]
+    latestScans: Array<{
+        id: string
+        city: string | null
+        country: string | null
+        browser: string | null
+        os: string | null
+        device_type: string | null
+        scanned_at: string
+    }>
 }
 
 type PeriodType = 'all' | '30d' | '7d'
@@ -91,27 +105,33 @@ export default function AdminDashboardPage() {
                 setLoading(true)
             }
 
-            // Requêtes parallèles pour l'ensemble des métriques
+            // Requêtes parallèles pour l'ensemble des métriques opérationnelles
             const [
                 { count: userCount },
                 { count: profileCount },
                 { count: orderCount },
                 { count: pendingCount },
                 { count: ticketsCount },
+                { count: scanCount },
+                { count: nfcCardCount },
                 { data: recentUsersData },
                 { data: recentOrdersData },
                 { data: paidOrdersData },
-                { data: pendingOrdersData }
+                { data: pendingOrdersData },
+                { data: latestScansData }
             ] = await Promise.all([
                 supabase.from('users').select('*', { count: 'exact', head: true }),
                 supabase.from('profiles').select('*', { count: 'exact', head: true }),
                 supabase.from('orders').select('*', { count: 'exact', head: true }),
-                supabase.from('orders').select('*', { count: 'exact', head: true }).in('status', ['pending', 'processing']),
+                supabase.from('orders').select('*', { count: 'exact', head: true }).or('status.in.(pending,processing),payment_status.eq.pending'),
                 supabase.from('support_tickets').select('*', { count: 'exact', head: true }).eq('status', 'open'),
+                supabase.from('qr_scans').select('*', { count: 'exact', head: true }),
+                supabase.from('digital_nfc_cards').select('*', { count: 'exact', head: true }),
                 supabase.from('users').select('id, name, email, role, created_at').order('created_at', { ascending: false }).limit(6),
-                supabase.from('orders').select('id, order_number, total_amount, status, shipping_status, created_at, user_id').order('created_at', { ascending: false }).limit(6),
-                supabase.from('orders').select('total_amount').eq('status', 'paid'),
-                supabase.from('orders').select('total_amount').in('status', ['pending', 'processing'])
+                supabase.from('orders').select('id, order_number, total_amount, total_cents, amount_cents, status, payment_status, shipping_status, created_at, user_id').order('created_at', { ascending: false }).limit(6),
+                supabase.from('orders').select('total_amount, total_cents, amount_cents, status, payment_status').or('payment_status.eq.succeeded,status.in.(paid,preparing,shipped,delivered)'),
+                supabase.from('orders').select('total_amount, total_cents, amount_cents, status, payment_status').or('payment_status.eq.pending,status.in.(pending,processing)'),
+                supabase.from('qr_scans').select('id, city, country, browser, os, device_type, scanned_at').order('scanned_at', { ascending: false }).limit(6)
             ])
 
             // Associer les utilisateurs correspondants aux commandes récentes
@@ -133,8 +153,15 @@ export default function AdminDashboardPage() {
                 user: order.user_id ? usersMap.get(order.user_id) || null : null
             }))
 
-            const totalRevenue = paidOrdersData?.reduce((acc, order) => acc + Number(order.total_amount || 0), 0) || 0
-            const pendingRevenue = pendingOrdersData?.reduce((acc, order) => acc + Number(order.total_amount || 0), 0) || 0
+            const totalRevenue = paidOrdersData?.reduce((acc, order) => {
+                const val = order.total_amount ?? order.total_cents ?? order.amount_cents ?? 0
+                return acc + Number(val)
+            }, 0) || 0
+
+            const pendingRevenue = pendingOrdersData?.reduce((acc, order) => {
+                const val = order.total_amount ?? order.total_cents ?? order.amount_cents ?? 0
+                return acc + Number(val)
+            }, 0) || 0
 
             setStats({
                 totalUsers: userCount || 0,
@@ -145,8 +172,11 @@ export default function AdminDashboardPage() {
                 pendingOrdersCount: pendingCount || 0,
                 openTicketsCount: ticketsCount || 0,
                 pendingRevenue,
+                totalScans: scanCount || 0,
+                totalNfcCards: nfcCardCount || 0,
                 recentUsers: recentUsersData || [],
-                recentOrders: enrichedOrders
+                recentOrders: enrichedOrders,
+                latestScans: latestScansData || []
             })
 
             const now = new Date()
@@ -256,10 +286,19 @@ export default function AdminDashboardPage() {
             href: "/dashboard/admin/orders"
         },
         {
+            id: 'scans',
+            label: "Interactions NFC & QR",
+            value: (stats?.totalScans || 0).toLocaleString('fr-FR'),
+            subtext: `${stats?.totalNfcCards || 0} carte(s) physiques actives`,
+            badge: "Direct live",
+            icon: QrCode,
+            href: "/dashboard/admin/nfc"
+        },
+        {
             id: 'profiles',
             label: "Profils VCard Link-in-Bio",
             value: (stats?.totalProfiles || 0).toLocaleString('fr-FR'),
-            subtext: "Pages et coordonnées virtuelles actives",
+            subtext: "Pages et coordonnées virtuelles",
             badge: "Public & Actif",
             icon: Globe,
             href: "/dashboard/admin/profiles"
@@ -268,7 +307,7 @@ export default function AdminDashboardPage() {
             id: 'users',
             label: "Utilisateurs Inscrits",
             value: (stats?.totalUsers || 0).toLocaleString('fr-FR'),
-            subtext: "Comptes membres et clients Ofika",
+            subtext: "Comptes membres et clients",
             badge: "Base active",
             icon: Users,
             href: "/dashboard/admin/users"
@@ -434,8 +473,8 @@ export default function AdminDashboardPage() {
                 </div>
             )}
 
-            {/* Grille des 4 Métriques Exécutives (Linear / Stripe Cards) */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            {/* Grille des 5 Métriques Exécutives (Linear / Stripe Cards) */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-4">
                 {statCards.map((stat) => {
                     const Icon = stat.icon
                     return (
@@ -552,8 +591,9 @@ export default function AdminDashboardPage() {
                         ) : (
                             <div className="divide-y divide-neutral-100">
                                 {filteredOrders.map((order) => {
-                                    const isPaid = order.status === 'paid'
-                                    const isPending = order.status === 'pending' || order.status === 'processing'
+                                    const orderAmount = Number(order.total_amount ?? order.total_cents ?? order.amount_cents ?? 0)
+                                    const isPaid = order.status === 'paid' || order.payment_status === 'succeeded' || ['delivered', 'preparing', 'shipped'].includes(order.status || '')
+                                    const isPending = !isPaid && (order.status === 'pending' || order.status === 'processing')
                                     const customerName = order.user?.name || 'Client Direct'
                                     const customerEmail = order.user?.email || 'N/A'
 
@@ -580,7 +620,7 @@ export default function AdminDashboardPage() {
 
                                             <div className="text-right shrink-0 flex flex-col items-end gap-1">
                                                 <p className="text-xs font-semibold text-neutral-950 font-mono tabular-nums">
-                                                    {Number(order.total_amount || 0).toLocaleString('fr-FR')} XOF
+                                                    {orderAmount.toLocaleString('fr-FR')} XOF
                                                 </p>
                                                 <div className="flex items-center gap-1.5">
                                                     <span className={cn(
@@ -595,7 +635,7 @@ export default function AdminDashboardPage() {
                                                             "w-1.5 h-1.5 rounded-full",
                                                             isPaid ? "bg-emerald-500" : isPending ? "bg-amber-500" : "bg-neutral-400"
                                                         )} />
-                                                        {order.status || 'En attente'}
+                                                        {order.status === 'delivered' ? 'Livré' : order.status === 'preparing' ? 'En cours' : isPaid ? 'Payé' : order.status || 'En attente'}
                                                     </span>
                                                 </div>
                                             </div>
@@ -679,6 +719,80 @@ export default function AdminDashboardPage() {
                     </CardContent>
                 </Card>
             </div>
+
+            {/* 3. Flux des Derniers Scans NFC & QR en Direct (Live Feed) */}
+            <Card className="bg-white border border-neutral-200/80 shadow-none rounded-xl">
+                <CardHeader className="flex flex-row items-center justify-between p-5 pb-3 border-b border-neutral-100">
+                    <div>
+                        <div className="flex items-center gap-2">
+                            <span className="relative flex h-2 w-2">
+                                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                                <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
+                            </span>
+                            <CardTitle className="text-sm font-semibold text-neutral-950 uppercase tracking-wider">
+                                Dernières Interactions NFC & QR en Direct
+                            </CardTitle>
+                            <span className="px-1.5 py-0.5 rounded text-[10px] font-mono font-medium bg-neutral-100 text-neutral-600">
+                                {stats?.totalScans || 0} scans
+                            </span>
+                        </div>
+                        <CardDescription className="text-xs text-neutral-400 mt-0.5">
+                            Taps de cartes physiques et scans de QR codes captés en temps réel
+                        </CardDescription>
+                    </div>
+                    <Button variant="ghost" size="sm" asChild className="text-xs text-neutral-600 hover:text-neutral-950 hover:bg-neutral-100 h-8 font-medium">
+                        <Link href="/dashboard/admin/nfc" className="flex items-center gap-1">
+                            <span>Gérer les cartes</span>
+                            <ChevronRight className="w-3.5 h-3.5" />
+                        </Link>
+                    </Button>
+                </CardHeader>
+
+                <CardContent className="p-4">
+                    {(!stats?.latestScans || stats.latestScans.length === 0) ? (
+                        <div className="text-center py-8 text-neutral-400 text-xs">
+                            Aucun scan enregistré pour le moment.
+                        </div>
+                    ) : (
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                            {stats.latestScans.map((scan) => {
+                                const city = scan.city || 'Abidjan'
+                                const country = scan.country || "Côte d'Ivoire"
+                                const device = scan.device_type || 'Mobile'
+                                const os = scan.os || 'iOS / Android'
+                                const browser = scan.browser || 'Navigateur'
+                                const dateFormatted = new Date(scan.scanned_at).toLocaleString('fr-FR', {
+                                    day: '2-digit',
+                                    month: 'short',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                })
+
+                                return (
+                                    <div key={scan.id} className="p-3 rounded-lg border border-neutral-200/70 bg-neutral-50/50 hover:bg-white hover:border-neutral-300 transition-all flex items-start justify-between gap-3">
+                                        <div className="flex items-center gap-2.5">
+                                            <div className="w-8 h-8 rounded-lg bg-orange-50 text-orange-600 flex items-center justify-center shrink-0 border border-orange-200/60 font-bold text-xs">
+                                                <QrCode className="w-4 h-4" />
+                                            </div>
+                                            <div>
+                                                <p className="text-xs font-semibold text-neutral-950">
+                                                    {city}, <span className="text-neutral-500 font-normal">{country}</span>
+                                                </p>
+                                                <p className="text-[11px] text-neutral-500 mt-0.5">
+                                                    {device} • {os} ({browser})
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <span className="text-[10px] text-neutral-400 font-mono shrink-0">
+                                            {dateFormatted}
+                                        </span>
+                                    </div>
+                                )
+                            })}
+                        </div>
+                    )}
+                </CardContent>
+            </Card>
 
             {/* Pied de Page Système & Infrastructure (Linear style status) */}
             <div className="p-3.5 px-4 rounded-xl border border-neutral-200/70 bg-neutral-50/40 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs text-neutral-500">

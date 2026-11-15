@@ -26,7 +26,6 @@ import {
   Eye,
   EyeOff,
   CreditCard,
-  Link2,
   X,
   Download,
   Zap,
@@ -38,7 +37,9 @@ import {
   Mail,
   Sparkles,
   TrendingUp,
-  Share2
+  MoreVertical,
+  AlertTriangle,
+  User
 } from 'lucide-react'
 import { toast } from 'sonner'
 import {
@@ -57,6 +58,7 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu'
 import { useProfiles } from '@/lib/hooks/useProfiles'
@@ -68,10 +70,17 @@ export default function QRCodesPage() {
   const [loading, setLoading] = useState(() => !getCachedUserQRCodes())
   const [activeTab, setActiveTab] = useState<'dynamic' | 'static'>('dynamic')
   
-  // Modales de création
-  const [isDynamicModalOpen, setIsDynamicModalOpen] = useState(false)
-  const [isStaticModalOpen, setIsStaticModalOpen] = useState(false)
+  // Modale de création unifiée
+  const [isCreateModalOpen, setIsCreateModalOpen] = useState(false)
+  const [createType, setCreateType] = useState<'dynamic' | 'static'>('dynamic')
   const [isSubmitting, setIsSubmitting] = useState(false)
+
+  // Dialogue de suppression accessible (remplace window.confirm)
+  const [qrToDelete, setQrToDelete] = useState<QRRedirect | null>(null)
+  const [isDeleting, setIsDeleting] = useState(false)
+
+  // État de copie rapide avec feedback
+  const [copiedId, setCopiedId] = useState<string | null>(null)
 
   // Formulaire de création dynamique
   const [dynamicForm, setDynamicForm] = useState({
@@ -100,7 +109,6 @@ export default function QRCodesPage() {
   const { profiles } = useProfiles()
 
   const loadQRCodes = useCallback(async (force = false) => {
-    // Ne passer loading à true QUE si aucun QR code n'est encore affiché
     if (qrCodes.length === 0) {
       setLoading(true)
     }
@@ -117,7 +125,7 @@ export default function QRCodesPage() {
     loadQRCodes()
   }, [loadQRCodes])
 
-  // --- Création QR Code Dynamique (Orange) ---
+  // --- Création QR Code Dynamique ---
   const handleCreateDynamicQR = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
     if (!dynamicForm.target_url) {
@@ -140,9 +148,10 @@ export default function QRCodesPage() {
       })
 
       if (res.success) {
-        toast.success("⚡ QR Code Dynamique créé avec succès !")
-        setIsDynamicModalOpen(false)
+        toast.success("QR Code Dynamique créé avec succès !")
+        setIsCreateModalOpen(false)
         setDynamicForm({ title: '', target_url: '', description: '' })
+        setActiveTab('dynamic')
         loadQRCodes(true)
       } else {
         toast.error(res.error || "Impossible de créer le QR code dynamique")
@@ -154,7 +163,7 @@ export default function QRCodesPage() {
     }
   }, [dynamicForm, loadQRCodes])
 
-  // --- Création QR Code Statique (Violet) ---
+  // --- Création QR Code Statique ---
   const handleCreateStaticQR = useCallback(async (e: React.FormEvent) => {
     e.preventDefault()
     const rawVal = staticForm.target_url.trim()
@@ -210,8 +219,8 @@ export default function QRCodesPage() {
       })
 
       if (res.success) {
-        toast.success("🟣 QR Code Statique créé avec succès !")
-        setIsStaticModalOpen(false)
+        toast.success("QR Code Statique créé avec succès !")
+        setIsCreateModalOpen(false)
         setStaticForm({ contentType: 'url', title: '', target_url: '', description: '' })
         setActiveTab('static')
         loadQRCodes(true)
@@ -256,35 +265,48 @@ export default function QRCodesPage() {
   const handleToggleActive = useCallback(async (qr: QRRedirect) => {
     const result = await updateQRRedirect(qr.id, { is_active: !qr.is_active })
     if (result.success) {
-      toast.success(qr.is_active ? 'QR code désactivé' : 'QR code activé')
+      toast.success(qr.is_active ? 'QR code mis hors-ligne' : 'QR code activé avec succès')
       loadQRCodes(true)
     } else {
       toast.error(result.error || 'Erreur')
     }
   }, [loadQRCodes])
 
-  const handleDelete = useCallback(async (id: string) => {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer ce QR code ?')) return
-    const result = await deleteQRRedirect(id)
-    if (result.success) {
-      toast.success('QR code supprimé')
-      loadQRCodes(true)
-    } else {
-      toast.error(result.error || 'Erreur lors de la suppression')
+  // --- Suppression Accessible via Dialogue ---
+  const handleConfirmDelete = useCallback(async () => {
+    if (!qrToDelete) return
+    try {
+      setIsDeleting(true)
+      const result = await deleteQRRedirect(qrToDelete.id)
+      if (result.success) {
+        toast.success('QR code supprimé avec succès')
+        setQrToDelete(null)
+        loadQRCodes(true)
+      } else {
+        toast.error(result.error || 'Erreur lors de la suppression')
+      }
+    } catch (err: any) {
+      toast.error(err.message || 'Erreur de suppression')
+    } finally {
+      setIsDeleting(false)
     }
-  }, [loadQRCodes])
+  }, [qrToDelete, loadQRCodes])
 
-  const copyToClipboard = useCallback((text: string, label: string) => {
+  const copyToClipboard = useCallback((text: string, id: string, label: string) => {
     navigator.clipboard.writeText(text)
-    toast.success(`${label} copié !`)
+    setCopiedId(id)
+    toast.success(`${label} copié dans le presse-papiers !`)
+    setTimeout(() => {
+      setCopiedId(prev => prev === id ? null : prev)
+    }, 2000)
   }, [])
 
   const downloadQRCode = useCallback(async (shortCode: string, title: string, id: string, format: 'png' | 'svg') => {
     try {
       const svgId = `qr-${id}`
       await downloadSVGAsFile(svgId, `qr-${title || shortCode}`, format)
-      toast.success(`QR code téléchargé en ${format.toUpperCase()}`)
-    } catch (error) {
+      toast.success(`QR code téléchargé en haute résolution (${format.toUpperCase()})`)
+    } catch {
       toast.error('Erreur lors du téléchargement')
     }
   }, [])
@@ -304,79 +326,73 @@ export default function QRCodesPage() {
     [qrCodes]
   )
 
-  // N'afficher le loader bloquant plein écran QUE si aucun QR code n'est encore présent en mémoire
+  // Loader léger si la liste est vide et en cours de chargement initial
   if (loading && qrCodes.length === 0) {
     return (
-      <div className="container mx-auto px-4 py-12 max-w-5xl">
-        <div className="flex flex-col items-center justify-center min-h-[400px]">
-          <Loader2 className="w-10 h-10 text-orange-500 animate-spin mb-4" />
-          <p className="text-slate-500 font-bold text-sm">Chargement de vos QR codes...</p>
-        </div>
+      <div className="min-h-[60vh] flex flex-col items-center justify-center p-6">
+        <Loader2 className="w-8 h-8 text-neutral-800 animate-spin mb-3" />
+        <p className="text-neutral-500 font-medium text-xs">Chargement de vos QR codes...</p>
       </div>
     )
   }
 
   return (
-    <div className="min-h-screen bg-slate-50/50 py-8">
+    <div className="min-h-screen bg-neutral-50/40 py-6 sm:py-8">
       <div className="container mx-auto px-4 max-w-5xl">
 
-        {/* --- HEADER AVEC BOUTONS DISTINCTS (Orange & Violet) --- */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-5 mb-8">
+        {/* --- HEADER ÉPURÉ HAUT DE GAMME --- */}
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-7">
           <div>
-            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-orange-50 border border-orange-100/80 text-orange-700 text-xs font-semibold mb-2 shadow-xs">
-              <Sparkles className="w-3.5 h-3.5 text-orange-500" />
-              <span>Gestionnaire Intelligent</span>
+            <div className="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full bg-neutral-100 border border-neutral-200/80 text-neutral-800 text-[11px] font-semibold mb-2">
+              <Sparkles className="w-3.5 h-3.5 text-neutral-600" />
+              <span>OFIKA CONNECT</span>
             </div>
-            <h1 className="text-2xl md:text-3xl font-black text-slate-900 tracking-tight flex items-center gap-2.5">
-              <QrCode className="w-7 h-7 text-orange-500" />
-              Vos QR Codes Ofika
+            <h1 className="text-2xl sm:text-3xl font-bold text-neutral-950 tracking-tight flex items-center gap-2.5">
+              <QrCode className="w-7 h-7 text-neutral-900" />
+              Vos QR Codes
             </h1>
-            <p className="text-xs md:text-sm text-slate-500 font-medium mt-1 max-w-xl">
-              Gérez vos QR codes dynamiques (modifiables à vie) et statiques avec statistiques de scans en direct.
+            <p className="text-xs sm:text-sm text-neutral-500 font-normal mt-1 max-w-xl">
+              Gérez vos QR codes dynamiques modifiables à vie et statiques avec statistiques de scans en direct.
             </p>
           </div>
 
-          {/* 2 BOUTONS DISTINCTS (Orange & Violet) */}
-          <div className="flex flex-wrap items-center gap-2.5">
+          {/* BOUTON D'ACTION PRINCIPAL NOIR MAT STATUTAIRE */}
+          <div className="flex items-center gap-2">
             <Button
-              onClick={() => setIsDynamicModalOpen(true)}
-              className="bg-gradient-to-r from-orange-500 to-amber-600 hover:from-orange-600 hover:to-amber-700 text-white font-bold text-xs h-11 px-4.5 rounded-2xl shadow-md hover:shadow-lg transition-all flex items-center gap-2 group"
+              onClick={() => {
+                setCreateType('dynamic')
+                setIsCreateModalOpen(true)
+              }}
+              className="bg-neutral-950 hover:bg-neutral-800 text-white font-semibold text-xs h-10 px-4 rounded-xl shadow-xs transition-all flex items-center gap-2"
             >
-              <Zap className="w-4 h-4 fill-white group-hover:scale-110 transition-transform" />
-              <span>Créer QR Dynamique</span>
-            </Button>
-            <Button
-              onClick={() => setIsStaticModalOpen(true)}
-              className="bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-700 hover:to-indigo-700 text-white font-bold text-xs h-11 px-4.5 rounded-2xl shadow-md hover:shadow-lg transition-all flex items-center gap-2 group"
-            >
-              <QrCode className="w-4 h-4 group-hover:scale-110 transition-transform" />
-              <span>Créer QR Statique</span>
+              <Plus className="w-4 h-4" />
+              <span>Nouveau QR Code</span>
             </Button>
           </div>
         </div>
 
-        {/* --- STATS RÉSUMÉES DU TAB ACTIF --- */}
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mb-8">
-          <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs hover:shadow-sm transition-shadow flex items-center justify-between">
+        {/* --- 3 BENTO CARDS KPI STATUTAIRES --- */}
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3.5 mb-7">
+          <div className="bg-white rounded-2xl border border-neutral-200/90 p-4 shadow-xs flex items-center justify-between">
             <div>
-              <div className="text-[11px] font-bold uppercase text-slate-400 tracking-wider">
-                {activeTab === 'dynamic' ? 'Dynamiques Total' : 'Statiques Total'}
+              <div className="text-[11px] font-semibold uppercase text-neutral-500 tracking-wider">
+                {activeTab === 'dynamic' ? 'QR Dynamiques' : 'QR Statiques'}
               </div>
-              <div className="text-2xl font-black text-slate-900 mt-0.5">
+              <div className="text-2xl font-bold text-neutral-950 mt-0.5 font-mono">
                 {activeTab === 'dynamic' ? dynamicQRCodes.length : staticQRCodes.length}
               </div>
             </div>
-            <div className="w-10 h-10 rounded-xl bg-slate-100 flex items-center justify-center text-slate-600">
+            <div className="w-10 h-10 rounded-xl bg-neutral-100 flex items-center justify-center text-neutral-700">
               <QrCode className="w-5 h-5" />
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs hover:shadow-sm transition-shadow flex items-center justify-between">
+          <div className="bg-white rounded-2xl border border-neutral-200/90 p-4 shadow-xs flex items-center justify-between">
             <div>
-              <div className="text-[11px] font-bold uppercase text-slate-400 tracking-wider">
+              <div className="text-[11px] font-semibold uppercase text-neutral-500 tracking-wider">
                 Actifs en ligne
               </div>
-              <div className="text-2xl font-black text-emerald-600 mt-0.5">
+              <div className="text-2xl font-bold text-emerald-600 mt-0.5 font-mono">
                 {(activeTab === 'dynamic' ? dynamicQRCodes : staticQRCodes).filter(qr => qr.is_active).length}
               </div>
             </div>
@@ -385,83 +401,94 @@ export default function QRCodesPage() {
             </div>
           </div>
 
-          <div className="bg-white rounded-2xl border border-slate-200/80 p-4 shadow-xs hover:shadow-sm transition-shadow flex items-center justify-between">
+          <div className="bg-white rounded-2xl border border-neutral-200/90 p-4 shadow-xs flex items-center justify-between">
             <div>
-              <div className="text-[11px] font-bold uppercase text-slate-400 tracking-wider">
+              <div className="text-[11px] font-semibold uppercase text-neutral-500 tracking-wider">
                 Total des Scans
               </div>
-              <div className="text-2xl font-black text-orange-500 mt-0.5">
+              <div className="text-2xl font-bold text-neutral-950 mt-0.5 font-mono">
                 {(activeTab === 'dynamic' ? dynamicQRCodes : staticQRCodes).reduce((sum, qr) => sum + (qr.scan_count || 0), 0)}
               </div>
             </div>
-            <div className="w-10 h-10 rounded-xl bg-orange-50 text-orange-500 flex items-center justify-center">
+            <div className="w-10 h-10 rounded-xl bg-neutral-100 text-neutral-700 flex items-center justify-center">
               <TrendingUp className="w-5 h-5" />
             </div>
           </div>
         </div>
 
-        {/* --- SYSTEME D'ONGLETS (DYNAMIC VS STATIC) --- */}
-        <div className="flex items-center gap-2 border-b border-slate-200/80 mb-6 pb-2 overflow-x-auto">
-          <button
-            onClick={() => setActiveTab('dynamic')}
-            className={cn(
-              "flex items-center gap-2 px-4 py-2.5 rounded-2xl font-bold text-xs md:text-sm transition-all shrink-0",
-              activeTab === 'dynamic'
-                ? "bg-orange-500 text-white shadow-md shadow-orange-500/20"
-                : "text-slate-600 hover:bg-slate-100/80"
-            )}
-          >
-            <Zap className="w-4 h-4" />
-            <span>QR Codes Dynamiques</span>
-            <span className={cn(
-              "ml-1 font-mono text-[10px] px-2 py-0.5 rounded-full font-bold",
-              activeTab === 'dynamic' ? "bg-white/20 text-white" : "bg-orange-100 text-orange-800"
-            )}>
-              {dynamicQRCodes.length}
-            </span>
-          </button>
+        {/* --- NAVIGATION PAR ONGLETS SEGMENTÉS AVEC SURBRILLANCE ACTIVE NETTE --- */}
+        <div className="w-full overflow-x-auto pb-1 no-scrollbar mb-6">
+          <div className="inline-flex items-center p-1.5 bg-neutral-100 rounded-2xl border border-neutral-200/90 gap-1.5 shadow-xs">
+            <button
+              type="button"
+              onClick={() => setActiveTab('dynamic')}
+              className={cn(
+                "h-10 px-4 text-xs font-semibold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap",
+                activeTab === 'dynamic'
+                  ? "bg-neutral-950 text-white shadow-md shadow-neutral-950/25 ring-1 ring-neutral-800 scale-[1.02]"
+                  : "text-neutral-600 hover:text-neutral-950 hover:bg-neutral-200/60"
+              )}
+            >
+              <Zap className={cn("w-3.5 h-3.5 transition-colors", activeTab === 'dynamic' ? "text-orange-400" : "text-neutral-400")} />
+              <span>QR Codes Dynamiques</span>
+              <span className={cn(
+                "px-2 py-0.5 rounded-full text-[10px] font-mono font-bold transition-all",
+                activeTab === 'dynamic'
+                  ? "bg-orange-500/25 text-orange-300 border border-orange-500/40"
+                  : "bg-neutral-200 text-neutral-600"
+              )}>
+                {dynamicQRCodes.length}
+              </span>
+            </button>
 
-          <button
-            onClick={() => setActiveTab('static')}
-            className={cn(
-              "flex items-center gap-2 px-4 py-2.5 rounded-2xl font-bold text-xs md:text-sm transition-all shrink-0",
-              activeTab === 'static'
-                ? "bg-purple-600 text-white shadow-md shadow-purple-600/20"
-                : "text-slate-600 hover:bg-slate-100/80"
-            )}
-          >
-            <QrCode className="w-4 h-4" />
-            <span>QR Codes Statiques</span>
-            <span className={cn(
-              "ml-1 font-mono text-[10px] px-2 py-0.5 rounded-full font-bold",
-              activeTab === 'static' ? "bg-white/20 text-white" : "bg-purple-100 text-purple-800"
-            )}>
-              {staticQRCodes.length}
-            </span>
-          </button>
+            <button
+              type="button"
+              onClick={() => setActiveTab('static')}
+              className={cn(
+                "h-10 px-4 text-xs font-semibold rounded-xl transition-all duration-200 flex items-center justify-center gap-2 cursor-pointer whitespace-nowrap",
+                activeTab === 'static'
+                  ? "bg-neutral-950 text-white shadow-md shadow-neutral-950/25 ring-1 ring-neutral-800 scale-[1.02]"
+                  : "text-neutral-600 hover:text-neutral-950 hover:bg-neutral-200/60"
+              )}
+            >
+              <QrCode className={cn("w-3.5 h-3.5 transition-colors", activeTab === 'static' ? "text-orange-400" : "text-neutral-400")} />
+              <span>QR Codes Statiques</span>
+              <span className={cn(
+                "px-2 py-0.5 rounded-full text-[10px] font-mono font-bold transition-all",
+                activeTab === 'static'
+                  ? "bg-orange-500/25 text-orange-300 border border-orange-500/40"
+                  : "bg-neutral-200 text-neutral-600"
+              )}>
+                {staticQRCodes.length}
+              </span>
+            </button>
+          </div>
         </div>
 
-        {/* --- CONTENU DU TAB 1 : DYNAMIQUES (ORANGE) --- */}
+        {/* --- CONTENU DU TAB 1 : DYNAMIQUES --- */}
         {activeTab === 'dynamic' && (
           <div className="space-y-4">
             {dynamicQRCodes.length === 0 ? (
-              <div className="bg-white rounded-3xl border border-slate-200/80 p-12 text-center shadow-xs">
-                <div className="w-16 h-16 bg-orange-50 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-orange-100">
-                  <Zap className="w-8 h-8 text-orange-500" />
+              <div className="bg-white rounded-2xl border border-neutral-200/90 p-12 text-center shadow-xs">
+                <div className="w-14 h-14 bg-neutral-100 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-neutral-200">
+                  <Zap className="w-7 h-7 text-neutral-700" />
                 </div>
-                <h3 className="text-lg font-bold text-slate-900 mb-1">Aucun QR code dynamique</h3>
-                <p className="text-xs text-slate-500 max-w-md mx-auto mb-6">
-                  Les QR codes dynamiques permettent de modifier l'URL de destination à tout moment sans réimprimer le QR code.
+                <h3 className="text-base font-bold text-neutral-950 mb-1">Aucun QR code dynamique</h3>
+                <p className="text-xs text-neutral-500 max-w-md mx-auto mb-6">
+                  Les QR codes dynamiques permettent de modifier l'adresse de destination à tout moment sans réimprimer vos cartes ou flyers.
                 </p>
                 <Button
-                  onClick={() => setIsDynamicModalOpen(true)}
-                  className="bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs h-10 px-5 rounded-xl shadow-sm"
+                  onClick={() => {
+                    setCreateType('dynamic')
+                    setIsCreateModalOpen(true)
+                  }}
+                  className="bg-neutral-950 hover:bg-neutral-800 text-white font-semibold text-xs h-9 px-4 rounded-xl shadow-xs"
                 >
                   <Plus className="w-4 h-4 mr-1.5" /> Créer un QR Code Dynamique
                 </Button>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3.5">
                 {dynamicQRCodes.map((qr) => (
                   <QRCardItem
                     key={qr.id}
@@ -477,8 +504,9 @@ export default function QRCodesPage() {
                     onSave={handleSave}
                     onCancelEdit={() => setEditingId(null)}
                     onToggleActive={handleToggleActive}
-                    onDelete={handleDelete}
+                    onRequestDelete={(targetQr: QRRedirect) => setQrToDelete(targetQr)}
                     onCopy={copyToClipboard}
+                    copiedId={copiedId}
                     onDownload={downloadQRCode}
                   />
                 ))}
@@ -487,27 +515,30 @@ export default function QRCodesPage() {
           </div>
         )}
 
-        {/* --- CONTENU DU TAB 2 : STATIQUES (VIOLET) --- */}
+        {/* --- CONTENU DU TAB 2 : STATIQUES --- */}
         {activeTab === 'static' && (
           <div className="space-y-4">
             {staticQRCodes.length === 0 ? (
-              <div className="bg-white rounded-3xl border border-slate-200/80 p-12 text-center shadow-xs">
-                <div className="w-16 h-16 bg-purple-50 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-purple-100">
-                  <QrCode className="w-8 h-8 text-purple-600" />
+              <div className="bg-white rounded-2xl border border-neutral-200/90 p-12 text-center shadow-xs">
+                <div className="w-14 h-14 bg-neutral-100 rounded-2xl flex items-center justify-center mx-auto mb-4 border border-neutral-200">
+                  <QrCode className="w-7 h-7 text-neutral-700" />
                 </div>
-                <h3 className="text-lg font-bold text-slate-900 mb-1">Aucun QR code statique</h3>
-                <p className="text-xs text-slate-500 max-w-md mx-auto mb-6">
-                  Les QR codes statiques encodent directement l'information (lien web, téléphone, Wi-Fi, vCard) de façon fixe.
+                <h3 className="text-base font-bold text-neutral-950 mb-1">Aucun QR code statique</h3>
+                <p className="text-xs text-neutral-500 max-w-md mx-auto mb-6">
+                  Les QR codes statiques encodent directement l'information (lien web, téléphone, email ou texte brut) de façon permanente et autonome.
                 </p>
                 <Button
-                  onClick={() => setIsStaticModalOpen(true)}
-                  className="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs h-10 px-5 rounded-xl shadow-sm"
+                  onClick={() => {
+                    setCreateType('static')
+                    setIsCreateModalOpen(true)
+                  }}
+                  className="bg-neutral-950 hover:bg-neutral-800 text-white font-semibold text-xs h-9 px-4 rounded-xl shadow-xs"
                 >
                   <Plus className="w-4 h-4 mr-1.5" /> Créer un QR Code Statique
                 </Button>
               </div>
             ) : (
-              <div className="space-y-4">
+              <div className="space-y-3.5">
                 {staticQRCodes.map((qr) => (
                   <QRCardItem
                     key={qr.id}
@@ -523,8 +554,9 @@ export default function QRCodesPage() {
                     onSave={handleSave}
                     onCancelEdit={() => setEditingId(null)}
                     onToggleActive={handleToggleActive}
-                    onDelete={handleDelete}
+                    onRequestDelete={(targetQr: QRRedirect) => setQrToDelete(targetQr)}
                     onCopy={copyToClipboard}
+                    copiedId={copiedId}
                     onDownload={downloadQRCode}
                   />
                 ))}
@@ -535,219 +567,288 @@ export default function QRCodesPage() {
 
       </div>
 
-      {/* --- MODALE 1 : CRÉER UN QR CODE DYNAMIQUE (ORANGE) --- */}
-      <Dialog open={isDynamicModalOpen} onOpenChange={setIsDynamicModalOpen}>
-        <DialogContent className="sm:max-w-[480px] rounded-3xl border border-slate-100 shadow-2xl bg-white p-6">
+      {/* --- MODALE UNIFIÉE DE CRÉATION DE QR CODE --- */}
+      <Dialog open={isCreateModalOpen} onOpenChange={setIsCreateModalOpen}>
+        <DialogContent className="sm:max-w-[500px] rounded-2xl border border-neutral-200/90 shadow-xl bg-white p-6">
           <DialogHeader>
-            <div className="w-11 h-11 rounded-2xl bg-orange-100/80 flex items-center justify-center mb-2">
-              <Zap className="w-6 h-6 text-orange-600" />
+            <div className="w-10 h-10 rounded-xl bg-neutral-100 flex items-center justify-center mb-2 text-neutral-900">
+              {createType === 'dynamic' ? <Zap className="w-5 h-5" /> : <QrCode className="w-5 h-5" />}
             </div>
-            <DialogTitle className="text-xl font-black text-slate-900">
-              Créer un QR Code Dynamique
+            <DialogTitle className="text-xl font-bold text-neutral-950 tracking-tight">
+              Créer un QR Code
             </DialogTitle>
-            <DialogDescription className="text-xs text-slate-500 font-medium">
-              Ce QR code crée un lien permanent <code className="font-mono text-orange-600 font-bold">/qr/[code]</code> que vous pourrez modifier à tout moment sans réimprimer.
+            <DialogDescription className="text-xs text-neutral-500">
+              Choisissez le mode qui convient à votre besoin pour générer votre QR code.
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleCreateDynamicQR} className="space-y-4 my-2">
-            <div className="space-y-1.5">
-              <Label className="text-[11px] font-black uppercase text-slate-500 tracking-wider">
-                Titre du QR Code
-              </Label>
-              <Input
-                placeholder="Ex: Ma Page de Profil, Brochure 2026..."
-                value={dynamicForm.title}
-                onChange={(e) => setDynamicForm({ ...dynamicForm, title: e.target.value })}
-                className="h-11 border-slate-200 rounded-xl font-bold text-xs bg-slate-50/50 focus:bg-white"
-                required
-              />
-            </div>
+          {/* SÉLECTEUR DE TYPE (DYNAMIQUE VS STATIQUE) */}
+          <div className="grid grid-cols-2 gap-2 p-1 bg-neutral-100 rounded-xl my-2">
+            <button
+              type="button"
+              onClick={() => setCreateType('dynamic')}
+              className={cn(
+                "py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-all",
+                createType === 'dynamic'
+                  ? "bg-white text-neutral-950 shadow-xs"
+                  : "text-neutral-500 hover:text-neutral-900"
+              )}
+            >
+              <Zap className="w-3.5 h-3.5" />
+              <span>Dynamique (Modifiable)</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setCreateType('static')}
+              className={cn(
+                "py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-all",
+                createType === 'static'
+                  ? "bg-white text-neutral-950 shadow-xs"
+                  : "text-neutral-500 hover:text-neutral-900"
+              )}
+            >
+              <QrCode className="w-3.5 h-3.5" />
+              <span>Statique (Fixe)</span>
+            </button>
+          </div>
 
-            <div className="space-y-1.5">
-              <Label className="text-[11px] font-black uppercase text-slate-500 tracking-wider">
-                URL de Destination
-              </Label>
-              <Input
-                placeholder="Ex: https://ofika.ci/p/jean-dupont"
-                value={dynamicForm.target_url}
-                onChange={(e) => setDynamicForm({ ...dynamicForm, target_url: e.target.value })}
-                className="h-11 border-slate-200 rounded-xl font-mono text-xs bg-slate-50/50 focus:bg-white"
-                required
-              />
-            </div>
+          {createType === 'dynamic' ? (
+            /* FORMULAIRE DYNAMIQUE */
+            <form onSubmit={handleCreateDynamicQR} className="space-y-3.5 my-2">
+              <div className="p-3 bg-neutral-50 rounded-xl border border-neutral-200/70 text-xs text-neutral-600 space-y-1">
+                <span className="font-semibold text-neutral-900 block">⚡ Redirection intelligente :</span>
+                Ce QR code crée un lien permanent <code className="font-mono text-neutral-900 font-bold">/qr/[code]</code> que vous pourrez rediriger vers n'importe quelle adresse sans réimprimer vos supports.
+              </div>
 
-            <div className="space-y-1.5">
-              <Label className="text-[11px] font-black uppercase text-slate-500 tracking-wider">
-                Description (Optionnel)
-              </Label>
-              <Textarea
-                placeholder="Petite note explicative..."
-                value={dynamicForm.description}
-                onChange={(e) => setDynamicForm({ ...dynamicForm, description: e.target.value })}
-                className="border-slate-200 rounded-xl text-xs bg-slate-50/50 focus:bg-white"
-                rows={2}
-              />
-            </div>
+              <div className="space-y-1.5">
+                <Label className="text-[11px] font-semibold uppercase text-neutral-500 tracking-wider">
+                  Titre du QR Code
+                </Label>
+                <Input
+                  placeholder="Ex: Ma Page de Profil, Catalogue 2026..."
+                  value={dynamicForm.title}
+                  onChange={(e) => setDynamicForm({ ...dynamicForm, title: e.target.value })}
+                  className="h-10 border-neutral-200 rounded-xl text-xs bg-white"
+                  required
+                />
+              </div>
 
-            <DialogFooter className="pt-2 gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsDynamicModalOpen(false)}
-                className="rounded-xl border-slate-200 text-xs font-bold"
-              >
-                Annuler
-              </Button>
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="bg-orange-500 hover:bg-orange-600 text-white font-bold text-xs rounded-xl px-5"
-              >
-                {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : <Zap className="w-4 h-4 mr-1.5" />}
-                Créer le QR Code Dynamique
-              </Button>
-            </DialogFooter>
-          </form>
+              <div className="space-y-1.5">
+                <Label className="text-[11px] font-semibold uppercase text-neutral-500 tracking-wider">
+                  URL de Destination
+                </Label>
+                <Input
+                  placeholder="Ex: https://ofika.ci/mon-profil ou exemple.com"
+                  value={dynamicForm.target_url}
+                  onChange={(e) => setDynamicForm({ ...dynamicForm, target_url: e.target.value })}
+                  className="h-10 border-neutral-200 rounded-xl font-mono text-xs bg-white"
+                  required
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-[11px] font-semibold uppercase text-neutral-500 tracking-wider">
+                  Description (Optionnel)
+                </Label>
+                <Textarea
+                  placeholder="Note ou contexte d'utilisation..."
+                  value={dynamicForm.description}
+                  onChange={(e) => setDynamicForm({ ...dynamicForm, description: e.target.value })}
+                  className="border-neutral-200 rounded-xl text-xs bg-white"
+                  rows={2}
+                />
+              </div>
+
+              <DialogFooter className="pt-2 gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsCreateModalOpen(false)}
+                  className="rounded-xl border-neutral-200 text-xs font-medium"
+                >
+                  Annuler
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="bg-neutral-950 hover:bg-neutral-800 text-white font-semibold text-xs rounded-xl px-4"
+                >
+                  {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : <Zap className="w-4 h-4 mr-1.5" />}
+                  Créer le QR Code Dynamique
+                </Button>
+              </DialogFooter>
+            </form>
+          ) : (
+            /* FORMULAIRE STATIQUE */
+            <form onSubmit={handleCreateStaticQR} className="space-y-3.5 my-2">
+              <div className="space-y-1.5">
+                <Label className="text-[11px] font-semibold uppercase text-neutral-500 tracking-wider">
+                  Type de Donnée Encodée
+                </Label>
+                <div className="grid grid-cols-4 gap-1 p-1 bg-neutral-100 rounded-xl border border-neutral-200/60">
+                  <button
+                    type="button"
+                    onClick={() => setStaticForm({ ...staticForm, contentType: 'url' })}
+                    className={cn(
+                      "py-2 px-1 rounded-lg text-[11px] font-semibold flex flex-col items-center gap-1 transition-all",
+                      staticForm.contentType === 'url'
+                        ? "bg-white text-neutral-950 shadow-xs"
+                        : "text-neutral-500 hover:text-neutral-900"
+                    )}
+                  >
+                    <Globe className="w-3.5 h-3.5" />
+                    <span>Lien Web</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setStaticForm({ ...staticForm, contentType: 'text' })}
+                    className={cn(
+                      "py-2 px-1 rounded-lg text-[11px] font-semibold flex flex-col items-center gap-1 transition-all",
+                      staticForm.contentType === 'text'
+                        ? "bg-white text-neutral-950 shadow-xs"
+                        : "text-neutral-500 hover:text-neutral-900"
+                    )}
+                  >
+                    <FileText className="w-3.5 h-3.5" />
+                    <span>Texte</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setStaticForm({ ...staticForm, contentType: 'phone' })}
+                    className={cn(
+                      "py-2 px-1 rounded-lg text-[11px] font-semibold flex flex-col items-center gap-1 transition-all",
+                      staticForm.contentType === 'phone'
+                        ? "bg-white text-neutral-950 shadow-xs"
+                        : "text-neutral-500 hover:text-neutral-900"
+                    )}
+                  >
+                    <Phone className="w-3.5 h-3.5" />
+                    <span>Appel</span>
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setStaticForm({ ...staticForm, contentType: 'email' })}
+                    className={cn(
+                      "py-2 px-1 rounded-lg text-[11px] font-semibold flex flex-col items-center gap-1 transition-all",
+                      staticForm.contentType === 'email'
+                        ? "bg-white text-neutral-950 shadow-xs"
+                        : "text-neutral-500 hover:text-neutral-900"
+                    )}
+                  >
+                    <Mail className="w-3.5 h-3.5" />
+                    <span>Email</span>
+                  </button>
+                </div>
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-[11px] font-semibold uppercase text-neutral-500 tracking-wider">
+                  Titre du QR Code
+                </Label>
+                <Input
+                  placeholder="Ex: Mon Site, Note Directe, Numéro d'urgence..."
+                  value={staticForm.title}
+                  onChange={(e) => setStaticForm({ ...staticForm, title: e.target.value })}
+                  className="h-10 border-neutral-200 rounded-xl text-xs bg-white"
+                  required
+                />
+              </div>
+
+              <div className="space-y-1.5">
+                <Label className="text-[11px] font-semibold uppercase text-neutral-500 tracking-wider">
+                  {staticForm.contentType === 'url' && "Adresse Web"}
+                  {staticForm.contentType === 'text' && "Texte Brut à Encoder"}
+                  {staticForm.contentType === 'phone' && "Numéro de Téléphone"}
+                  {staticForm.contentType === 'email' && "Adresse Email"}
+                </Label>
+
+                {staticForm.contentType === 'text' ? (
+                  <Textarea
+                    placeholder="Saisissez le texte à encoder directement..."
+                    value={staticForm.target_url}
+                    onChange={(e) => setStaticForm({ ...staticForm, target_url: e.target.value })}
+                    className="h-20 border-neutral-200 rounded-xl text-xs bg-white"
+                    required
+                  />
+                ) : (
+                  <Input
+                    placeholder={
+                      staticForm.contentType === 'url' ? "Ex: https://mon-site.com ou exemple.ci" :
+                      staticForm.contentType === 'phone' ? "Ex: +225 07 00 00 00 00" :
+                      "Ex: contact@entreprise.ci"
+                    }
+                    value={staticForm.target_url}
+                    onChange={(e) => setStaticForm({ ...staticForm, target_url: e.target.value })}
+                    className="h-10 border-neutral-200 rounded-xl font-mono text-xs bg-white"
+                    required
+                  />
+                )}
+              </div>
+
+              <DialogFooter className="pt-2 gap-2">
+                <Button
+                  type="button"
+                  variant="outline"
+                  onClick={() => setIsCreateModalOpen(false)}
+                  className="rounded-xl border-neutral-200 text-xs font-medium"
+                >
+                  Annuler
+                </Button>
+                <Button
+                  type="submit"
+                  disabled={isSubmitting}
+                  className="bg-neutral-950 hover:bg-neutral-800 text-white font-semibold text-xs rounded-xl px-4"
+                >
+                  {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : <QrCode className="w-4 h-4 mr-1.5" />}
+                  Créer le QR Code Statique
+                </Button>
+              </DialogFooter>
+            </form>
+          )}
         </DialogContent>
       </Dialog>
 
-      {/* --- MODALE 2 : CRÉER UN QR CODE STATIQUE (VIOLET) --- */}
-      <Dialog open={isStaticModalOpen} onOpenChange={setIsStaticModalOpen}>
-        <DialogContent className="sm:max-w-[480px] rounded-3xl border border-slate-100 shadow-2xl bg-white p-6">
+      {/* --- MODALE DE CONFIRMATION DE SUPPRESSION ACCESSIBLE --- */}
+      <Dialog open={!!qrToDelete} onOpenChange={(open) => !open && setQrToDelete(null)}>
+        <DialogContent className="sm:max-w-[420px] rounded-2xl border border-neutral-200/90 shadow-xl bg-white p-6">
           <DialogHeader>
-            <div className="w-11 h-11 rounded-2xl bg-purple-100/80 flex items-center justify-center mb-2">
-              <QrCode className="w-6 h-6 text-purple-600" />
+            <div className="w-10 h-10 rounded-xl bg-rose-50 text-rose-600 flex items-center justify-center mb-2">
+              <AlertTriangle className="w-5 h-5" />
             </div>
-            <DialogTitle className="text-xl font-black text-slate-900">
-              Créer un QR Code Statique
+            <DialogTitle className="text-lg font-bold text-neutral-950 tracking-tight">
+              Supprimer ce QR Code ?
             </DialogTitle>
-            <DialogDescription className="text-xs text-slate-500 font-medium">
-              Ce QR code encode directement l'information de manière fixe (site web, téléphone, etc.).
+            <DialogDescription className="text-xs text-neutral-500 mt-1">
+              Êtes-vous sûr de vouloir supprimer définitivement « <strong className="text-neutral-900">{qrToDelete?.title || 'ce QR code'}</strong> » ? Cette action est irréversible.
             </DialogDescription>
           </DialogHeader>
 
-          <form onSubmit={handleCreateStaticQR} className="space-y-4 my-2">
-            {/* SÉLECTEUR DE TYPE DE CONTENU STATIQUE */}
-            <div className="space-y-1.5">
-              <Label className="text-[11px] font-black uppercase text-slate-500 tracking-wider">
-                Type de Contenu Statique
-              </Label>
-              <div className="grid grid-cols-4 gap-1.5 p-1 bg-slate-100/80 rounded-2xl border border-slate-200/60">
-                <button
-                  type="button"
-                  onClick={() => setStaticForm({ ...staticForm, contentType: 'url' })}
-                  className={`py-2 px-1 rounded-xl text-[11px] font-bold flex flex-col items-center gap-1 transition-all ${
-                    staticForm.contentType === 'url'
-                      ? "bg-white text-purple-700 shadow-sm"
-                      : "text-slate-500 hover:text-slate-900"
-                  }`}
-                >
-                  <Globe className="w-3.5 h-3.5" />
-                  <span>Lien Web</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setStaticForm({ ...staticForm, contentType: 'text' })}
-                  className={`py-2 px-1 rounded-xl text-[11px] font-bold flex flex-col items-center gap-1 transition-all ${
-                    staticForm.contentType === 'text'
-                      ? "bg-white text-purple-700 shadow-sm"
-                      : "text-slate-500 hover:text-slate-900"
-                  }`}
-                >
-                  <FileText className="w-3.5 h-3.5" />
-                  <span>Texte brut</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setStaticForm({ ...staticForm, contentType: 'phone' })}
-                  className={`py-2 px-1 rounded-xl text-[11px] font-bold flex flex-col items-center gap-1 transition-all ${
-                    staticForm.contentType === 'phone'
-                      ? "bg-white text-purple-700 shadow-sm"
-                      : "text-slate-500 hover:text-slate-900"
-                  }`}
-                >
-                  <Phone className="w-3.5 h-3.5" />
-                  <span>Téléphone</span>
-                </button>
-                <button
-                  type="button"
-                  onClick={() => setStaticForm({ ...staticForm, contentType: 'email' })}
-                  className={`py-2 px-1 rounded-xl text-[11px] font-bold flex flex-col items-center gap-1 transition-all ${
-                    staticForm.contentType === 'email'
-                      ? "bg-white text-purple-700 shadow-sm"
-                      : "text-slate-500 hover:text-slate-900"
-                  }`}
-                >
-                  <Mail className="w-3.5 h-3.5" />
-                  <span>Email</span>
-                </button>
-              </div>
+          {qrToDelete?.short_code && (
+            <div className="p-3 rounded-xl bg-neutral-50 border border-neutral-200/80 text-xs text-neutral-600 font-mono">
+              Lien : {getRedirectURL(qrToDelete.short_code)}
             </div>
+          )}
 
-            <div className="space-y-1.5">
-              <Label className="text-[11px] font-black uppercase text-slate-500 tracking-wider">
-                Titre du QR Code Statique
-              </Label>
-              <Input
-                placeholder="Ex: Mon Site Web, Note Personnelle, Contact..."
-                value={staticForm.title}
-                onChange={(e) => setStaticForm({ ...staticForm, title: e.target.value })}
-                className="h-11 border-slate-200 rounded-xl font-bold text-xs bg-slate-50/50 focus:bg-white"
-                required
-              />
-            </div>
-
-            <div className="space-y-1.5">
-              <Label className="text-[11px] font-black uppercase text-slate-500 tracking-wider">
-                {staticForm.contentType === 'url' && "URL de Destination"}
-                {staticForm.contentType === 'text' && "Texte Brut à Encoder"}
-                {staticForm.contentType === 'phone' && "Numéro de Téléphone"}
-                {staticForm.contentType === 'email' && "Adresse Email"}
-              </Label>
-
-              {staticForm.contentType === 'text' ? (
-                <Textarea
-                  placeholder="Saisissez votre texte brut ou message ici..."
-                  value={staticForm.target_url}
-                  onChange={(e) => setStaticForm({ ...staticForm, target_url: e.target.value })}
-                  className="h-24 border-slate-200 rounded-xl font-sans text-xs bg-slate-50/50 focus:bg-white"
-                  required
-                />
-              ) : (
-                <Input
-                  placeholder={
-                    staticForm.contentType === 'url' ? "Ex: https://mon-site.com ou exemple.ci" :
-                    staticForm.contentType === 'phone' ? "Ex: +225 07 00 00 00 00" :
-                    "Ex: contact@entreprise.ci"
-                  }
-                  value={staticForm.target_url}
-                  onChange={(e) => setStaticForm({ ...staticForm, target_url: e.target.value })}
-                  className="h-11 border-slate-200 rounded-xl font-mono text-xs bg-slate-50/50 focus:bg-white"
-                  required
-                />
-              )}
-            </div>
-
-            <DialogFooter className="pt-2 gap-2">
-              <Button
-                type="button"
-                variant="outline"
-                onClick={() => setIsStaticModalOpen(false)}
-                className="rounded-xl border-slate-200 text-xs font-bold"
-              >
-                Annuler
-              </Button>
-              <Button
-                type="submit"
-                disabled={isSubmitting}
-                className="bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs rounded-xl px-5"
-              >
-                {isSubmitting ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : <QrCode className="w-4 h-4 mr-1.5" />}
-                Créer le QR Code Statique
-              </Button>
-            </DialogFooter>
-          </form>
+          <DialogFooter className="gap-2 pt-2">
+            <Button
+              type="button"
+              variant="outline"
+              disabled={isDeleting}
+              onClick={() => setQrToDelete(null)}
+              className="rounded-xl border-neutral-200 text-xs font-medium"
+            >
+              Annuler
+            </Button>
+            <Button
+              type="button"
+              disabled={isDeleting}
+              onClick={handleConfirmDelete}
+              className="bg-rose-600 hover:bg-rose-700 text-white font-semibold text-xs rounded-xl px-4"
+            >
+              {isDeleting ? <Loader2 className="w-4 h-4 animate-spin mr-1.5" /> : <Trash2 className="w-4 h-4 mr-1.5" />}
+              Supprimer définitivement
+            </Button>
+          </DialogFooter>
         </DialogContent>
       </Dialog>
 
@@ -755,10 +856,33 @@ export default function QRCodesPage() {
   )
 }
 
-// ─── COMPOSANT ITEM CARTE QR MÉMOÏSÉ (ÉVITE LES RECALCULS SVG INUTILES) ───────────────
+// Helper robuste pour vérifier si une URL cible correspond à un profil Ofika donné
+function isProfileMatching(profile: any, link: string | undefined): boolean {
+  if (!profile || !link) return false
+  const cleanLink = link.trim().toLowerCase().replace(/\/+$/, '')
+  const slug = (profile.custom_url || profile.username || profile.id || '').trim().toLowerCase()
+  if (!slug) return false
+
+  if (cleanLink === slug) return true
+  if (cleanLink.endsWith(`/${slug}`)) return true
+  if (cleanLink.endsWith(`/p/${slug}`)) return true
+
+  try {
+    const url = cleanLink.startsWith('http')
+      ? new URL(cleanLink)
+      : new URL(`https://dummy.com/${cleanLink.replace(/^\/+/, '')}`)
+    const parts = url.pathname.split('/').filter(Boolean)
+    if (parts.includes(slug)) return true
+    if (parts[parts.length - 1] === slug) return true
+  } catch {}
+
+  return cleanLink.includes(slug)
+}
+
+// ─── COMPOSANT ITEM CARTE QR HAUTE PRÉCISION (ÉVITE LES RECALCULS SVG INUTILES) ───────────────
 const QRCardItem = memo(function QRCardItem({
   qr, theme, editingId, editForm, setEditForm, profiles, getProfilePublicUrl,
-  getRedirectURL, onEdit, onSave, onCancelEdit, onToggleActive, onDelete, onCopy, onDownload
+  getRedirectURL, onEdit, onSave, onCancelEdit, onToggleActive, onRequestDelete, onCopy, copiedId, onDownload
 }: any) {
   const isEditing = editingId === qr.id
   const targetUrl = qr.nfc_link || qr.target_url || ''
@@ -766,130 +890,277 @@ const QRCardItem = memo(function QRCardItem({
 
   const isNfcCard = qr.redirect_type === 'nfc_card' || (qr as any).type === 'nfc_card'
   const isStatic = theme === 'static' || qr.redirect_type === 'static'
+  const isCopied = copiedId === qr.id
+
+  // Détection du profil actuellement actif dans la base de données
+  const currentlyActiveProfile = useMemo(() => {
+    return profiles.find((p: any) => isProfileMatching(p, targetUrl))
+  }, [profiles, targetUrl])
+
+  // Détection du mode d'édition (par défaut 'profile' si carte NFC ou si relié à un profil)
+  const [editModeType, setEditModeType] = useState<'profile' | 'custom'>(() => {
+    if (isNfcCard) return 'profile'
+    return currentlyActiveProfile ? 'profile' : 'custom'
+  })
+
+  // Synchroniser le mode si le QR code change
+  useEffect(() => {
+    if (isNfcCard) {
+      setEditModeType('profile')
+    } else if (currentlyActiveProfile) {
+      setEditModeType('profile')
+    }
+  }, [isNfcCard, currentlyActiveProfile])
+
+  const currentSelectedLink = editForm.nfc_link || editForm.target_url || ''
 
   return (
     <div className={cn(
-      "bg-white rounded-3xl border shadow-xs overflow-hidden transition-all duration-200",
-      !qr.is_active ? "opacity-60 border-slate-200" : (
-        isStatic
-          ? "border-slate-200/80 hover:border-purple-300 hover:shadow-md"
-          : "border-slate-200/80 hover:border-orange-300 hover:shadow-md"
-      )
+      "bg-white rounded-2xl border transition-all duration-200 overflow-hidden shadow-xs",
+      !qr.is_active ? "opacity-60 border-neutral-200" : "border-neutral-200/90 hover:border-neutral-300"
     )}>
-      {/* Barre colorée supérieure (Orange pour Dynamique, Violet pour Statique) */}
-      <div className={cn(
-        "h-1.5 w-full",
-        isStatic
-          ? "bg-gradient-to-r from-purple-500 to-indigo-600"
-          : (isNfcCard ? "bg-gradient-to-r from-blue-500 to-orange-500" : "bg-gradient-to-r from-orange-400 to-amber-500")
-      )} />
-
-      <div className="p-5 sm:p-6">
+      <div className="p-4 sm:p-5">
         {isEditing ? (
-          // ── Mode Édition ──
+          // ── Mode Édition Haute Visibilité ──
           <div className="space-y-4">
-            <div className="flex items-center justify-between mb-2">
-              <h3 className="font-bold text-slate-900 text-sm">
-                {isNfcCard ? 'Modifier le profil de destination NFC' : 'Modifier le QR code'}
-              </h3>
-              <button onClick={onCancelEdit} className="text-slate-400 hover:text-slate-600 transition-colors">
-                <X className="w-5 h-5" />
+            <div className="flex items-center justify-between pb-2 border-b border-neutral-100">
+              <div>
+                <h3 className="font-bold text-neutral-950 text-sm">
+                  {isNfcCard ? 'Modifier le profil relié à la carte NFC' : 'Modifier la redirection du QR code'}
+                </h3>
+                <p className="text-[11px] text-neutral-500 mt-0.5">
+                  Choisissez la destination vers laquelle les visiteurs seront automatiquement redirigés.
+                </p>
+              </div>
+              <button onClick={onCancelEdit} className="text-neutral-400 hover:text-neutral-600 transition-colors p-1">
+                <X className="w-4 h-4" />
               </button>
             </div>
 
-            {isNfcCard ? (
-              // Sélecteur de profil pour carte NFC
-              <div>
-                <Label className="text-xs font-black uppercase tracking-wider text-slate-500 mb-2 block">
-                  Profil de destination
-                </Label>
+            {/* BANNIÈRE DE DESTINATION ACTUELLE EN DIRECT (HAUTE VISIBILITÉ) */}
+            <div className="p-3.5 rounded-xl bg-neutral-950 text-white flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+              <div className="flex items-center gap-3 min-w-0">
+                <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse shrink-0 ring-4 ring-emerald-400/20" />
+                <div className="min-w-0">
+                  <div className="text-[10px] font-semibold uppercase tracking-wider text-neutral-400 flex items-center gap-1.5">
+                    <span>Lien actif en ce moment</span>
+                    <span className="text-emerald-400 font-bold">• EN DIRECT</span>
+                  </div>
+                  <div className="text-xs font-bold text-white truncate mt-0.5">
+                    {currentlyActiveProfile ? (
+                      <span className="flex items-center gap-2">
+                        <span className="text-emerald-300">Profil de {currentlyActiveProfile.name}</span>
+                        <span className="text-[11px] font-mono font-normal text-neutral-400">({targetUrl})</span>
+                      </span>
+                    ) : (
+                      <span className="font-mono text-neutral-200 truncate">{targetUrl || 'Aucune destination'}</span>
+                    )}
+                  </div>
+                </div>
+              </div>
+              <Badge className="bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 text-[10px] font-bold px-2.5 py-1 rounded-full shrink-0 w-fit">
+                Destination active
+              </Badge>
+            </div>
+
+            {/* SÉLECTEUR DE TYPE DE REDIRECTION (PROFIL OFIKA VS URL EXTERNE) */}
+            {!isNfcCard && (
+              <div className="grid grid-cols-2 gap-1.5 p-1 bg-neutral-100 rounded-xl">
+                <button
+                  type="button"
+                  onClick={() => setEditModeType('profile')}
+                  className={cn(
+                    "py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer",
+                    editModeType === 'profile'
+                      ? "bg-white text-neutral-950 shadow-xs ring-1 ring-black/5"
+                      : "text-neutral-600 hover:text-neutral-950"
+                  )}
+                >
+                  <User className="w-3.5 h-3.5" />
+                  <span>Mes Profils Ofika</span>
+                  {profiles.length > 0 && (
+                    <span className={cn(
+                      "text-[10px] font-mono px-1.5 py-0.2 rounded-full",
+                      editModeType === 'profile' ? "bg-neutral-900 text-white" : "bg-neutral-200 text-neutral-700"
+                    )}>
+                      {profiles.length}
+                    </span>
+                  )}
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setEditModeType('custom')}
+                  className={cn(
+                    "py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-all cursor-pointer",
+                    editModeType === 'custom'
+                      ? "bg-white text-neutral-950 shadow-xs ring-1 ring-black/5"
+                      : "text-neutral-600 hover:text-neutral-950"
+                  )}
+                >
+                  <Globe className="w-3.5 h-3.5" />
+                  <span>URL Externe Personnalisée</span>
+                </button>
+              </div>
+            )}
+
+            {/* CORPS DE L'ÉDITION SELON LE MODE */}
+            {editModeType === 'profile' ? (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label className="text-xs font-semibold uppercase tracking-wider text-neutral-500 block">
+                    Sélectionnez le profil à activer :
+                  </Label>
+                  <span className="text-[11px] text-neutral-500 font-medium">
+                    Cliquez sur un profil pour l'activer
+                  </span>
+                </div>
+
                 {profiles.length === 0 ? (
                   <div className="bg-amber-50 border border-amber-200 rounded-xl p-3.5 text-xs text-amber-800 font-medium">
-                    Vous n'avez aucun profil public. <a href="/dashboard/profiles" className="font-bold underline">Créer un profil</a>
+                    Vous n'avez encore aucun profil public. <a href="/dashboard/profiles" className="font-bold underline">Créer un profil</a>
                   </div>
                 ) : (
-                  <div className="space-y-2">
+                  <div className="space-y-2 max-h-64 overflow-y-auto pr-1">
                     {profiles.map((profile: any) => {
-                      const profileUrl = getProfilePublicUrl(profile)
-                      const isSelected = editForm.nfc_link === profileUrl
+                      const base = typeof window !== 'undefined' ? window.location.origin : 'https://ofika.ci'
+                      const slug = profile.custom_url || profile.username || profile.id
+                      const profilePublicUrl = `${base}/${slug}`
+                      
+                      const isThisActiveInDb = isProfileMatching(profile, targetUrl)
+                      const isThisSelected = isProfileMatching(profile, currentSelectedLink)
+
                       return (
-                        <button
+                        <div
                           key={profile.id}
-                          type="button"
-                          onClick={() => setEditForm({ ...editForm, nfc_link: profileUrl })}
+                          onClick={() => {
+                            setEditForm({
+                              ...editForm,
+                              nfc_link: profilePublicUrl,
+                              target_url: profilePublicUrl
+                            })
+                          }}
                           className={cn(
-                            "w-full flex items-center gap-3 p-3 rounded-xl border transition-all text-left",
-                            isSelected
-                              ? "border-orange-500 bg-orange-50/50"
-                              : "border-slate-200 hover:border-orange-200 hover:bg-slate-50"
+                            "w-full flex items-center justify-between gap-3 p-3 rounded-xl border transition-all cursor-pointer select-none",
+                            isThisSelected
+                              ? "border-neutral-950 bg-neutral-50/90 shadow-sm ring-2 ring-neutral-950/20"
+                              : "border-neutral-200 hover:border-neutral-300 hover:bg-neutral-50/60"
                           )}
                         >
-                          {profile.image_url ? (
-                            <img src={profile.image_url} alt={profile.name} className="w-8 h-8 rounded-full object-cover shrink-0" />
-                          ) : (
-                            <div className="w-8 h-8 rounded-full bg-orange-100 flex items-center justify-center shrink-0 text-orange-700 font-bold text-xs">
-                              {profile.name?.substring(0, 2).toUpperCase()}
+                          <div className="flex items-center gap-3 min-w-0">
+                            {/* Pastille de sélection visuelle (Radio personnalisé) */}
+                            <div className={cn(
+                              "w-5 h-5 rounded-full flex items-center justify-center shrink-0 transition-all",
+                              isThisSelected
+                                ? "bg-neutral-950 text-white"
+                                : "border-2 border-neutral-300 bg-white"
+                            )}>
+                              {isThisSelected && <Check className="w-3 h-3 stroke-[3]" />}
                             </div>
-                          )}
-                          <div className="flex-1 min-w-0">
-                            <p className="font-bold text-slate-900 text-xs truncate">{profile.name}</p>
-                            <p className="text-[11px] text-slate-500 truncate">{profile.job_title || profile.company || 'Profil'}</p>
+
+                            {/* Avatar ou Initiales */}
+                            {profile.image_url ? (
+                              <img src={profile.image_url} alt={profile.name} className="w-9 h-9 rounded-full object-cover shrink-0 border border-neutral-200" />
+                            ) : (
+                              <div className="w-9 h-9 rounded-full bg-neutral-200 flex items-center justify-center shrink-0 text-neutral-800 font-bold text-xs">
+                                {profile.name?.substring(0, 2).toUpperCase()}
+                              </div>
+                            )}
+
+                            {/* Infos du profil */}
+                            <div className="min-w-0">
+                              <div className="flex items-center gap-2">
+                                <p className="font-bold text-neutral-950 text-xs truncate">{profile.name}</p>
+                              </div>
+                              <p className="text-[11px] text-neutral-500 truncate font-medium">
+                                {profile.job_title || profile.company || 'Profil en ligne'} • <span className="font-mono text-[10px] text-neutral-400">/{slug}</span>
+                              </p>
+                            </div>
                           </div>
-                          {isSelected && <Check className="w-4 h-4 text-orange-600 shrink-0" />}
-                        </button>
+
+                          {/* BADGES VISUELS CLAIRS SUR L'ÉTAT D'ACTIVATION */}
+                          <div className="shrink-0 flex items-center gap-1.5">
+                            {isThisActiveInDb && isThisSelected && (
+                              <Badge className="bg-emerald-600 text-white font-bold text-[10px] py-1 px-2.5 rounded-full flex items-center gap-1 shadow-xs">
+                                <Check className="w-3 h-3 stroke-[3]" />
+                                Actif en direct
+                              </Badge>
+                            )}
+
+                            {!isThisActiveInDb && isThisSelected && (
+                              <Badge className="bg-neutral-950 text-white font-bold text-[10px] py-1 px-2.5 rounded-full flex items-center gap-1 shadow-xs">
+                                <Sparkles className="w-3 h-3 text-orange-400" />
+                                Sélectionné
+                              </Badge>
+                            )}
+
+                            {isThisActiveInDb && !isThisSelected && (
+                              <Badge variant="outline" className="bg-emerald-50 text-emerald-800 border-emerald-300 font-semibold text-[10px] py-0.5 px-2">
+                                Actuel (cliquez pour conserver)
+                              </Badge>
+                            )}
+                          </div>
+                        </div>
                       )
                     })}
                   </div>
                 )}
               </div>
             ) : (
-              <div>
-                <Label className="text-xs font-black uppercase tracking-wider text-slate-500 mb-1.5 block">
-                  URL de Destination
+              <div className="space-y-1.5">
+                <Label className="text-xs font-semibold uppercase tracking-wider text-neutral-500 mb-1.5 block">
+                  URL de Destination Externe
                 </Label>
                 <Input
                   value={editForm.target_url}
-                  onChange={(e) => setEditForm({ ...editForm, target_url: e.target.value })}
-                  placeholder="https://exemple.com"
-                  className="h-10 rounded-xl border-slate-200 font-mono text-xs"
+                  onChange={(e) => setEditForm({ ...editForm, target_url: e.target.value, nfc_link: e.target.value })}
+                  placeholder="https://mon-entreprise.com ou lien externe"
+                  className="h-10 rounded-xl border-neutral-200 font-mono text-xs bg-white"
                 />
+                <p className="text-[11px] text-neutral-500">
+                  Exemple : votre site vitrine, votre boutique en ligne, ou votre numéro WhatsApp.
+                </p>
               </div>
             )}
 
-            <div>
-              <Label className="text-xs font-black uppercase tracking-wider text-slate-500 mb-1.5 block">Titre</Label>
+            {/* CHAMP DU TITRE */}
+            <div className="space-y-1.5 pt-1">
+              <Label className="text-xs font-semibold uppercase tracking-wider text-neutral-500 block">
+                Titre du QR Code
+              </Label>
               <Input
                 value={editForm.title}
                 onChange={(e) => setEditForm({ ...editForm, title: e.target.value })}
                 placeholder="Titre explicatif..."
-                className="h-10 rounded-xl border-slate-200 text-xs font-bold"
+                className="h-10 rounded-xl border-neutral-200 text-xs font-semibold bg-white"
               />
             </div>
 
-            <div className="flex gap-2 pt-1">
+            {/* BOUTONS D'ENREGISTREMENT ET ANNULATION */}
+            <div className="flex items-center gap-2 pt-2 border-t border-neutral-100">
               <Button
                 onClick={() => onSave(qr.id, qr)}
-                className="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl h-9 text-xs font-bold"
+                className="bg-neutral-950 hover:bg-neutral-800 text-white rounded-xl h-9 text-xs font-semibold px-5 shadow-xs"
               >
-                <Check className="w-4 h-4 mr-1.5" />
-                Enregistrer
+                <Check className="w-3.5 h-3.5 mr-1.5 text-emerald-400" />
+                Enregistrer la nouvelle redirection
               </Button>
-              <Button onClick={onCancelEdit} variant="outline" className="rounded-xl h-9 text-xs font-bold border-slate-200">
+              <Button onClick={onCancelEdit} variant="outline" className="rounded-xl h-9 text-xs font-medium border-neutral-200">
                 Annuler
               </Button>
             </div>
           </div>
         ) : (
           // ── Mode Affichage ──
-          <div className="flex flex-col sm:flex-row items-start gap-5">
+          <div className="flex flex-col sm:flex-row items-start gap-4 sm:gap-5">
 
-            {/* Aperçu QR Code */}
+            {/* Aperçu QR Code dans conteneur haute qualité */}
             <div className="shrink-0 mx-auto sm:mx-0">
-              <div className="bg-white p-3 rounded-2xl border border-slate-200 shadow-xs flex items-center justify-center">
+              <div className="bg-white p-2.5 rounded-xl border border-neutral-200 shadow-xs flex items-center justify-center">
                 <QRCodeSVG
                   id={`qr-${qr.id}`}
                   value={isStatic ? targetUrl : shortUrl}
-                  size={104}
+                  size={96}
                   level="H"
                   includeMargin={false}
                 />
@@ -897,72 +1168,80 @@ const QRCardItem = memo(function QRCardItem({
             </div>
 
             {/* Informations & Badges */}
-            <div className="flex-1 min-w-0 w-full space-y-2.5">
+            <div className="flex-1 min-w-0 w-full space-y-2">
               
-              {/* Titre & TAGS CLAIRS */}
-              <div className="flex flex-wrap items-center gap-2">
-                <h3 className="text-base font-black text-slate-900 tracking-tight">
-                  {qr.title || (isNfcCard ? 'Carte NFC' : (isStatic ? 'QR Code Statique' : 'QR Code Custom'))}
-                </h3>
+              {/* Titre & Badges */}
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <div className="flex flex-wrap items-center gap-2 min-w-0">
+                  <h3 className="text-sm sm:text-base font-semibold text-neutral-950 tracking-tight truncate">
+                    {qr.title || (isNfcCard ? 'Carte NFC' : (isStatic ? 'QR Code Statique' : 'QR Code Dynamique'))}
+                  </h3>
 
-                {/* TAG 1 : Carte NFC */}
-                {isNfcCard && (
-                  <Badge className="bg-blue-100 text-blue-800 border-none font-bold text-[10px] py-0.5 px-2.5 rounded-full flex items-center gap-1">
-                    <CreditCard className="w-3 h-3 text-blue-600" />
-                    Carte NFC
-                  </Badge>
-                )}
+                  {/* Badge Type */}
+                  {isNfcCard && (
+                    <Badge variant="outline" className="bg-blue-50/80 text-blue-700 border-blue-200 text-[10px] font-semibold py-0.5 px-2 rounded-full flex items-center gap-1">
+                      <CreditCard className="w-3 h-3" />
+                      Carte NFC
+                    </Badge>
+                  )}
 
-                {/* TAG 2 : Custom Dynamique */}
-                {!isNfcCard && !isStatic && (
-                  <Badge className="bg-orange-100 text-orange-800 border-none font-bold text-[10px] py-0.5 px-2.5 rounded-full flex items-center gap-1">
-                    <Zap className="w-3 h-3 text-orange-600" />
-                    Dynamique
-                  </Badge>
-                )}
+                  {!isNfcCard && !isStatic && (
+                    <Badge variant="outline" className="bg-neutral-100 text-neutral-800 border-neutral-200 text-[10px] font-semibold py-0.5 px-2 rounded-full flex items-center gap-1">
+                      <Zap className="w-3 h-3 text-orange-500" />
+                      Dynamique
+                    </Badge>
+                  )}
 
-                {/* TAG 3 : Statique */}
-                {isStatic && (
-                  <Badge className="bg-purple-100 text-purple-800 border-none font-bold text-[10px] py-0.5 px-2.5 rounded-full flex items-center gap-1">
-                    <QrCode className="w-3 h-3 text-purple-600" />
-                    Statique
-                  </Badge>
-                )}
+                  {isStatic && (
+                    <Badge variant="outline" className="bg-neutral-100 text-neutral-800 border-neutral-200 text-[10px] font-semibold py-0.5 px-2 rounded-full flex items-center gap-1">
+                      <QrCode className="w-3 h-3 text-neutral-600" />
+                      Statique
+                    </Badge>
+                  )}
 
-                {/* Badge Actif / Inactif avec pastille */}
-                <span className={cn(
-                  "inline-flex items-center gap-1.5 text-[10px] py-0.5 px-2.5 rounded-full font-bold",
-                  qr.is_active ? "bg-emerald-50 text-emerald-700 border border-emerald-200/60" : "bg-slate-100 text-slate-500 border border-slate-200/60"
-                )}>
-                  <span className={cn("w-1.5 h-1.5 rounded-full", qr.is_active ? "bg-emerald-500 animate-pulse" : "bg-slate-400")} />
-                  {qr.is_active ? 'Actif' : 'Inactif'}
-                </span>
+                  {/* Pastille Actif / Inactif */}
+                  <span className={cn(
+                    "inline-flex items-center gap-1.5 text-[10px] py-0.5 px-2 rounded-full font-semibold border",
+                    qr.is_active
+                      ? "bg-emerald-50 text-emerald-700 border-emerald-200/80"
+                      : "bg-neutral-100 text-neutral-500 border-neutral-200"
+                  )}>
+                    <span className={cn("w-1.5 h-1.5 rounded-full", qr.is_active ? "bg-emerald-500" : "bg-neutral-400")} />
+                    {qr.is_active ? 'Actif' : 'Inactif'}
+                  </span>
+                </div>
+
+                {/* Scans Count */}
+                <div className="flex items-center gap-1.5 text-xs font-semibold text-neutral-700 bg-neutral-100 px-2 py-0.5 rounded-lg shrink-0">
+                  <BarChart3 className="w-3.5 h-3.5 text-neutral-500" />
+                  <span className="font-mono">{qr.scan_count || 0} scans</span>
+                </div>
               </div>
 
               {/* URL Short / Destination */}
-              <div className="space-y-1.5 bg-slate-50/70 p-3 rounded-2xl border border-slate-100">
+              <div className="space-y-1 bg-neutral-50 p-2.5 rounded-xl border border-neutral-100">
                 {!isStatic && qr.short_code && (
                   <div className="flex items-center justify-between gap-2">
                     <div className="flex items-center gap-2 min-w-0">
-                      <span className="text-[10px] font-black uppercase text-slate-400 shrink-0">Lien Court :</span>
-                      <code className="text-xs font-mono font-bold text-orange-600 truncate select-all">
+                      <span className="text-[10px] font-semibold uppercase text-neutral-400 shrink-0">Lien Court :</span>
+                      <code className="text-xs font-mono font-medium text-neutral-900 truncate select-all">
                         {shortUrl}
                       </code>
                     </div>
                     <button
-                      onClick={() => onCopy(shortUrl, 'Lien court')}
-                      className="text-slate-400 hover:text-orange-600 transition-colors p-1"
+                      onClick={() => onCopy(shortUrl, qr.id, 'Lien court')}
+                      className="text-neutral-400 hover:text-neutral-950 transition-colors p-1 shrink-0"
                       title="Copier le lien court"
                     >
-                      <Copy className="w-3.5 h-3.5" />
+                      {isCopied ? <Check className="w-3.5 h-3.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5" />}
                     </button>
                   </div>
                 )}
 
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-2 min-w-0">
-                    <span className="text-[10px] font-black uppercase text-slate-400 shrink-0">Cible :</span>
-                    <code className="text-xs text-slate-700 font-mono truncate">
+                    <span className="text-[10px] font-semibold uppercase text-neutral-400 shrink-0">Cible :</span>
+                    <code className="text-xs text-neutral-600 font-mono truncate">
                       {targetUrl || 'Non définie'}
                     </code>
                   </div>
@@ -970,107 +1249,123 @@ const QRCardItem = memo(function QRCardItem({
                     href={targetUrl}
                     target="_blank"
                     rel="noreferrer"
-                    className="text-slate-400 hover:text-slate-700 transition-colors p-1"
-                    title="Ouvrir le lien cible"
+                    className="text-neutral-400 hover:text-neutral-950 transition-colors p-1 shrink-0"
+                    title="Tester le lien"
                   >
                     <ExternalLink className="w-3.5 h-3.5" />
                   </a>
                 </div>
               </div>
 
-              {/* Scans & Informations */}
-              <div className="flex items-center gap-4 text-[11px] text-slate-500 font-medium pt-0.5">
-                <div className="flex items-center gap-1.5 bg-slate-100/80 px-2 py-0.5 rounded-md">
-                  <BarChart3 className="w-3.5 h-3.5 text-slate-500" />
-                  <span className="font-bold text-slate-800">{qr.scan_count || 0} scans</span>
-                </div>
-                {qr.created_at && (
-                  <span className="text-slate-400">Créé le {new Date(qr.created_at).toLocaleDateString('fr-FR')}</span>
-                )}
-              </div>
-
-              {/* Note explicative pour les cartes NFC */}
+              {/* Note informative pour les cartes NFC */}
               {isNfcCard && (
-                <p className="text-[10px] text-slate-500 font-medium bg-blue-50/60 p-2.5 rounded-xl border border-blue-100/70">
-                  ℹ️ Le lien short gravé sur la carte physique est permanent. Vous pouvez librement changer le profil associé ci-dessous.
+                <p className="text-[10px] text-blue-700 bg-blue-50/70 p-2 rounded-lg border border-blue-100/70 leading-normal">
+                  Ce QR code est relié à votre carte physique NFC. Vous pouvez modifier le profil de destination en cliquant sur « Modifier ».
                 </p>
               )}
 
-              {/* Barre d'Actions Ergonomique */}
-              <div className="flex flex-wrap gap-2 pt-2">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => onEdit(qr)}
-                  className="h-8 rounded-xl text-xs font-bold border-slate-200 hover:border-slate-400"
-                >
-                  <Edit2 className="w-3.5 h-3.5 mr-1.5 text-slate-500" />
-                  Modifier
-                </Button>
-
-                {!isNfcCard && (
+              {/* Barre d'Actions Ergonomique et Compacte */}
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-2 border-t border-neutral-100">
+                <div className="flex items-center gap-2">
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => onToggleActive(qr)}
-                    className="h-8 rounded-xl text-xs font-bold border-slate-200"
+                    onClick={() => onEdit(qr)}
+                    className="h-8 rounded-xl text-xs font-semibold border-neutral-200 text-neutral-700 hover:text-neutral-950 hover:bg-neutral-50"
                   >
-                    {qr.is_active
-                      ? <><EyeOff className="w-3.5 h-3.5 mr-1.5 text-slate-500" />Désactiver</>
-                      : <><Eye className="w-3.5 h-3.5 mr-1.5 text-slate-500" />Activer</>
-                    }
+                    <Edit2 className="w-3.5 h-3.5 mr-1.5 text-neutral-500" />
+                    Modifier
                   </Button>
-                )}
 
-                <Button
-                  size="sm"
-                  variant="outline"
-                  onClick={() => onCopy(isStatic ? targetUrl : shortUrl, 'Lien')}
-                  className="h-8 rounded-xl text-xs font-bold border-slate-200"
-                >
-                  <Copy className="w-3.5 h-3.5 mr-1.5 text-slate-500" />
-                  Copier
-                </Button>
-
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button size="sm" variant="outline" className="h-8 rounded-xl text-xs font-bold border-slate-200">
-                      <Download className="w-3.5 h-3.5 mr-1.5 text-slate-500" />
-                      Télécharger
-                      <ChevronDown className="w-3 h-3 ml-1 text-slate-400" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent className="rounded-xl shadow-lg border-slate-100">
-                    <DropdownMenuItem onClick={() => onDownload(qr.short_code, qr.title || '', qr.id, 'png')} className="text-xs font-bold">
-                      Format PNG (Image)
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => onDownload(qr.short_code, qr.title || '', qr.id, 'svg')} className="text-xs font-bold">
-                      Format SVG (Vectoriel)
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-
-                {!isStatic && (
-                  <Link href={`/dashboard/qr-codes/${qr.id}/stats`}>
-                    <Button size="sm" variant="outline" className="h-8 rounded-xl text-xs font-bold border-slate-200 hover:text-orange-600 hover:border-orange-200">
-                      <BarChart3 className="w-3.5 h-3.5 mr-1.5 text-slate-500" />
-                      Stats
-                    </Button>
-                  </Link>
-                )}
-
-                {/* Suppression disponible pour les QR codes Custom et Statiques */}
-                {!isNfcCard && (
                   <Button
                     size="sm"
                     variant="outline"
-                    onClick={() => onDelete(qr.id)}
-                    className="h-8 rounded-xl text-xs font-bold border-red-200 text-red-600 hover:bg-red-50 hover:border-red-300"
+                    onClick={() => onCopy(isStatic ? targetUrl : shortUrl, qr.id, 'Lien')}
+                    className="h-8 rounded-xl text-xs font-semibold border-neutral-200 text-neutral-700 hover:text-neutral-950 hover:bg-neutral-50"
                   >
-                    <Trash2 className="w-3.5 h-3.5 mr-1.5" />
-                    Supprimer
+                    {isCopied ? <Check className="w-3.5 h-3.5 mr-1.5 text-emerald-600" /> : <Copy className="w-3.5 h-3.5 mr-1.5 text-neutral-500" />}
+                    {isCopied ? 'Copié' : 'Copier'}
                   </Button>
-                )}
+
+                  {/* Dropdown Téléchargement Haute Résolution */}
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button size="sm" variant="outline" className="h-8 rounded-xl text-xs font-semibold border-neutral-200 text-neutral-700 hover:text-neutral-950 hover:bg-neutral-50">
+                        <Download className="w-3.5 h-3.5 mr-1.5 text-neutral-500" />
+                        Télécharger
+                        <ChevronDown className="w-3 h-3 ml-1 text-neutral-400" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent className="rounded-xl shadow-lg border-neutral-200">
+                      <DropdownMenuItem onClick={() => onDownload(qr.short_code, qr.title || '', qr.id, 'png')} className="text-xs font-semibold cursor-pointer">
+                        Format PNG (Impression HD)
+                      </DropdownMenuItem>
+                      <DropdownMenuItem onClick={() => onDownload(qr.short_code, qr.title || '', qr.id, 'svg')} className="text-xs font-semibold cursor-pointer">
+                        Format SVG (Vectoriel infini)
+                      </DropdownMenuItem>
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
+
+                {/* Actions Secondaires via Menu Contextuel */}
+                <div className="flex items-center gap-1">
+                  {!isStatic && (
+                    <Link href={`/dashboard/qr-codes/${qr.id}/stats`}>
+                      <Button size="sm" variant="ghost" className="h-8 rounded-xl text-xs font-semibold text-neutral-600 hover:text-neutral-950 hover:bg-neutral-100">
+                        <BarChart3 className="w-3.5 h-3.5 mr-1.5 text-neutral-500" />
+                        Stats
+                      </Button>
+                    </Link>
+                  )}
+
+                  <DropdownMenu>
+                    <DropdownMenuTrigger asChild>
+                      <Button size="sm" variant="ghost" className="h-8 w-8 p-0 rounded-xl text-neutral-500 hover:text-neutral-950 hover:bg-neutral-100">
+                        <MoreVertical className="w-4 h-4" />
+                      </Button>
+                    </DropdownMenuTrigger>
+                    <DropdownMenuContent align="end" className="rounded-xl shadow-lg border-neutral-200 min-w-[160px]">
+                      <DropdownMenuItem asChild className="text-xs font-medium cursor-pointer">
+                        <a href={targetUrl} target="_blank" rel="noreferrer" className="flex items-center gap-2">
+                          <ExternalLink className="w-3.5 h-3.5 text-neutral-500" />
+                          <span>Ouvrir la cible</span>
+                        </a>
+                      </DropdownMenuItem>
+
+                      {!isNfcCard && (
+                        <DropdownMenuItem
+                          onClick={() => onToggleActive(qr)}
+                          className="text-xs font-medium cursor-pointer flex items-center gap-2"
+                        >
+                          {qr.is_active ? (
+                            <>
+                              <EyeOff className="w-3.5 h-3.5 text-neutral-500" />
+                              <span>Mettre hors-ligne</span>
+                            </>
+                          ) : (
+                            <>
+                              <Eye className="w-3.5 h-3.5 text-emerald-600" />
+                              <span className="text-emerald-700">Activer le QR code</span>
+                            </>
+                          )}
+                        </DropdownMenuItem>
+                      )}
+
+                      {!isNfcCard && (
+                        <>
+                          <DropdownMenuSeparator className="bg-neutral-100" />
+                          <DropdownMenuItem
+                            onClick={() => onRequestDelete(qr)}
+                            className="text-xs font-medium text-rose-600 hover:bg-rose-50 hover:text-rose-700 cursor-pointer flex items-center gap-2"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span>Supprimer</span>
+                          </DropdownMenuItem>
+                        </>
+                      )}
+                    </DropdownMenuContent>
+                  </DropdownMenu>
+                </div>
               </div>
 
             </div>

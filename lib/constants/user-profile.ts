@@ -80,7 +80,7 @@ export const LABELS = {
 // Classes CSS réutilisables
 export const STYLES = {
   button: {
-    primary: 'w-full bg-gradient-to-r from-orange-500 to-pink-500 hover:from-orange-600 hover:to-pink-600'
+    primary: 'w-full h-11 bg-neutral-950 hover:bg-neutral-900 text-white font-semibold rounded-xl shadow-md shadow-neutral-950/20 ring-1 ring-neutral-800 transition-all duration-200 cursor-pointer'
   },
   input: {
     withIcon: 'pl-10'

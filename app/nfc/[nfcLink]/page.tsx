@@ -19,6 +19,7 @@ import {
 } from 'lucide-react'
 import { toast } from 'sonner'
 import { trackProfileView, trackQRScan } from '@/lib/services/profile-analytics'
+import { generateCompleteVCard } from '@/lib/utils/vcard'
 
 interface NFCPublicProfile {
   id: string
@@ -119,114 +120,23 @@ export default function NFCPublicPage() {
   const handleAddToContacts = () => {
     if (!profile) return
 
-    // Créer un vCard pour ajouter aux contacts
-    const vCard = createVCard(profile)
+    // Génération vCard 3.0 conforme RFC 2426 avec fin de ligne CRLF (\r\n) et noms structurés
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : 'https://ofika.ci'
+    const vCard = generateCompleteVCard(profile, baseUrl)
     
     // Télécharger le vCard
-    const blob = new Blob([vCard], { type: 'text/vcard' })
+    const blob = new Blob([vCard], { type: 'text/vcard;charset=utf-8' })
     const url = window.URL.createObjectURL(blob)
     const link = document.createElement('a')
     link.href = url
-    link.download = `${profile.profile_name}.vcf`
+    const safeName = (profile.full_name || profile.profile_name || 'contact').replace(/[^a-zA-Z0-9\s-]/g, '').replace(/\s+/g, '_')
+    link.download = `${safeName}.vcf`
     document.body.appendChild(link)
     link.click()
     document.body.removeChild(link)
     window.URL.revokeObjectURL(url)
 
     toast.success('Contact ajouté à vos contacts !')
-  }
-
-  const createVCard = (profile: NFCPublicProfile): string => {
-    let vcard = 'BEGIN:VCARD\n'
-    vcard += 'VERSION:3.0\n'
-    
-    // ✅ Nom complet
-    if (profile.full_name) {
-      vcard += `FN:${profile.full_name}\n`
-      const nameParts = profile.full_name.split(' ')
-      const lastName = nameParts[nameParts.length - 1]
-      const firstName = nameParts.slice(0, -1).join(' ')
-      vcard += `N:${lastName};${firstName};;;\n`
-    } else {
-      vcard += `FN:${profile.profile_name}\n`
-    }
-    
-    // ✅ Entreprise
-    if (profile.company) {
-      vcard += `ORG:${profile.company}\n`
-    }
-    
-    // ✅ Poste
-    if (profile.job_title) {
-      vcard += `TITLE:${profile.job_title}\n`
-    }
-    
-    // ✅ Téléphone
-    if (profile.phone) {
-      vcard += `TEL;TYPE=WORK,VOICE:${profile.phone}\n`
-    }
-    
-    // ✅ Email
-    if (profile.email) {
-      vcard += `EMAIL;TYPE=INTERNET:${profile.email}\n`
-    }
-    
-    // ✅ Localisation
-    if (profile.location) {
-      vcard += `ADR;TYPE=WORK:;;${profile.location};;;;\n`
-    }
-    
-    // ✅ Bio/Note avec message de mise à jour
-    let noteContent = ''
-    if (profile.bio) {
-      noteContent = profile.bio
-    }
-    // Ajouter le message de mise à jour
-    const updateMessage = `\n\n🔄 Profil toujours à jour sur ${profile.nfc_link}\nRe-scannez le QR code pour mettre à jour ce contact.`
-    noteContent += updateMessage
-    vcard += `NOTE:${noteContent}\n`
-    
-    // ✅ Photo de profil
-    if (profile.profile_photo_url) {
-      vcard += `PHOTO;VALUE=URL;TYPE=JPEG:${profile.profile_photo_url}\n`
-    }
-    
-    // ✅ Réseaux sociaux - NOUVEAU FORMAT social_links
-    if (profile.social_links && profile.social_links.length > 0) {
-      profile.social_links.forEach(link => {
-        const platformLabel = link.platform.toUpperCase()
-        vcard += `URL;TYPE=${platformLabel}:${link.url}\n`
-        
-        // Ajouter aussi comme X-SOCIALPROFILE pour meilleure compatibilité
-        if (link.platform === 'whatsapp') {
-          vcard += `X-SOCIALPROFILE;TYPE=whatsapp:${link.url}\n`
-        } else if (link.platform === 'facebook') {
-          vcard += `X-SOCIALPROFILE;TYPE=facebook:${link.url}\n`
-        } else if (link.platform === 'instagram') {
-          vcard += `X-SOCIALPROFILE;TYPE=instagram:${link.url}\n`
-        } else if (link.platform === 'linkedin') {
-          vcard += `X-SOCIALPROFILE;TYPE=linkedin:${link.url}\n`
-        } else if (link.platform === 'twitter') {
-          vcard += `X-SOCIALPROFILE;TYPE=twitter:${link.url}\n`
-        } else if (link.platform === 'tiktok') {
-          vcard += `X-SOCIALPROFILE;TYPE=tiktok:${link.url}\n`
-        }
-      })
-    }
-    
-    // Liens personnalisés
-    if (profile.custom_links && profile.custom_links.length > 0) {
-      profile.custom_links.forEach(link => {
-        vcard += `URL;TYPE=${link.name.toUpperCase().replace(/\s+/g, '_')}:${link.url}\n`
-      })
-    }
-    
-    // URL du profil NFC
-    vcard += `URL;TYPE=PROFILE:${profile.nfc_link}\n`
-    
-    vcard += 'END:VCARD'
-    
-    return vcard
   }
 
   const handleShare = async () => {

@@ -391,8 +391,8 @@ export async function POST(request: NextRequest) {
     const gateways = dbConfig?.value || {}
     const requestedMethod = orderData.payment_method
     
-    // Par défaut, Genius Pay est actif si non configuré explicitement comme inactif
-    const isMethodActive = gateways[requestedMethod]?.is_active ?? (requestedMethod === 'geniuspay' || requestedMethod === 'wave' ? true : false)
+    // Par défaut, Genius Pay est la passerelle officielle active
+    const isMethodActive = gateways[requestedMethod]?.is_active ?? (requestedMethod === 'geniuspay')
     
     if (!isMethodActive) {
       log(`❌ Méthode de paiement ${requestedMethod} inactive`)
@@ -419,7 +419,7 @@ export async function POST(request: NextRequest) {
       line2: null,
       city: orderData.shipping_address.city,
       postal_code: orderData.shipping_address.postalCode || '',
-      country: 'SN', // Sénégal par défaut
+      country: 'CI', // Côte d'Ivoire (Abidjan) par défaut
       phone: orderData.shipping_address.phone,
       email: orderData.shipping_address.email || ''
     }
@@ -684,11 +684,16 @@ export async function GET(request: NextRequest) {
         quantity,
         unit_price,
         total_amount,
+        amount_cents,
+        total_cents,
         currency,
         status,
         payment_status,
+        payment_provider,
         payment_method,
+        shipping_status,
         shipping_address,
+        metadata,
         tracking_number,
         estimated_delivery,
         actual_delivery,
